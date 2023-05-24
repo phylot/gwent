@@ -1,0 +1,120 @@
+@import './normalize.css';
+
+html, body {
+  height: 100%;
+  background-color: red;
+  overflow:scroll;
+}
+
+#app {
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  min-width: 375px;
+  background-color: lightpink;
+  overflow:scroll;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 375px;
+  max-width: 600px;
+  background-color: crimson;
+}
+
+.opponent-board {
+  flex: 1 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  background-color: lightskyblue;
+}
+
+.player-board {
+  flex: 1 1;
+  background-color: lemonchiffon;
+}
+
+.game-info {
+  flex: 0 0 80px;
+  background-color: darkseagreen;
+}
+
+.card-row {
+  display: flex;
+  /*justify-content: center;*/
+  height: 80px;
+  background-color: coral;
+}
+
+.row-info {
+  flex: 0 40px;
+  background-color: blueviolet;
+}
+
+.card-container {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.player-hand {
+  justify-content: center;
+  background-color: grey;
+}
+
+.card-wrapper {
+  overflow: hidden;
+}
+
+.card-wrapper:last-child, .card-wrapper:hover {
+  overflow: visible;
+}
+
+.card {
+  width: 60px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ffffff;
+  background-color: mediumslateblue;
+}
+
+/*@import './base.css';*/
+
+/*#app {*/
+/*  max-width: 1280px;*/
+/*  margin: 0 auto;*/
+/*  padding: 2rem;*/
+
+/*  font-weight: normal;*/
+/*}*/
+
+/*a,*/
+/*.green {*/
+/*  text-decoration: none;*/
+/*  color: hsla(160, 100%, 37%, 1);*/
+/*  transition: 0.4s;*/
+/*}*/
+
+/*@media (hover: hover) {*/
+/*  a:hover {*/
+/*    background-color: hsla(160, 100%, 37%, 0.2);*/
+/*  }*/
+/*}*/
+
+/*@media (min-width: 1024px) {*/
+/*  body {*/
+/*    display: flex;*/
+/*    place-items: center;*/
+/*  }*/
+
+/*  #app {*/
+/*    display: grid;*/
+/*    grid-template-columns: 1fr 1fr;*/
+/*    padding: 0 2rem;*/
+/*  }*/
+/*}*/
