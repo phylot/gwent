@@ -5,135 +5,137 @@
 
 <template>
   <div class="game-container">
-    <div class="opponent-board">
-      <div class="card-row">card-row</div>
-      <div class="card-row">card-row</div>
-      <div class="card-row">card-row</div>
-    </div>
-
-    <div class="game-info">game-info</div>
-
-    <div class="player-board">
-      <div class="card-row">card-row</div>
-      <div class="card-row">
-        <div class="row-info">info</div>
-
-        <div class="card-container">
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-          <div class="card-wrapper">
-            <div class="card">card</div>
-          </div>
-        </div>
+    <div class="scroll-container">
+      <div class="opponent-board">
+        <div class="card-row">card-row</div>
+        <div class="card-row">card-row</div>
+        <div class="card-row">card-row</div>
       </div>
-      <div class="card-row">card-row</div>
 
-      <div class="card-row player-hand">
-        <div class="card-wrapper">
-          <div class="card">card</div>
+      <div class="game-info">game-info</div>
+
+      <div class="player-board">
+        <div class="card-row">card-row</div>
+        <div class="card-row">
+          <div class="row-info">info</div>
+
+          <div class="card-container">
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+            <div class="card-wrapper">
+              <div class="card">card</div>
+            </div>
+          </div>
         </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
-        </div>
-        <div class="card-wrapper">
-          <div class="card">card</div>
+        <div class="card-row">card-row</div>
+
+        <div class="card-row player-hand">
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
+          <div class="card-wrapper">
+            <div class="card">card</div>
+          </div>
         </div>
       </div>
     </div>
