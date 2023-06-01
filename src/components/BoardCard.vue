@@ -6,7 +6,7 @@ defineProps<{
   // image: string
   // name: string
   // type: string
-  value: number
+  value?: number
 }>()
 </script>
 

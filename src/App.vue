@@ -9,21 +9,27 @@ import BoardCard from './components/BoardCard.vue'
     <div class="scroll-container">
       <div class="opponent-board">
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 12" :value="i" />
           </div>
         </div>
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 2" :value="i" />
           </div>
         </div>
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 3" :value="i" />
@@ -31,25 +37,40 @@ import BoardCard from './components/BoardCard.vue'
         </div>
       </div>
 
-      <div class="game-info">game-info</div>
+      <div class="game-stats">
+        <div class="player-stats">
+          <div class="total-counter player-total">999</div>
+        </div>
+        <!-- TODO: Display last card in specialCards array, ELSE display placeholder -->
+        <BoardCard />
+        <div class="opponent-stats">
+          <div class="total-counter opponent-total">76</div>
+        </div>
+      </div>
 
       <div class="player-board">
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 15" :value="i" />
           </div>
         </div>
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 1" :value="i" />
           </div>
         </div>
         <div class="card-row">
-          <div class="row-info">info</div>
+          <div class="row-stats">
+            <div class="total-counter">999</div>
+          </div>
 
           <div class="card-container">
             <BoardCard v-for="i in 3" :value="i" />
