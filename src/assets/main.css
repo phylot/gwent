@@ -52,6 +52,7 @@ body {
   display: flex;
   justify-content: center;
   height: 70px;
+  padding-left: 40px;
   background-color: darkseagreen;
 }
 
@@ -158,6 +159,10 @@ body {
   .game-stats,
   .card-row {
     height: 120px;
+  }
+
+  .game-stats {
+    padding-left: 80px;
   }
 
   .card {
