@@ -5,7 +5,7 @@ import { reactive, computed } from 'vue'
 import BoardCard from './components/BoardCard.vue'
 
 // const deck = ref(defaultCards)
-const opponentCards: any[][] = [
+const dummyOpponentCards: any[][] = [
   [
     { value: 1 },
     { value: 1 },
@@ -23,16 +23,50 @@ const opponentCards: any[][] = [
   [{ value: 6 }, { value: 5 }],
   [{ value: 8 }]
 ]
-const playerCards: any[][] = [
+const dummyPlayerCards: any[][] = [
   [{ value: 4 }, { value: 4 }, { value: 6 }, { value: 6 }, { value: 7 }],
   [{ value: 5 }, { value: 5 }, { value: 5 }],
   [{ value: 6 }, { value: 6 }, { value: 8 }, { value: 8 }]
 ]
+// const dummyOpponentHand: { value: number }[] = [
+//   { value: 1 },
+//   { value: 1 },
+//   { value: 1 },
+//   { value: 2 },
+//   { value: 2 },
+//   { value: 3 },
+//   { value: 4 },
+//   { value: 5 },
+//   { value: 5 },
+//   { value: 6 },
+//   { value: 8 },
+//   { value: 10 },
+//   { value: 10 },
+//   { value: 10 },
+// ];
+const dummyPlayerHand: { value: number }[] = [
+  { value: 1 },
+  { value: 1 },
+  { value: 1 },
+  { value: 2 },
+  { value: 2 },
+  { value: 3 },
+  { value: 4 },
+  { value: 5 },
+  { value: 5 },
+  { value: 6 },
+  { value: 8 },
+  { value: 10 },
+  { value: 10 },
+  { value: 10 }
+]
 
-let opponentBoardCards = reactive(opponentCards)
-let playerBoardCards = reactive(playerCards)
+let opponentBoardCards = reactive(dummyOpponentCards)
+let playerBoardCards = reactive(dummyPlayerCards)
+// let opponentHand = reactive(dummyOpponentHand)
+let playerHand = reactive(dummyPlayerHand)
 
-const opponentTotal = computed(() => {
+const opponentTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < opponentBoardCards.length; i++) {
     for (let j = 0; j < opponentBoardCards[i].length; j++) {
@@ -42,7 +76,7 @@ const opponentTotal = computed(() => {
   return total
 })
 
-const playerTotal = computed(() => {
+const playerTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < playerBoardCards.length; i++) {
     for (let j = 0; j < playerBoardCards[i].length; j++) {
@@ -96,7 +130,7 @@ function getPlayerRowTotal(rowIndex: number): number {
       </div>
 
       <div class="player-board">
-        <div v-for="(row, i) in playerBoardCards" class="card-row">
+        <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
             <div class="total-counter">{{ getPlayerRowTotal(i) }}</div>
           </div>
@@ -107,7 +141,7 @@ function getPlayerRowTotal(rowIndex: number): number {
         </div>
 
         <div class="card-row player-hand">
-          <BoardCard v-for="i in 20" :value="i" />
+          <BoardCard v-for="card in playerHand" :value="card.value" />
         </div>
       </div>
     </div>
