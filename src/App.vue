@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { computed, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 // import defaultCards from './data/default-cards.js'
 import BoardCard from './components/BoardCard.vue'
+import CardModal from './components/CardModal.vue'
 
 // const deck = ref(defaultCards)
-const dummyOpponentCards: any[][] = [
+const dummyOpponentCards: { value: number }[][] = [
   [
     { value: 1 },
     { value: 1 },
@@ -23,7 +24,7 @@ const dummyOpponentCards: any[][] = [
   [{ value: 6 }, { value: 5 }],
   [{ value: 8 }]
 ]
-const dummyPlayerCards: any[][] = [
+const dummyPlayerCards: { value: number }[][] = [
   [{ value: 4 }, { value: 4 }, { value: 6 }, { value: 6 }, { value: 7 }],
   [{ value: 5 }, { value: 5 }, { value: 5 }],
   [{ value: 6 }, { value: 6 }, { value: 8 }, { value: 8 }]
@@ -44,27 +45,34 @@ const dummyPlayerCards: any[][] = [
 //   { value: 10 },
 //   { value: 10 },
 // ];
-const dummyPlayerHand: { value: number }[] = [
-  { value: 1 },
-  { value: 1 },
-  { value: 1 },
-  { value: 2 },
-  { value: 2 },
-  { value: 3 },
-  { value: 4 },
-  { value: 5 },
-  { value: 5 },
-  { value: 6 },
-  { value: 8 },
-  { value: 10 },
-  { value: 10 },
-  { value: 10 }
+const dummyPlayerHand: { value: number; active: boolean }[] = [
+  { value: 1, active: false },
+  { value: 2, active: false },
+  { value: 3, active: false },
+  { value: 4, active: false },
+  { value: 5, active: false },
+  { value: 6, active: false },
+  { value: 7, active: false },
+  { value: 8, active: false },
+  { value: 9, active: false },
+  { value: 10, active: false },
+  { value: 11, active: false },
+  { value: 12, active: false },
+  { value: 13, active: false },
+  { value: 14, active: false }
 ]
+
+// Data
 
 let opponentBoardCards = reactive(dummyOpponentCards)
 let playerBoardCards = reactive(dummyPlayerCards)
 // let opponentHand = reactive(dummyOpponentHand)
 let playerHand = reactive(dummyPlayerHand)
+let deckModal = ref(false)
+// let slides = reactive([{value: 1}, {value: 1}, 3, 4, 5])
+let slideIndex = ref(1)
+
+// Computed data
 
 const opponentTotal = computed((): number => {
   let total = 0
@@ -86,6 +94,14 @@ const playerTotal = computed((): number => {
   return total
 })
 
+// Methods
+
+function handCardClick(index: number) {
+  slideIndex.value = index + 1
+  showSlide()
+  deckModal.value = true
+}
+
 function getOpponentRowTotal(rowIndex: number): number {
   let total = 0
   for (let i = 0; i < opponentBoardCards[rowIndex].length; i++) {
@@ -101,10 +117,52 @@ function getPlayerRowTotal(rowIndex: number): number {
   }
   return total
 }
+
+function changeSlide(index: number) {
+  showSlide((slideIndex.value += index))
+}
+
+function showSlide(index?: number) {
+  if (index || index === 0) {
+    if (index > playerHand.length) {
+      slideIndex.value = 1
+    }
+    if (index < 1) {
+      slideIndex.value = playerHand.length
+    }
+  }
+
+  for (let i = 0; i < playerHand.length; i++) {
+    playerHand[i].active = false
+  }
+  playerHand[slideIndex.value - 1].active = true
+}
 </script>
 
 <template>
   <div class="game-container">
+    <CardModal v-if="deckModal" class="quick-fade">
+      <div class="slide-container">
+        <div class="slides">
+          <div
+            v-for="(card, i) in playerHand"
+            class="slide fade"
+            :class="{ show: card.active }"
+            :key="i"
+          >
+            Card {{ card.value }}
+          </div>
+        </div>
+        <span class="prev" @click="changeSlide(-1)">
+          <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        </span>
+        <span class="next" @click="changeSlide(1)">
+          <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        </span>
+        <button @click="deckModal = false" class="cancel-btn">CANCEL</button>
+      </div>
+    </CardModal>
+
     <div class="scroll-container">
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
@@ -141,7 +199,11 @@ function getPlayerRowTotal(rowIndex: number): number {
         </div>
 
         <div class="card-row player-hand">
-          <BoardCard v-for="card in playerHand" :value="card.value" />
+          <BoardCard
+            v-for="(card, i) in playerHand"
+            :value="card.value"
+            @click="handCardClick(i)"
+          />
         </div>
       </div>
     </div>
