@@ -1,7 +1,7 @@
 <template>
-  <div class="deck-modal">
-    <div class="deck-modal-wrapper">
-      <div class="deck-modal-content">
+  <div class="card-modal">
+    <div class="card-modal-wrapper">
+      <div class="card-modal-content">
         <slot></slot>
       </div>
     </div>

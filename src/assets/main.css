@@ -29,8 +29,9 @@ body {
 }
 
 .scroll-container {
+  position: relative;
   width: 100%;
-  max-height: 100%;
+  /*max-height: 100%;*/
   margin: auto;
 }
 
@@ -103,7 +104,6 @@ body {
   flex: 0 40px;
   display: flex;
   justify-content: center;
-  /*background-color: blueviolet;*/
 }
 
 .row-stats .total-counter {
@@ -138,7 +138,8 @@ body {
 }
 
 .card-wrapper:last-child,
-.card-wrapper:hover {
+.card-wrapper:hover,
+.card-wrapper.active {
   overflow: visible;
 }
 
@@ -150,34 +151,31 @@ body {
   background-color: mediumslateblue;
 }
 
-.deck-modal {
-  position: fixed;
+.card-modal {
+  position: absolute;
   top: 0;
+  bottom: 70px;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: hotpink;
+  right: 0;
 }
 
-.deck-modal .deck-modal-wrapper {
+.card-modal .card-modal-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  /*background-color: darkslategray;*/
 }
 
-.deck-modal .deck-modal-content {
+.card-modal .card-modal-content {
   width: 100%;
   height: 100%;
-  background-color: hotpink;
 }
 
 .slide-container {
   width: 100%;
   height: 100%;
-  background-color: cornflowerblue;
+  background-color:rgba(0, 0, 0, 0.3);
 }
 
 .slides {
@@ -193,7 +191,7 @@ body {
   display: none;
 }
 
-.slide.show {
+.slide.active {
   display: block;
 }
 
@@ -313,5 +311,9 @@ body {
     height: 50px;
     line-height: 50px;
     font-size: 26px;
+  }
+
+  .card-modal {
+    bottom: 120px;
   }
 }

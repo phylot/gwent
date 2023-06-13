@@ -141,29 +141,29 @@ function showSlide(index?: number) {
 
 <template>
   <div class="game-container">
-    <CardModal v-if="deckModal" class="quick-fade">
-      <div class="slide-container">
-        <div class="slides">
-          <div
-            v-for="(card, i) in playerHand"
-            class="slide fade"
-            :class="{ show: card.active }"
-            :key="i"
-          >
-            Card {{ card.value }}
-          </div>
-        </div>
-        <span class="prev" @click="changeSlide(-1)">
-          <i class="fa fa-chevron-left" aria-hidden="true"></i>
-        </span>
-        <span class="next" @click="changeSlide(1)">
-          <i class="fa fa-chevron-right" aria-hidden="true"></i>
-        </span>
-        <button @click="deckModal = false" class="cancel-btn">CANCEL</button>
-      </div>
-    </CardModal>
-
     <div class="scroll-container">
+      <CardModal v-if="deckModal" class="quick-fade">
+        <div class="slide-container">
+          <div class="slides">
+            <div
+              v-for="(card, i) in playerHand"
+              class="slide fade"
+              :class="{ active: card.active }"
+              :key="i"
+            >
+              Card {{ card.value }}
+            </div>
+          </div>
+          <span class="prev" @click="changeSlide(-1)">
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+          </span>
+          <span class="next" @click="changeSlide(1)">
+            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+          </span>
+          <button @click="deckModal = false" class="cancel-btn">CANCEL</button>
+        </div>
+      </CardModal>
+
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
@@ -202,6 +202,7 @@ function showSlide(index?: number) {
           <BoardCard
             v-for="(card, i) in playerHand"
             :value="card.value"
+            :class="{ active: card.active }"
             @click="handCardClick(i)"
           />
         </div>
