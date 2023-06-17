@@ -271,7 +271,7 @@ body {
 }
 /* Desktop / Tablet Styles */
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape),
-  (min-height: 1024px) and (orientation: portrait) {
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   .game-stats,
   .card-row {
     height: 110px;

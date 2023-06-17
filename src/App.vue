@@ -6,28 +6,46 @@ import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 
 // const deck = ref(defaultCards)
-const dummyOpponentCards: { value: number }[][] = [
+const dummyOpponentCards: { value: number; active: boolean }[][] = [
   [
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 1 },
-    { value: 2 },
-    { value: 3 }
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 1, active: false },
+    { value: 2, active: false },
+    { value: 3, active: false }
   ],
-  [{ value: 6 }, { value: 5 }],
-  [{ value: 8 }]
+  [
+    { value: 6, active: false },
+    { value: 5, active: false }
+  ],
+  [{ value: 8, active: false }]
 ]
-const dummyPlayerCards: { value: number }[][] = [
-  [{ value: 4 }, { value: 4 }, { value: 6 }, { value: 6 }, { value: 7 }],
-  [{ value: 5 }, { value: 5 }, { value: 5 }],
-  [{ value: 6 }, { value: 6 }, { value: 8 }, { value: 8 }]
+const dummyPlayerCards: { value: number; active: boolean }[][] = [
+  [
+    { value: 4, active: false },
+    { value: 4, active: false },
+    { value: 6, active: false },
+    { value: 6, active: false },
+    { value: 7, active: false }
+  ],
+  [
+    { value: 5, active: false },
+    { value: 5, active: false },
+    { value: 5, active: false }
+  ],
+  [
+    { value: 6, active: false },
+    { value: 6, active: false },
+    { value: 8, active: false },
+    { value: 8, active: false }
+  ]
 ]
 // const dummyOpponentHand: { value: number }[] = [
 //   { value: 1 },
@@ -62,6 +80,8 @@ const dummyPlayerHand: { value: number; active: boolean }[] = [
   { value: 14, active: false }
 ]
 
+const emptyCardRow: { value: number; active: boolean }[] = []
+
 // Data
 
 let opponentBoardCards = reactive(dummyOpponentCards)
@@ -71,6 +91,7 @@ let playerHand = reactive(dummyPlayerHand)
 let deckModal = ref(false)
 // let slides = reactive([{value: 1}, {value: 1}, 3, 4, 5])
 let slideIndex = ref(1)
+let activeCardRow = reactive(emptyCardRow)
 
 // Computed data
 
@@ -97,6 +118,14 @@ const playerTotal = computed((): number => {
 // Methods
 
 function handCardClick(index: number) {
+  activeCardRow = playerHand
+  slideIndex.value = index + 1
+  showSlide()
+  deckModal.value = true
+}
+
+function playerBoardCardClick(index: number, rowIndex: number) {
+  activeCardRow = playerBoardCards[rowIndex]
   slideIndex.value = index + 1
   showSlide()
   deckModal.value = true
@@ -124,18 +153,22 @@ function changeSlide(index: number) {
 
 function showSlide(index?: number) {
   if (index || index === 0) {
-    if (index > playerHand.length) {
+    if (index > activeCardRow.length) {
       slideIndex.value = 1
     }
     if (index < 1) {
-      slideIndex.value = playerHand.length
+      slideIndex.value = activeCardRow.length
     }
   }
 
-  for (let i = 0; i < playerHand.length; i++) {
-    playerHand[i].active = false
+  for (let i = 0; i < activeCardRow.length; i++) {
+    activeCardRow[i].active = false
   }
-  playerHand[slideIndex.value - 1].active = true
+  activeCardRow[slideIndex.value - 1].active = true
+}
+
+function closeDeckModal() {
+  deckModal.value = false
 }
 </script>
 
@@ -146,7 +179,7 @@ function showSlide(index?: number) {
         <div class="slide-container">
           <div class="slides">
             <div
-              v-for="(card, i) in playerHand"
+              v-for="(card, i) in activeCardRow"
               class="slide fade"
               :class="{ active: card.active }"
               :key="i"
@@ -160,7 +193,7 @@ function showSlide(index?: number) {
           <span class="next" @click="changeSlide(1)">
             <i class="fa fa-chevron-right" aria-hidden="true"></i>
           </span>
-          <button @click="deckModal = false" class="cancel-btn">CANCEL</button>
+          <button @click="closeDeckModal" class="cancel-btn">CANCEL</button>
         </div>
       </CardModal>
 
@@ -194,7 +227,11 @@ function showSlide(index?: number) {
           </div>
 
           <div class="card-container">
-            <BoardCard v-for="card in row" :value="card.value" />
+            <BoardCard
+              v-for="(card, j) in row"
+              :value="card.value"
+              @click="playerBoardCardClick(j, i)"
+            />
           </div>
         </div>
 
