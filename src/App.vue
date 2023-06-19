@@ -131,6 +131,13 @@ function playerBoardCardClick(index: number, rowIndex: number) {
   deckModal.value = true
 }
 
+function opponentBoardCardClick(index: number, rowIndex: number) {
+  activeCardRow = opponentBoardCards[rowIndex]
+  slideIndex.value = index + 1
+  showSlide()
+  deckModal.value = true
+}
+
 function getOpponentRowTotal(rowIndex: number): number {
   let total = 0
   for (let i = 0; i < opponentBoardCards[rowIndex].length; i++) {
@@ -204,7 +211,11 @@ function closeDeckModal() {
           </div>
 
           <div class="card-container">
-            <BoardCard v-for="card in row" :value="card.value" />
+            <BoardCard
+              v-for="(card, j) in row"
+              :value="card.value"
+              @click="opponentBoardCardClick(j, i)"
+            />
           </div>
         </div>
       </div>
