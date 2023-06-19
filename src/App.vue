@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
-// import defaultCards from './data/default-cards.js'
+// import defaultCards from './data/default-cards.ts'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 
@@ -89,9 +89,8 @@ let playerBoardCards = reactive(dummyPlayerCards)
 // let opponentHand = reactive(dummyOpponentHand)
 let playerHand = reactive(dummyPlayerHand)
 let deckModal = ref(false)
-// let slides = reactive([{value: 1}, {value: 1}, 3, 4, 5])
 let slideIndex = ref(1)
-let activeCardRow = reactive(emptyCardRow)
+let activeCardRow = ref(emptyCardRow)
 
 // Computed data
 
@@ -118,21 +117,21 @@ const playerTotal = computed((): number => {
 // Methods
 
 function handCardClick(index: number) {
-  activeCardRow = playerHand
+  activeCardRow.value = playerHand
   slideIndex.value = index + 1
   showSlide()
   deckModal.value = true
 }
 
 function playerBoardCardClick(index: number, rowIndex: number) {
-  activeCardRow = playerBoardCards[rowIndex]
+  activeCardRow.value = playerBoardCards[rowIndex]
   slideIndex.value = index + 1
   showSlide()
   deckModal.value = true
 }
 
 function opponentBoardCardClick(index: number, rowIndex: number) {
-  activeCardRow = opponentBoardCards[rowIndex]
+  activeCardRow.value = opponentBoardCards[rowIndex]
   slideIndex.value = index + 1
   showSlide()
   deckModal.value = true
@@ -160,18 +159,18 @@ function changeSlide(index: number) {
 
 function showSlide(index?: number) {
   if (index || index === 0) {
-    if (index > activeCardRow.length) {
+    if (index > activeCardRow.value.length) {
       slideIndex.value = 1
     }
     if (index < 1) {
-      slideIndex.value = activeCardRow.length
+      slideIndex.value = activeCardRow.value.length
     }
   }
 
-  for (let i = 0; i < activeCardRow.length; i++) {
-    activeCardRow[i].active = false
+  for (let i = 0; i < activeCardRow.value.length; i++) {
+    activeCardRow.value[i].active = false
   }
-  activeCardRow[slideIndex.value - 1].active = true
+  activeCardRow.value[slideIndex.value - 1].active = true
 }
 
 function closeDeckModal() {
