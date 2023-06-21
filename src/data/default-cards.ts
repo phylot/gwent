@@ -1,78 +1,101 @@
-const dummyPlayerHand: { value: number; active: boolean }[] = [
-  { value: 1, active: false },
-  { value: 2, active: false },
-  { value: 3, active: false },
-  { value: 4, active: false },
-  { value: 5, active: false },
-  { value: 6, active: false },
-  { value: 7, active: false },
-  { value: 8, active: false },
-  { value: 9, active: false },
-  { value: 10, active: false },
-  { value: 11, active: false },
-  { value: 12, active: false },
-  { value: 13, active: false },
-  { value: 14, active: false }
+const dummyPlayerHand: {
+  ability?: string
+  active: boolean
+  description: string
+  faction?: string
+  image: string
+  name: string
+  type: string
+  value?: number
+}[] = [
+  { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+  { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
+  { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
+  { ability: 'boost', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-sergent.jpg", name: "Sergent", type: "ranged", value: 5 },
+  { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
+  { ability: 'close_scorch', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-harper.jpg", name: "Pat Harper", type: "hero", value: 10 },
+  { ability: 'hero', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-sharpe.jpg", name: "Richard Sharpe", type: "hero", value: 15 },
+  { ability: 'spy', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-hogan.jpg", name: "Michael Hogan", type: "close", value: 4 },
+  // { ability: 'double', active: false, description: "Description", image: "/src/assets/images/horn.jpg", name: "Commander's Horn", type: "special", value: 0 },
+  { ability: 'dummy', active: false, description: "Description", image: "/src/assets/images/dummy.jpg", name: "Dummy", type: "special", value: 0 },
+  { ability: 'rain', active: false, description: "Description", image: "/src/assets/images/rain.png", name: "Torrential Rain", type: "special", value: 0 },
+  { ability: 'clear', active: false, description: "Description", image: "/src/assets/images/clear.png", name: "Clear Weather", type: "special", value: 0 },
+  { ability: 'scorch', active: false, description: "Description", image: "/src/assets/images/scorch.png", name: "Scorch", type: "special", value: 0 }
 ]
 
-// const dummyOpponentHand: { value: number }[] = [
-//   { value: 1 },
-//   { value: 1 },
-//   { value: 1 },
-//   { value: 2 },
-//   { value: 2 },
-//   { value: 3 },
-//   { value: 4 },
-//   { value: 5 },
-//   { value: 5 },
-//   { value: 6 },
-//   { value: 8 },
-//   { value: 10 },
-//   { value: 10 },
-//   { value: 10 },
-// ];
+// const dummyOpponentHand: {
+//   ability?: string
+//   active: boolean
+//   description: string
+//   faction?: string
+//   image: string
+//   name: string
+//   type: string
+//   value?: number
+// }[] = [
+//
+// ]
 
-const dummyPlayerCards: { value: number; active: boolean }[][] = [
+const dummyPlayerCards: {
+  ability?: string
+  active: boolean
+  description: string
+  faction?: string
+  image: string
+  name: string
+  type: string
+  value?: number
+}[][] = [
   [
-    { value: 4, active: false },
-    { value: 4, active: false },
-    { value: 6, active: false },
-    { value: 6, active: false },
-    { value: 7, active: false }
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'boost', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-sergent.jpg", name: "Sergent", type: "ranged", value: 5 },
+    { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
+    { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
   ],
   [
-    { value: 5, active: false },
-    { value: 5, active: false },
-    { value: 5, active: false }
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
   ],
   [
-    { value: 6, active: false },
-    { value: 6, active: false },
-    { value: 8, active: false },
-    { value: 8, active: false }
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
   ]
 ]
 
-const dummyOpponentCards: { value: number; active: boolean }[][] = [
+const dummyOpponentCards: {
+  ability?: string
+  active: boolean
+  description: string
+  faction?: string
+  image: string
+  name: string
+  type: string
+  value?: number
+}[][] = [
   [
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 1, active: false },
-    { value: 2, active: false },
-    { value: 3, active: false }
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
+    { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
+    { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
+    { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
   ],
   [
-    { value: 6, active: false },
-    { value: 5, active: false }
+    { ability: 'dummy', active: false, description: "Description", image: "/src/assets/images/dummy.jpg", name: "Dummy", type: "special", value: 0 },
+    { ability: 'dummy', active: false, description: "Description", image: "/src/assets/images/dummy.jpg", name: "Dummy", type: "special", value: 0 },
   ],
-  [{ value: 8, active: false }]
+  [
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
+    { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
+  ]
 ]
 
 const emptyCardRow: { value: number; active: boolean }[] = []

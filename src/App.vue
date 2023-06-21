@@ -140,7 +140,10 @@ function closeDeckModal() {
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
+              :faction="card.faction"
+              :image="card.image"
               :value="card.value"
+              :key="j"
               @click="opponentBoardCardClick(j, i)"
             />
           </div>
@@ -152,7 +155,7 @@ function closeDeckModal() {
           <div class="total-counter player-total">{{ playerTotal }}</div>
         </div>
         <!-- TODO: Display last card in specialCards array, ELSE display placeholder -->
-        <BoardCard />
+        <BoardCard image="/src/assets/images/clear.png" />
         <div class="opponent-stats">
           <div class="total-counter opponent-total">{{ opponentTotal }}</div>
         </div>
@@ -167,7 +170,10 @@ function closeDeckModal() {
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
+              :faction="card.faction"
+              :image="card.image"
               :value="card.value"
+              :key="j"
               @click="playerBoardCardClick(j, i)"
             />
           </div>
@@ -176,8 +182,11 @@ function closeDeckModal() {
         <div class="card-row player-hand">
           <BoardCard
             v-for="(card, i) in playerHand"
+            :faction="card.faction"
+            :image="card.image"
             :value="card.value"
             :class="{ active: card.active }"
+            :key="i"
             @click="handCardClick(i)"
           />
         </div>
