@@ -8,8 +8,7 @@ const props = defineProps<{
   // type: string
   value?: number
 }>()
-
-const imageUrl = new URL(props.image, import.meta.url)
+const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 </script>
 
 <template>
