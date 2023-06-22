@@ -6,7 +6,7 @@ import {
   dummyPlayerCards,
   dummyOpponentCards,
   emptyCardRow
-} from './data/default-cards.ts'
+} from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 

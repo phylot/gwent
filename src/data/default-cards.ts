@@ -6,7 +6,7 @@ const dummyPlayerHand: {
   image: string
   name: string
   type: string
-  value?: number
+  value: number
 }[] = [
   { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
   { active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
@@ -44,7 +44,7 @@ const dummyPlayerCards: {
   image: string
   name: string
   type: string
-  value?: number
+  value: number
 }[][] = [
   [
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
@@ -74,7 +74,7 @@ const dummyOpponentCards: {
   image: string
   name: string
   type: string
-  value?: number
+  value: number
 }[][] = [
   [
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "/src/assets/images/br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
@@ -98,7 +98,7 @@ const dummyOpponentCards: {
   ]
 ]
 
-const emptyCardRow: { value: number; active: boolean }[] = []
+const emptyCardRow: { active: boolean; value: number }[] = []
 
 export {
   dummyPlayerHand,
