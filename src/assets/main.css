@@ -19,6 +19,23 @@ body {
   background-color: lightpink;
 }
 
+.loader {
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #000000;
+}
+
 .game-container {
   display: flex;
   flex-direction: column;
@@ -215,6 +232,17 @@ body {
   to {
     opacity: 1;
   }
+}
+
+/* Loader fade out */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .5s
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0
 }
 
 .prev,

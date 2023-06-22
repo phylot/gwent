@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   dummyPlayerHand,
@@ -19,6 +19,7 @@ let opponentBoardCards = reactive(dummyOpponentCards)
 let deckModal = ref(false)
 let slideIndex = ref(1)
 let activeCardRow = ref(emptyCardRow)
+let loading = ref(true)
 
 // Computed data
 
@@ -42,7 +43,23 @@ const playerTotal = computed((): number => {
   return total
 })
 
+onMounted(() => {
+  preloadAssets()
+})
+
 // Methods
+
+function preloadAssets() {
+  for (let i = 0; i < playerHand.length; i++) {
+    preloadImage(playerHand[i].image)
+  }
+  loading.value = false
+}
+
+function preloadImage(image: string) {
+  let img = new Image()
+  img.src = new URL(`./assets/images/${image}`, import.meta.url).href
+}
 
 function handCardClick(index: number) {
   activeCardRow.value = playerHand
@@ -108,6 +125,10 @@ function closeDeckModal() {
 
 <template>
   <div class="game-container">
+    <transition name="fade">
+      <div v-if="loading" class="loader fade-out">Loading...</div>
+    </transition>
+
     <div class="scroll-container">
       <CardModal v-if="deckModal" class="quick-fade">
         <div class="slide-container">
