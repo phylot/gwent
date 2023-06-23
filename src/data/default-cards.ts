@@ -1,4 +1,4 @@
-const dummyPlayerHand: {
+interface Card {
   ability?: string
   active: boolean
   description: string
@@ -7,7 +7,9 @@ const dummyPlayerHand: {
   name: string
   type: string
   value: number
-}[] = [
+}
+
+const dummyPlayerHand: Card[] = [
   { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
   { active: false, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", value: 6 },
   { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-rifle.jpg", name: "Rifleman", type: "ranged", value: 4 },
@@ -23,29 +25,11 @@ const dummyPlayerHand: {
   { ability: 'scorch', active: false, description: "Description", image: "scorch.png", name: "Scorch", type: "special", value: 0 }
 ]
 
-// const dummyOpponentHand: {
-//   ability?: string
-//   active: boolean
-//   description: string
-//   faction?: string
-//   image: string
-//   name: string
-//   type: string
-//   value?: number
-// }[] = [
+// const dummyOpponentHand: Card[] = [
 //
 // ]
 
-const dummyPlayerCards: {
-  ability?: string
-  active: boolean
-  description: string
-  faction?: string
-  image: string
-  name: string
-  type: string
-  value: number
-}[][] = [
+const dummyPlayerCards: Card[][] = [
   [
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
@@ -66,16 +50,7 @@ const dummyPlayerCards: {
   ]
 ]
 
-const dummyOpponentCards: {
-  ability?: string
-  active: boolean
-  description: string
-  faction?: string
-  image: string
-  name: string
-  type: string
-  value: number
-}[][] = [
+const dummyOpponentCards: Card[][] = [
   [
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
     { ability: 'bond', active: false, description: "Description", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", value: 1 },
@@ -98,9 +73,10 @@ const dummyOpponentCards: {
   ]
 ]
 
-const emptyCardRow: { active: boolean; value: number }[] = []
+const emptyCardRow: Card[] = []
 
 export {
+  type Card,
   dummyPlayerHand,
   // dummyOpponentHand,
   dummyPlayerCards,

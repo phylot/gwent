@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
+  type Card,
   dummyPlayerHand,
   dummyPlayerCards,
   dummyOpponentCards,
@@ -44,21 +45,29 @@ const playerTotal = computed((): number => {
 })
 
 onMounted(() => {
-  preloadAssets()
+  preloadImages(playerHand, () => {
+    loading.value = false
+  })
 })
 
 // Methods
 
-function preloadAssets() {
-  for (let i = 0; i < playerHand.length; i++) {
-    preloadImage(playerHand[i].image)
-  }
-  loading.value = false
-}
+function preloadImages(cards: Card[], callback: Function) {
+  let imageCount = cards.length;
+  let imagesLoaded = 0;
 
-function preloadImage(image: string) {
-  let img = new Image()
-  img.src = new URL(`./assets/images/${image}`, import.meta.url).href
+  for (let i = 0; i < imageCount; i++) {
+    let img = new Image();
+    img.onload = function() {
+      imagesLoaded++;
+      if (imagesLoaded == imageCount) {
+        if (callback) {
+          callback();
+        }
+      }
+    }
+    img.src = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
+  }
 }
 
 function handCardClick(index: number) {
