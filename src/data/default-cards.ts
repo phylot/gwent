@@ -19,7 +19,7 @@ const allCards: Card[] = [
   { ability: 'bond', active: false, defaultValue: 8, description: "Description", faction: 'br', image: "br-canon.jpg", name: "Cannon", type: "siege", value: 8 },
   { ability: 'spy', active: false, defaultValue: 4, description: "Description", faction: 'br', image: "br-hogan.jpg", name: "Michael Hogan", type: "close", value: 4 },
   { ability: 'close_scorch', active: false, defaultValue: 10, description: "Description", faction: 'br', hero: true, image: "br-harper.jpg", name: "Pat Harper", type: "close", value: 10 },
-  { ability: 'hero', active: false, defaultValue: 15, description: "Description", faction: 'br', hero: true, image: "br-sharpe.jpg", name: "Richard Sharpe", type: "ranged", value: 15 },
+  { ability: 'scorch', active: false, defaultValue: 15, description: "Description", faction: 'br', hero: true, image: "br-sharpe.jpg", name: "Richard Sharpe", type: "ranged", value: 15 },
   // { ability: 'double', active: false, defaultValue: 0, description: "Description", image: "horn.jpg", name: "Commander's Horn", type: "special", value: 0 },
   { ability: 'dummy', active: false, defaultValue: 0, description: "Description", image: "dummy.jpg", name: "Dummy", type: "special", value: 0 },
   { ability: 'rain', active: false, defaultValue: 0, description: "Description", image: "rain.png", name: "Torrential Rain", type: "special", value: 0 },

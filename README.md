@@ -1,6 +1,10 @@
 # gwent
 
-This template should help get you started developing with Vue 3 in Vite.
+The classic game of Gwent, created in Vue 3.
+
+## Live Demo
+
+[Demo (https://zingy-zabaione-63c1ca.netlify.app)](https://zingy-zabaione-63c1ca.netlify.app)
 
 ## Recommended IDE Setup
 

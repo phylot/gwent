@@ -226,7 +226,6 @@ function resetActiveCard(callback: Function) {
         <div class="player-stats">
           <div class="stat-counter player-total">{{ playerTotal }}</div>
         </div>
-        <!-- TODO: Display last card in specialCards array, ELSE display placeholder -->
         <BoardCard
           v-if="specialCards.length && specialCards.length > 1"
           :ability="specialCards[specialCards.length - 1].ability"

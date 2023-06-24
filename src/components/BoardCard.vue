@@ -2,12 +2,10 @@
 const props = defineProps<{
   ability?: string
   defaultValue?: number
-  // description: string
   faction?: string
   hero?: boolean
   image?: string
-  // name: string
-  // type: string
+  // type?: string
   value?: number
 }>()
 const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
@@ -15,8 +13,11 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 
 <template>
   <div class="card-wrapper">
-    <!--  <div class="card-wrapper">-->
-    <div class="card" :class="{ 'hero': props.hero }" :style="{ backgroundImage: `url(${imageUrl})` }">
+    <div
+      class="card"
+      :class="{ hero: props.hero }"
+      :style="{ backgroundImage: `url(${imageUrl})` }"
+    >
       <template v-if="props.image">
         <div v-if="defaultValue" class="value stat-counter">{{ value }}</div>
         <div v-if="ability" class="ability stat-counter">{{ ability }}</div>

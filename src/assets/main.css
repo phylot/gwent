@@ -20,7 +20,7 @@ body {
 }
 
 .loader {
-  z-index: 9999;
+  z-index: 9000;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -346,9 +346,9 @@ body {
   }
 
   .card .stat-counter {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
     font-size: 16px;
   }
 
