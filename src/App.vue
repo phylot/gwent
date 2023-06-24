@@ -206,6 +206,7 @@ function resetActiveCard(callback: Function) {
             <BoardCard
               v-for="(card, j) in row"
               :ability="card.ability"
+              :ability-icon="card.abilityIcon"
               :default-value="card.defaultValue"
               :faction="card.faction"
               :hero="card.hero"
@@ -229,6 +230,7 @@ function resetActiveCard(callback: Function) {
         <BoardCard
           v-if="specialCards.length && specialCards.length > 1"
           :ability="specialCards[specialCards.length - 1].ability"
+          :ability-icon="specialCards[specialCards.length - 1].abilityIcon"
           :default-value="specialCards[specialCards.length - 1].value"
           :faction="specialCards[specialCards.length - 1].faction"
           :hero="specialCards[specialCards.length - 1].hero"
@@ -253,6 +255,7 @@ function resetActiveCard(callback: Function) {
             <BoardCard
               v-for="(card, j) in row"
               :ability="card.ability"
+              :ability-icon="card.abilityIcon"
               :default-value="card.defaultValue"
               :faction="card.faction"
               :hero="card.hero"
@@ -272,6 +275,7 @@ function resetActiveCard(callback: Function) {
           <BoardCard
             v-for="(card, i) in playerHand"
             :ability="card.ability"
+            :ability-icon="card.abilityIcon"
             :default-value="card.defaultValue"
             :faction="card.faction"
             :hero="card.hero"

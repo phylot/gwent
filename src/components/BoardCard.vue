@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   ability?: string
+  abilityIcon?: string
   defaultValue?: number
   faction?: string
   hero?: boolean
@@ -20,7 +21,9 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
     >
       <template v-if="props.image">
         <div v-if="defaultValue" class="value stat-counter">{{ value }}</div>
-        <div v-if="ability" class="ability stat-counter">{{ ability }}</div>
+        <div v-if="ability" class="ability stat-counter">
+          <v-icon :name="abilityIcon" class="icon" fill="#ffffff" scale="1" />
+        </div>
       </template>
       <div v-else style="color: #ffffff">Placeholder</div>
     </div>
