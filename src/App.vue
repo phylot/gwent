@@ -3,9 +3,10 @@ import { computed, onMounted, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
-  dummyPlayerHand,
+  allCards,
   dummyPlayerCards,
   dummyOpponentCards,
+  dummySpecialCards,
   emptyCardRow
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
@@ -13,14 +14,15 @@ import CardModal from './components/CardModal.vue'
 
 // Data
 
-let playerHand = reactive(dummyPlayerHand)
+let loading = ref(true)
+let playerHand = reactive(allCards)
 // let opponentHand = reactive(dummyOpponentHand)
 let playerBoardCards = reactive(dummyPlayerCards)
 let opponentBoardCards = reactive(dummyOpponentCards)
-let deckModal = ref(false)
+let specialCards = ref(dummySpecialCards)
+let cardModal = ref(false)
 let slideIndex = ref(1)
 let activeCardRow = ref(emptyCardRow)
-let loading = ref(true)
 
 // Computed data
 
@@ -53,16 +55,16 @@ onMounted(() => {
 // Methods
 
 function preloadImages(cards: Card[], callback: Function) {
-  let imageCount = cards.length;
-  let imagesLoaded = 0;
+  let imageCount = cards.length
+  let imagesLoaded = 0
 
   for (let i = 0; i < imageCount; i++) {
-    let img = new Image();
-    img.onload = function() {
-      imagesLoaded++;
+    let img = new Image()
+    img.onload = function () {
+      imagesLoaded++
       if (imagesLoaded == imageCount) {
         if (callback) {
-          callback();
+          callback()
         }
       }
     }
@@ -71,24 +73,26 @@ function preloadImages(cards: Card[], callback: Function) {
 }
 
 function handCardClick(index: number) {
-  activeCardRow.value = playerHand
-  slideIndex.value = index + 1
-  showSlide()
-  deckModal.value = true
+  resetActiveCard(() => {
+    activeCardRow.value = playerHand
+    slideIndex.value = index + 1
+    showSlide()
+    cardModal.value = true
+  })
 }
 
 function playerBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = playerBoardCards[rowIndex]
   slideIndex.value = index + 1
   showSlide()
-  deckModal.value = true
+  cardModal.value = true
 }
 
 function opponentBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = opponentBoardCards[rowIndex]
   slideIndex.value = index + 1
   showSlide()
-  deckModal.value = true
+  cardModal.value = true
 }
 
 function getOpponentRowTotal(rowIndex: number): number {
@@ -127,8 +131,19 @@ function showSlide(index?: number) {
   activeCardRow.value[slideIndex.value - 1].active = true
 }
 
-function closeDeckModal() {
-  deckModal.value = false
+function closeCardModal() {
+  resetActiveCard(() => {
+    cardModal.value = false
+  })
+}
+
+function resetActiveCard(callback: Function) {
+  for (let i = 0; i < activeCardRow.value.length; i++) {
+    activeCardRow.value[i].active = false
+  }
+  if (callback) {
+    callback()
+  }
 }
 </script>
 
@@ -139,7 +154,7 @@ function closeDeckModal() {
     </transition>
 
     <div class="scroll-container">
-      <CardModal v-if="deckModal" class="quick-fade">
+      <CardModal v-if="cardModal" class="quick-fade">
         <div class="slide-container">
           <div class="slides">
             <div
@@ -151,30 +166,57 @@ function closeDeckModal() {
               Card {{ card.value }}
             </div>
           </div>
-          <span class="prev" @click="changeSlide(-1)">
+          <span
+            class="prev"
+            tabindex="2"
+            @click="changeSlide(-1)"
+            @keyup.enter="changeSlide(-1)"
+            @keyup.space="changeSlide(-1)"
+          >
             <i class="fa fa-chevron-left" aria-hidden="true"></i>
           </span>
-          <span class="next" @click="changeSlide(1)">
+          <span
+            class="next"
+            tabindex="2"
+            @click="changeSlide(1)"
+            @keyup.enter="changeSlide(1)"
+            @keyup.space="changeSlide(1)"
+          >
             <i class="fa fa-chevron-right" aria-hidden="true"></i>
           </span>
-          <button @click="closeDeckModal" class="cancel-btn">CANCEL</button>
+          <button
+            class="cancel-btn"
+            tabindex="2"
+            @click="closeCardModal"
+            @keyup.enter="closeCardModal"
+            @keyup.space="closeCardModal"
+          >
+            CANCEL
+          </button>
         </div>
       </CardModal>
 
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
-            <div class="total-counter">{{ getOpponentRowTotal(i) }}</div>
+            <div class="stat-counter">{{ getOpponentRowTotal(i) }}</div>
           </div>
 
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
+              :ability="card.ability"
+              :default-value="card.defaultValue"
               :faction="card.faction"
+              :hero="card.hero"
               :image="card.image"
               :value="card.value"
+              :class="{ active: card.active }"
+              tabindex="4"
               :key="j"
               @click="opponentBoardCardClick(j, i)"
+              @keyup.enter="opponentBoardCardClick(j, i)"
+              @keyup.space="opponentBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -182,29 +224,47 @@ function closeDeckModal() {
 
       <div class="game-stats">
         <div class="player-stats">
-          <div class="total-counter player-total">{{ playerTotal }}</div>
+          <div class="stat-counter player-total">{{ playerTotal }}</div>
         </div>
         <!-- TODO: Display last card in specialCards array, ELSE display placeholder -->
-        <BoardCard image="/src/assets/images/clear.png" />
+        <BoardCard
+          v-if="specialCards.length && specialCards.length > 1"
+          :ability="specialCards[specialCards.length - 1].ability"
+          :default-value="specialCards[specialCards.length - 1].value"
+          :faction="specialCards[specialCards.length - 1].faction"
+          :hero="specialCards[specialCards.length - 1].hero"
+          :image="specialCards[specialCards.length - 1].image"
+          :value="specialCards[specialCards.length - 1].value"
+          :class="{ active: specialCards[specialCards.length - 1].active }"
+          tabindex="5"
+        />
+        <BoardCard v-else tabindex="5" />
         <div class="opponent-stats">
-          <div class="total-counter opponent-total">{{ opponentTotal }}</div>
+          <div class="stat-counter opponent-total">{{ opponentTotal }}</div>
         </div>
       </div>
 
       <div class="player-board">
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
-            <div class="total-counter">{{ getPlayerRowTotal(i) }}</div>
+            <div class="stat-counter">{{ getPlayerRowTotal(i) }}</div>
           </div>
 
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
+              :ability="card.ability"
+              :default-value="card.defaultValue"
               :faction="card.faction"
+              :hero="card.hero"
               :image="card.image"
               :value="card.value"
+              :class="{ active: card.active }"
+              tabindex="3"
               :key="j"
               @click="playerBoardCardClick(j, i)"
+              @keyup.enter="playerBoardCardClick(j, i)"
+              @keyup.space="playerBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -212,12 +272,18 @@ function closeDeckModal() {
         <div class="card-row player-hand">
           <BoardCard
             v-for="(card, i) in playerHand"
+            :ability="card.ability"
+            :default-value="card.defaultValue"
             :faction="card.faction"
+            :hero="card.hero"
             :image="card.image"
             :value="card.value"
             :class="{ active: card.active }"
+            tabindex="1"
             :key="i"
             @click="handCardClick(i)"
+            @keyup.enter="handCardClick(i)"
+            @keyup.space="handCardClick(i)"
           />
         </div>
       </div>

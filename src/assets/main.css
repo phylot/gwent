@@ -86,27 +86,25 @@ body {
   padding-left: 10px;
 }
 
-.total-counter {
+.stat-counter {
   text-align: center;
-  font-weight: bolder;
   border: 3px solid #ffffff;
   border-radius: 50%;
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
 }
 
-.game-stats .total-counter {
+.game-stats .stat-counter {
   width: 40px;
   height: 40px;
   line-height: 40px;
+  font-weight: bold;
   font-size: 20px;
 }
 
-.opponent-stats .total-counter {
+.opponent-stats .stat-counter {
   background-color: lightskyblue;
 }
 
-.player-stats .total-counter {
+.player-stats .stat-counter {
   background-color: lemonchiffon;
 }
 
@@ -122,18 +120,18 @@ body {
   justify-content: center;
 }
 
-.row-stats .total-counter {
+.row-stats .stat-counter {
   width: 30px;
   height: 30px;
   line-height: 30px;
   font-size: 15px;
 }
 
-.opponent-board .total-counter {
+.opponent-board .stat-counter {
   background-color: lightskyblue;
 }
 
-.player-board .total-counter {
+.player-board .stat-counter {
   background-color: lemonchiffon;
 }
 
@@ -151,6 +149,13 @@ body {
 
 .card-wrapper {
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.card-wrapper.active {
+  background-color: yellow;
 }
 
 .card-wrapper:last-child,
@@ -163,10 +168,34 @@ body {
   width: 50px;
   height: 100%;
   box-sizing: border-box;
-  margin: 0 1px;
+  /*margin: 0 1px;*/
   border-radius: 4px;
   background-position: center;
   background-size: cover;
+  background-color: #000000;
+}
+
+.card .stat-counter {
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  border-width: 2px;
+  font-size: 12px;
+}
+
+.card .value.stat-counter {
+  border-color: #000000;
+  background-color: #ffffff;
+}
+
+.card.hero .value.stat-counter {
+  border-color: #f9a825;
+  color: #f9a825;
+  background-color: #000000;
+}
+
+.card .ability.stat-counter {
+  color: #ffffff;
   background-color: #000000;
 }
 
@@ -237,12 +266,12 @@ body {
 /* Loader fade out */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity .5s
+  transition: opacity 0.5s;
 }
 
 .fade-enter,
 .fade-leave-to {
-  opacity: 0
+  opacity: 0;
 }
 
 .prev,
@@ -251,15 +280,15 @@ body {
   top: 50%;
   width: 50px;
   height: 50px;
-  border: 2px solid black;
-  color: black;
-  border-radius: 50%;
-  margin-top: -25px;
-  margin-left: 25px;
-  cursor: pointer;
   line-height: 48px;
   text-align: center;
   text-indent: -2px;
+  margin-top: -25px;
+  margin-left: 25px;
+  border: 2px solid black;
+  border-radius: 50%;
+  color: black;
+  cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -316,6 +345,13 @@ body {
     width: 90px;
   }
 
+  .card .stat-counter {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 16px;
+  }
+
   .row-stats {
     flex: 0 80px;
   }
@@ -328,18 +364,20 @@ body {
     padding-left: 20px;
   }
 
-  .total-counter {
+  .player-total.stat-counter,
+  .opponent-total.stat-counter {
     border: 5px solid #ffffff;
   }
 
-  .game-stats .total-counter {
+  .player-total.stat-counter,
+  .opponent-total.stat-counter {
     width: 80px;
     height: 80px;
     line-height: 80px;
     font-size: 36px;
   }
 
-  .row-stats .total-counter {
+  .row-stats .stat-counter {
     width: 50px;
     height: 50px;
     line-height: 50px;
