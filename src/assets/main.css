@@ -36,6 +36,8 @@ body {
   background-color: #000000;
 }
 
+/* Board Layout */
+
 .game-container {
   display: flex;
   flex-direction: column;
@@ -93,9 +95,11 @@ body {
 }
 
 .game-stats .stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 40px;
   height: 40px;
-  line-height: 40px;
   font-weight: bold;
   font-size: 20px;
 }
@@ -121,9 +125,11 @@ body {
 }
 
 .row-stats .stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 30px;
   height: 30px;
-  line-height: 30px;
   font-size: 15px;
 }
 
@@ -147,53 +153,24 @@ body {
   background-color: grey;
 }
 
-.card-wrapper {
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.card-wrapper.active {
-  background-color: yellow;
-}
-
-.card-wrapper:last-child,
-.card-wrapper:hover,
-.card-wrapper.active {
-  overflow: visible;
-}
+/* Common Shared Classes */
 
 .card {
   position: relative;
-  width: 50px;
-  height: 100%;
   box-sizing: border-box;
-  /*margin: 0 1px;*/
-  border-radius: 4px;
   background-position: center;
   background-size: cover;
   background-color: #000000;
 }
 
 .card-stat-badge {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid #000000;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  font-size: 12px;
-}
-
-.card-stat-badge.value {
+  color: #000000;
   background-color: #ffffff;
-}
-
-.card.hero .card-stat-badge.value {
-  border-color: #f9a825;
-  color: #f9a825;
-  background-color: #000000;
 }
 
 .card-stat-badge.ability {
@@ -204,11 +181,57 @@ body {
 
 .card-stat-badge.type {
   position: absolute;
-  bottom: 2px;
   right: 0;
   border-color: #775022;
   background-color: #c9883a;
 }
+
+.card.hero .card-stat-badge.value {
+  border-style: dotted;
+  border-color: #f9a825;
+  color: #f9a825;
+  background-color: #000000;
+}
+
+/* Board Card */
+
+.board-card {
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.board-card.active {
+  background-color: yellow;
+}
+
+.board-card:last-child,
+.board-card:hover,
+.board-card.active {
+  overflow: visible;
+}
+
+.board-card .card {
+  width: 50px;
+  height: 100%;
+  border-radius: 4px;
+  border: 1px solid #000000;
+}
+
+.board-card .card-stat-badge {
+  width: 18px;
+  height: 18px;
+  /*line-height: 18px;*/
+  font-size: 12px;
+}
+
+.board-card .card-stat-badge.type {
+  bottom: 2px;
+}
+
+/* Card Modal */
 
 .card-modal {
   z-index: 5000;
@@ -232,10 +255,12 @@ body {
   height: 100%;
 }
 
-.slide-container {
+/* Card Carousel */
+
+.card-carousel {
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .slides {
@@ -253,37 +278,6 @@ body {
 
 .slide.active {
   display: block;
-}
-
-/* Animations */
-.fade {
-  animation-name: fade;
-  animation-duration: 0.5s;
-}
-
-.quick-fade {
-  animation-name: fade;
-  animation-duration: 0.1s;
-}
-
-@keyframes fade {
-  from {
-    opacity: 0.4;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Loader fade out */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
 }
 
 .prev,
@@ -335,6 +329,66 @@ body {
   padding: 20px;
 }
 
+/* Carousel Card */
+
+.carousel-card {
+  overflow: hidden;
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #000000;
+}
+
+.carousel-card .card {
+  width: 150px;
+  height: 200px;
+  border: 4px solid #000000;
+  border-radius: 8px;
+}
+
+.carousel-card .card-stat-badge {
+  width: 30px;
+  height: 30px;
+  /*line-height: 30px;*/
+  font-size: 18px;
+}
+
+.carousel-card .card-stat-badge.type {
+  bottom: 5px;
+}
+
+/* Animations */
+
+.fade {
+  animation-name: fade;
+  animation-duration: 0.5s;
+}
+
+.quick-fade {
+  animation-name: fade;
+  animation-duration: 0.1s;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Loader fade out */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
 /* Desktop Styles */
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
   .game-container {
@@ -344,6 +398,8 @@ body {
 /* Desktop / Tablet Styles */
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  /* Board Layout */
+
   .game-stats,
   .card-row {
     height: 110px;
@@ -351,21 +407,6 @@ body {
 
   .game-stats {
     padding-left: 80px;
-  }
-
-  .card {
-    width: 90px;
-  }
-
-  .card-stat-badge {
-    width: 26px;
-    height: 26px;
-    line-height: 26px;
-    font-size: 16px;
-  }
-
-  .card-stat-badge.type {
-    bottom: 5px;
   }
 
   .row-stats {
@@ -400,7 +441,54 @@ body {
     font-size: 26px;
   }
 
+  /* Board Card */
+
+  .board-card .card {
+    width: 90px;
+  }
+
+  .board-card .card-stat-badge {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+
+  .board-card .card-stat-badge.type {
+    bottom: 5px;
+  }
+
+  /* Card Modal */
+
   .card-modal {
     bottom: 110px;
+  }
+
+  /* Carousel Card */
+
+  .carousel-card {
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+  }
+
+  .carousel-card .card {
+    width: 250px;
+    height: 350px;
+    border: 8px solid #000000;
+    border-radius: 10px;
+  }
+
+  .carousel-card .card-stat-badge {
+    width: 50px;
+    height: 50px;
+    font-size: 30px;
+  }
+
+  .carousel-card .card-stat-badge.value,
+  .carousel-card .card-stat-badge.ability {
+    margin: 5px 5px 0;
+  }
+
+  .carousel-card .card-stat-badge.type {
+    right: 5px;
   }
 }

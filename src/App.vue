@@ -11,6 +11,7 @@ import {
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
+import CarouselCard from './components/CarouselCard.vue'
 
 // Data
 
@@ -167,16 +168,25 @@ function resetActiveCard(callback: Function) {
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
-        <div class="slide-container">
+        <div class="card-carousel">
           <div class="slides">
-            <div
+            <CarouselCard
               v-for="(card, i) in activeCardRow"
+              :ability="card.ability"
+              :ability-icon="card.abilityIcon"
+              :default-value="card.defaultValue"
+              :desktop="isDesktop"
+              :faction="card.faction"
+              :hero="card.hero"
+              :image="card.image"
+              :type-icon="card.typeIcon"
+              :value="card.value"
               class="slide fade"
               :class="{ active: card.active }"
+              tabindex="2"
               :key="i"
             >
-              Card {{ card.value }}
-            </div>
+            </CarouselCard>
           </div>
           <span
             class="prev"
@@ -185,7 +195,7 @@ function resetActiveCard(callback: Function) {
             @keyup.enter="changeSlide(-1)"
             @keyup.space="changeSlide(-1)"
           >
-            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+            <v-icon name="fa-chevron-left" class="icon" scale="1" />
           </span>
           <span
             class="next"
@@ -194,7 +204,7 @@ function resetActiveCard(callback: Function) {
             @keyup.enter="changeSlide(1)"
             @keyup.space="changeSlide(1)"
           >
-            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            <v-icon name="fa-chevron-right" class="icon" scale="1" />
           </span>
           <button
             class="cancel-btn"

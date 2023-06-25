@@ -5,15 +5,14 @@ import App from './App.vue'
 
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import {
+  FaChevronLeft,
+  FaChevronRight,
   GiBroadsword,
-  GiCannon,
   GiCatapult,
   GiCrossbow,
-  GiGunshot,
   GiHeavyRain,
   GiHuntingHorn,
   GiPocketBow,
-  GiRifle,
   GiScarecrow,
   GiSunflower,
   HiSolidEye,
@@ -24,15 +23,14 @@ import {
 import './assets/main.css'
 
 addIcons(
+  FaChevronLeft,
+  FaChevronRight,
   GiBroadsword,
-  GiCannon,
   GiCatapult,
   GiCrossbow,
-  GiGunshot,
   GiHeavyRain,
   GiHuntingHorn,
   GiPocketBow,
-  GiRifle,
   GiScarecrow,
   GiSunflower,
   HiSolidEye,

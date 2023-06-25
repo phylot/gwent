@@ -14,7 +14,7 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 </script>
 
 <template>
-  <div class="board-card">
+  <div class="carousel-card">
     <div
       class="card"
       :class="{ hero: props.hero }"
@@ -23,10 +23,10 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
       <template v-if="props.image">
         <div v-if="defaultValue" class="value card-stat-badge">{{ value }}</div>
         <div v-if="abilityIcon" class="ability card-stat-badge">
-          <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 1 : 0.6" />
+          <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 2 : 1" />
         </div>
         <div v-if="typeIcon" class="type card-stat-badge">
-          <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.6" />
+          <v-icon :name="typeIcon" class="icon" :scale="desktop ? 2 : 1" />
         </div>
       </template>
       <div v-else style="color: #ffffff">Placeholder</div>
