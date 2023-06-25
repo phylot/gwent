@@ -9,6 +9,7 @@ const props = defineProps<{
   image?: string
   // type?: string
   value?: number
+  typeIcon?: string
 }>()
 const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 </script>
@@ -21,9 +22,12 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
       :style="{ backgroundImage: `url(${imageUrl})` }"
     >
       <template v-if="props.image">
-        <div v-if="defaultValue" class="value stat-counter">{{ value }}</div>
-        <div v-if="ability" class="ability stat-counter">
-          <v-icon :name="abilityIcon" class="icon" fill="#ffffff" :scale="desktop ? 1 : 0.7" />
+        <div v-if="defaultValue" class="value card-stat-badge">{{ value }}</div>
+        <div v-if="abilityIcon" class="ability card-stat-badge">
+          <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 1 : 0.8" />
+        </div>
+        <div v-if="typeIcon" class="type card-stat-badge">
+          <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.8" />
         </div>
       </template>
       <div v-else style="color: #ffffff">Placeholder</div>

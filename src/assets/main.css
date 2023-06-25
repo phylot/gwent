@@ -86,13 +86,13 @@ body {
   padding-left: 10px;
 }
 
-.stat-counter {
+.stat-badge {
   text-align: center;
   border: 3px solid #ffffff;
   border-radius: 50%;
 }
 
-.game-stats .stat-counter {
+.game-stats .stat-badge {
   width: 40px;
   height: 40px;
   line-height: 40px;
@@ -100,11 +100,11 @@ body {
   font-size: 20px;
 }
 
-.opponent-stats .stat-counter {
+.opponent-stats .stat-badge {
   background-color: lightskyblue;
 }
 
-.player-stats .stat-counter {
+.player-stats .stat-badge {
   background-color: lemonchiffon;
 }
 
@@ -120,18 +120,18 @@ body {
   justify-content: center;
 }
 
-.row-stats .stat-counter {
+.row-stats .stat-badge {
   width: 30px;
   height: 30px;
   line-height: 30px;
   font-size: 15px;
 }
 
-.opponent-board .stat-counter {
+.opponent-board .stat-badge {
   background-color: lightskyblue;
 }
 
-.player-board .stat-counter {
+.player-board .stat-badge {
   background-color: lemonchiffon;
 }
 
@@ -165,6 +165,7 @@ body {
 }
 
 .card {
+  position: relative;
   width: 50px;
   height: 100%;
   box-sizing: border-box;
@@ -175,31 +176,42 @@ body {
   background-color: #000000;
 }
 
-.card .stat-counter {
+.card-stat-badge {
+  text-align: center;
+  border: 2px solid #000000;
+  border-radius: 50%;
   width: 18px;
   height: 18px;
   line-height: 18px;
-  border-width: 2px;
   font-size: 12px;
 }
 
-.card .value.stat-counter {
-  border-color: #000000;
+.card-stat-badge.value {
   background-color: #ffffff;
 }
 
-.card.hero .value.stat-counter {
+.card.hero .card-stat-badge.value {
   border-color: #f9a825;
   color: #f9a825;
   background-color: #000000;
 }
 
-.card .ability.stat-counter {
+.card-stat-badge.ability {
+  border-color: #ffffff;
   color: #ffffff;
   background-color: #000000;
 }
 
+.card-stat-badge.type {
+  position: absolute;
+  bottom: 2px;
+  right: 0;
+  border-color: #775022;
+  background-color: #c9883a;
+}
+
 .card-modal {
+  z-index: 5000;
   position: absolute;
   top: 0;
   bottom: 70px;
@@ -345,11 +357,15 @@ body {
     width: 90px;
   }
 
-  .card .stat-counter {
+  .card-stat-badge {
     width: 26px;
     height: 26px;
     line-height: 26px;
     font-size: 16px;
+  }
+
+  .card-stat-badge.type {
+    bottom: 5px;
   }
 
   .row-stats {
@@ -364,20 +380,20 @@ body {
     padding-left: 20px;
   }
 
-  .player-total.stat-counter,
-  .opponent-total.stat-counter {
+  .player-total.stat-badge,
+  .opponent-total.stat-badge {
     border: 5px solid #ffffff;
   }
 
-  .player-total.stat-counter,
-  .opponent-total.stat-counter {
+  .player-total.stat-badge,
+  .opponent-total.stat-badge {
     width: 80px;
     height: 80px;
     line-height: 80px;
     font-size: 36px;
   }
 
-  .row-stats .stat-counter {
+  .row-stats .stat-badge {
     width: 50px;
     height: 50px;
     line-height: 50px;

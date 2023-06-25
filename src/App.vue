@@ -211,7 +211,7 @@ function resetActiveCard(callback: Function) {
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
-            <div class="stat-counter">{{ getOpponentRowTotal(i) }}</div>
+            <div class="stat-badge">{{ getOpponentRowTotal(i) }}</div>
           </div>
 
           <div class="card-container">
@@ -224,6 +224,7 @@ function resetActiveCard(callback: Function) {
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
+              :type-icon="card.typeIcon"
               :value="card.value"
               :class="{ active: card.active }"
               tabindex="4"
@@ -238,7 +239,7 @@ function resetActiveCard(callback: Function) {
 
       <div class="game-stats">
         <div class="player-stats">
-          <div class="stat-counter player-total">{{ playerTotal }}</div>
+          <div class="stat-badge player-total">{{ playerTotal }}</div>
         </div>
         <BoardCard
           v-if="specialCards.length && specialCards.length > 1"
@@ -249,20 +250,21 @@ function resetActiveCard(callback: Function) {
           :faction="specialCards[specialCards.length - 1].faction"
           :hero="specialCards[specialCards.length - 1].hero"
           :image="specialCards[specialCards.length - 1].image"
+          :type-icon="specialCards[specialCards.length - 1].typeIcon"
           :value="specialCards[specialCards.length - 1].value"
           :class="{ active: specialCards[specialCards.length - 1].active }"
           tabindex="5"
         />
         <BoardCard v-else tabindex="5" />
         <div class="opponent-stats">
-          <div class="stat-counter opponent-total">{{ opponentTotal }}</div>
+          <div class="stat-badge opponent-total">{{ opponentTotal }}</div>
         </div>
       </div>
 
       <div class="player-board">
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
-            <div class="stat-counter">{{ getPlayerRowTotal(i) }}</div>
+            <div class="stat-badge">{{ getPlayerRowTotal(i) }}</div>
           </div>
 
           <div class="card-container">
@@ -275,6 +277,7 @@ function resetActiveCard(callback: Function) {
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
+              :type-icon="card.typeIcon"
               :value="card.value"
               :class="{ active: card.active }"
               tabindex="3"
@@ -296,6 +299,7 @@ function resetActiveCard(callback: Function) {
             :faction="card.faction"
             :hero="card.hero"
             :image="card.image"
+            :type-icon="card.typeIcon"
             :value="card.value"
             :class="{ active: card.active }"
             tabindex="1"
