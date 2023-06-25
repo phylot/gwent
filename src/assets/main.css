@@ -6,7 +6,6 @@ body {
   overflow: scroll;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
     Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  background-color: blue;
 }
 
 #app {
@@ -253,23 +252,28 @@ body {
 .card-modal .card-modal-content {
   width: 100%;
   height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Card Carousel */
 
 .card-carousel {
-  width: 100%;
+  position: relative;
+  display: flex;
+  width: 340px;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
 }
 
 .slides {
-  font-size: 40px;
   display: flex;
   height: 100%;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
 }
 
 .slide {
@@ -284,6 +288,7 @@ body {
 .next {
   position: absolute;
   top: 50%;
+  left: 0;
   width: 50px;
   height: 50px;
   line-height: 48px;
@@ -293,9 +298,10 @@ body {
   margin-left: 25px;
   border: 2px solid black;
   border-radius: 50%;
-  color: black;
+  color: #fff;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: #000000;
 }
 
 .next {
@@ -307,8 +313,6 @@ body {
 
 .prev:hover,
 .next:hover {
-  background: black;
-  color: #fff;
   transform: scale(1.2);
 }
 
@@ -392,9 +396,11 @@ body {
 /* Desktop Styles */
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
   .game-container {
-    max-width: 80%;
+    width: 80%;
+    max-width: 1600px;
   }
 }
+
 /* Desktop / Tablet Styles */
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
@@ -461,6 +467,12 @@ body {
 
   .card-modal {
     bottom: 110px;
+  }
+
+  /* Card Carousel */
+
+  .card-carousel {
+    width: 460px;
   }
 
   /* Carousel Card */
