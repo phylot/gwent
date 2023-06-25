@@ -15,6 +15,7 @@ import CardModal from './components/CardModal.vue'
 // Data
 
 let loading = ref(true)
+let isDesktop = ref(false)
 let playerHand = reactive(allCards)
 // let opponentHand = reactive(dummyOpponentHand)
 let playerBoardCards = reactive(dummyPlayerCards)
@@ -50,6 +51,8 @@ onMounted(() => {
   preloadImages(playerHand, () => {
     loading.value = false
   })
+  onResize()
+  window.addEventListener('resize', onResize)
 })
 
 // Methods
@@ -70,6 +73,15 @@ function preloadImages(cards: Card[], callback: Function) {
     }
     img.src = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
   }
+}
+
+function onResize() {
+  let width = window.innerWidth
+  let height = window.innerHeight
+  let isLandscape = width > height
+
+  isDesktop.value =
+    (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
 function handCardClick(index: number) {
@@ -208,6 +220,7 @@ function resetActiveCard(callback: Function) {
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :default-value="card.defaultValue"
+              :desktop="isDesktop"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
@@ -232,6 +245,7 @@ function resetActiveCard(callback: Function) {
           :ability="specialCards[specialCards.length - 1].ability"
           :ability-icon="specialCards[specialCards.length - 1].abilityIcon"
           :default-value="specialCards[specialCards.length - 1].value"
+          :desktop="isDesktop"
           :faction="specialCards[specialCards.length - 1].faction"
           :hero="specialCards[specialCards.length - 1].hero"
           :image="specialCards[specialCards.length - 1].image"
@@ -257,6 +271,7 @@ function resetActiveCard(callback: Function) {
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :default-value="card.defaultValue"
+              :desktop="isDesktop"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
@@ -277,6 +292,7 @@ function resetActiveCard(callback: Function) {
             :ability="card.ability"
             :ability-icon="card.abilityIcon"
             :default-value="card.defaultValue"
+            :desktop="isDesktop"
             :faction="card.faction"
             :hero="card.hero"
             :image="card.image"
