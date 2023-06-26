@@ -192,6 +192,15 @@ body {
   background-color: #000000;
 }
 
+.no-mobile-highlight {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* Board Card */
 
 .board-card {
@@ -222,7 +231,6 @@ body {
 .board-card .card-stat-badge {
   width: 18px;
   height: 18px;
-  /*line-height: 18px;*/
   font-size: 12px;
 }
 
@@ -263,7 +271,7 @@ body {
 .card-carousel {
   position: relative;
   display: flex;
-  width: 340px;
+  width: 300px;
   height: 100%;
   align-items: center;
   justify-content: center;
@@ -284,18 +292,17 @@ body {
   display: block;
 }
 
-.prev,
-.next {
+.prev-btn,
+.next-btn {
   position: absolute;
   top: 50%;
   left: 0;
   width: 50px;
   height: 50px;
-  line-height: 48px;
-  text-align: center;
-  text-indent: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: -25px;
-  margin-left: 25px;
   border: 2px solid black;
   border-radius: 50%;
   color: #fff;
@@ -304,21 +311,27 @@ body {
   background: #000000;
 }
 
-.next {
+.next-btn {
+  left: auto;
   right: 0;
-  margin-left: auto;
-  margin-right: 25px;
-  text-indent: 2px;
 }
 
-.prev:hover,
-.next:hover {
-  transform: scale(1.2);
+.prev-btn:active,
+.next-btn:active {
+  transform: translate(0, 3px);
 }
 
-.prev:active,
-.next:active {
-  transform: translate(0, 3px) scale(1.2);
+/* Hover animation on supported devices only */
+@media (hover: hover) {
+  .prev-btn:hover,
+  .next-btn:hover {
+    transform: scale(1.2);
+  }
+
+  .prev-btn:active,
+  .next-btn:active {
+    transform: translate(0, 3px) scale(1.2);
+  }
 }
 
 .cancel-btn {
@@ -353,12 +366,18 @@ body {
 .carousel-card .card-stat-badge {
   width: 30px;
   height: 30px;
-  /*line-height: 30px;*/
   font-size: 18px;
 }
 
+.carousel-card .card-stat-badge.value,
+.carousel-card .card-stat-badge.ability {
+  margin-top: 2px;
+  margin-left: 2px;
+}
+
 .carousel-card .card-stat-badge.type {
-  bottom: 5px;
+  bottom: 4px;
+  right: 2px;
 }
 
 /* Animations */
@@ -460,7 +479,7 @@ body {
   }
 
   .board-card .card-stat-badge.type {
-    bottom: 5px;
+    bottom: 3px;
   }
 
   /* Card Modal */
@@ -497,10 +516,20 @@ body {
 
   .carousel-card .card-stat-badge.value,
   .carousel-card .card-stat-badge.ability {
-    margin: 5px 5px 0;
+    margin-top: 5px;
+    margin-left: 5px;
   }
 
   .carousel-card .card-stat-badge.type {
+    bottom: 10px;
     right: 5px;
+  }
+
+  .prev-btn,
+  .next-btn {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    margin-top: -35px;
   }
 }

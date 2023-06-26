@@ -15,6 +15,8 @@ import {
   GiPocketBow,
   GiScarecrow,
   GiSunflower,
+  HiChevronLeft,
+  HiChevronRight,
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined
@@ -33,6 +35,8 @@ addIcons(
   GiPocketBow,
   GiScarecrow,
   GiSunflower,
+  HiChevronLeft,
+  HiChevronRight,
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined

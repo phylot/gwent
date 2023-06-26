@@ -189,25 +189,25 @@ function resetActiveCard(callback: Function) {
             </CarouselCard>
           </div>
           <span
-            class="prev"
+            class="prev-btn no-mobile-highlight"
             tabindex="2"
             @click="changeSlide(-1)"
             @keyup.enter="changeSlide(-1)"
             @keyup.space="changeSlide(-1)"
           >
-            <v-icon name="fa-chevron-left" class="icon" scale="1" />
+            <v-icon name="hi-chevron-left" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </span>
           <span
-            class="next"
+            class="next-btn no-mobile-highlight"
             tabindex="2"
             @click="changeSlide(1)"
             @keyup.enter="changeSlide(1)"
             @keyup.space="changeSlide(1)"
           >
-            <v-icon name="fa-chevron-right" class="icon" scale="1" />
+            <v-icon name="hi-chevron-right" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </span>
           <button
-            class="cancel-btn"
+            class="cancel-btn no-mobile-highlight"
             tabindex="2"
             @click="closeCardModal"
             @keyup.enter="closeCardModal"
@@ -237,6 +237,7 @@ function resetActiveCard(callback: Function) {
               :type-icon="card.typeIcon"
               :value="card.value"
               :class="{ active: card.active }"
+              class="no-mobile-highlight"
               tabindex="4"
               :key="j"
               @click="opponentBoardCardClick(j, i)"
@@ -263,9 +264,10 @@ function resetActiveCard(callback: Function) {
           :type-icon="specialCards[specialCards.length - 1].typeIcon"
           :value="specialCards[specialCards.length - 1].value"
           :class="{ active: specialCards[specialCards.length - 1].active }"
+          class="no-mobile-highlight"
           tabindex="5"
         />
-        <BoardCard v-else tabindex="5" />
+        <BoardCard v-else class="no-mobile-highlight" tabindex="5" />
         <div class="opponent-stats">
           <div class="stat-badge opponent-total">{{ opponentTotal }}</div>
         </div>
@@ -290,6 +292,7 @@ function resetActiveCard(callback: Function) {
               :type-icon="card.typeIcon"
               :value="card.value"
               :class="{ active: card.active }"
+              class="no-mobile-highlight"
               tabindex="3"
               :key="j"
               @click="playerBoardCardClick(j, i)"
@@ -312,6 +315,7 @@ function resetActiveCard(callback: Function) {
             :type-icon="card.typeIcon"
             :value="card.value"
             :class="{ active: card.active }"
+            class="no-mobile-highlight"
             tabindex="1"
             :key="i"
             @click="handCardClick(i)"
