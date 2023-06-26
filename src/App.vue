@@ -206,16 +206,17 @@ function resetActiveCard(callback: Function) {
           >
             <v-icon name="hi-chevron-right" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </span>
-          <button
-            class="cancel-btn no-mobile-highlight"
-            tabindex="2"
-            @click="closeCardModal"
-            @keyup.enter="closeCardModal"
-            @keyup.space="closeCardModal"
-          >
-            CANCEL
-          </button>
         </div>
+
+        <button
+          class="cancel-btn no-mobile-highlight"
+          tabindex="2"
+          @click="closeCardModal"
+          @keyup.enter="closeCardModal"
+          @keyup.space="closeCardModal"
+        >
+          CANCEL
+        </button>
       </CardModal>
 
       <div class="opponent-board">
