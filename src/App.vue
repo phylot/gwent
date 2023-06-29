@@ -175,10 +175,12 @@ function resetActiveCard(callback: Function) {
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :default-value="card.defaultValue"
+              :description="card.description"
               :desktop="isDesktop"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
+              :name="card.name"
               :type-icon="card.typeIcon"
               :value="card.value"
               class="slide fade"
@@ -208,6 +210,15 @@ function resetActiveCard(callback: Function) {
           </span>
         </div>
 
+        <button
+          class="cancel-btn no-mobile-highlight"
+          tabindex="2"
+          @click="closeCardModal"
+          @keyup.enter="closeCardModal"
+          @keyup.space="closeCardModal"
+        >
+          PLAY CARD
+        </button>
         <button
           class="cancel-btn no-mobile-highlight"
           tabindex="2"
