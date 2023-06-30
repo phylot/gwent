@@ -221,7 +221,8 @@ function resetActiveCard(callback: Function) {
         </div>
 
         <button
-          class="cancel-btn no-mobile-highlight"
+          v-if="playerHandIsActive"
+          class="btn primary no-mobile-highlight"
           tabindex="2"
           @click="closeCardModal"
           @keyup.enter="closeCardModal"
@@ -230,13 +231,13 @@ function resetActiveCard(callback: Function) {
           PLAY CARD
         </button>
         <button
-          class="cancel-btn no-mobile-highlight"
+          class="btn no-mobile-highlight"
           tabindex="2"
           @click="closeCardModal"
           @keyup.enter="closeCardModal"
           @keyup.space="closeCardModal"
         >
-          CANCEL
+          {{ playerHandIsActive ? 'CANCEL' : 'CLOSE' }}
         </button>
       </CardModal>
 

@@ -35,6 +35,74 @@ body {
   background-color: #000000;
 }
 
+/* Common Shared Classes */
+
+.btn {
+  min-width: 150px;
+  margin: 5px 0;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+  color: #ffffff;
+  background-color: #000000;
+  cursor: pointer;
+}
+
+.btn.primary {
+  border: 1px solid #000000;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.card {
+  position: relative;
+  box-sizing: border-box;
+  background-position: center;
+  background-size: cover;
+  background-color: #000000;
+}
+
+.card-stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.card-stat-badge.ability {
+  border-color: #ffffff;
+  color: #ffffff;
+  background-color: #000000;
+}
+
+.card-stat-badge.type {
+  position: absolute;
+  right: 0;
+  border-color: #775022;
+  background-color: #c9883a;
+}
+
+.card.hero .card-stat-badge.value {
+  border-style: dotted;
+  border-color: #f9a825;
+  color: #f9a825;
+  background-color: #000000;
+}
+
+.no-mobile-highlight {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 /* Board Layout */
 
 .game-container {
@@ -152,55 +220,6 @@ body {
 .player-hand {
   justify-content: center;
   background-color: grey;
-}
-
-/* Common Shared Classes */
-
-.card {
-  position: relative;
-  box-sizing: border-box;
-  background-position: center;
-  background-size: cover;
-  background-color: #000000;
-}
-
-.card-stat-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #000000;
-  border-radius: 50%;
-  color: #000000;
-  background-color: #ffffff;
-}
-
-.card-stat-badge.ability {
-  border-color: #ffffff;
-  color: #ffffff;
-  background-color: #000000;
-}
-
-.card-stat-badge.type {
-  position: absolute;
-  right: 0;
-  border-color: #775022;
-  background-color: #c9883a;
-}
-
-.card.hero .card-stat-badge.value {
-  border-style: dotted;
-  border-color: #f9a825;
-  color: #f9a825;
-  background-color: #000000;
-}
-
-.no-mobile-highlight {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 /* Board Card */
@@ -337,16 +356,6 @@ body {
   }
 }
 
-.cancel-btn {
-  /*position: absolute;*/
-  /*left: 0;*/
-  /*right: 0;*/
-  /*bottom: 0;*/
-  width: 200px;
-  margin: 5px 0;
-  padding: 10px;
-}
-
 /* Carousel Card */
 
 .carousel-card {
@@ -449,6 +458,15 @@ body {
 /* Desktop / Tablet Styles */
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  /* Common Shared Classes */
+
+  .btn {
+    min-width: 250px;
+    margin: 10px 0;
+    padding: 20px;
+    font-size: 20px;
+  }
+
   /* Board Layout */
 
   .game-stats,
@@ -537,6 +555,7 @@ body {
 
   .carousel-card .card-border {
     width: 250px;
+    border-radius: 10px;
   }
 
   .carousel-card .card {

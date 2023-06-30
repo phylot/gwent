@@ -14,7 +14,7 @@ interface Card {
 }
 
 const allCards: Card[] = [
-  { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+  { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
   { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 4, description: "Description", faction: 'br', image: "br-rifle.jpg", name: "Rifleman", type: "ranged", typeIcon: "gi-crossbow", value: 4 },
   { ability: 'boost', abilityIcon: "gi-hunting-horn", active: false, defaultValue: 3, description: "Description", faction: 'br', image: "br-sergent.jpg", name: "Sergent", type: "close", typeIcon: "gi-broadsword", value: 3 },
   { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
@@ -37,9 +37,9 @@ const allCards: Card[] = [
 
 const dummyPlayerCards: Card[][] = [
   [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
     { ability: 'boost', abilityIcon: "gi-hunting-horn",  active: false, defaultValue: 3, description: "Description", faction: 'br', image: "br-sergent.jpg", name: "Sergent", type: "ranged", typeIcon: "gi-crossbow", value: 3 },
     { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
     { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
@@ -58,12 +58,12 @@ const dummyPlayerCards: Card[][] = [
 
 const dummyOpponentCards: Card[][] = [
   [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "... poor bugger.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
+    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'br', image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
     { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
     { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
     { active: false, defaultValue: 6, description: "Description", faction: 'br', image: "br-cavalry.jpg", name: "Cavalry Rider", type: "close", typeIcon: "gi-broadsword", value: 6 },
