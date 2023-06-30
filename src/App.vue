@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
@@ -24,7 +24,9 @@ let opponentBoardCards = reactive(dummyOpponentCards)
 let specialCards = ref(dummySpecialCards)
 let cardModal = ref(false)
 let slideIndex = ref(1)
+let carouselIsHidden = ref(false)
 let activeCardRow = ref(emptyCardRow)
+let playerHandIsActive = ref(false)
 
 // Computed data
 
@@ -85,9 +87,16 @@ function onResize() {
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
-function handCardClick(index: number) {
+async function handCardClick(index: number) {
+  if (!playerHandIsActive.value) {
+    carouselIsHidden.value = true
+  }
+  await nextTick()
+  carouselIsHidden.value = false
+
   resetActiveCard(() => {
     activeCardRow.value = playerHand
+    playerHandIsActive.value = true
     slideIndex.value = index + 1
     showSlide()
     cardModal.value = true
@@ -146,6 +155,7 @@ function showSlide(index?: number) {
 
 function closeCardModal() {
   resetActiveCard(() => {
+    playerHandIsActive.value = false
     cardModal.value = false
   })
 }
@@ -168,7 +178,7 @@ function resetActiveCard(callback: Function) {
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
-        <div class="card-carousel">
+        <div v-if="!carouselIsHidden" class="card-carousel">
           <div class="slides">
             <CarouselCard
               v-for="(card, i) in activeCardRow"
