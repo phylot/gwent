@@ -343,6 +343,14 @@ body {
   transform: translate(0, 3px);
 }
 
+.prev-btn .icon {
+  margin-left: -2px;
+}
+
+.next-btn .icon {
+  margin-right: -2px;
+}
+
 /* Hover animation on supported devices only */
 @media (hover: hover) {
   .prev-btn:hover,

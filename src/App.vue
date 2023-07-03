@@ -50,6 +50,8 @@ const playerTotal = computed((): number => {
   return total
 })
 
+// Hooks
+
 onMounted(() => {
   preloadImages(playerHand, () => {
     loading.value = false
@@ -88,19 +90,27 @@ function onResize() {
 }
 
 async function handCardClick(index: number) {
-  if (!playerHandIsActive.value) {
-    carouselIsHidden.value = true
-  }
-  await nextTick()
-  carouselIsHidden.value = false
+  // If the clicked card is already active, close the card carousel
+  if (activeCardRow.value[index]?.active) {
+    resetActiveCard(() => {
+      closeCardModal()
+    })
+  } else {
+    // If player hand isn't currently active, reload carousel component (hide / show it)
+    if (!playerHandIsActive.value) {
+      carouselIsHidden.value = true
+    }
+    await nextTick()
+    carouselIsHidden.value = false
 
-  resetActiveCard(() => {
-    activeCardRow.value = playerHand
-    playerHandIsActive.value = true
-    slideIndex.value = index + 1
-    showSlide()
-    cardModal.value = true
-  })
+    resetActiveCard(() => {
+      activeCardRow.value = playerHand
+      playerHandIsActive.value = true
+      slideIndex.value = index + 1
+      showSlide()
+      cardModal.value = true
+    })
+  }
 }
 
 function playerBoardCardClick(index: number, rowIndex: number) {
