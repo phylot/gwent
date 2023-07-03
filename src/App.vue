@@ -50,6 +50,23 @@ const playerTotal = computed((): number => {
   return total
 })
 
+const rowTotals = computed(
+  (): {
+    player: number[]
+    opponent: number[]
+  } => {
+    let totals: { player: number[]; opponent: number[] } = { player: [], opponent: [] }
+
+    for (let i = 0; i < playerBoardCards.length; i++) {
+      totals.player.push(getRowTotal(playerBoardCards[i]))
+    }
+    for (let i = 0; i < opponentBoardCards.length; i++) {
+      totals.opponent.push(getRowTotal(opponentBoardCards[i]))
+    }
+    return totals
+  }
+)
+
 // Hooks
 
 onMounted(() => {
@@ -87,6 +104,14 @@ function onResize() {
 
   isDesktop.value =
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
+}
+
+function getRowTotal(arr: Card[]) {
+  let total = 0
+  for (let i = 0; i < arr.length; i++) {
+    total = total + arr[i].value
+  }
+  return total
 }
 
 async function handCardClick(index: number) {
@@ -127,20 +152,13 @@ function opponentBoardCardClick(index: number, rowIndex: number) {
   cardModal.value = true
 }
 
-function getOpponentRowTotal(rowIndex: number): number {
-  let total = 0
-  for (let i = 0; i < opponentBoardCards[rowIndex].length; i++) {
-    total = total + opponentBoardCards[rowIndex][i].value
+function resetActiveCard(callback: Function) {
+  for (let i = 0; i < activeCardRow.value.length; i++) {
+    activeCardRow.value[i].active = false
   }
-  return total
-}
-
-function getPlayerRowTotal(rowIndex: number): number {
-  let total = 0
-  for (let i = 0; i < playerBoardCards[rowIndex].length; i++) {
-    total = total + playerBoardCards[rowIndex][i].value
+  if (callback) {
+    callback()
   }
-  return total
 }
 
 function changeSlide(index: number) {
@@ -168,15 +186,6 @@ function closeCardModal() {
     playerHandIsActive.value = false
     cardModal.value = false
   })
-}
-
-function resetActiveCard(callback: Function) {
-  for (let i = 0; i < activeCardRow.value.length; i++) {
-    activeCardRow.value[i].active = false
-  }
-  if (callback) {
-    callback()
-  }
 }
 </script>
 
@@ -254,7 +263,7 @@ function resetActiveCard(callback: Function) {
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
-            <div class="stat-badge">{{ getOpponentRowTotal(i) }}</div>
+            <div class="stat-badge">{{ rowTotals.opponent[i] }}</div>
           </div>
 
           <div class="card-container">
@@ -309,7 +318,7 @@ function resetActiveCard(callback: Function) {
       <div class="player-board">
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
-            <div class="stat-badge">{{ getPlayerRowTotal(i) }}</div>
+            <div class="stat-badge">{{ rowTotals.player[i] }}</div>
           </div>
 
           <div class="card-container">
