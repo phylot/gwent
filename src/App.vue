@@ -263,7 +263,7 @@ function closeCardModal() {
       <div class="opponent-board">
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
-            <div class="stat-badge">{{ rowTotals.opponent[i] }}</div>
+            <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
           </div>
 
           <div class="card-container">
@@ -292,8 +292,9 @@ function closeCardModal() {
 
       <div class="game-stats">
         <div class="player-stats">
-          <div class="stat-badge player-total">{{ playerTotal }}</div>
+          <div class="stat-badge player">{{ playerTotal }}</div>
         </div>
+
         <BoardCard
           v-if="specialCards.length && specialCards.length > 1"
           :ability="specialCards[specialCards.length - 1].ability"
@@ -310,15 +311,16 @@ function closeCardModal() {
           tabindex="5"
         />
         <BoardCard v-else class="no-mobile-highlight" tabindex="5" />
+
         <div class="opponent-stats">
-          <div class="stat-badge opponent-total">{{ opponentTotal }}</div>
+          <div class="stat-badge opponent">{{ opponentTotal }}</div>
         </div>
       </div>
 
       <div class="player-board">
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
-            <div class="stat-badge">{{ rowTotals.player[i] }}</div>
+            <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
           </div>
 
           <div class="card-container">

@@ -15,7 +15,7 @@ body {
   height: 100%;
   min-width: 320px;
   overflow: scroll;
-  background-color: lightpink;
+  background-color: #000000;
 }
 
 .loader {
@@ -54,6 +54,23 @@ body {
   border: 1px solid #000000;
   color: #000000;
   background-color: #ffffff;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px solid #000000;
+  border-radius: 50%;
+}
+
+.stat-badge.player {
+  background-color: lemonchiffon;
+}
+
+.stat-badge.opponent {
+  background-color: lightskyblue;
 }
 
 .card {
@@ -111,7 +128,7 @@ body {
   width: 100%;
   height: 100%;
   min-width: 320px;
-  background-color: crimson;
+  background-color: #727272;
 }
 
 .scroll-container {
@@ -125,12 +142,10 @@ body {
   display: flex;
   flex-direction: column-reverse;
   justify-content: end;
-  background-color: lightskyblue;
 }
 
 .player-board {
   flex: 1 1;
-  background-color: lemonchiffon;
 }
 
 .game-stats {
@@ -138,7 +153,7 @@ body {
   justify-content: center;
   height: 70px;
   padding-left: 40px;
-  background-color: darkseagreen;
+  background-color: #bfbfbf;
 }
 
 .player-stats,
@@ -155,16 +170,7 @@ body {
   padding-left: 10px;
 }
 
-.stat-badge {
-  text-align: center;
-  border: 3px solid #ffffff;
-  border-radius: 50%;
-}
-
 .game-stats .stat-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 40px;
   height: 40px;
   line-height: 40px;
@@ -172,18 +178,19 @@ body {
   font-size: 20px;
 }
 
-.opponent-stats .stat-badge {
-  background-color: lightskyblue;
-}
-
-.player-stats .stat-badge {
-  background-color: lemonchiffon;
-}
-
 .card-row {
   display: flex;
   height: 70px;
-  background-color: coral;
+  box-sizing: border-box;
+  background-color: #9AA0A8;
+}
+
+.opponent-board .card-row {
+  border-bottom: 1px solid #5c6166;
+}
+
+.player-board .card-row {
+  border-top: 1px solid #5c6166;
 }
 
 .row-stats {
@@ -193,21 +200,10 @@ body {
 }
 
 .row-stats .stat-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 30px;
   height: 30px;
   line-height: 30px;
   font-size: 15px;
-}
-
-.opponent-board .stat-badge {
-  background-color: lightskyblue;
-}
-
-.player-board .stat-badge {
-  background-color: lemonchiffon;
 }
 
 .card-container {
@@ -219,7 +215,7 @@ body {
 
 .player-hand {
   justify-content: center;
-  background-color: grey;
+  background-color: #BFBFBF;
 }
 
 /* Board Card */
@@ -498,13 +494,8 @@ body {
     padding-left: 20px;
   }
 
-  .player-total.stat-badge,
-  .opponent-total.stat-badge {
-    border: 5px solid #ffffff;
-  }
-
-  .player-total.stat-badge,
-  .opponent-total.stat-badge {
+  .player-stats .stat-badge,
+  .opponent-stats .stat-badge {
     width: 80px;
     height: 80px;
     line-height: 80px;
