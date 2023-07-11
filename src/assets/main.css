@@ -38,16 +38,21 @@ body {
 /* Common Shared Classes */
 
 .btn {
-  min-width: 150px;
-  margin: 5px 0;
-  padding: 13px;
-  font-size: 14px;
+  padding: 5px;
+  font-size: 11px;
   font-weight: bold;
   border: 1px solid #ffffff;
   border-radius: 9999px;
   color: #ffffff;
   background-color: #000000;
   cursor: pointer;
+}
+
+.btn.large {
+  min-width: 150px;
+  margin: 5px 0;
+  padding: 13px;
+  font-size: 14px;
 }
 
 .btn.primary {
@@ -148,41 +153,122 @@ body {
   flex: 1 1;
 }
 
+/* Central Game Stats */
+
 .game-stats {
   display: flex;
   justify-content: center;
+  align-items: center;
   height: 70px;
   padding-left: 40px;
   background-color: #bfbfbf;
 }
 
-.player-stats,
-.opponent-stats {
+.game-stats .board-card {
+  flex-shrink: 0;
+}
+
+.player-details,
+.opponent-details {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
   display: flex;
-  align-items: center;
+  /*background-color: blue;*/
 }
 
-.player-stats {
-  padding-right: 10px;
+.player-details {
+  flex-direction: row-reverse;
+  padding-right: 5px;
 }
 
-.opponent-stats {
-  padding-left: 10px;
+.opponent-details {
+  padding-left: 5px;
+}
+
+.game-stats .total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /*background-color: hotpink;*/
+}
+
+.game-stats .avatar {
+  width: 30px;
+  height: 30px;
+  border: 2px solid darkgoldenrod;
+  border-radius: 50%;
+  background-size: cover;
 }
 
 .game-stats .stat-badge {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
+  width: 30px;
+  height: 30px;
+  margin-top: -8px;
+  line-height: 30px;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
 }
+
+.game-stats .details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  /*background-color: chartreuse;*/
+}
+
+.game-stats .name,
+.game-stats .stats {
+  display: flex;
+  height: 30px;
+  padding: 0 5px;
+}
+
+.game-stats .name {
+  flex-direction: column;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.game-stats .name .title {
+  font-weight: bold;
+}
+
+.game-stats .player-details .name {
+  text-align: end;
+}
+
+.game-stats .stats {
+  align-items: center;
+}
+
+.game-stats .player-details .stats {
+  flex-direction: row-reverse;
+  justify-content: end;
+}
+
+.game-stats .stats .rounds,
+.game-stats .stats .hand-total {
+  width: 15px;
+  height: 25px;
+  margin-right: 5px;
+  background-color: #f9a825;
+}
+
+.game-stats .player-details .stats .rounds,
+.game-stats .player-details .stats .hand-total {
+  margin-right: 0;
+  margin-left: 5px;
+}
+
+/* Card Rows */
 
 .card-row {
   display: flex;
   height: 70px;
   box-sizing: border-box;
-  background-color: #9AA0A8;
+  background-color: #9aa0a8;
 }
 
 .opponent-board .card-row {
@@ -215,13 +301,14 @@ body {
 
 .player-hand {
   justify-content: center;
-  background-color: #BFBFBF;
+  background-color: #bfbfbf;
 }
 
 /* Board Card */
 
 .board-card {
   overflow: hidden;
+  height: 100%;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
@@ -465,6 +552,11 @@ body {
   /* Common Shared Classes */
 
   .btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .btn.large {
     min-width: 250px;
     margin: 10px 0;
     padding: 20px;
@@ -486,27 +578,58 @@ body {
     flex: 0 80px;
   }
 
-  .player-stats {
-    padding-right: 20px;
-  }
-
-  .opponent-stats {
-    padding-left: 20px;
-  }
-
-  .player-stats .stat-badge,
-  .opponent-stats .stat-badge {
-    width: 80px;
-    height: 80px;
-    line-height: 80px;
-    font-size: 36px;
-  }
-
   .row-stats .stat-badge {
     width: 50px;
     height: 50px;
     line-height: 50px;
     font-size: 26px;
+  }
+
+  /* Central Game Stats */
+
+  .player-details {
+    padding-right: 20px;
+  }
+
+  .opponent-details {
+    padding-left: 20px;
+  }
+
+  .game-stats .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-size: cover;
+  }
+
+  .game-stats .stat-badge {
+    width: 50px;
+    height: 50px;
+    margin-top: -8px;
+    line-height: 30px;
+    font-size: 24px;
+  }
+
+  .game-stats .name,
+  .game-stats .stats {
+    height: 50px;
+    padding: 0 10px;
+  }
+
+  .game-stats .name {
+    font-size: 16px;
+  }
+
+  .game-stats .stats .rounds,
+  .game-stats .stats .hand-total {
+    height: 40px;
+    width: 40px;
+    margin-right: 15px;
+  }
+
+  .game-stats .player-details .stats .rounds,
+  .game-stats .player-details .stats .hand-total {
+    margin-left: 15px;
   }
 
   /* Board Card */

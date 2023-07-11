@@ -27,6 +27,8 @@ let slideIndex = ref(1)
 let carouselIsHidden = ref(false)
 let activeCardRow = ref(emptyCardRow)
 let playerHandIsActive = ref(false)
+const playerImg = new URL(`./assets/images/br-wellington.jpg`, import.meta.url)
+const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
 
 // Computed data
 
@@ -70,7 +72,7 @@ const rowTotals = computed(
 // Hooks
 
 onMounted(() => {
-  preloadImages(playerHand, () => {
+  preloadCardImages(playerHand, () => {
     loading.value = false
   })
   onResize()
@@ -79,22 +81,30 @@ onMounted(() => {
 
 // Methods
 
-function preloadImages(cards: Card[], callback: Function) {
+function preloadCardImages(cards: Card[], callback: Function) {
   let imageCount = cards.length
   let imagesLoaded = 0
 
   for (let i = 0; i < imageCount; i++) {
-    let img = new Image()
-    img.onload = function () {
+    loadImage(cards[i].image, () => {
       imagesLoaded++
       if (imagesLoaded == imageCount) {
         if (callback) {
           callback()
         }
       }
-    }
-    img.src = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
+    })
   }
+}
+
+function loadImage(image: string, callback: Function) {
+  let img = new Image()
+  img.onload = function () {
+    if (callback) {
+      callback()
+    }
+  }
+  img.src = new URL(`./assets/images/${image}`, import.meta.url).href
 }
 
 function onResize() {
@@ -150,6 +160,14 @@ function opponentBoardCardClick(index: number, rowIndex: number) {
   slideIndex.value = index + 1
   showSlide()
   cardModal.value = true
+}
+
+function playerDeadPileClick() {
+  console.log('playerDeadPileClick')
+}
+
+function opponentDeadPileClick() {
+  console.log('opponentDeadPileClick')
 }
 
 function resetActiveCard(callback: Function) {
@@ -241,7 +259,7 @@ function closeCardModal() {
 
         <button
           v-if="playerHandIsActive"
-          class="btn primary no-mobile-highlight"
+          class="btn large primary no-mobile-highlight"
           tabindex="2"
           @click="closeCardModal"
           @keyup.enter="closeCardModal"
@@ -250,7 +268,7 @@ function closeCardModal() {
           PLAY CARD
         </button>
         <button
-          class="btn no-mobile-highlight"
+          class="btn large no-mobile-highlight"
           tabindex="2"
           @click="closeCardModal"
           @keyup.enter="closeCardModal"
@@ -291,8 +309,30 @@ function closeCardModal() {
       </div>
 
       <div class="game-stats">
-        <div class="player-stats">
-          <div class="stat-badge player">{{ playerTotal }}</div>
+        <div class="player-details">
+          <div class="total">
+            <div class="avatar" :style="{ backgroundImage: `url(${playerImg})` }"></div>
+            <div class="stat-badge player">{{ playerTotal }}</div>
+          </div>
+          <div class="details">
+            <div class="name">
+              <div class="title">Wellington</div>
+              <div class="subtitle">British</div>
+            </div>
+            <div class="stats">
+              <div class="rounds"></div>
+              <div class="hand-total"></div>
+              <button
+                class="btn small no-mobile-highlight"
+                tabindex="1"
+                @click="opponentDeadPileClick"
+                @keyup.enter="opponentDeadPileClick"
+                @keyup.space="opponentDeadPileClick"
+              >
+                99
+              </button>
+            </div>
+          </div>
         </div>
 
         <BoardCard
@@ -312,8 +352,30 @@ function closeCardModal() {
         />
         <BoardCard v-else class="no-mobile-highlight" tabindex="5" />
 
-        <div class="opponent-stats">
-          <div class="stat-badge opponent">{{ opponentTotal }}</div>
+        <div class="opponent-details">
+          <div class="total">
+            <div class="avatar" :style="{ backgroundImage: `url(${opponentImg})` }"></div>
+            <div class="stat-badge opponent">{{ opponentTotal }}</div>
+          </div>
+          <div class="details">
+            <div class="name">
+              <div class="title">Napoleon</div>
+              <div class="subtitle">French</div>
+            </div>
+            <div class="stats">
+              <div class="rounds"></div>
+              <div class="hand-total"></div>
+              <button
+                class="btn no-mobile-highlight"
+                tabindex="1"
+                @click="playerDeadPileClick"
+                @keyup.enter="playerDeadPileClick"
+                @keyup.space="playerDeadPileClick"
+              >
+                99
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
