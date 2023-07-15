@@ -282,6 +282,12 @@ function closeCardModal() {
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
             <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
+            <div class="ability card-stat-badge">
+              <v-icon name="gi-hunting-horn" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
+            <div class="ability card-stat-badge">
+              <v-icon name="gi-heavy-rain" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
           </div>
 
           <div class="card-container">
@@ -308,10 +314,11 @@ function closeCardModal() {
         </div>
       </div>
 
-      <div class="game-stats">
+      <div class="game-details">
         <div class="player-details">
           <div class="total">
-            <div class="avatar" :style="{ backgroundImage: `url(${playerImg})` }"></div>
+            <v-icon name="gi-round-star" class="icon" :scale="isDesktop ? 1.8 : 1.2" fill="gold" />
+            <div class="avatar active" :style="{ backgroundImage: `url(${playerImg})` }"></div>
             <div class="stat-badge player">{{ playerTotal }}</div>
           </div>
           <div class="details">
@@ -320,7 +327,6 @@ function closeCardModal() {
               <div class="subtitle">British</div>
             </div>
             <div class="stats">
-              <div class="rounds"></div>
               <div class="hand-total"></div>
               <button
                 class="btn small no-mobile-highlight"
@@ -354,6 +360,7 @@ function closeCardModal() {
 
         <div class="opponent-details">
           <div class="total">
+            <v-icon name="gi-round-star" class="icon" :scale="isDesktop ? 1.8 : 1.2" fill="gold" />
             <div class="avatar" :style="{ backgroundImage: `url(${opponentImg})` }"></div>
             <div class="stat-badge opponent">{{ opponentTotal }}</div>
           </div>
@@ -363,7 +370,6 @@ function closeCardModal() {
               <div class="subtitle">French</div>
             </div>
             <div class="stats">
-              <div class="rounds"></div>
               <div class="hand-total"></div>
               <button
                 class="btn no-mobile-highlight"
