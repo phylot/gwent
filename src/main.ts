@@ -7,9 +7,11 @@ import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import {
   FaChevronLeft,
   FaChevronRight,
+  FaLayerGroup,
   GiBroadsword,
   GiCatapult,
   GiCrossbow,
+  GiHastyGrave,
   GiHeartPlus,
   GiHeavyRain,
   GiHuntingHorn,
@@ -29,9 +31,11 @@ import './assets/main.css'
 addIcons(
   FaChevronLeft,
   FaChevronRight,
+  FaLayerGroup,
   GiBroadsword,
   GiCatapult,
   GiCrossbow,
+  GiHastyGrave,
   GiHeartPlus,
   GiHeavyRain,
   GiHuntingHorn,

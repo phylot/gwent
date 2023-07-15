@@ -272,16 +272,18 @@ body {
   justify-content: end;
 }
 
-.game-details .stats .hand-total {
-  width: 25px;
+.game-details .stats .hand-total,
+.game-details .stats .dead-pile {
+  display: flex;
+  align-items: center;
+  width: 34px;
   height: 25px;
-  margin-right: 5px;
-  background-color: #f9a825;
+  font-size: 12px;
 }
 
-.game-details .player-details .stats .hand-total {
-  margin-right: 0;
-  margin-left: 5px;
+.game-details .player-details .stats .hand-total,
+.game-details .player-details .stats .dead-pile {
+  flex-direction: row-reverse;
 }
 
 /* Card Rows */
@@ -666,14 +668,19 @@ body {
     font-size: 16px;
   }
 
-  .game-details .stats .hand-total {
+  .game-details .stats .hand-total,
+  .game-details .stats .dead-pile {
     height: 40px;
-    width: 40px;
-    margin-right: 15px;
+    width: 70px;
+    font-size: 20px;
   }
 
-  .game-details .player-details .stats .hand-total {
-    margin-left: 15px;
+  .game-details .player-details .stats .icon {
+    margin-left: 2px;
+  }
+
+  .game-details .opponent-details .stats .icon {
+    margin-right: 2px;
   }
 
   /* Board Card */

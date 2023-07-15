@@ -18,7 +18,7 @@ import CarouselCard from './components/CarouselCard.vue'
 let loading = ref(true)
 let isDesktop = ref(false)
 let playerHand = reactive(allCards)
-// let opponentHand = reactive(dummyOpponentHand)
+let opponentHand = reactive(allCards)
 let playerBoardCards = reactive(dummyPlayerCards)
 let opponentBoardCards = reactive(dummyOpponentCards)
 let specialCards = ref(dummySpecialCards)
@@ -68,6 +68,22 @@ const rowTotals = computed(
     return totals
   }
 )
+
+const playerHandCount = computed((): number => {
+  let count = 0
+  if (playerHand && playerHand.length) {
+    count = playerHand.length
+  }
+  return count
+})
+
+const opponentHandCount = computed((): number => {
+  let count = 0
+  if (opponentHand && opponentHand.length) {
+    count = opponentHand.length
+  }
+  return count
+})
 
 // Hooks
 
@@ -317,7 +333,14 @@ function closeCardModal() {
       <div class="game-details">
         <div class="player-details">
           <div class="total">
-            <v-icon name="gi-round-star" class="icon" :scale="isDesktop ? 1.8 : 1.2" fill="gold" />
+            <!--            <v-icon-->
+            <!--              name="gi-round-star"-->
+            <!--              class="icon"-->
+            <!--              :scale="isDesktop ? 1.8 : 1.2"-->
+            <!--              animation="float"-->
+            <!--              speed="slow"-->
+            <!--              fill="gold"-->
+            <!--            />-->
             <div class="avatar active" :style="{ backgroundImage: `url(${playerImg})` }"></div>
             <div class="stat-badge player">{{ playerTotal }}</div>
           </div>
@@ -327,16 +350,19 @@ function closeCardModal() {
               <div class="subtitle">British</div>
             </div>
             <div class="stats">
-              <div class="hand-total"></div>
-              <button
-                class="btn small no-mobile-highlight"
-                tabindex="1"
-                @click="opponentDeadPileClick"
-                @keyup.enter="opponentDeadPileClick"
-                @keyup.space="opponentDeadPileClick"
+              <div class="hand-total">
+                <v-icon name="fa-layer-group" class="icon" :scale="isDesktop ? 2 : 1" />
+                {{ playerHandCount }}
+              </div>
+              <div
+                class="dead-pile no-mobile-highlight"
+                @click="playerDeadPileClick"
+                @keyup.enter="playerDeadPileClick"
+                @keyup.space="playerDeadPileClick"
               >
-                99
-              </button>
+                <v-icon name="gi-hasty-grave" class="icon" :scale="isDesktop ? 2 : 1" />
+                0
+              </div>
             </div>
           </div>
         </div>
@@ -360,7 +386,14 @@ function closeCardModal() {
 
         <div class="opponent-details">
           <div class="total">
-            <v-icon name="gi-round-star" class="icon" :scale="isDesktop ? 1.8 : 1.2" fill="gold" />
+            <v-icon
+              name="gi-round-star"
+              class="icon"
+              :scale="isDesktop ? 1.8 : 1.2"
+              animation="float"
+              speed="slow"
+              fill="gold"
+            />
             <div class="avatar" :style="{ backgroundImage: `url(${opponentImg})` }"></div>
             <div class="stat-badge opponent">{{ opponentTotal }}</div>
           </div>
@@ -370,16 +403,19 @@ function closeCardModal() {
               <div class="subtitle">French</div>
             </div>
             <div class="stats">
-              <div class="hand-total"></div>
-              <button
-                class="btn no-mobile-highlight"
-                tabindex="1"
-                @click="playerDeadPileClick"
-                @keyup.enter="playerDeadPileClick"
-                @keyup.space="playerDeadPileClick"
+              <div class="hand-total">
+                <v-icon name="fa-layer-group" class="icon" :scale="isDesktop ? 2 : 1" />
+                {{ opponentHandCount }}
+              </div>
+              <div
+                class="dead-pile no-mobile-highlight"
+                @click="opponentDeadPileClick"
+                @keyup.enter="opponentDeadPileClick"
+                @keyup.space="opponentDeadPileClick"
               >
-                99
-              </button>
+                <v-icon name="gi-hasty-grave" class="icon" :scale="isDesktop ? 2 : 1" />
+                0
+              </div>
             </div>
           </div>
         </div>
