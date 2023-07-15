@@ -160,8 +160,19 @@ body {
   justify-content: center;
   align-items: center;
   height: 70px;
-  padding-left: 30px;
   background-color: #bfbfbf;
+}
+
+.game-details .pass-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 100%;
+}
+
+.game-details .pass-btn span {
+  transform: rotate(-90deg);
 }
 
 .game-details .board-card {
@@ -408,7 +419,6 @@ body {
   position: relative;
   display: flex;
   width: 300px;
-  /*height: 100%;*/
   align-items: center;
   justify-content: center;
 }
@@ -601,10 +611,6 @@ body {
     height: 110px;
   }
 
-  .game-details {
-    padding-left: 55px;
-  }
-
   .row-stats {
     flex: 0 55px;
   }
@@ -624,6 +630,11 @@ body {
   }
 
   /* Central Game Stats */
+
+  .game-details .pass-btn {
+    width: 55px;
+    font-size: 20px;
+  }
 
   .player-details {
     padding-right: 20px;

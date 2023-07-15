@@ -186,6 +186,10 @@ function opponentDeadPileClick() {
   console.log('opponentDeadPileClick')
 }
 
+function pass() {
+  console.log('You shall not pass!')
+}
+
 function resetActiveCard(callback: Function) {
   for (let i = 0; i < activeCardRow.value.length; i++) {
     activeCardRow.value[i].active = false
@@ -331,6 +335,7 @@ function closeCardModal() {
       </div>
 
       <div class="game-details">
+        <button class="btn pass-btn no-mobile-highlight" @click="pass"><span>PASS</span></button>
         <div class="player-details">
           <div class="total">
             <!--            <v-icon-->
