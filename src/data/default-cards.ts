@@ -87,6 +87,9 @@ const dummySpecialCards: Card[] = [
 
 const emptyCardRow: Card[] = []
 
+const dummyPlayerBuffs: String[][] = [[], ["double"], []]
+const dummyOpponentBuffs: String[][] = [["double"], [], ["rain"]]
+
 export {
   type Card,
   allCards,
@@ -94,5 +97,7 @@ export {
   dummyPlayerCards,
   dummyOpponentCards,
   dummySpecialCards,
-  emptyCardRow
+  emptyCardRow,
+  dummyPlayerBuffs,
+  dummyOpponentBuffs
 }

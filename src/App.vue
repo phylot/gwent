@@ -7,7 +7,9 @@ import {
   dummyPlayerCards,
   dummyOpponentCards,
   dummySpecialCards,
-  emptyCardRow
+  emptyCardRow,
+  dummyPlayerBuffs,
+  dummyOpponentBuffs
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
@@ -21,6 +23,8 @@ let playerHand = reactive(allCards)
 let opponentHand = reactive(allCards)
 let playerBoardCards = reactive(dummyPlayerCards)
 let opponentBoardCards = reactive(dummyOpponentCards)
+let playerBuffs = reactive(dummyPlayerBuffs)
+let opponentBuffs = reactive(dummyOpponentBuffs)
 let specialCards = ref(dummySpecialCards)
 let cardModal = ref(false)
 let slideIndex = ref(1)
@@ -187,7 +191,7 @@ function opponentDeadPileClick() {
 }
 
 function pass() {
-  console.log('You shall not pass!')
+  alert('You shall not pass!')
 }
 
 function resetActiveCard(callback: Function) {
@@ -302,10 +306,10 @@ function closeCardModal() {
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
             <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
-            <div class="ability card-stat-badge">
+            <div v-if="opponentBuffs[i].includes('double')" class="ability card-stat-badge">
               <v-icon name="gi-hunting-horn" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
-            <div class="ability card-stat-badge">
+            <div v-if="opponentBuffs[i].includes('rain')" class="ability card-stat-badge">
               <v-icon name="gi-heavy-rain" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
           </div>
@@ -387,6 +391,7 @@ function closeCardModal() {
           class="no-mobile-highlight"
           tabindex="5"
         />
+        <!-- TODO: CardPlaceholder component + remove placeholder from BoardCard -->
         <BoardCard v-else class="no-mobile-highlight" tabindex="5" />
 
         <div class="opponent-details">
@@ -430,6 +435,12 @@ function closeCardModal() {
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
             <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
+            <div v-if="playerBuffs[i].includes('double')" class="ability card-stat-badge">
+              <v-icon name="gi-hunting-horn" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
+            <div v-if="playerBuffs[i].includes('rain')" class="ability card-stat-badge">
+              <v-icon name="gi-heavy-rain" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
           </div>
 
           <div class="card-container">
