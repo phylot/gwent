@@ -177,6 +177,7 @@ body {
 
 .game-details .board-card {
   flex-shrink: 0;
+  margin: 0 5px;
 }
 
 .player-details,
@@ -189,11 +190,6 @@ body {
 
 .player-details {
   flex-direction: row-reverse;
-  padding-right: 5px;
-}
-
-.opponent-details {
-  padding-left: 5px;
 }
 
 .game-details .total {
@@ -287,9 +283,10 @@ body {
 .game-details .stats .dead-pile {
   display: flex;
   align-items: center;
-  width: 34px;
+  width: 35px;
   height: 25px;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .game-details .player-details .stats .hand-total,

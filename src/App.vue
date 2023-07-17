@@ -365,7 +365,7 @@ function closeCardModal() {
                 @keyup.enter="playerDeadPileClick"
                 @keyup.space="playerDeadPileClick"
               >
-                <v-icon name="gi-hasty-grave" class="icon" :scale="isDesktop ? 2 : 1" />
+                <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 0
               </div>
             </div>
@@ -418,7 +418,7 @@ function closeCardModal() {
                 @keyup.enter="opponentDeadPileClick"
                 @keyup.space="opponentDeadPileClick"
               >
-                <v-icon name="gi-hasty-grave" class="icon" :scale="isDesktop ? 2 : 1" />
+                <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 0
               </div>
             </div>
