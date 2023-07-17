@@ -4,6 +4,7 @@ import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import {
   type Card,
   allCards,
+  dummyOpponentHand,
   dummyPlayerCards,
   dummyOpponentCards,
   dummySpecialCards,
@@ -20,7 +21,7 @@ import CarouselCard from './components/CarouselCard.vue'
 let loading = ref(true)
 let isDesktop = ref(false)
 let playerHand = reactive(allCards)
-let opponentHand = reactive(allCards)
+let opponentHand = reactive(dummyOpponentHand)
 let playerBoardCards = reactive(dummyPlayerCards)
 let opponentBoardCards = reactive(dummyOpponentCards)
 let playerBuffs = reactive(dummyPlayerBuffs)
@@ -306,11 +307,8 @@ function closeCardModal() {
         <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
           <div class="row-stats">
             <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
-            <div v-if="opponentBuffs[i].includes('double')" class="ability card-stat-badge">
-              <v-icon name="gi-hunting-horn" class="icon" :scale="isDesktop ? 1 : 0.8" />
-            </div>
-            <div v-if="opponentBuffs[i].includes('rain')" class="ability card-stat-badge">
-              <v-icon name="gi-heavy-rain" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            <div v-for="(card, key) in opponentBuffs[i]" class="ability card-stat-badge" :key="key">
+              <v-icon :name="card.abilityIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
           </div>
 
@@ -435,11 +433,8 @@ function closeCardModal() {
         <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
           <div class="row-stats">
             <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
-            <div v-if="playerBuffs[i].includes('double')" class="ability card-stat-badge">
-              <v-icon name="gi-hunting-horn" class="icon" :scale="isDesktop ? 1 : 0.8" />
-            </div>
-            <div v-if="playerBuffs[i].includes('rain')" class="ability card-stat-badge">
-              <v-icon name="gi-heavy-rain" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            <div v-for="(card, key) in playerBuffs[i]" class="ability card-stat-badge" :key="key">
+              <v-icon :name="card.abilityIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
           </div>
 
