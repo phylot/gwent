@@ -286,6 +286,9 @@ body {
   width: 35px;
   height: 25px;
   font-size: 12px;
+}
+
+.game-details .stats .dead-pile {
   cursor: pointer;
 }
 

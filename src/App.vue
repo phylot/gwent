@@ -3,14 +3,15 @@ import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
-  allCards,
-  dummyOpponentHand,
-  dummyPlayerCards,
-  dummyOpponentCards,
+  allOpponentCards,
+  allPlayerCards,
+  // dummyPlayerCards,
+  // dummyOpponentCards,
   dummySpecialCards,
-  emptyCardRow,
+  emptyCardArray,
   dummyPlayerBuffs,
-  dummyOpponentBuffs
+  dummyOpponentBuffs,
+  emptyBoardArrays
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
@@ -20,17 +21,21 @@ import CarouselCard from './components/CarouselCard.vue'
 
 let loading = ref(true)
 let isDesktop = ref(false)
-let playerHand = reactive(allCards)
-let opponentHand = reactive(dummyOpponentHand)
-let playerBoardCards = reactive(dummyPlayerCards)
-let opponentBoardCards = reactive(dummyOpponentCards)
+let playerDeck = ref(allPlayerCards)
+let opponentDeck = ref(allOpponentCards)
+let playerHand = ref(emptyCardArray)
+let opponentHand = ref(emptyCardArray)
+// let playerBoardCards = reactive(dummyPlayerCards)
+let playerBoardCards = reactive(emptyBoardArrays)
+// let opponentBoardCards = reactive(dummyOpponentCards)
+let opponentBoardCards = reactive(emptyBoardArrays)
 let playerBuffs = reactive(dummyPlayerBuffs)
 let opponentBuffs = reactive(dummyOpponentBuffs)
 let specialCards = ref(dummySpecialCards)
 let cardModal = ref(false)
 let slideIndex = ref(1)
 let carouselIsHidden = ref(false)
-let activeCardRow = ref(emptyCardRow)
+let activeCardRow = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
 const playerImg = new URL(`./assets/images/br-wellington.jpg`, import.meta.url)
 const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
@@ -76,16 +81,16 @@ const rowTotals = computed(
 
 const playerHandCount = computed((): number => {
   let count = 0
-  if (playerHand && playerHand.length) {
-    count = playerHand.length
+  if (playerHand && playerHand.value.length) {
+    count = playerHand.value.length
   }
   return count
 })
 
 const opponentHandCount = computed((): number => {
   let count = 0
-  if (opponentHand && opponentHand.length) {
-    count = opponentHand.length
+  if (opponentHand && opponentHand.value.length) {
+    count = opponentHand.value.length
   }
   return count
 })
@@ -93,14 +98,27 @@ const opponentHandCount = computed((): number => {
 // Hooks
 
 onMounted(() => {
-  preloadCardImages(playerHand, () => {
-    loading.value = false
-  })
   onResize()
   window.addEventListener('resize', onResize)
+
+  preloadCardImages(allPlayerCards, () => {
+    // TODO: Call this from main menu "New Game" or "Continue" click
+    setupGame(() => {
+      loading.value = false
+    })
+  })
 })
 
 // Methods
+
+function onResize() {
+  let width = window.innerWidth
+  let height = window.innerHeight
+  let isLandscape = width > height
+
+  isDesktop.value =
+    (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
+}
 
 function preloadCardImages(cards: Card[], callback: Function) {
   let imageCount = cards.length
@@ -128,13 +146,33 @@ function loadImage(image: string, callback: Function) {
   img.src = new URL(`./assets/images/${image}`, import.meta.url).href
 }
 
-function onResize() {
-  let width = window.innerWidth
-  let height = window.innerHeight
-  let isLandscape = width > height
+function setupGame(callback: Function) {
+  // Reset any existing game data / set default values
 
-  isDesktop.value =
-    (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
+  // Generate a random hand of 10 cards for each player
+  // TODO: Give each card a unique ID (directly in card data)
+  playerHand.value = dealRandomCards(playerDeck.value, 10)
+  opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+
+  // console.log("playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
+  // console.log("playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+
+  // Decide turn
+
+  if (callback) {
+    callback()
+  }
+}
+
+function dealRandomCards(arr: Card[], amount: number) {
+  let cards = []
+  for (let i = 0; i < amount; i++) {
+    let randomIndex = Math.floor(Math.random() * arr.length)
+
+    cards.push(arr[randomIndex])
+    arr.splice(randomIndex, 1)
+  }
+  return cards
 }
 
 function getRowTotal(arr: Card[]) {
@@ -160,7 +198,7 @@ async function handCardClick(index: number) {
     carouselIsHidden.value = false
 
     resetActiveCard(() => {
-      activeCardRow.value = playerHand
+      activeCardRow.value = playerHand.value
       playerHandIsActive.value = true
       slideIndex.value = index + 1
       showSlide()
