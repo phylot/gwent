@@ -202,12 +202,15 @@ body {
 .game-details .total .icon {
   position: absolute;
   top: -5px;
+}
+
+.game-details .player-details .total .round-icon,
+.game-details .opponent-details .total .pass-icon {
   left: -5px;
 }
 
-.game-details .opponent-details .total .icon {
-  position: absolute;
-  left: auto;
+.game-details .player-details .total .pass-icon,
+.game-details .opponent-details .total .round-icon {
   right: -5px;
 }
 
@@ -646,11 +649,15 @@ body {
 
   .game-details .total .icon {
     top: -8px;
+  }
+
+  .game-details .player-details .total .round-icon,
+  .game-details .opponent-details .total .pass-icon {
     left: -8px;
   }
 
-  .game-details .opponent-details .total .icon {
-    left: auto;
+  .game-details .player-details .total .pass-icon,
+  .game-details .opponent-details .total .round-icon {
     right: -8px;
   }
 

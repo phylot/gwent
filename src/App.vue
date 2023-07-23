@@ -37,6 +37,10 @@ let slideIndex = ref(1)
 let carouselIsHidden = ref(false)
 let activeCardRow = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
+let playerPassed = ref(false)
+let opponentPassed = ref(false)
+let playerHasRound = ref(false)
+let opponentHasRound = ref(false)
 const playerImg = new URL(`./assets/images/br-wellington.jpg`, import.meta.url)
 const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
 
@@ -378,14 +382,21 @@ function closeCardModal() {
         <button class="btn pass-btn no-mobile-highlight" @click="pass"><span>PASS</span></button>
         <div class="player-details">
           <div class="total">
-            <!--            <v-icon-->
-            <!--              name="gi-round-star"-->
-            <!--              class="icon"-->
-            <!--              :scale="isDesktop ? 1.8 : 1.2"-->
-            <!--              animation="float"-->
-            <!--              speed="slow"-->
-            <!--              fill="gold"-->
-            <!--            />-->
+            <v-icon
+              v-if="playerHasRound"
+              name="gi-round-star"
+              class="icon round-icon"
+              :scale="isDesktop ? 1.8 : 1.2"
+              fill="gold"
+            />
+            <v-icon
+              v-if="playerPassed"
+              name="pr-flag-fill"
+              class="icon pass-icon"
+              :scale="isDesktop ? 1.8 : 1.2"
+              animation="float"
+              fill="white"
+            />
             <div class="avatar active" :style="{ backgroundImage: `url(${playerImg})` }"></div>
             <div class="stat-badge player">{{ playerTotal }}</div>
           </div>
@@ -433,12 +444,19 @@ function closeCardModal() {
         <div class="opponent-details">
           <div class="total">
             <v-icon
+              v-if="opponentHasRound"
               name="gi-round-star"
-              class="icon"
+              class="icon round-icon"
+              :scale="isDesktop ? 1.8 : 1.2"
+              fill="gold"
+            />
+            <v-icon
+              v-if="opponentPassed"
+              name="pr-flag-fill"
+              class="icon pass-icon"
               :scale="isDesktop ? 1.8 : 1.2"
               animation="float"
-              speed="slow"
-              fill="gold"
+              fill="white"
             />
             <div class="avatar" :style="{ backgroundImage: `url(${opponentImg})` }"></div>
             <div class="stat-badge opponent">{{ opponentTotal }}</div>

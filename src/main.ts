@@ -23,7 +23,8 @@ import {
   HiChevronRight,
   HiSolidEye,
   IoSkull,
-  MdHandshakeOutlined
+  MdHandshakeOutlined,
+  PrFlagFill
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
@@ -47,7 +48,8 @@ addIcons(
   HiChevronRight,
   HiSolidEye,
   IoSkull,
-  MdHandshakeOutlined
+  MdHandshakeOutlined,
+  PrFlagFill,
 )
 
 const app = createApp(App)
