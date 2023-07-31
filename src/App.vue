@@ -7,10 +7,10 @@ import {
   allPlayerCards,
   // dummyPlayerCards,
   // dummyOpponentCards,
-  dummySpecialCards,
+  // dummySpecialCards,
   emptyCardArray,
-  dummyPlayerBuffs,
-  dummyOpponentBuffs,
+  // dummyPlayerBuffs,
+  // dummyOpponentBuffs,
   emptyBoardArrays
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
@@ -29,9 +29,12 @@ let opponentHand = ref(emptyCardArray)
 let playerBoardCards = reactive(emptyBoardArrays)
 // let opponentBoardCards = reactive(dummyOpponentCards)
 let opponentBoardCards = reactive(emptyBoardArrays)
-let playerBuffs = reactive(dummyPlayerBuffs)
-let opponentBuffs = reactive(dummyOpponentBuffs)
-let specialCards = ref(dummySpecialCards)
+// let playerBuffs = reactive(dummyPlayerBuffs)
+// let opponentBuffs = reactive(dummyOpponentBuffs)
+let playerBuffs = reactive(emptyBoardArrays)
+let opponentBuffs = reactive(emptyBoardArrays)
+// let specialDeadPile = ref(dummySpecialCards)
+let specialDeadPile = ref(emptyCardArray)
 let cardModal = ref(false)
 let slideIndex = ref(1)
 let carouselIsHidden = ref(false)
@@ -424,22 +427,21 @@ function closeCardModal() {
         </div>
 
         <BoardCard
-          v-if="specialCards.length && specialCards.length > 1"
-          :ability="specialCards[specialCards.length - 1].ability"
-          :ability-icon="specialCards[specialCards.length - 1].abilityIcon"
-          :default-value="specialCards[specialCards.length - 1].value"
+          v-if="specialDeadPile.length && specialDeadPile.length > 1"
+          :ability="specialDeadPile[specialDeadPile.length - 1].ability"
+          :ability-icon="specialDeadPile[specialDeadPile.length - 1].abilityIcon"
+          :default-value="specialDeadPile[specialDeadPile.length - 1].value"
           :desktop="isDesktop"
-          :faction="specialCards[specialCards.length - 1].faction"
-          :hero="specialCards[specialCards.length - 1].hero"
-          :image="specialCards[specialCards.length - 1].image"
-          :type-icon="specialCards[specialCards.length - 1].typeIcon"
-          :value="specialCards[specialCards.length - 1].value"
-          :class="{ active: specialCards[specialCards.length - 1].active }"
+          :faction="specialDeadPile[specialDeadPile.length - 1].faction"
+          :hero="specialDeadPile[specialDeadPile.length - 1].hero"
+          :image="specialDeadPile[specialDeadPile.length - 1].image"
+          :type-icon="specialDeadPile[specialDeadPile.length - 1].typeIcon"
+          :value="specialDeadPile[specialDeadPile.length - 1].value"
+          :class="{ active: specialDeadPile[specialDeadPile.length - 1].active }"
           class="no-mobile-highlight"
           tabindex="5"
         />
-        <!-- TODO: CardPlaceholder component + remove placeholder from BoardCard -->
-        <BoardCard v-else class="no-mobile-highlight" tabindex="5" />
+        <BoardCard v-else :desktop="isDesktop" class="no-mobile-highlight" tabindex="5" />
 
         <div class="opponent-details">
           <div class="total">

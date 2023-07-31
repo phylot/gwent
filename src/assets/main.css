@@ -83,7 +83,6 @@ body {
   box-sizing: border-box;
   background-position: center;
   background-size: cover;
-  background-color: #000000;
 }
 
 .card-stat-badge {
@@ -385,6 +384,23 @@ body {
 
 .board-card .card-stat-badge.type {
   bottom: 2px;
+}
+
+.board-card .placeholder {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid #60656b;
+}
+
+.placeholder .icon {
+  color: #60656b;
 }
 
 /* Card Modal */

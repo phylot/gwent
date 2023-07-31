@@ -18,7 +18,10 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
     <div
       class="card"
       :class="{ hero: props.hero }"
-      :style="{ backgroundImage: `url(${imageUrl})` }"
+      :style="{
+        backgroundImage: `url(${imageUrl})`,
+        backgroundColor: props.image ? '#000000' : 'grey'
+      }"
     >
       <template v-if="props.image">
         <div v-if="defaultValue" class="value card-stat-badge">{{ value }}</div>
@@ -29,7 +32,9 @@ const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
           <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.8" />
         </div>
       </template>
-      <div v-else style="color: #ffffff">Placeholder</div>
+      <div v-else class="placeholder">
+        <v-icon name="gi-sunflower" class="icon" :scale="desktop ? 2 : 1.2" />
+      </div>
     </div>
   </div>
 </template>
