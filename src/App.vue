@@ -5,22 +5,24 @@ import {
   type Card,
   allOpponentCards,
   allPlayerCards,
+  emptyBoardArrays,
+  emptyCardArray
   // dummyPlayerCards,
   // dummyOpponentCards,
   // dummySpecialCards,
-  emptyCardArray,
   // dummyPlayerBuffs,
   // dummyOpponentBuffs,
-  emptyBoardArrays
 } from './data/default-cards'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 import CarouselCard from './components/CarouselCard.vue'
 
-// Data
+// DATA
 
 let loading = ref(true)
 let isDesktop = ref(false)
+
+// Board-related
 let playerDeck = ref(allPlayerCards)
 let opponentDeck = ref(allOpponentCards)
 let playerHand = ref(emptyCardArray)
@@ -40,14 +42,21 @@ let slideIndex = ref(1)
 let carouselIsHidden = ref(false)
 let activeCardRow = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
-let playerPassed = ref(false)
-let opponentPassed = ref(false)
+let boardEnabled = ref(false)
+
+// Game stats
+let playerIsLead = ref(false)
+let isPlayerTurn = ref(false)
+let playerIsPassed = ref(false)
+let opponentIsPassed = ref(false)
 let playerHasRound = ref(false)
 let opponentHasRound = ref(false)
+
+// TODO: Derive from Leader cards
 const playerImg = new URL(`./assets/images/br-wellington.jpg`, import.meta.url)
 const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
 
-// Computed data
+// COMPUTED DATA
 
 const opponentTotal = computed((): number => {
   let total = 0
@@ -102,7 +111,7 @@ const opponentHandCount = computed((): number => {
   return count
 })
 
-// Hooks
+// HOOKS
 
 onMounted(() => {
   onResize()
@@ -112,11 +121,12 @@ onMounted(() => {
     // TODO: Call this from main menu "New Game" or "Continue" click
     setupGame(() => {
       loading.value = false
+      startTurn()
     })
   })
 })
 
-// Methods
+// METHODS
 
 function onResize() {
   let width = window.innerWidth
@@ -150,6 +160,9 @@ function loadImage(image: string, callback: Function) {
       callback()
     }
   }
+  img.onerror = function (err) {
+    console.log('loadImage ERROR: ', err)
+  }
   img.src = new URL(`./assets/images/${image}`, import.meta.url).href
 }
 
@@ -157,14 +170,19 @@ function setupGame(callback: Function) {
   // Reset any existing game data / set default values
 
   // Generate a random hand of 10 cards for each player
-  // TODO: Give each card a unique ID (directly in card data)
   playerHand.value = dealRandomCards(playerDeck.value, 10)
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
   // console.log("playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
   // console.log("playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
 
-  // Decide turn
+  // Decide lead player / first turn
+  playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+
+  // TODO: Swap cards dialog + logic
+  // • return promise (to delay/prevent below callback)
+  // • Dialog actions are "SWAP" and "DONE"
+  // • Add title attribute to CardModal slot
 
   if (callback) {
     callback()
@@ -180,6 +198,26 @@ function dealRandomCards(arr: Card[], amount: number) {
     arr.splice(randomIndex, 1)
   }
   return cards
+}
+
+function startTurn() {
+  // TODO: Display "Your Turn" / "Opponent's Turn" dialog (contains avatar of Leader Card)
+  if (isPlayerTurn.value) {
+    // TODO: Enable / disable board controls
+    boardEnabled.value = true
+  } else {
+    // CPU logic
+    // Play random card
+    // playCard(getRandomCard())
+  }
+}
+
+function playCard(card: Card) {
+  console.log("playCard() card: ", card)
+
+  // TODO: Determine row to push card to
+  isPlayerTurn.value = !isPlayerTurn.value
+  startTurn()
 }
 
 function getRowTotal(arr: Card[]) {
@@ -275,6 +313,23 @@ function closeCardModal() {
     cardModal.value = false
   })
 }
+
+function confirmCardModal() {
+  // If the player is playing a card...
+  // TODO: Also determine if player is healing a card
+  if (playerHandIsActive.value) {
+    // TODO: Determine selected carousel card
+    // playCard(selectedCarouselCard)
+  } else {
+    // Player is redrawing a card before the game
+  }
+}
+
+// HELPER METHODS
+
+function getChanceOutcome(percentage: number) {
+  return Math.random() < percentage
+}
 </script>
 
 <template>
@@ -331,9 +386,9 @@ function closeCardModal() {
           v-if="playerHandIsActive"
           class="btn large primary no-mobile-highlight"
           tabindex="2"
-          @click="closeCardModal"
-          @keyup.enter="closeCardModal"
-          @keyup.space="closeCardModal"
+          @click="confirmCardModal"
+          @keyup.enter="confirmCardModal"
+          @keyup.space="confirmCardModal"
         >
           PLAY CARD
         </button>
@@ -393,7 +448,7 @@ function closeCardModal() {
               fill="gold"
             />
             <v-icon
-              v-if="playerPassed"
+              v-if="playerIsPassed"
               name="pr-flag-fill"
               class="icon pass-icon"
               :scale="isDesktop ? 1.8 : 1.2"
@@ -453,7 +508,7 @@ function closeCardModal() {
               fill="gold"
             />
             <v-icon
-              v-if="opponentPassed"
+              v-if="opponentIsPassed"
               name="pr-flag-fill"
               class="icon pass-icon"
               :scale="isDesktop ? 1.8 : 1.2"
