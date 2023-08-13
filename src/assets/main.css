@@ -61,6 +61,13 @@ body {
   background-color: #ffffff;
 }
 
+.btn.disabled {
+  border: 1px solid #757575;
+  color: #757575;
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
 .stat-badge {
   display: flex;
   align-items: center;
@@ -357,6 +364,10 @@ body {
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
   cursor: pointer;
+}
+
+.board-card.disabled {
+  cursor: not-allowed;
 }
 
 .board-card.active {

@@ -9,8 +9,8 @@ const props = defineProps<{
   hero?: boolean
   image?: string
   name?: string
-  value?: number
   typeIcon?: string
+  value?: number
 }>()
 const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 </script>

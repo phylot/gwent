@@ -4,17 +4,22 @@ const props = defineProps<{
   abilityIcon?: string
   defaultValue?: number
   desktop?: boolean
+  disabled?: boolean
   faction?: string
   hero?: boolean
   image?: string
-  value?: number
   typeIcon?: string
+  value?: number
 }>()
 const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
 </script>
 
 <template>
-  <div class="board-card">
+  <div
+    class="board-card"
+    :class="{ disabled: disabled }"
+    @click="disabled ? null : $emit('boardcard-click', $event)"
+  >
     <div
       class="card"
       :class="{ hero: props.hero }"

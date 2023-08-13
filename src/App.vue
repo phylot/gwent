@@ -37,12 +37,12 @@ let playerBuffs = reactive(emptyBoardArrays)
 let opponentBuffs = reactive(emptyBoardArrays)
 // let specialDeadPile = ref(dummySpecialCards)
 let specialDeadPile = ref(emptyCardArray)
-let cardModal = ref(false)
-let slideIndex = ref(1)
-let carouselIsHidden = ref(false)
-let activeCardRow = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
-let boardEnabled = ref(false)
+let activeCardRow = ref(emptyCardArray)
+let slideIndex = ref(1)
+let cardModal = ref(false)
+let carouselIsHidden = ref(false)
+let boardDisabled = ref(true)
 
 // Game stats
 let playerIsLead = ref(false)
@@ -126,7 +126,7 @@ onMounted(() => {
   })
 })
 
-// METHODS
+// METHODS - GAME SETUP
 
 function onResize() {
   let width = window.innerWidth
@@ -178,6 +178,7 @@ function setupGame(callback: Function) {
 
   // Decide lead player / first turn
   playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+  // playerIsLead.value = isPlayerTurn.value = true // TEMP
 
   // TODO: Swap cards dialog + logic
   // • return promise (to delay/prevent below callback)
@@ -200,33 +201,62 @@ function dealRandomCards(arr: Card[], amount: number) {
   return cards
 }
 
+// function setupRound()
+
+// METHODS - GAME LOOP
+
 function startTurn() {
-  // TODO: Display "Your Turn" / "Opponent's Turn" dialog (contains avatar of Leader Card)
+  // TODO: Display "Your Turn" / "Opponent's Turn" dialog
+  // • contains avatar of Leader Card)
+  // • set a timeout, then hide
+
   if (isPlayerTurn.value) {
-    // TODO: Enable / disable board controls
-    boardEnabled.value = true
+    boardDisabled.value = false
   } else {
+    boardDisabled.value = true
     // CPU logic
-    // Play random card
-    // playCard(getRandomCard())
+    determineCpuCard((card: Card) => {
+      console.log('CPU card: ', card)
+      finishTurn()
+    })
   }
 }
 
-function playCard(card: Card) {
-  console.log("playCard() card: ", card)
+function playCard(card: Card, callback: Function) {
+  console.log('playCard() card: ', card)
 
-  // TODO: Determine row to push card to
+  // TODO: Determine row to push card to, based on card 'ability' attribute
+
+  resetActiveCard(() => {
+    closeCardModal()
+  })
+
+  if (callback) {
+    callback()
+  }
+}
+
+function pass() {
+  alert('You shall not pass!')
+}
+
+function determineCpuCard(callback: Function) {
+  let card = null
+
+  // TODO: Determine card to play
+  card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // TEMP
+
+  if (callback) {
+    callback(card)
+  }
+}
+
+function finishTurn() {
   isPlayerTurn.value = !isPlayerTurn.value
   startTurn()
 }
 
-function getRowTotal(arr: Card[]) {
-  let total = 0
-  for (let i = 0; i < arr.length; i++) {
-    total = total + arr[i].value
-  }
-  return total
-}
+// METHODS - EVENTS
 
 async function handCardClick(index: number) {
   // If the clicked card is already active, close the card carousel
@@ -274,10 +304,6 @@ function opponentDeadPileClick() {
   console.log('opponentDeadPileClick')
 }
 
-function pass() {
-  alert('You shall not pass!')
-}
-
 function resetActiveCard(callback: Function) {
   for (let i = 0; i < activeCardRow.value.length; i++) {
     activeCardRow.value[i].active = false
@@ -319,13 +345,23 @@ function confirmCardModal() {
   // TODO: Also determine if player is healing a card
   if (playerHandIsActive.value) {
     // TODO: Determine selected carousel card
-    // playCard(selectedCarouselCard)
+    playCard(activeCardRow.value[slideIndex.value - 1], () => {
+      finishTurn()
+    })
   } else {
-    // Player is redrawing a card before the game
+    // Player is redrawing a card before the game, or swapping a decoy card, etc.
   }
 }
 
-// HELPER METHODS
+// METHODS - HELPERS
+
+function getRowTotal(arr: Card[]) {
+  let total = 0
+  for (let i = 0; i < arr.length; i++) {
+    total = total + arr[i].value
+  }
+  return total
+}
 
 function getChanceOutcome(percentage: number) {
   return Math.random() < percentage
@@ -346,6 +382,8 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, i) in activeCardRow"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              class="slide fade"
+              :class="{ active: card.active }"
               :default-value="card.defaultValue"
               :description="card.description"
               :desktop="isDesktop"
@@ -353,11 +391,9 @@ function getChanceOutcome(percentage: number) {
               :hero="card.hero"
               :image="card.image"
               :name="card.name"
+              tabindex="2"
               :type-icon="card.typeIcon"
               :value="card.value"
-              class="slide fade"
-              :class="{ active: card.active }"
-              tabindex="2"
               :key="i"
             >
             </CarouselCard>
@@ -417,17 +453,18 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              :class="{ active: card.active }"
+              class="no-mobile-highlight"
               :default-value="card.defaultValue"
               :desktop="isDesktop"
+              :disabled="boardDisabled"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
+              :key="j"
+              tabindex="4"
               :type-icon="card.typeIcon"
               :value="card.value"
-              :class="{ active: card.active }"
-              class="no-mobile-highlight"
-              tabindex="4"
-              :key="j"
               @click="opponentBoardCardClick(j, i)"
               @keyup.enter="opponentBoardCardClick(j, i)"
               @keyup.space="opponentBoardCardClick(j, i)"
@@ -437,7 +474,13 @@ function getChanceOutcome(percentage: number) {
       </div>
 
       <div class="game-details">
-        <button class="btn pass-btn no-mobile-highlight" @click="pass"><span>PASS</span></button>
+        <button
+          class="btn pass-btn no-mobile-highlight"
+          :class="{ disabled: !isPlayerTurn }"
+          @click="isPlayerTurn ? pass() : null"
+        >
+          <span>PASS</span>
+        </button>
         <div class="player-details">
           <div class="total">
             <v-icon
@@ -455,7 +498,11 @@ function getChanceOutcome(percentage: number) {
               animation="float"
               fill="white"
             />
-            <div class="avatar active" :style="{ backgroundImage: `url(${playerImg})` }"></div>
+            <div
+              class="avatar"
+              :class="{ active: isPlayerTurn }"
+              :style="{ backgroundImage: `url(${playerImg})` }"
+            ></div>
             <div class="stat-badge player">{{ playerTotal }}</div>
           </div>
           <div class="details">
@@ -485,18 +532,19 @@ function getChanceOutcome(percentage: number) {
           v-if="specialDeadPile.length && specialDeadPile.length > 1"
           :ability="specialDeadPile[specialDeadPile.length - 1].ability"
           :ability-icon="specialDeadPile[specialDeadPile.length - 1].abilityIcon"
+          :class="{ active: specialDeadPile[specialDeadPile.length - 1].active }"
+          class="no-mobile-highlight"
           :default-value="specialDeadPile[specialDeadPile.length - 1].value"
           :desktop="isDesktop"
+          :disabled="boardDisabled"
           :faction="specialDeadPile[specialDeadPile.length - 1].faction"
           :hero="specialDeadPile[specialDeadPile.length - 1].hero"
           :image="specialDeadPile[specialDeadPile.length - 1].image"
+          tabindex="5"
           :type-icon="specialDeadPile[specialDeadPile.length - 1].typeIcon"
           :value="specialDeadPile[specialDeadPile.length - 1].value"
-          :class="{ active: specialDeadPile[specialDeadPile.length - 1].active }"
-          class="no-mobile-highlight"
-          tabindex="5"
         />
-        <BoardCard v-else :desktop="isDesktop" class="no-mobile-highlight" tabindex="5" />
+        <BoardCard v-else :desktop="isDesktop" disabled class="no-mobile-highlight" tabindex="5" />
 
         <div class="opponent-details">
           <div class="total">
@@ -515,7 +563,11 @@ function getChanceOutcome(percentage: number) {
               animation="float"
               fill="white"
             />
-            <div class="avatar" :style="{ backgroundImage: `url(${opponentImg})` }"></div>
+            <div
+              class="avatar"
+              :class="{ active: !isPlayerTurn }"
+              :style="{ backgroundImage: `url(${opponentImg})` }"
+            ></div>
             <div class="stat-badge opponent">{{ opponentTotal }}</div>
           </div>
           <div class="details">
@@ -556,17 +608,17 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              :class="{ active: card.active }"
+              class="no-mobile-highlight"
               :default-value="card.defaultValue"
               :desktop="isDesktop"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
+              :key="j"
+              tabindex="3"
               :type-icon="card.typeIcon"
               :value="card.value"
-              :class="{ active: card.active }"
-              class="no-mobile-highlight"
-              tabindex="3"
-              :key="j"
               @click="playerBoardCardClick(j, i)"
               @keyup.enter="playerBoardCardClick(j, i)"
               @keyup.space="playerBoardCardClick(j, i)"
@@ -579,18 +631,19 @@ function getChanceOutcome(percentage: number) {
             v-for="(card, i) in playerHand"
             :ability="card.ability"
             :ability-icon="card.abilityIcon"
+            :class="{ active: card.active }"
+            class="no-mobile-highlight"
             :default-value="card.defaultValue"
             :desktop="isDesktop"
+            :disabled="boardDisabled"
             :faction="card.faction"
             :hero="card.hero"
             :image="card.image"
+            :key="i"
+            tabindex="1"
             :type-icon="card.typeIcon"
             :value="card.value"
-            :class="{ active: card.active }"
-            class="no-mobile-highlight"
-            tabindex="1"
-            :key="i"
-            @click="handCardClick(i)"
+            @boardcard-click="handCardClick(i)"
             @keyup.enter="handCardClick(i)"
             @keyup.space="handCardClick(i)"
           />
