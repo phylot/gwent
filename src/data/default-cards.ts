@@ -8,7 +8,7 @@ interface Card {
   hero?: boolean
   id: string
   image: string
-  name: string
+  name?: string
   type: string
   typeIcon?: string
   value: number
@@ -80,7 +80,14 @@ const allPlayerCards: Card[] = [
   { ability: 'clear', abilityIcon: "gi-sunflower", active: false, defaultValue: 0, description: "Removes all <strong>Weather Card</strong> (Biting Frost, Impenetrable Fog and Torrential Rain) effects.", id: "030", image: "clear.png", name: "Clear Weather", type: "special", value: 0 }
 ]
 
-const emptyBoardArrays: Card[][] = [[], [], []]
+const emptyPlayerBoardArrays: Card[][] = [[], [], []]
+
+const emptyOpponentBoardArrays: Card[][] = [[], [], []]
+
+const emptyPlayerBuffsArrays: Card[][] = [[], [], []]
+
+const emptyOpponentBuffsArrays: Card[][] = [[], [], []]
+
 
 const emptyCardArray: Card[] = []
 
@@ -153,7 +160,10 @@ export {
   type Card,
   allOpponentCards,
   allPlayerCards,
-  emptyBoardArrays,
+  emptyPlayerBoardArrays,
+  emptyOpponentBoardArrays,
+  emptyPlayerBuffsArrays,
+  emptyOpponentBuffsArrays,
   emptyCardArray,
   dummyOpponentCards,
   dummyPlayerCards,

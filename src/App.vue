@@ -5,7 +5,10 @@ import {
   type Card,
   allOpponentCards,
   allPlayerCards,
-  emptyBoardArrays,
+  emptyPlayerBoardArrays,
+  emptyOpponentBoardArrays,
+  emptyPlayerBuffsArrays,
+  emptyOpponentBuffsArrays,
   emptyCardArray
   // dummyPlayerCards,
   // dummyOpponentCards,
@@ -28,13 +31,13 @@ let opponentDeck = ref(allOpponentCards)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 // let playerBoardCards = reactive(dummyPlayerCards)
-let playerBoardCards = reactive(emptyBoardArrays)
+let playerBoardCards = reactive(emptyPlayerBoardArrays)
 // let opponentBoardCards = reactive(dummyOpponentCards)
-let opponentBoardCards = reactive(emptyBoardArrays)
+let opponentBoardCards = reactive(emptyOpponentBoardArrays)
 // let playerBuffs = reactive(dummyPlayerBuffs)
 // let opponentBuffs = reactive(dummyOpponentBuffs)
-let playerBuffs = reactive(emptyBoardArrays)
-let opponentBuffs = reactive(emptyBoardArrays)
+let playerBuffs = reactive(emptyPlayerBuffsArrays)
+let opponentBuffs = reactive(emptyOpponentBuffsArrays)
 // let specialDeadPile = ref(dummySpecialCards)
 let specialDeadPile = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
@@ -109,6 +112,14 @@ const opponentHandCount = computed((): number => {
     count = opponentHand.value.length
   }
   return count
+})
+
+const recentSpecialCard = computed(() => {
+  let card = null
+  if (specialDeadPile.value.length > 0) {
+    card = specialDeadPile.value[specialDeadPile.value.length - 1]
+  }
+  return card
 })
 
 // HOOKS
@@ -216,8 +227,10 @@ function startTurn() {
     boardDisabled.value = true
     // CPU logic
     determineCpuCard((card: Card) => {
-      console.log('CPU card: ', card)
-      finishTurn()
+      // console.log('CPU card: ', card)
+      playCard(card, () => {
+        finishTurn()
+      })
     })
   }
 }
@@ -225,15 +238,52 @@ function startTurn() {
 function playCard(card: Card, callback: Function) {
   console.log('playCard() card: ', card)
 
-  // TODO: Determine row to push card to, based on card 'ability' attribute
-
-  resetActiveCard(() => {
-    closeCardModal()
-  })
-
-  if (callback) {
-    callback()
+  // Board row indexes for each card type
+  const abilityIndexes: Record<string, number> = {
+    close: 0,
+    ranged: 1,
+    siege: 2
   }
+  let handArr = isPlayerTurn.value ? playerHand : opponentHand
+
+  // TODO: Card modal animations
+
+  setTimeout(() => {
+    resetActiveCard(() => {
+      // TODO: Decoy card
+      // • Add visual highlight to board rows containing eligible cards for swapping
+      // • Enable ONLY cards eligible for swapping
+      // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
+
+      // TODO: Remove played card from 'playerHand' or 'opponentHand'
+
+      // TODO: Determine row to push card to, based on card 'type' attribute
+      if (card.type === 'special') {
+        specialDeadPile.value.push(card)
+      } else {
+        if (isPlayerTurn.value) {
+          playerBoardCards[abilityIndexes[card.type]].push(card)
+        } else {
+          opponentBoardCards[abilityIndexes[card.type]].push(card)
+        }
+      }
+
+      // Remove card from hand
+      for (let i = 0; i < handArr.value.length; i++) {
+        if (handArr.value[i].id == card.id) {
+          handArr.value.splice(i, 1)
+        }
+      }
+
+      closeCardModal()
+
+      // TODO: Board card animations + setTimeout
+
+      if (callback) {
+        callback()
+      }
+    })
+  }, 1000)
 }
 
 function pass() {
@@ -529,20 +579,20 @@ function getChanceOutcome(percentage: number) {
         </div>
 
         <BoardCard
-          v-if="specialDeadPile.length && specialDeadPile.length > 1"
-          :ability="specialDeadPile[specialDeadPile.length - 1].ability"
-          :ability-icon="specialDeadPile[specialDeadPile.length - 1].abilityIcon"
-          :class="{ active: specialDeadPile[specialDeadPile.length - 1].active }"
+          v-if="recentSpecialCard"
+          :ability="recentSpecialCard.ability"
+          :ability-icon="recentSpecialCard.abilityIcon"
+          :class="{ active: recentSpecialCard.active }"
           class="no-mobile-highlight"
-          :default-value="specialDeadPile[specialDeadPile.length - 1].value"
+          :default-value="recentSpecialCard.value"
           :desktop="isDesktop"
           :disabled="boardDisabled"
-          :faction="specialDeadPile[specialDeadPile.length - 1].faction"
-          :hero="specialDeadPile[specialDeadPile.length - 1].hero"
-          :image="specialDeadPile[specialDeadPile.length - 1].image"
+          :faction="recentSpecialCard.faction"
+          :hero="recentSpecialCard.hero"
+          :image="recentSpecialCard.image"
           tabindex="5"
-          :type-icon="specialDeadPile[specialDeadPile.length - 1].typeIcon"
-          :value="specialDeadPile[specialDeadPile.length - 1].value"
+          :type-icon="recentSpecialCard.typeIcon"
+          :value="recentSpecialCard.value"
         />
         <BoardCard v-else :desktop="isDesktop" disabled class="no-mobile-highlight" tabindex="5" />
 

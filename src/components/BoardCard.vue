@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{
   ability?: string
   abilityIcon?: string
@@ -11,7 +13,10 @@ const props = defineProps<{
   typeIcon?: string
   value?: number
 }>()
-const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
+
+const imageUrl = computed(() => {
+  return new URL(`../assets/images/${props.image}`, import.meta.url)
+})
 </script>
 
 <template>
