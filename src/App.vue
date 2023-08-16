@@ -246,44 +246,48 @@ function playCard(card: Card, callback: Function) {
   }
   let handArr = isPlayerTurn.value ? playerHand : opponentHand
 
-  // TODO: Card modal animations
-
+  card.animationName = 'shine'
   setTimeout(() => {
-    resetActiveCard(() => {
-      // TODO: Decoy card
-      // • Add visual highlight to board rows containing eligible cards for swapping
-      // • Enable ONLY cards eligible for swapping
-      // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
+    card.animationName = 'white-fade-in'
+    setTimeout(() => {
+      card.animationName = undefined
 
-      // TODO: Remove played card from 'playerHand' or 'opponentHand'
+      resetActiveCard(() => {
+        // TODO: Decoy card
+        // • Add visual highlight to board rows containing eligible cards for swapping
+        // • Enable ONLY cards eligible for swapping
+        // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
-      // TODO: Determine row to push card to, based on card 'type' attribute
-      if (card.type === 'special') {
-        specialDeadPile.value.push(card)
-      } else {
-        if (isPlayerTurn.value) {
-          playerBoardCards[abilityIndexes[card.type]].push(card)
+        // TODO: Remove played card from 'playerHand' or 'opponentHand'
+
+        // TODO: Determine row to push card to, based on card 'type' attribute
+        if (card.type === 'special') {
+          specialDeadPile.value.push(card)
         } else {
-          opponentBoardCards[abilityIndexes[card.type]].push(card)
+          if (isPlayerTurn.value) {
+            playerBoardCards[abilityIndexes[card.type]].push(card)
+          } else {
+            opponentBoardCards[abilityIndexes[card.type]].push(card)
+          }
         }
-      }
 
-      // Remove card from hand
-      for (let i = 0; i < handArr.value.length; i++) {
-        if (handArr.value[i].id == card.id) {
-          handArr.value.splice(i, 1)
+        // Remove card from hand
+        for (let i = 0; i < handArr.value.length; i++) {
+          if (handArr.value[i].id == card.id) {
+            handArr.value.splice(i, 1)
+          }
         }
-      }
 
-      closeCardModal()
+        closeCardModal()
 
-      // TODO: Board card animations + setTimeout
+        // TODO: Board card animations + setTimeout
 
-      if (callback) {
-        callback()
-      }
-    })
-  }, 1000)
+        if (callback) {
+          callback()
+        }
+      })
+    }, 400)
+  }, 500)
 }
 
 function pass() {
@@ -421,7 +425,7 @@ function getChanceOutcome(percentage: number) {
 <template>
   <div class="game-container">
     <transition name="fade">
-      <div v-if="loading" class="loader fade-out">Loading...</div>
+      <div v-if="loading" class="loader">Loading...</div>
     </transition>
 
     <div class="scroll-container">
@@ -432,6 +436,7 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, i) in activeCardRow"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              :animation-name="card.animationName"
               class="slide fade"
               :class="{ active: card.active }"
               :default-value="card.defaultValue"
@@ -503,8 +508,8 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
-              :class="{ active: card.active }"
               class="no-mobile-highlight"
+              :class="{ active: card.active }"
               :default-value="card.defaultValue"
               :desktop="isDesktop"
               :disabled="boardDisabled"
@@ -582,8 +587,8 @@ function getChanceOutcome(percentage: number) {
           v-if="recentSpecialCard"
           :ability="recentSpecialCard.ability"
           :ability-icon="recentSpecialCard.abilityIcon"
-          :class="{ active: recentSpecialCard.active }"
           class="no-mobile-highlight"
+          :class="{ active: recentSpecialCard.active }"
           :default-value="recentSpecialCard.value"
           :desktop="isDesktop"
           :disabled="boardDisabled"
@@ -658,8 +663,8 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
-              :class="{ active: card.active }"
               class="no-mobile-highlight"
+              :class="{ active: card.active }"
               :default-value="card.defaultValue"
               :desktop="isDesktop"
               :faction="card.faction"
@@ -681,8 +686,8 @@ function getChanceOutcome(percentage: number) {
             v-for="(card, i) in playerHand"
             :ability="card.ability"
             :ability-icon="card.abilityIcon"
-            :class="{ active: card.active }"
             class="no-mobile-highlight"
+            :class="{ active: card.active }"
             :default-value="card.defaultValue"
             :desktop="isDesktop"
             :disabled="boardDisabled"

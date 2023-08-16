@@ -2,6 +2,7 @@ interface Card {
   ability?: string
   abilityIcon?: string
   active: boolean
+  animationName?: string
   defaultValue: number
   description?: string
   faction?: string
