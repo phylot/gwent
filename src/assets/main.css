@@ -853,8 +853,7 @@ body {
   /* Carousel Card */
 
   .carousel-card {
-    height: 500px;
-    border-radius: 10px;
+    height: 530px;
   }
 
   .carousel-card .card-wrap {
@@ -889,6 +888,7 @@ body {
   }
 
   .carousel-card .carousel-card-details {
+    margin-top: 20px;
     padding: 20px;
     text-align: center;
     line-height: 22px;

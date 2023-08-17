@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
@@ -31,13 +31,13 @@ let opponentDeck = ref(allOpponentCards)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 // let playerBoardCards = reactive(dummyPlayerCards)
-let playerBoardCards = reactive(emptyPlayerBoardArrays)
+let playerBoardCards = ref(emptyPlayerBoardArrays)
 // let opponentBoardCards = reactive(dummyOpponentCards)
-let opponentBoardCards = reactive(emptyOpponentBoardArrays)
+let opponentBoardCards = ref(emptyOpponentBoardArrays)
 // let playerBuffs = reactive(dummyPlayerBuffs)
 // let opponentBuffs = reactive(dummyOpponentBuffs)
-let playerBuffs = reactive(emptyPlayerBuffsArrays)
-let opponentBuffs = reactive(emptyOpponentBuffsArrays)
+let playerBuffs = ref(emptyPlayerBuffsArrays)
+let opponentBuffs = ref(emptyOpponentBuffsArrays)
 // let specialDeadPile = ref(dummySpecialCards)
 let specialDeadPile = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
@@ -63,9 +63,9 @@ const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
 
 const opponentTotal = computed((): number => {
   let total = 0
-  for (let i = 0; i < opponentBoardCards.length; i++) {
-    for (let j = 0; j < opponentBoardCards[i].length; j++) {
-      total = total + opponentBoardCards[i][j].value
+  for (let i = 0; i < opponentBoardCards.value.length; i++) {
+    for (let j = 0; j < opponentBoardCards.value[i].length; j++) {
+      total = total + opponentBoardCards.value[i][j].value
     }
   }
   return total
@@ -73,9 +73,9 @@ const opponentTotal = computed((): number => {
 
 const playerTotal = computed((): number => {
   let total = 0
-  for (let i = 0; i < playerBoardCards.length; i++) {
-    for (let j = 0; j < playerBoardCards[i].length; j++) {
-      total = total + playerBoardCards[i][j].value
+  for (let i = 0; i < playerBoardCards.value.length; i++) {
+    for (let j = 0; j < playerBoardCards.value[i].length; j++) {
+      total = total + playerBoardCards.value[i][j].value
     }
   }
   return total
@@ -88,11 +88,11 @@ const rowTotals = computed(
   } => {
     let totals: { player: number[]; opponent: number[] } = { player: [], opponent: [] }
 
-    for (let i = 0; i < playerBoardCards.length; i++) {
-      totals.player.push(getRowTotal(playerBoardCards[i]))
+    for (let i = 0; i < playerBoardCards.value.length; i++) {
+      totals.player.push(getRowTotal(playerBoardCards.value[i]))
     }
-    for (let i = 0; i < opponentBoardCards.length; i++) {
-      totals.opponent.push(getRowTotal(opponentBoardCards[i]))
+    for (let i = 0; i < opponentBoardCards.value.length; i++) {
+      totals.opponent.push(getRowTotal(opponentBoardCards.value[i]))
     }
     return totals
   }
@@ -244,8 +244,21 @@ function playCard(card: Card, callback: Function) {
     ranged: 1,
     siege: 2
   }
+  let boardArr: Card[] = []
   let handArr = isPlayerTurn.value ? playerHand : opponentHand
 
+  // Determine relevant board array
+  if (card.type === 'special') {
+    boardArr = specialDeadPile.value
+  } else {
+    if (isPlayerTurn.value) {
+      boardArr = playerBoardCards.value[abilityIndexes[card.type]]
+    } else {
+      boardArr = opponentBoardCards.value[abilityIndexes[card.type]]
+    }
+  }
+
+  // Carousel card animations
   card.animationName = 'shine'
   setTimeout(() => {
     card.animationName = 'white-fade-in'
@@ -258,18 +271,8 @@ function playCard(card: Card, callback: Function) {
         // • Enable ONLY cards eligible for swapping
         // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
-        // TODO: Remove played card from 'playerHand' or 'opponentHand'
-
-        // TODO: Determine row to push card to, based on card 'type' attribute
-        if (card.type === 'special') {
-          specialDeadPile.value.push(card)
-        } else {
-          if (isPlayerTurn.value) {
-            playerBoardCards[abilityIndexes[card.type]].push(card)
-          } else {
-            opponentBoardCards[abilityIndexes[card.type]].push(card)
-          }
-        }
+        // Push card to relevant board array
+        boardArr.push(card)
 
         // Remove card from hand
         for (let i = 0; i < handArr.value.length; i++) {
@@ -280,11 +283,18 @@ function playCard(card: Card, callback: Function) {
 
         closeCardModal()
 
-        // TODO: Board card animations + setTimeout
+        // Board card animations
+        card.animationName = 'white-fade-out'
+        setTimeout(() => {
+          card.animationName = 'shine'
+          setTimeout(() => {
+            card.animationName = undefined
 
-        if (callback) {
-          callback()
-        }
+            if (callback) {
+              callback()
+            }
+          }, 500)
+        }, 400)
       })
     }, 400)
   }, 500)
@@ -337,14 +347,14 @@ async function handCardClick(index: number) {
 }
 
 function playerBoardCardClick(index: number, rowIndex: number) {
-  activeCardRow.value = playerBoardCards[rowIndex]
+  activeCardRow.value = playerBoardCards.value[rowIndex]
   slideIndex.value = index + 1
   showSlide()
   cardModal.value = true
 }
 
 function opponentBoardCardClick(index: number, rowIndex: number) {
-  activeCardRow.value = opponentBoardCards[rowIndex]
+  activeCardRow.value = opponentBoardCards.value[rowIndex]
   slideIndex.value = index + 1
   showSlide()
   cardModal.value = true
@@ -508,6 +518,7 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              :animation-name="card.animationName"
               class="no-mobile-highlight"
               :class="{ active: card.active }"
               :default-value="card.defaultValue"
@@ -587,6 +598,7 @@ function getChanceOutcome(percentage: number) {
           v-if="recentSpecialCard"
           :ability="recentSpecialCard.ability"
           :ability-icon="recentSpecialCard.abilityIcon"
+          :animation-name="recentSpecialCard.animationName"
           class="no-mobile-highlight"
           :class="{ active: recentSpecialCard.active }"
           :default-value="recentSpecialCard.value"
@@ -663,6 +675,7 @@ function getChanceOutcome(percentage: number) {
               v-for="(card, j) in row"
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
+              :animation-name="card.animationName"
               class="no-mobile-highlight"
               :class="{ active: card.active }"
               :default-value="card.defaultValue"

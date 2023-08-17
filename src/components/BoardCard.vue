@@ -4,6 +4,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   ability?: string
   abilityIcon?: string
+  animationName?: string
   defaultValue?: number
   desktop?: boolean
   disabled?: boolean
@@ -17,6 +18,9 @@ const props = defineProps<{
 const imageUrl = computed(() => {
   return new URL(`../assets/images/${props.image}`, import.meta.url)
 })
+const animationClass = computed(() => {
+  return props.animationName ? props.animationName : null;
+})
 </script>
 
 <template>
@@ -26,7 +30,7 @@ const imageUrl = computed(() => {
     @click="disabled ? null : $emit('boardcard-click', $event)"
   >
     <div class="card-wrap">
-      <div class="animation-overlay"></div>
+      <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
         :class="{ hero: props.hero }"
