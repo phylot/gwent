@@ -179,6 +179,7 @@ function loadImage(image: string, callback: Function) {
 
 function setupGame(callback: Function) {
   // Reset any existing game data / set default values
+  boardDisabled.value = true
 
   // Generate a random hand of 10 cards for each player
   playerHand.value = dealRandomCards(playerDeck.value, 10)
@@ -224,7 +225,6 @@ function startTurn() {
   if (isPlayerTurn.value) {
     boardDisabled.value = false
   } else {
-    boardDisabled.value = true
     // CPU logic
     determineCpuCard((card: Card) => {
       // console.log('CPU card: ', card)
@@ -237,6 +237,7 @@ function startTurn() {
 
 function playCard(card: Card, callback: Function) {
   console.log('playCard() card: ', card)
+  boardDisabled.value = true
 
   // Board row indexes for each card type
   const abilityIndexes: Record<string, number> = {
@@ -465,19 +466,25 @@ function getChanceOutcome(percentage: number) {
           </div>
           <span
             class="prev-btn no-mobile-highlight"
+            :class="{ disabled: boardDisabled }"
+            :disabled="boardDisabled"
+            role="button"
             tabindex="2"
-            @click="changeSlide(-1)"
-            @keyup.enter="changeSlide(-1)"
-            @keyup.space="changeSlide(-1)"
+            @click="boardDisabled ? null : changeSlide(-1)"
+            @keyup.enter="boardDisabled ? null : changeSlide(-1)"
+            @keyup.space="boardDisabled ? null : changeSlide(-1)"
           >
             <v-icon name="hi-chevron-left" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </span>
           <span
             class="next-btn no-mobile-highlight"
+            :class="{ disabled: boardDisabled }"
+            :disabled="boardDisabled"
+            role="button"
             tabindex="2"
-            @click="changeSlide(1)"
-            @keyup.enter="changeSlide(1)"
-            @keyup.space="changeSlide(1)"
+            @click="boardDisabled ? null : changeSlide(1)"
+            @keyup.enter="boardDisabled ? null : changeSlide(1)"
+            @keyup.space="boardDisabled ? null : changeSlide(1)"
           >
             <v-icon name="hi-chevron-right" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </span>
@@ -486,7 +493,9 @@ function getChanceOutcome(percentage: number) {
         <button
           v-if="playerHandIsActive"
           class="btn large primary no-mobile-highlight"
+          :disabled="boardDisabled"
           tabindex="2"
+          type="button"
           @click="confirmCardModal"
           @keyup.enter="confirmCardModal"
           @keyup.space="confirmCardModal"
@@ -495,7 +504,9 @@ function getChanceOutcome(percentage: number) {
         </button>
         <button
           class="btn large no-mobile-highlight"
+          :disabled="boardDisabled"
           tabindex="2"
+          type="button"
           @click="closeCardModal"
           @keyup.enter="closeCardModal"
           @keyup.space="closeCardModal"
@@ -528,6 +539,7 @@ function getChanceOutcome(percentage: number) {
               :hero="card.hero"
               :image="card.image"
               :key="j"
+              role="button"
               tabindex="4"
               :type-icon="card.typeIcon"
               :value="card.value"
@@ -543,6 +555,7 @@ function getChanceOutcome(percentage: number) {
         <button
           class="btn pass-btn no-mobile-highlight"
           :class="{ disabled: !isPlayerTurn }"
+          type="button"
           @click="isPlayerTurn ? pass() : null"
         >
           <span>PASS</span>
@@ -582,10 +595,13 @@ function getChanceOutcome(percentage: number) {
                 {{ playerHandCount }}
               </div>
               <div
+                aria-label="Player Dead Pile (0)"
                 class="dead-pile no-mobile-highlight"
-                @click="playerDeadPileClick"
-                @keyup.enter="playerDeadPileClick"
-                @keyup.space="playerDeadPileClick"
+                :class="{ disabled: boardDisabled }"
+                role="button"
+                @click="boardDisabled ? null : playerDeadPileClick()"
+                @keyup.enter="boardDisabled ? null : playerDeadPileClick()"
+                @keyup.space="boardDisabled ? null : playerDeadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 0
@@ -648,10 +664,13 @@ function getChanceOutcome(percentage: number) {
                 {{ opponentHandCount }}
               </div>
               <div
+                aria-label="Opponent Dead Pile (0)"
                 class="dead-pile no-mobile-highlight"
-                @click="opponentDeadPileClick"
-                @keyup.enter="opponentDeadPileClick"
-                @keyup.space="opponentDeadPileClick"
+                :class="{ disabled: boardDisabled }"
+                role="button"
+                @click="boardDisabled ? null : opponentDeadPileClick()"
+                @keyup.enter="boardDisabled ? null : opponentDeadPileClick()"
+                @keyup.space="boardDisabled ? null : opponentDeadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 0
@@ -680,16 +699,18 @@ function getChanceOutcome(percentage: number) {
               :class="{ active: card.active }"
               :default-value="card.defaultValue"
               :desktop="isDesktop"
+              :disabled="boardDisabled"
               :faction="card.faction"
               :hero="card.hero"
               :image="card.image"
               :key="j"
+              role="button"
               tabindex="3"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @click="playerBoardCardClick(j, i)"
-              @keyup.enter="playerBoardCardClick(j, i)"
-              @keyup.space="playerBoardCardClick(j, i)"
+              @click="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @keyup.enter="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @keyup.space="boardDisabled ? null : playerBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -708,6 +729,7 @@ function getChanceOutcome(percentage: number) {
             :hero="card.hero"
             :image="card.image"
             :key="i"
+            role="button"
             tabindex="1"
             :type-icon="card.typeIcon"
             :value="card.value"
