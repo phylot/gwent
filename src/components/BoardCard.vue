@@ -28,6 +28,8 @@ const animationClass = computed(() => {
     class="board-card"
     :class="{ disabled: disabled }"
     @click="disabled ? null : $emit('boardcard-click', $event)"
+    @keyup.enter="disabled ? null : $emit('boardcard-enter', $event)"
+    @keyup.space="disabled ? null : $emit('boardcard-space', $event)"
   >
     <div class="card-wrap">
       <div class="animation-overlay" :class="animationClass"></div>

@@ -137,7 +137,7 @@ onMounted(() => {
   })
 })
 
-// METHODS - GAME SETUP
+// METHODS - Game Setup
 
 function onResize() {
   let width = window.innerWidth
@@ -215,28 +215,37 @@ function dealRandomCards(arr: Card[], amount: number) {
 
 // function setupRound()
 
-// METHODS - GAME LOOP
+// METHODS - Game Loop
 
 function startTurn() {
   // TODO: Display "Your Turn" / "Opponent's Turn" dialog
   // • contains avatar of Leader Card)
   // • set a timeout, then hide
 
-  if (isPlayerTurn.value) {
-    boardDisabled.value = false
+  // If active player has no cards left in their hand, pass
+  if (
+    (isPlayerTurn.value && playerHand.value.length < 1) ||
+    (!isPlayerTurn.value && opponentHand.value.length < 1)
+  ) {
+    let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
+    pass(isCpuPass)
   } else {
-    // CPU logic
-    determineCpuCard((card: Card) => {
-      // console.log('CPU card: ', card)
-      playCard(card, () => {
-        finishTurn()
+    if (isPlayerTurn.value) {
+      boardDisabled.value = false
+    } else {
+      // CPU logic
+      determineCpuCard((card: Card) => {
+        // console.log('CPU card: ', card)
+        playCard(card, () => {
+          finishTurn()
+        })
       })
-    })
+    }
   }
 }
 
 function playCard(card: Card, callback: Function) {
-  console.log('playCard() card: ', card)
+  // console.log('playCard() card: ', card)
   boardDisabled.value = true
 
   // Board row indexes for each card type
@@ -301,10 +310,6 @@ function playCard(card: Card, callback: Function) {
   }, 500)
 }
 
-function pass() {
-  alert('You shall not pass!')
-}
-
 function determineCpuCard(callback: Function) {
   let card = null
 
@@ -316,12 +321,35 @@ function determineCpuCard(callback: Function) {
   }
 }
 
-function finishTurn() {
+function pass(isCpu?: boolean) {
+  if (isCpu) {
+    opponentIsPassed.value = true
+  } else {
+    playerIsPassed.value = true
+  }
+  // Switch turn to other player after pass
   isPlayerTurn.value = !isPlayerTurn.value
-  startTurn()
+  finishTurn()
 }
 
-// METHODS - EVENTS
+function finishTurn() {
+  // If both players have passed, determine winner
+  if (playerIsPassed.value && opponentIsPassed.value) {
+    determineRoundWinner()
+  } else {
+    // If neither player has passed, switch turn
+    if (!(playerIsPassed.value || opponentIsPassed.value)) {
+      isPlayerTurn.value = !isPlayerTurn.value
+    }
+    startTurn()
+  }
+}
+
+function determineRoundWinner() {
+  console.log('determineRoundWinner()')
+}
+
+// METHODS - Events
 
 async function handCardClick(index: number) {
   // If the clicked card is already active, close the card carousel
@@ -409,7 +437,6 @@ function confirmCardModal() {
   // If the player is playing a card...
   // TODO: Also determine if player is healing a card
   if (playerHandIsActive.value) {
-    // TODO: Determine selected carousel card
     playCard(activeCardRow.value[slideIndex.value - 1], () => {
       finishTurn()
     })
@@ -418,7 +445,7 @@ function confirmCardModal() {
   }
 }
 
-// METHODS - HELPERS
+// METHODS - Helpers
 
 function getRowTotal(arr: Card[]) {
   let total = 0
@@ -543,9 +570,9 @@ function getChanceOutcome(percentage: number) {
               tabindex="4"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @click="opponentBoardCardClick(j, i)"
-              @keyup.enter="opponentBoardCardClick(j, i)"
-              @keyup.space="opponentBoardCardClick(j, i)"
+              @boardcard-click="opponentBoardCardClick(j, i)"
+              @boardcard-enter="opponentBoardCardClick(j, i)"
+              @boardcard-space="opponentBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -554,7 +581,7 @@ function getChanceOutcome(percentage: number) {
       <div class="game-details">
         <button
           class="btn pass-btn no-mobile-highlight"
-          :class="{ disabled: !isPlayerTurn }"
+          :class="{ disabled: !isPlayerTurn || playerIsPassed }"
           type="button"
           @click="isPlayerTurn ? pass() : null"
         >
@@ -668,9 +695,9 @@ function getChanceOutcome(percentage: number) {
                 class="dead-pile no-mobile-highlight"
                 :class="{ disabled: boardDisabled }"
                 role="button"
-                @click="boardDisabled ? null : opponentDeadPileClick()"
-                @keyup.enter="boardDisabled ? null : opponentDeadPileClick()"
-                @keyup.space="boardDisabled ? null : opponentDeadPileClick()"
+                @boardcard-click="boardDisabled ? null : opponentDeadPileClick()"
+                @boardcard-enter="boardDisabled ? null : opponentDeadPileClick()"
+                @boardcard-space="boardDisabled ? null : opponentDeadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 0
@@ -708,9 +735,9 @@ function getChanceOutcome(percentage: number) {
               tabindex="3"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @click="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @keyup.enter="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @keyup.space="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @boardcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @boardcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @boardcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -734,8 +761,8 @@ function getChanceOutcome(percentage: number) {
             :type-icon="card.typeIcon"
             :value="card.value"
             @boardcard-click="handCardClick(i)"
-            @keyup.enter="handCardClick(i)"
-            @keyup.space="handCardClick(i)"
+            @boardcard-enter="handCardClick(i)"
+            @boardcard-space="handCardClick(i)"
           />
         </div>
       </div>
