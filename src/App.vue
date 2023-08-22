@@ -213,8 +213,6 @@ function dealRandomCards(arr: Card[], amount: number) {
   return cards
 }
 
-// function setupRound()
-
 // METHODS - Game Loop
 
 function startTurn() {
@@ -346,7 +344,63 @@ function finishTurn() {
 }
 
 function determineRoundWinner() {
-  console.log('determineRoundWinner()')
+  let isPlayerWin = false
+  let isDraw = false
+
+  // Determine highest scorer
+  if (playerTotal.value === opponentTotal.value) {
+    isDraw = true
+  } else {
+    if (playerTotal.value > opponentTotal.value) {
+      isPlayerWin = true
+    }
+  }
+
+  // Declare match is a draw (if draw and each player has already won a round)
+  if (isDraw && playerHasRound && opponentHasRound) {
+    // End match as draw (show match summary dialog... "Play Again" / "Main Menu")
+    console.log('MATCH DRAWN')
+  }
+  // Declare match winner (match isn't a draw and the round winner has already won a round)
+  else if (
+    !isDraw &&
+    ((isPlayerWin && playerHasRound.value) || (!isPlayerWin && opponentHasRound.value))
+  ) {
+    // End match as a win (show match summary dialog... "Play Again" / "Main Menu")
+    if (isPlayerWin) {
+      console.log('PLAYER WINS MATCH!')
+    } else {
+      console.log('OPPONENT WINS MATCH!')
+    }
+  }
+  // No match winner yet... set relevant round flag to true (or both if draw)
+  else {
+    if (isDraw) {
+      console.log('ROUND DRAWN')
+      playerHasRound.value = true
+      opponentHasRound.value = true
+    } else if (isPlayerWin) {
+      console.log('PLAYER WINS ROUND!')
+      playerHasRound.value = true
+    } else {
+      console.log('OPPONENT WINS ROUND!')
+      opponentHasRound.value = true
+    }
+    setupRound()
+  }
+}
+
+function setupRound() {
+  console.log('setupRound()')
+  // Reset necessary round-specific values
+  playerIsPassed.value = false
+  opponentIsPassed.value = false
+
+  // Move cards from board rows to dead pile
+
+  // Determine who goes first, based on lead player
+  isPlayerTurn.value = !!playerIsLead.value;
+  startTurn()
 }
 
 // METHODS - Events
@@ -581,9 +635,10 @@ function getChanceOutcome(percentage: number) {
       <div class="game-details">
         <button
           class="btn pass-btn no-mobile-highlight"
-          :class="{ disabled: !isPlayerTurn || playerIsPassed }"
+          :class="{ disabled: boardDisabled }"
+          :disabled="boardDisabled"
           type="button"
-          @click="isPlayerTurn ? pass() : null"
+          @click="pass()"
         >
           <span>PASS</span>
         </button>
