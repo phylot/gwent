@@ -239,9 +239,13 @@ function startTurn() {
       // CPU logic
       determineCpuCard((card: Card) => {
         // console.log('CPU card: ', card)
-        playCard(card, () => {
-          finishTurn()
-        })
+        if (card) {
+          playCard(card, () => {
+            finishTurn()
+          })
+        } else {
+          pass(true)
+        }
       })
     }
   }
@@ -315,9 +319,28 @@ function playCard(card: Card, callback: Function) {
 
 function determineCpuCard(callback: Function) {
   let card = null
+  let cpuIsWinning = opponentTotal.value > playerTotal.value
+  let smallScoreDifference = Math.abs(playerTotal.value - opponentTotal.value) < 8
+  let isFinalRound = playerHasRound.value && opponentHasRound.value
+  let playerIsRoundUp = playerHasRound.value && !opponentHasRound.value
 
-  // TODO: Determine card to play
-  card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // TEMP
+  // If round isn't yet won, or there's a small score difference...
+  if (!(playerIsPassed.value && cpuIsWinning)) {
+    // Play card if...
+    // • It's the final round
+    // • The player is a round up and hasn't passed yet
+    // • The player is a round up, the player has passed, and the CPU is still losing the round
+    // • At worst it's a draw (the CPU may be a round up) the CPU has more than 5 cards in hand, and the score difference is negligible
+    if (
+      isFinalRound ||
+      (playerIsRoundUp && !playerIsPassed.value) ||
+      (playerIsRoundUp && playerIsPassed.value && !cpuIsWinning) ||
+      (!playerHasRound.value && (opponentHandCount.value > 5 || smallScoreDifference))
+    ) {
+      // TODO: Determine card based on assessment of game state, available card types, etc.
+      card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // Select random card - TEMP
+    }
+  }
 
   if (callback) {
     callback(card)
@@ -371,7 +394,7 @@ function determineRoundWinner() {
     !isDraw &&
     ((isPlayerWin && playerHasRound.value) || (!isPlayerWin && opponentHasRound.value))
   ) {
-    // End match as a win (show match summary dialog... "Play Again" / "Main Menu")
+    // End match as a win (show match summary dialog... "Play Again" / "Main Menu" / "View Board")
     if (isPlayerWin) {
       console.log('PLAYER WINS MATCH!')
     } else {
