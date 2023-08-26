@@ -30,15 +30,12 @@ let playerDeck = ref(allPlayerCards)
 let opponentDeck = ref(allOpponentCards)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
-// let playerBoardCards = reactive(dummyPlayerCards)
 let playerBoardCards = ref(emptyPlayerBoardArrays)
-// let opponentBoardCards = reactive(dummyOpponentCards)
 let opponentBoardCards = ref(emptyOpponentBoardArrays)
-// let playerBuffs = reactive(dummyPlayerBuffs)
-// let opponentBuffs = reactive(dummyOpponentBuffs)
 let playerBuffs = ref(emptyPlayerBuffsArrays)
 let opponentBuffs = ref(emptyOpponentBuffsArrays)
-// let specialDeadPile = ref(dummySpecialCards)
+let playerDeadPile = ref(emptyCardArray)
+let opponentDeadPile = ref(emptyCardArray)
 let specialDeadPile = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
 let activeCardRow = ref(emptyCardArray)
@@ -48,7 +45,8 @@ let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
 
 // Game stats
-let playerIsLead = ref(false)
+let roundNumber = ref(1)
+let isPlayerRound = ref(false)
 let isPlayerTurn = ref(false)
 let playerIsPassed = ref(false)
 let opponentIsPassed = ref(false)
@@ -129,10 +127,12 @@ onMounted(() => {
   window.addEventListener('resize', onResize)
 
   preloadCardImages(allPlayerCards, () => {
-    // TODO: Call this from main menu "New Game" or "Continue" click
-    setupGame(() => {
-      loading.value = false
-      startTurn()
+    preloadCardImages(allOpponentCards, () => {
+      // TODO: Call this from main menu "New Game" or "Continue" click
+      setupGame(() => {
+        loading.value = false
+        startTurn()
+      })
     })
   })
 })
@@ -149,18 +149,24 @@ function onResize() {
 }
 
 function preloadCardImages(cards: Card[], callback: Function) {
-  let imageCount = cards.length
+  let imageCount = cards?.length || 0
   let imagesLoaded = 0
 
-  for (let i = 0; i < imageCount; i++) {
-    loadImage(cards[i].image, () => {
-      imagesLoaded++
-      if (imagesLoaded == imageCount) {
-        if (callback) {
-          callback()
+  if (imageCount > 0) {
+    for (let i = 0; i < imageCount; i++) {
+      loadImage(cards[i].image, () => {
+        imagesLoaded++
+        if (imagesLoaded == imageCount) {
+          if (callback) {
+            callback()
+          }
         }
-      }
-    })
+      })
+    }
+  } else {
+    if (callback) {
+      callback()
+    }
   }
 }
 
@@ -189,8 +195,7 @@ function setupGame(callback: Function) {
   // console.log("playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
 
   // Decide lead player / first turn
-  playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
-  // playerIsLead.value = isPlayerTurn.value = true // TEMP
+  isPlayerRound.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
   // TODO: Swap cards dialog + logic
   // • return promise (to delay/prevent below callback)
@@ -391,15 +396,26 @@ function determineRoundWinner() {
 }
 
 function setupRound() {
-  console.log('setupRound()')
+  roundNumber.value++
+
+  // Swap lead player from previous round
+  isPlayerRound.value = !isPlayerRound.value
+  isPlayerTurn.value = isPlayerRound.value
+
   // Reset necessary round-specific values
   playerIsPassed.value = false
   opponentIsPassed.value = false
 
-  // Move cards from board rows to dead pile
+  // Move each player's cards from board rows to dead pile
+  for (let i = 0; i < playerBoardCards.value.length; i++) {
+    playerDeadPile.value = playerDeadPile.value.concat(playerBoardCards.value[i])
+    playerBoardCards.value[i] = []
+  }
+  for (let i = 0; i < opponentBoardCards.value.length; i++) {
+    opponentDeadPile.value = opponentDeadPile.value.concat(opponentBoardCards.value[i])
+    opponentBoardCards.value[i] = []
+  }
 
-  // Determine who goes first, based on lead player
-  isPlayerTurn.value = !!playerIsLead.value;
   startTurn()
 }
 
@@ -677,7 +693,7 @@ function getChanceOutcome(percentage: number) {
                 {{ playerHandCount }}
               </div>
               <div
-                aria-label="Player Dead Pile (0)"
+                :aria-label="`Player Dead Pile (${playerDeadPile.length})`"
                 class="dead-pile no-mobile-highlight"
                 :class="{ disabled: boardDisabled }"
                 role="button"
@@ -686,7 +702,7 @@ function getChanceOutcome(percentage: number) {
                 @keyup.space="boardDisabled ? null : playerDeadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
-                0
+                {{ playerDeadPile.length }}
               </div>
             </div>
           </div>
@@ -746,7 +762,7 @@ function getChanceOutcome(percentage: number) {
                 {{ opponentHandCount }}
               </div>
               <div
-                aria-label="Opponent Dead Pile (0)"
+                :aria-label="`Opponent Dead Pile (${opponentDeadPile.length})`"
                 class="dead-pile no-mobile-highlight"
                 :class="{ disabled: boardDisabled }"
                 role="button"
@@ -755,7 +771,7 @@ function getChanceOutcome(percentage: number) {
                 @boardcard-space="boardDisabled ? null : opponentDeadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
-                0
+                {{ opponentDeadPile.length }}
               </div>
             </div>
           </div>
