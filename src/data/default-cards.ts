@@ -81,6 +81,10 @@ const allPlayerCards: Card[] = [
   // { ability: 'clear', abilityIcon: "gi-sunflower", active: false, defaultValue: 0, description: "Removes all <strong>Weather Card</strong> (Biting Frost, Impenetrable Fog and Torrential Rain) effects.", id: "030", image: "clear.png", name: "Clear Weather", type: "special", value: 0 }
 ]
 
+const playerLeaderCard: Card = { ability: 'clear', active: false, defaultValue: 0, description: "<strong>Clear:</strong> Clear any weather effects.", faction: 'br', id: "901", image: "br-wellington.jpg", name: "Wellington", type: "leader", value: 0 };
+
+const opponentLeaderCard: Card = { ability: 'reinforce', active: false, defaultValue: 0, description: "<strong>Reinforce</strong> Magically summon 2 x Poor Fucking Infantry cards.", faction: 'fr', id: "902", image: "fr-napoleon.jpg", name: "Napoleon", type: "leader", value: 0 };
+
 const emptyPlayerBoardArrays: Card[][] = [[], [], []]
 
 const emptyOpponentBoardArrays: Card[][] = [[], [], []]
@@ -161,6 +165,8 @@ export {
   type Card,
   allOpponentCards,
   allPlayerCards,
+  playerLeaderCard,
+  opponentLeaderCard,
   emptyPlayerBoardArrays,
   emptyOpponentBoardArrays,
   emptyPlayerBuffsArrays,

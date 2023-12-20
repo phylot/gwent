@@ -5,6 +5,8 @@ import {
   type Card,
   allOpponentCards,
   allPlayerCards,
+  playerLeaderCard,
+  opponentLeaderCard,
   emptyPlayerBoardArrays,
   emptyOpponentBoardArrays,
   emptyPlayerBuffsArrays,
@@ -28,6 +30,10 @@ let isDesktop = ref(false)
 // Board-related
 let playerDeck = ref(allPlayerCards)
 let opponentDeck = ref(allOpponentCards)
+const playerLeader = ref(playerLeaderCard)
+const opponentLeader = ref(opponentLeaderCard)
+const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.meta.url)
+const opponentImg = new URL(`./assets/images/${opponentLeader.value.image}`, import.meta.url)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 let playerBoardCards = ref(emptyPlayerBoardArrays)
@@ -52,10 +58,6 @@ let playerIsPassed = ref(false)
 let opponentIsPassed = ref(false)
 let playerHasRound = ref(false)
 let opponentHasRound = ref(false)
-
-// TODO: Derive from Leader cards
-const playerImg = new URL(`./assets/images/br-wellington.jpg`, import.meta.url)
-const opponentImg = new URL(`./assets/images/fr-napoleon.jpg`, import.meta.url)
 
 // COMPUTED DATA
 
