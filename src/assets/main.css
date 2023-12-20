@@ -244,18 +244,11 @@ body {
 .game-details .avatar {
   width: 30px;
   height: 30px;
-  border-width: 2px;
-  border-style: solid;
+  border: 2px solid #000000;
   border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
   background-size: cover;
-}
-
-.game-details .player-details .avatar {
-  border-color: lemonchiffon;
-}
-
-.game-details .opponent-details .avatar {
-  border-color: lightskyblue;
 }
 
 .game-details .player-details .avatar.active,
@@ -394,7 +387,7 @@ body {
 
 .board-card.active {
   background-color: chartreuse;
-  animation: pulse 2s infinite;
+  animation: pulse 1.2s infinite;
 }
 
 .board-card:last-child,
@@ -808,8 +801,6 @@ body {
   .game-details .avatar {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
-    background-size: cover;
   }
 
   .game-details .stat-badge {
