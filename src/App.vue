@@ -586,7 +586,7 @@ function getChanceOutcome(percentage: number) {
             >
             </CarouselCard>
           </div>
-          <span
+          <button
             class="prev-btn no-mobile-highlight"
             :class="{ disabled: boardDisabled }"
             :disabled="boardDisabled"
@@ -597,8 +597,8 @@ function getChanceOutcome(percentage: number) {
             @keyup.space="boardDisabled ? null : changeSlide(-1)"
           >
             <v-icon name="hi-chevron-left" class="icon" :scale="isDesktop ? 1.5 : 1" />
-          </span>
-          <span
+          </button>
+          <button
             class="next-btn no-mobile-highlight"
             :class="{ disabled: boardDisabled }"
             :disabled="boardDisabled"
@@ -609,7 +609,7 @@ function getChanceOutcome(percentage: number) {
             @keyup.space="boardDisabled ? null : changeSlide(1)"
           >
             <v-icon name="hi-chevron-right" class="icon" :scale="isDesktop ? 1.5 : 1" />
-          </span>
+          </button>
         </div>
 
         <button
@@ -638,7 +638,12 @@ function getChanceOutcome(percentage: number) {
       </CardModal>
 
       <div class="opponent-board">
-        <div v-for="(row, i) in opponentBoardCards" class="card-row" :key="`opponent-row-${i}`">
+        <div
+          v-for="(row, i) in opponentBoardCards"
+          class="card-row"
+          :class="`card-row${i + 1}`"
+          :key="`opponent-row-${i}`"
+        >
           <div class="row-stats">
             <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
             <div v-for="(card, key) in opponentBuffs[i]" class="ability card-stat-badge" :key="key">
@@ -804,7 +809,12 @@ function getChanceOutcome(percentage: number) {
       </div>
 
       <div class="player-board">
-        <div v-for="(row, i) in playerBoardCards" class="card-row" :key="`player-row-${i}`">
+        <div
+          v-for="(row, i) in playerBoardCards"
+          class="card-row"
+          :class="`card-row${i + 1}`"
+          :key="`player-row-${i}`"
+        >
           <div class="row-stats">
             <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
             <div v-for="(card, key) in playerBuffs[i]" class="ability card-stat-badge" :key="key">

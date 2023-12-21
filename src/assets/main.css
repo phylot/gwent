@@ -180,6 +180,11 @@ body {
   flex: 1 1;
 }
 
+.player-board,
+.opponent-board {
+  background-color: #9aa0a8;
+}
+
 /* Central Game Stats */
 
 .game-details {
@@ -327,7 +332,10 @@ body {
   display: flex;
   height: 70px;
   box-sizing: border-box;
-  background-color: #9aa0a8;
+  background-position: 5px 35px;
+  background-size: 30px 30px;
+  background-repeat: no-repeat;
+  background-color: transparent;
 }
 
 .opponent-board .card-row {
@@ -336,6 +344,18 @@ body {
 
 .player-board .card-row {
   border-top: 1px solid #5c6166;
+}
+
+.card-row.card-row1 {
+  background-image: url('./images/broadsword.svg');
+}
+
+.card-row.card-row2 {
+  background-image: url('./images/crossbow.svg');
+}
+
+.card-row.card-row3 {
+  background-image: url('./images/catapult.svg');
 }
 
 .row-stats {
@@ -387,7 +407,7 @@ body {
 
 .board-card.active {
   background-color: chartreuse;
-  animation: pulse 1.2s infinite;
+  animation: pulse 1.1s infinite;
 }
 
 .board-card:last-child,
@@ -749,6 +769,8 @@ body {
   .game-details,
   .card-row {
     height: 110px;
+    background-position: 10px 60px;
+    background-size: 40px 40px;
   }
 
   .row-stats {
