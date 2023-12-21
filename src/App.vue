@@ -353,6 +353,7 @@ function pass(isCpu?: boolean) {
   if (isCpu) {
     opponentIsPassed.value = true
   } else {
+    boardDisabled.value = true
     playerIsPassed.value = true
   }
   // Switch turn to other player after pass
