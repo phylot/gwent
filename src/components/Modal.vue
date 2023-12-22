@@ -45,7 +45,7 @@ function hide() {
     <div v-if="localModelValue" class="modal">
       <slot>
         <div class="heading">
-          <div class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
+          <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
           <h1>{{ props.title }}</h1>
         </div>
 

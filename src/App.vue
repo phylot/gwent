@@ -246,8 +246,8 @@ function startTurn() {
   // • contains avatar of Leader Card
 
   modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
-  modalModel.value = true
   modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
+  modalModel.value = true
 
   setTimeout(() => {
     modalModel.value = false
