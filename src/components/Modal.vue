@@ -9,6 +9,8 @@ defineExpose({
 const props = defineProps<{
   avatar?: string
   buttons?: []
+  desktop?: boolean
+  icon?: string
   modelValue?: boolean
   title: string
 }>()
@@ -46,21 +48,22 @@ function hide() {
       <slot>
         <div class="heading">
           <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
+          <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
           <h1>{{ props.title }}</h1>
         </div>
 
         <div v-if="props.buttons" class="btn-container">
           <button
             v-for="(button, i) in buttons"
-            class="btn"
+            class="btn large"
             :class="{ primary: i === 0 }"
             @click="
               resolvePromise(i + 1);
-              localModelValue = false;
+              hide();
             "
             @keydown.enter="
               resolvePromise(i + 1);
-              localModelValue = false;
+              hide();
             "
           >
             {{ button }}

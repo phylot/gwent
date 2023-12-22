@@ -30,6 +30,7 @@ let isDesktop = ref(false)
 const modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
+let modalIcon = ref()
 let modalModel = ref(false)
 let modalTitle = ref('')
 
@@ -206,6 +207,7 @@ function setupGame(callback: Function) {
 
   modalAvatar.value = null
   modalButtons.value = null
+  modalIcon.value = null
   modalTitle.value = ''
 
   // Generate a random hand of 10 cards for each player
@@ -247,6 +249,7 @@ function startTurn() {
   // • contains avatar of Leader Card
 
   modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
+  modalIcon.value = null
   modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
   modalModel.value = true
 
@@ -390,6 +393,8 @@ function pass(isCpu?: boolean) {
   // Switch turn to other player after pass
   isPlayerTurn.value = !isPlayerTurn.value
 
+  modalAvatar.value = null
+  modalIcon.value = 'pr-flag-fill'
   modalModel.value = true
   setTimeout(() => {
     modalModel.value = false
@@ -430,6 +435,7 @@ function determineRoundWinner() {
     // End match as draw (show match summary dialog... "Play Again" / "Main Menu")
     modalAvatar.value = null
     modalButtons.value = ['Play Again']
+    modalIcon.value = null
     modalTitle.value = 'Match Drawn'
 
     modal.value.show().then(() => {
@@ -450,6 +456,7 @@ function determineRoundWinner() {
 
     modalAvatar.value = isPlayerWin ? playerLeaderCard.image : opponentLeaderCard.image
     modalButtons.value = ['Play Again']
+    modalIcon.value = null
     modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Wins The Match'
 
     modal.value.show().then(() => {
@@ -477,6 +484,7 @@ function determineRoundWinner() {
       modalAvatar.value = opponentLeaderCard.image
     }
 
+    modalIcon.value = null
     modalModel.value = true
     setTimeout(() => {
       modalModel.value = false
@@ -632,6 +640,8 @@ function getChanceOutcome(percentage: number) {
       v-model="modalModel"
       :avatar="modalAvatar"
       :buttons="modalButtons"
+      :desktop="isDesktop"
+      :icon="modalIcon"
       ref="modal"
       :title="modalTitle"
     ></Modal>
