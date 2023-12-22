@@ -160,20 +160,37 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 300px;
-  padding: 10px;
+  width: 80%;
+  max-width: 260px;
+  padding: 10px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  border-radius: 10px;
+  border-radius: 20px;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.8);
 }
 
+.modal .heading {
+  display: flex;
+  align-items: center;
+}
+
+.modal .heading .avatar {
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  min-height: 50px;
+  margin-right: 10px;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
 .modal .btn-container {
-  width: 80%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -663,7 +680,7 @@ body {
 
 .carousel-card .carousel-card-details .description {
   margin-top: 5px;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 /* Animations */
@@ -810,7 +827,16 @@ body {
   /* General Modal */
 
   .modal {
-    max-width: 400px;
+    max-width: 340px;
+    padding: 20px 30px;
+  }
+
+  .modal .heading .avatar {
+    width: 70px;
+    min-width: 70px;
+    height: 70px;
+    min-height: 70px;
+    margin-right: 20px;
   }
 
   /* Board Layout */
@@ -1000,6 +1026,6 @@ body {
 
   .carousel-card .carousel-card-details .description {
     margin-top: 15px;
-    font-size: 12px;
+    font-size: 13px;
   }
 }

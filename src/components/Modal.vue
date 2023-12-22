@@ -1,15 +1,24 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
-const props = defineProps<{
-  modelValue?: boolean
-  buttons?: []
-  title: string
-}>()
+import { computed, ref, watch } from 'vue'
 
 defineExpose({
   show,
   hide
+})
+
+const props = defineProps<{
+  avatar?: string
+  buttons?: []
+  modelValue?: boolean
+  title: string
+}>()
+
+let localModelValue = ref(false)
+let resolvePromise = ref()
+let rejectPromise = ref()
+
+const avatarImg = computed(() => {
+  return new URL(`../assets/images/${props.avatar}`, import.meta.url)
 })
 
 watch(
@@ -19,9 +28,6 @@ watch(
   }
 )
 
-let localModelValue = ref(false)
-let resolvePromise = ref()
-let rejectPromise = ref()
 function show() {
   return new Promise((resolve, reject) => {
     localModelValue.value = true
@@ -38,7 +44,11 @@ function hide() {
   <transition name="fade">
     <div v-if="localModelValue" class="modal">
       <slot>
-        <h1>{{ props.title }}</h1>
+        <div class="heading">
+          <div class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
+          <h1>{{ props.title }}</h1>
+        </div>
+
         <div v-if="props.buttons" class="btn-container">
           <button
             v-for="(button, i) in buttons"

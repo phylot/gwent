@@ -28,8 +28,9 @@ import Modal from './components/Modal.vue'
 let loading = ref(true)
 let isDesktop = ref(false)
 const modal = ref()
-let modalModel = ref(false)
+let modalAvatar = ref()
 let modalButtons = ref()
+let modalModel = ref(false)
 let modalTitle = ref('')
 
 // Board-related
@@ -198,13 +199,14 @@ function setupGame(callback: Function) {
   playerIsPassed.value = false
   opponentIsPassed.value = false
 
-  playerBoardCards.value = [[],[],[]]
-  opponentBoardCards.value = [[],[],[]]
+  playerBoardCards.value = [[], [], []]
+  opponentBoardCards.value = [[], [], []]
   playerDeadPile.value = []
   opponentDeadPile.value = []
 
-  modalTitle.value = ""
+  modalAvatar.value = null
   modalButtons.value = null
+  modalTitle.value = ''
 
   // Generate a random hand of 10 cards for each player
   playerHand.value = dealRandomCards(playerDeck.value, 10)
@@ -243,9 +245,10 @@ function startTurn() {
   // TODO: Display "Your Turn" / "Opponent's Turn" dialog
   // • contains avatar of Leader Card
 
-  modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
-  // modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
+  modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
   modalModel.value = true
+  modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
+
   setTimeout(() => {
     modalModel.value = false
 
@@ -424,6 +427,7 @@ function determineRoundWinner() {
   // Declare match is a draw (if draw and each player has already won a round)
   if (isDraw && playerHasRound && opponentHasRound) {
     // End match as draw (show match summary dialog... "Play Again" / "Main Menu")
+    modalAvatar.value = null
     modalButtons.value = ['Play Again']
     modalTitle.value = 'Match Drawn'
 
@@ -443,6 +447,7 @@ function determineRoundWinner() {
     // End match as a win
     // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
 
+    modalAvatar.value = isPlayerWin ? playerLeaderCard.image : opponentLeaderCard.image
     modalButtons.value = ['Play Again']
     modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Won The Match'
 
@@ -460,15 +465,15 @@ function determineRoundWinner() {
       playerHasRound.value = true
       opponentHasRound.value = true
       modalTitle.value = 'Round Drawn'
-      // modalAvatar.value = null;
+      modalAvatar.value = null
     } else if (isPlayerWin) {
       playerHasRound.value = true
       modalTitle.value = 'You Win The Round!'
-      // modalAvatar.value = playerLeaderCard.image
+      modalAvatar.value = playerLeaderCard.image
     } else {
       opponentHasRound.value = true
       modalTitle.value = 'Opponent Wins The Round'
-      // modalAvatar.value = opponentLeaderCard.image
+      modalAvatar.value = opponentLeaderCard.image
     }
 
     modalModel.value = true
@@ -622,7 +627,13 @@ function getChanceOutcome(percentage: number) {
       <div v-if="loading" class="loader">Loading...</div>
     </transition>
 
-    <Modal v-model="modalModel" ref="modal" :buttons="modalButtons" :title="modalTitle"></Modal>
+    <Modal
+      v-model="modalModel"
+      :avatar="modalAvatar"
+      :buttons="modalButtons"
+      ref="modal"
+      :title="modalTitle"
+    ></Modal>
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
