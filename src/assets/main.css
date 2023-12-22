@@ -161,7 +161,7 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
-  max-width: 260px;
+  max-width: 280px;
   padding: 10px 20px;
   display: flex;
   flex-direction: column;
@@ -824,10 +824,10 @@ body {
     font-size: 20px;
   }
 
-  /* General Modal */
+  /* General Modal (Desktop / Tablet) */
 
   .modal {
-    max-width: 340px;
+    max-width: 380px;
     padding: 20px 30px;
   }
 
@@ -839,7 +839,11 @@ body {
     margin-right: 20px;
   }
 
-  /* Board Layout */
+  .modal .button-container {
+    padding: 15px;
+  }
+
+  /* Board Layout (Desktop / Tablet) */
 
   .game-details,
   .card-row {
@@ -866,7 +870,7 @@ body {
     font-size: 16px;
   }
 
-  /* Central Game Stats */
+  /* Central Game Stats (Desktop / Tablet) */
 
   .game-details .pass-btn {
     width: 55px;
@@ -937,7 +941,7 @@ body {
     margin-right: 2px;
   }
 
-  /* Board Card */
+  /* Board Card (Desktop / Tablet) */
 
   .board-card .card-wrap {
     width: 90px;
@@ -953,13 +957,13 @@ body {
     bottom: 3px;
   }
 
-  /* Card Modal */
+  /* Card Modal (Desktop / Tablet) */
 
   .card-modal {
     bottom: 110px;
   }
 
-  /* Card Carousel */
+  /* Card Carousel (Desktop / Tablet) */
 
   .card-carousel {
     width: 460px;
@@ -973,7 +977,7 @@ body {
     margin-top: -35px;
   }
 
-  /* Carousel Card */
+  /* Carousel Card (Desktop / Tablet) */
 
   .carousel-card {
     height: 530px;

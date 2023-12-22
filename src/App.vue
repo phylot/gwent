@@ -212,8 +212,8 @@ function setupGame(callback: Function) {
   playerHand.value = dealRandomCards(playerDeck.value, 10)
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-  // console.log("playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
-  // console.log("playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+  // console.log("setupGame() playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
+  // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
 
   // Decide lead player / first turn
   isPlayerRound.value = isPlayerTurn.value = getChanceOutcome(0.5)
@@ -229,12 +229,13 @@ function setupGame(callback: Function) {
 }
 
 function dealRandomCards(arr: Card[], amount: number) {
+  let cardArray = arr.slice()
   let cards = []
   for (let i = 0; i < amount; i++) {
-    let randomIndex = Math.floor(Math.random() * arr.length)
+    let randomIndex = Math.floor(Math.random() * cardArray.length)
 
-    cards.push(arr[randomIndex])
-    arr.splice(randomIndex, 1)
+    cards.push(cardArray[randomIndex])
+    cardArray.splice(randomIndex, 1)
   }
   return cards
 }
@@ -449,7 +450,7 @@ function determineRoundWinner() {
 
     modalAvatar.value = isPlayerWin ? playerLeaderCard.image : opponentLeaderCard.image
     modalButtons.value = ['Play Again']
-    modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Won The Match'
+    modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Wins The Match'
 
     modal.value.show().then(() => {
       setupGame(() => {
