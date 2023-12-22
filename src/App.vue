@@ -21,11 +21,16 @@ import {
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 import CarouselCard from './components/CarouselCard.vue'
+import Modal from './components/Modal.vue'
 
 // DATA
 
 let loading = ref(true)
 let isDesktop = ref(false)
+const modal = ref()
+let modalModel = ref(false)
+let modalButtons = ref()
+let modalTitle = ref('')
 
 // Board-related
 let playerDeck = ref(allPlayerCards)
@@ -186,8 +191,20 @@ function loadImage(image: string, callback: Function) {
 }
 
 function setupGame(callback: Function) {
-  // Reset any existing game data / set default values
+  // TODO: Reset any existing game data / set default values
   boardDisabled.value = true
+  playerHasRound.value = false
+  opponentHasRound.value = false
+  playerIsPassed.value = false
+  opponentIsPassed.value = false
+
+  playerBoardCards.value = [[],[],[]]
+  opponentBoardCards.value = [[],[],[]]
+  playerDeadPile.value = []
+  opponentDeadPile.value = []
+
+  modalTitle.value = ""
+  modalButtons.value = null
 
   // Generate a random hand of 10 cards for each player
   playerHand.value = dealRandomCards(playerDeck.value, 10)
@@ -224,33 +241,41 @@ function dealRandomCards(arr: Card[], amount: number) {
 
 function startTurn() {
   // TODO: Display "Your Turn" / "Opponent's Turn" dialog
-  // • contains avatar of Leader Card)
-  // • set a timeout, then hide
+  // • contains avatar of Leader Card
 
-  // If active player has no cards left in their hand, pass
-  if (
-    (isPlayerTurn.value && playerHand.value.length < 1) ||
-    (!isPlayerTurn.value && opponentHand.value.length < 1)
-  ) {
-    let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
-    pass(isCpuPass)
-  } else {
-    if (isPlayerTurn.value) {
-      boardDisabled.value = false
-    } else {
-      // CPU logic
-      determineCpuCard((card: Card) => {
-        // console.log('CPU card: ', card)
-        if (card) {
-          playCard(card, () => {
-            finishTurn()
-          })
+  modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
+  // modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
+  modalModel.value = true
+  setTimeout(() => {
+    modalModel.value = false
+
+    setTimeout(() => {
+      // If active player has no cards left in their hand, pass
+      if (
+        (isPlayerTurn.value && playerHand.value.length < 1) ||
+        (!isPlayerTurn.value && opponentHand.value.length < 1)
+      ) {
+        let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
+        pass(isCpuPass)
+      } else {
+        if (isPlayerTurn.value) {
+          boardDisabled.value = false
         } else {
-          pass(true)
+          // CPU logic
+          determineCpuCard((card: Card) => {
+            // console.log('CPU card: ', card)
+            if (card) {
+              playCard(card, () => {
+                finishTurn()
+              })
+            } else {
+              pass(true)
+            }
+          })
         }
-      })
-    }
-  }
+      }
+    }, 500)
+  }, 1400)
 }
 
 function playCard(card: Card, callback: Function) {
@@ -352,13 +377,22 @@ function determineCpuCard(callback: Function) {
 function pass(isCpu?: boolean) {
   if (isCpu) {
     opponentIsPassed.value = true
+    modalTitle.value = 'Opponent Has Passed'
   } else {
     boardDisabled.value = true
     playerIsPassed.value = true
+    modalTitle.value = 'You Have Passed'
   }
   // Switch turn to other player after pass
   isPlayerTurn.value = !isPlayerTurn.value
-  finishTurn()
+
+  modalModel.value = true
+  setTimeout(() => {
+    modalModel.value = false
+    setTimeout(() => {
+      finishTurn()
+    }, 500)
+  }, 1400)
 }
 
 function finishTurn() {
@@ -390,34 +424,60 @@ function determineRoundWinner() {
   // Declare match is a draw (if draw and each player has already won a round)
   if (isDraw && playerHasRound && opponentHasRound) {
     // End match as draw (show match summary dialog... "Play Again" / "Main Menu")
-    console.log('MATCH DRAWN')
+    modalButtons.value = ['Play Again']
+    modalTitle.value = 'Match Drawn'
+
+    modal.value.show().then(() => {
+      setupGame(() => {
+        setTimeout(() => {
+          startTurn()
+        }, 500)
+      })
+    })
   }
   // Declare match winner (match isn't a draw and the round winner has already won a round)
   else if (
     !isDraw &&
     ((isPlayerWin && playerHasRound.value) || (!isPlayerWin && opponentHasRound.value))
   ) {
-    // End match as a win (show match summary dialog... "Play Again" / "Main Menu" / "View Board")
-    if (isPlayerWin) {
-      console.log('PLAYER WINS MATCH!')
-    } else {
-      console.log('OPPONENT WINS MATCH!')
-    }
+    // End match as a win
+    // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
+
+    modalButtons.value = ['Play Again']
+    modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Won The Match'
+
+    modal.value.show().then(() => {
+      setupGame(() => {
+        setTimeout(() => {
+          startTurn()
+        }, 500)
+      })
+    })
   }
   // No match winner yet... set relevant round flag to true (or both if draw)
   else {
     if (isDraw) {
-      console.log('ROUND DRAWN')
       playerHasRound.value = true
       opponentHasRound.value = true
+      modalTitle.value = 'Round Drawn'
+      // modalAvatar.value = null;
     } else if (isPlayerWin) {
-      console.log('PLAYER WINS ROUND!')
       playerHasRound.value = true
+      modalTitle.value = 'You Win The Round!'
+      // modalAvatar.value = playerLeaderCard.image
     } else {
-      console.log('OPPONENT WINS ROUND!')
       opponentHasRound.value = true
+      modalTitle.value = 'Opponent Wins The Round'
+      // modalAvatar.value = opponentLeaderCard.image
     }
-    setupRound()
+
+    modalModel.value = true
+    setTimeout(() => {
+      modalModel.value = false
+      setTimeout(() => {
+        setupRound()
+      }, 1000)
+    }, 2000)
   }
 }
 
@@ -562,6 +622,8 @@ function getChanceOutcome(percentage: number) {
       <div v-if="loading" class="loader">Loading...</div>
     </transition>
 
+    <Modal v-model="modalModel" ref="modal" :buttons="modalButtons" :title="modalTitle"></Modal>
+
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
         <div v-if="!carouselIsHidden" class="card-carousel">
@@ -571,7 +633,7 @@ function getChanceOutcome(percentage: number) {
               :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :animation-name="card.animationName"
-              class="slide fade"
+              class="slide fade-in"
               :class="{ active: card.active }"
               :default-value="card.defaultValue"
               :description="card.description"

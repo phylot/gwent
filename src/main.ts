@@ -28,6 +28,7 @@ import {
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
+import './assets/base.css'
 
 addIcons(
   FaChevronLeft,
