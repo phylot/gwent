@@ -152,6 +152,61 @@ body {
   user-select: none;
 }
 
+/* Alert Banner */
+
+.alert-banner {
+  z-index: 7000;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: 100%;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.alert-banner .mark {
+  position: relative;
+  width: 60px;
+  height: 50px;
+  margin-right: 15px;
+}
+
+.alert-banner .avatar {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 60px;
+  min-width: 60px;
+  height: 60px;
+  min-height: 60px;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+.alert-banner .icon {
+  position: absolute;
+  bottom: -10px;
+  width: 60px;
+  min-width: 60px;
+  height: 60px;
+  min-height: 60px;
+}
+
+.alert-banner .heading {
+  max-width: 400px;
+}
+
+.alert-banner .heading h2 {
+  font-size: 0.9em;
+}
+
 /* General Modal */
 
 .modal {
@@ -174,6 +229,10 @@ body {
 .modal .heading {
   display: flex;
   align-items: center;
+}
+
+.modal .heading h2 {
+  font-size: 1.2em;
 }
 
 .modal .heading .avatar,
@@ -208,6 +267,7 @@ body {
 /* Board Layout */
 
 .game-container {
+  position: absolute;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -828,6 +888,41 @@ body {
     font-size: 20px;
   }
 
+  /* Alert Banner (Desktop / Tablet) */
+
+  .alert-banner {
+    height: 80px;
+  }
+
+  .alert-banner .mark {
+    width: 90px;
+    height: 80px;
+    margin-right: 20px;
+  }
+
+  .alert-banner .avatar {
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 90px;
+    min-width: 90px;
+    height: 90px;
+    min-height: 80px;
+  }
+
+  .alert-banner .icon {
+    position: absolute;
+    bottom: -20px;
+    width: 100px;
+    min-width: 100px;
+    height: 100px;
+    min-height: 100px;
+  }
+
+  .alert-banner .heading h2 {
+    font-size: 1.3em;
+  }
+
   /* General Modal (Desktop / Tablet) */
 
   .modal {
@@ -841,6 +936,10 @@ body {
     height: 70px;
     min-height: 70px;
     margin-right: 20px;
+  }
+
+  .modal .heading h2 {
+    font-size: 1.8em;
   }
 
   .modal .button-container {

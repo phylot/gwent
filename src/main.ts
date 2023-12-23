@@ -24,7 +24,7 @@ import {
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined,
-  PrFlagFill
+  FaFlag,
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
@@ -50,7 +50,7 @@ addIcons(
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined,
-  PrFlagFill,
+  FaFlag,
 )
 
 const app = createApp(App)

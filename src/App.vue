@@ -18,6 +18,7 @@ import {
   // dummyPlayerBuffs,
   // dummyOpponentBuffs,
 } from './data/default-cards'
+import AlertBanner from './components/AlertBanner.vue'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 import CarouselCard from './components/CarouselCard.vue'
@@ -27,6 +28,12 @@ import Modal from './components/Modal.vue'
 
 let loading = ref(true)
 let isDesktop = ref(false)
+
+let alertBannerAvatar = ref()
+let alertBannerIcon = ref()
+let alertBannerModel = ref(false)
+let alertBannerTitle = ref('')
+
 const modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
@@ -245,18 +252,11 @@ function dealRandomCards(arr: Card[], amount: number) {
 // METHODS - Game Loop
 
 function startTurn() {
-  // TODO: Display "Your Turn" / "Opponent's Turn" dialog
-  // • contains avatar of Leader Card
-
-  modalAvatar.value = isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image
-  modalIcon.value = null
-  modalTitle.value = isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn"
-  modalModel.value = true
-
-  setTimeout(() => {
-    modalModel.value = false
-
-    setTimeout(() => {
+  displayAlertBanner(
+    isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
+    isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
+    undefined,
+    () => {
       // If active player has no cards left in their hand, pass
       if (
         (isPlayerTurn.value && playerHand.value.length < 1) ||
@@ -281,8 +281,8 @@ function startTurn() {
           })
         }
       }
-    }, 500)
-  }, 1400)
+    }
+  )
 }
 
 function playCard(card: Card, callback: Function) {
@@ -384,24 +384,21 @@ function determineCpuCard(callback: Function) {
 function pass(isCpu?: boolean) {
   if (isCpu) {
     opponentIsPassed.value = true
-    modalTitle.value = 'Opponent Has Passed'
   } else {
     boardDisabled.value = true
     playerIsPassed.value = true
-    modalTitle.value = 'You Have Passed'
   }
   // Switch turn to other player after pass
   isPlayerTurn.value = !isPlayerTurn.value
 
-  modalAvatar.value = null
-  modalIcon.value = 'pr-flag-fill'
-  modalModel.value = true
-  setTimeout(() => {
-    modalModel.value = false
-    setTimeout(() => {
+  displayAlertBanner(
+    isCpu ? 'Opponent Has Passed' : 'You Have Passed',
+    undefined,
+    'fa-flag',
+    () => {
       finishTurn()
-    }, 500)
-  }, 1400)
+    }
+  )
 }
 
 function finishTurn() {
@@ -469,29 +466,26 @@ function determineRoundWinner() {
   }
   // No match winner yet... set relevant round flag to true (or both if draw)
   else {
+    let alertTitle = ''
+    let alertAvatar
+
     if (isDraw) {
       playerHasRound.value = true
       opponentHasRound.value = true
-      modalTitle.value = 'Round Drawn'
-      modalAvatar.value = null
+      alertTitle = 'Round Drawn'
     } else if (isPlayerWin) {
       playerHasRound.value = true
-      modalTitle.value = 'You Win The Round!'
-      modalAvatar.value = playerLeaderCard.image
+      alertTitle = 'You Win The Round!'
+      alertAvatar = playerLeaderCard.image
     } else {
       opponentHasRound.value = true
-      modalTitle.value = 'Opponent Wins The Round'
-      modalAvatar.value = opponentLeaderCard.image
+      alertTitle = 'Opponent Wins The Round'
+      alertAvatar = opponentLeaderCard.image
     }
 
-    modalIcon.value = null
-    modalModel.value = true
-    setTimeout(() => {
-      modalModel.value = false
-      setTimeout(() => {
-        setupRound()
-      }, 1000)
-    }, 2000)
+    displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
+      setupRound()
+    })
   }
 }
 
@@ -617,6 +611,27 @@ function confirmCardModal() {
 
 // METHODS - Helpers
 
+function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
+  alertBannerTitle.value = title || ''
+  alertBannerAvatar.value = avatar || null
+  alertBannerIcon.value = icon || null
+  alertBannerModel.value = true
+
+  setTimeout(() => {
+    alertBannerModel.value = false
+
+    setTimeout(() => {
+      alertBannerTitle.value = ''
+      alertBannerAvatar.value = null
+      alertBannerIcon.value = null
+
+      if (callback) {
+        callback()
+      }
+    }, 200)
+  }, 1400)
+}
+
 function getRowTotal(arr: Card[]) {
   let total = 0
   for (let i = 0; i < arr.length; i++) {
@@ -645,6 +660,14 @@ function getChanceOutcome(percentage: number) {
       ref="modal"
       :title="modalTitle"
     ></Modal>
+
+    <AlertBanner
+      v-model="alertBannerModel"
+      :avatar="alertBannerAvatar"
+      :desktop="isDesktop"
+      :icon="alertBannerIcon"
+      :title="alertBannerTitle"
+    ></AlertBanner>
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
@@ -784,7 +807,7 @@ function getChanceOutcome(percentage: number) {
             />
             <v-icon
               v-if="playerIsPassed"
-              name="pr-flag-fill"
+              name="fa-flag"
               class="icon pass-icon"
               :scale="isDesktop ? 1.8 : 1.2"
               animation="float"
@@ -853,7 +876,7 @@ function getChanceOutcome(percentage: number) {
             />
             <v-icon
               v-if="opponentIsPassed"
-              name="pr-flag-fill"
+              name="fa-flag"
               class="icon pass-icon"
               :scale="isDesktop ? 1.8 : 1.2"
               animation="float"

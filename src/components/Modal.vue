@@ -44,12 +44,12 @@ function hide() {
 
 <template>
   <transition name="fade">
-    <div v-if="localModelValue" class="modal">
+    <div v-if="localModelValue" class="modal" role="dialog">
       <slot>
         <div class="heading">
           <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
           <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
-          <h1>{{ props.title }}</h1>
+          <h2>{{ props.title }}</h2>
         </div>
 
         <div v-if="props.buttons" class="btn-container">
