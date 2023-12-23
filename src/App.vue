@@ -42,8 +42,8 @@ let modalModel = ref(false)
 let modalTitle = ref('')
 
 // Board-related
-let playerDeck = ref(allPlayerCards)
-let opponentDeck = ref(allOpponentCards)
+let playerDeck = ref()
+let opponentDeck = ref()
 const playerLeader = ref(playerLeaderCard)
 const opponentLeader = ref(opponentLeaderCard)
 const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.meta.url)
@@ -200,29 +200,31 @@ function loadImage(image: string, callback: Function) {
 }
 
 function setupGame(callback: Function) {
-  // TODO: Reset any existing game data / set default values
-  boardDisabled.value = true
-  playerHasRound.value = false
-  opponentHasRound.value = false
-  playerIsPassed.value = false
-  opponentIsPassed.value = false
+  playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards));
+  opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards));
+
+  // Generate a random hand of 10 cards for each player
+  playerHand.value = dealRandomCards(playerDeck.value, 10)
+  opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+
+  // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+  // console.log("setupGame() playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
 
   playerBoardCards.value = [[], [], []]
   opponentBoardCards.value = [[], [], []]
   playerDeadPile.value = []
   opponentDeadPile.value = []
 
+  boardDisabled.value = true
+  playerHasRound.value = false
+  opponentHasRound.value = false
+  playerIsPassed.value = false
+  opponentIsPassed.value = false
+
   modalAvatar.value = null
   modalButtons.value = null
   modalIcon.value = null
   modalTitle.value = ''
-
-  // Generate a random hand of 10 cards for each player
-  playerHand.value = dealRandomCards(playerDeck.value, 10)
-  opponentHand.value = dealRandomCards(opponentDeck.value, 10)
-
-  // console.log("setupGame() playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
-  // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
 
   // Decide lead player / first turn
   isPlayerRound.value = isPlayerTurn.value = getChanceOutcome(0.5)
@@ -238,13 +240,12 @@ function setupGame(callback: Function) {
 }
 
 function dealRandomCards(arr: Card[], amount: number) {
-  let cardArray = arr.slice()
   let cards = []
   for (let i = 0; i < amount; i++) {
-    let randomIndex = Math.floor(Math.random() * cardArray.length)
+    let randomIndex = Math.floor(Math.random() * arr.length)
 
-    cards.push(cardArray[randomIndex])
-    cardArray.splice(randomIndex, 1)
+    cards.push(arr[randomIndex])
+    arr.splice(randomIndex, 1)
   }
   return cards
 }
@@ -454,7 +455,7 @@ function determineRoundWinner() {
     modalAvatar.value = isPlayerWin ? playerLeaderCard.image : opponentLeaderCard.image
     modalButtons.value = ['Play Again']
     modalIcon.value = null
-    modalTitle.value = isPlayerWin ? 'You Win The Match!' : 'Opponent Wins The Match'
+    modalTitle.value = isPlayerWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
 
     modal.value.show().then(() => {
       setupGame(() => {

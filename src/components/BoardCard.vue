@@ -19,7 +19,7 @@ const imageUrl = computed(() => {
   return new URL(`../assets/images/${props.image}`, import.meta.url)
 })
 const animationClass = computed(() => {
-  return props.animationName ? props.animationName : null;
+  return props.animationName ? props.animationName : null
 })
 </script>
 
@@ -42,7 +42,9 @@ const animationClass = computed(() => {
         }"
       >
         <template v-if="props.image">
-          <div v-if="defaultValue" class="value card-stat-badge">{{ value }}</div>
+          <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
+            {{ value }}
+          </div>
           <div v-if="abilityIcon" class="ability card-stat-badge">
             <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 1 : 0.8" />
           </div>

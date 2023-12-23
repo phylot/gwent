@@ -951,8 +951,8 @@ body {
   .game-details,
   .card-row {
     height: 110px;
-    background-position: 10px 60px;
-    background-size: 40px 40px;
+    background-position: 10px 65px;
+    background-size: 35px 35px;
   }
 
   .row-stats {
