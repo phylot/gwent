@@ -147,7 +147,9 @@ onMounted(() => {
       // TODO: Call this from main menu "New Game" or "Continue" click
       setupGame(() => {
         loading.value = false
-        startTurn()
+        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
+          startTurn()
+        })
       })
     })
   })
@@ -216,6 +218,7 @@ function setupGame(callback: Function) {
   opponentDeadPile.value = []
 
   boardDisabled.value = true
+  roundNumber.value = 1
   playerHasRound.value = false
   opponentHasRound.value = false
   playerIsPassed.value = false
@@ -253,9 +256,6 @@ function dealRandomCards(arr: Card[], amount: number) {
 // METHODS - Game Loop
 
 function startTurn() {
-  // TODO: pass() here if player has no cards
-  // TODO: finishTurn() here if neither player has cards
-
   displayAlertBanner(
     isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
     isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
@@ -458,7 +458,9 @@ function determineRoundWinner() {
     modal.value.show().then(() => {
       setupGame(() => {
         setTimeout(() => {
-          startTurn()
+          displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
+            startTurn()
+          })
         }, 500)
       })
     })
@@ -504,14 +506,20 @@ function determineRoundWinner() {
     }
 
     displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
-      setupRound()
+      // If either or both players' hand is empty
+      setupRound(() => {
+        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
+          startTurn()
+        })
+      })
     })
   }
 }
 
-function setupRound() {
+function setupRound(callback: Function) {
   roundNumber.value++
 
+  // TODO: Previous round winner goes first
   // Swap lead player from previous round
   isPlayerRound.value = !isPlayerRound.value
   isPlayerTurn.value = isPlayerRound.value
@@ -530,7 +538,9 @@ function setupRound() {
     opponentBoardCards.value[i] = []
   }
 
-  startTurn()
+  if (callback) {
+    callback()
+  }
 }
 
 // METHODS - Events
