@@ -200,8 +200,8 @@ function loadImage(image: string, callback: Function) {
 }
 
 function setupGame(callback: Function) {
-  playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards));
-  opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards));
+  playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards))
+  opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards))
 
   // Generate a random hand of 10 cards for each player
   playerHand.value = dealRandomCards(playerDeck.value, 10)
@@ -253,6 +253,9 @@ function dealRandomCards(arr: Card[], amount: number) {
 // METHODS - Game Loop
 
 function startTurn() {
+  // TODO: pass() here if player has no cards
+  // TODO: finishTurn() here if neither player has cards
+
   displayAlertBanner(
     isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
     isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
@@ -296,12 +299,18 @@ function playCard(card: Card, callback: Function) {
     ranged: 1,
     siege: 2
   }
-  let boardArr: Card[] = []
+  let boardArr
   let handArr = isPlayerTurn.value ? playerHand : opponentHand
 
   // Determine relevant board array
   if (card.type === 'special') {
     boardArr = specialDeadPile.value
+  } else if (card.ability === 'spy') {
+    if (isPlayerTurn.value) {
+      boardArr = opponentBoardCards.value[abilityIndexes[card.type]]
+    } else {
+      boardArr = playerBoardCards.value[abilityIndexes[card.type]]
+    }
   } else {
     if (isPlayerTurn.value) {
       boardArr = playerBoardCards.value[abilityIndexes[card.type]]
@@ -312,6 +321,7 @@ function playCard(card: Card, callback: Function) {
 
   // Carousel card animations
   card.animationName = 'shine'
+
   setTimeout(() => {
     card.animationName = 'white-fade-in'
     setTimeout(() => {
@@ -341,6 +351,15 @@ function playCard(card: Card, callback: Function) {
           card.animationName = 'shine'
           setTimeout(() => {
             card.animationName = undefined
+
+            if (card.ability === 'spy') {
+              // Draw 2 cards if card is a spy
+              if (isPlayerTurn.value) {
+                playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
+              } else {
+                opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
+              }
+            }
 
             if (callback) {
               callback()
