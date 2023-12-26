@@ -435,25 +435,58 @@ function finishTurn() {
 }
 
 function determineRoundWinner() {
-  let isPlayerWin = false
+  let isPlayerRoundWin = false
   let isDraw = false
+  let isPlayerMatchWin = false
+  let isOpponentMatchWin = false
+  let isMatchDraw = false
 
-  // Determine highest scorer
+  // Determine highest round scorer
   if (playerTotal.value === opponentTotal.value) {
     isDraw = true
   } else {
     if (playerTotal.value > opponentTotal.value) {
-      isPlayerWin = true
+      isPlayerRoundWin = true
     }
   }
 
-  // Declare match is a draw (if draw and each player has already won a round)
-  if (isDraw && playerHasRound && opponentHasRound) {
-    // End match as draw (show match summary dialog... "Play Again" / "Main Menu")
-    modalAvatar.value = null
+  // MATCH END CONDITION - Match is a draw, and each player has already won a round
+  if (isDraw && playerHasRound.value && opponentHasRound.value) {
+    isMatchDraw = true
+    modalTitle.value = 'Match Drawn'
+  }
+  // MATCH END CONDITION - Declare match winner (match isn't a draw and the round winner has already won a round)
+  else if (
+    !isDraw &&
+    ((isPlayerRoundWin && playerHasRound.value) || (!isPlayerRoundWin && opponentHasRound.value))
+  ) {
+    // End match as a win
+    isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
+    modalAvatar.value = isPlayerRoundWin ? playerLeaderCard.image : opponentLeaderCard.image
+    modalTitle.value = isPlayerRoundWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
+  }
+  // MATCH END CONDITION - If neither player has any cards left after round 1
+  else if (
+    playerHand.value.length === 0 &&
+    opponentHand.value.length === 0 &&
+    roundNumber.value === 1
+  ) {
+    if (isDraw) {
+      isMatchDraw = true
+      modalTitle.value = 'Match Drawn'
+    } else {
+      isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
+      modalAvatar.value = isPlayerRoundWin ? playerLeaderCard.image : opponentLeaderCard.image
+      modalTitle.value = isPlayerRoundWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
+    }
+  }
+
+  // Match is won or drawn
+  if (isPlayerMatchWin || isOpponentMatchWin || isMatchDraw) {
+    // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
+
     modalButtons.value = ['Play Again']
     modalIcon.value = null
-    modalTitle.value = 'Match Drawn'
 
     modal.value.show().then(() => {
       setupGame(() => {
@@ -461,27 +494,6 @@ function determineRoundWinner() {
           displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
             startTurn()
           })
-        }, 500)
-      })
-    })
-  }
-  // Declare match winner (match isn't a draw and the round winner has already won a round)
-  else if (
-    !isDraw &&
-    ((isPlayerWin && playerHasRound.value) || (!isPlayerWin && opponentHasRound.value))
-  ) {
-    // End match as a win
-    // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
-
-    modalAvatar.value = isPlayerWin ? playerLeaderCard.image : opponentLeaderCard.image
-    modalButtons.value = ['Play Again']
-    modalIcon.value = null
-    modalTitle.value = isPlayerWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
-
-    modal.value.show().then(() => {
-      setupGame(() => {
-        setTimeout(() => {
-          startTurn()
         }, 500)
       })
     })
@@ -495,7 +507,7 @@ function determineRoundWinner() {
       playerHasRound.value = true
       opponentHasRound.value = true
       alertTitle = 'Round Drawn'
-    } else if (isPlayerWin) {
+    } else if (isPlayerRoundWin) {
       playerHasRound.value = true
       alertTitle = 'You Win The Round!'
       alertAvatar = playerLeaderCard.image
@@ -506,7 +518,7 @@ function determineRoundWinner() {
     }
 
     displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
-      // If either or both players' hand is empty
+      // Otherwise, start next round
       setupRound(() => {
         displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
           startTurn()
