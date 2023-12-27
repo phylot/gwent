@@ -66,7 +66,7 @@ let boardDisabled = ref(true)
 
 // Game stats
 let roundNumber = ref(1)
-let isPlayerRound = ref(false)
+let playerIsLead = ref(false)
 let isPlayerTurn = ref(false)
 let playerIsPassed = ref(false)
 let opponentIsPassed = ref(false)
@@ -247,7 +247,7 @@ function setupGame(callback: Function) {
   modalTitle.value = ''
 
   // Decide lead player / first turn
-  isPlayerRound.value = isPlayerTurn.value = getChanceOutcome(0.5)
+  playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
   if (callback) {
     callback()
@@ -537,7 +537,7 @@ function determineRoundWinner() {
 
     displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
       // Otherwise, start next round
-      setupRound(() => {
+      setupRound(isDraw, isPlayerRoundWin, () => {
         displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
           startTurn()
         })
@@ -546,13 +546,18 @@ function determineRoundWinner() {
   }
 }
 
-function setupRound(callback: Function) {
+function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Function) {
   roundNumber.value++
 
-  // TODO: Previous round winner goes first (remove unused isPlayerRound property)
-  // Swap lead player from previous round
-  isPlayerRound.value = !isPlayerRound.value
-  isPlayerTurn.value = isPlayerRound.value
+  // If previous round was draw, swap lead player from previous round
+  if (isDraw) {
+    playerIsLead.value = !playerIsLead.value
+    isPlayerTurn.value = playerIsLead.value
+  }
+  // Otherwise, previous round winner goes first
+  else {
+    isPlayerTurn.value = isPlayerRoundWin
+  }
 
   // Reset necessary round-specific values
   playerIsPassed.value = false
