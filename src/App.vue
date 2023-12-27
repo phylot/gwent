@@ -228,6 +228,8 @@ function setupGame(callback: Function) {
 
   // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
   // console.log("setupGame() playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
+  // console.log("setupGame() opponentHand: ", JSON.parse(JSON.stringify(opponentHand.value)))
+  // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
 
   playerBoardCards.value = [[], [], []]
   opponentBoardCards.value = [[], [], []]
@@ -411,8 +413,21 @@ function determineCpuCard(callback: Function) {
       (playerIsRoundUp && playerIsPassed.value && !cpuIsWinning) ||
       (!playerHasRound.value && (opponentHandCount.value > 5 || smallScoreDifference))
     ) {
-      // TODO: Determine card based on assessment of game state, available card types, etc.
-      card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // Select random card - TEMP
+      // card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // Select random card - TEMP
+
+      // Find any spy cards
+      let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+      if (spyCards.length > 0) {
+        // Find the lowest value spy card
+        spyCards.sort(compareCardValues)
+        card = spyCards[0]
+      }
+      // No spy cards... find lowest value card
+      else {
+        let standardCards = opponentHand.value.filter((card) => card.type !== 'special')
+        standardCards.sort(compareCardValues)
+        card = standardCards[0]
+      }
     }
   }
 
@@ -707,6 +722,10 @@ function getRowTotal(arr: Card[]) {
 
 function getChanceOutcome(percentage: number) {
   return Math.random() < percentage
+}
+
+function compareCardValues(a: Card, b: Card) {
+  return a.defaultValue - b.defaultValue
 }
 </script>
 
