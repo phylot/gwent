@@ -145,12 +145,7 @@ onMounted(() => {
   preloadCardImages(allPlayerCards, () => {
     preloadCardImages(allOpponentCards, () => {
       // TODO: Call this from main menu "New Game" or "Continue" click
-      setupGame(() => {
-        loading.value = false
-        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
-          startTurn()
-        })
-      })
+      startNewGame()
     })
   })
 })
@@ -201,6 +196,28 @@ function loadImage(image: string, callback: Function) {
   img.src = new URL(`./assets/images/${image}`, import.meta.url).href
 }
 
+function startNewGame() {
+  setupGame(() => {
+    loading.value = false
+
+    displayAlertBanner(
+      isPlayerTurn.value ? 'You Go First' : 'Opponent Goes First',
+      undefined,
+      'gi-crown-coin',
+      () => {
+        // TODO: Swap cards dialog + logic
+        // • return promise (to delay/prevent below callback)
+        // • Dialog actions are "SWAP" and "DONE"
+        // • Add title attribute to CardModal slot
+
+        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
+          startTurn()
+        })
+      }
+    )
+  })
+}
+
 function setupGame(callback: Function) {
   playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards))
   opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards))
@@ -231,11 +248,6 @@ function setupGame(callback: Function) {
 
   // Decide lead player / first turn
   isPlayerRound.value = isPlayerTurn.value = getChanceOutcome(0.5)
-
-  // TODO: Swap cards dialog + logic
-  // • return promise (to delay/prevent below callback)
-  // • Dialog actions are "SWAP" and "DONE"
-  // • Add title attribute to CardModal slot
 
   if (callback) {
     callback()
@@ -416,8 +428,6 @@ function pass(isCpu?: boolean) {
     boardDisabled.value = true
     playerIsPassed.value = true
   }
-  // Switch turn to other player after pass
-  // isPlayerTurn.value = !isPlayerTurn.value
 
   displayAlertBanner(
     isCpu ? 'Opponent Has Passed' : 'You Have Passed',
@@ -503,13 +513,7 @@ function determineRoundWinner() {
     modalIcon.value = null
 
     modal.value.show().then(() => {
-      setupGame(() => {
-        setTimeout(() => {
-          displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
-            startTurn()
-          })
-        }, 500)
-      })
+      startNewGame()
     })
   }
   // No match winner yet... set relevant round flag to true (or both if draw)
@@ -545,7 +549,7 @@ function determineRoundWinner() {
 function setupRound(callback: Function) {
   roundNumber.value++
 
-  // TODO: Previous round winner goes first
+  // TODO: Previous round winner goes first (remove unused isPlayerRound property)
   // Swap lead player from previous round
   isPlayerRound.value = !isPlayerRound.value
   isPlayerTurn.value = isPlayerRound.value

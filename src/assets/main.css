@@ -192,11 +192,12 @@ body {
 
 .alert-banner .icon {
   position: absolute;
-  bottom: -10px;
-  width: 60px;
-  min-width: 60px;
-  height: 60px;
-  min-height: 60px;
+  top: 0;
+  left: 0;
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  min-height: 50px;
 }
 
 .alert-banner .heading {
@@ -897,7 +898,7 @@ body {
   .alert-banner .mark {
     width: 90px;
     height: 80px;
-    margin-right: 20px;
+    margin-right: 20px
   }
 
   .alert-banner .avatar {
@@ -912,11 +913,12 @@ body {
 
   .alert-banner .icon {
     position: absolute;
-    bottom: -20px;
-    width: 100px;
-    min-width: 100px;
-    height: 100px;
-    min-height: 100px;
+    top: 0;
+    left: 0;
+    width: 80px;
+    min-width: 80px;
+    height: 80px;
+    min-height: 80px;
   }
 
   .alert-banner .heading h2 {
