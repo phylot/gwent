@@ -255,38 +255,46 @@ function dealRandomCards(arr: Card[], amount: number) {
 
 // METHODS - Game Loop
 
-function startTurn() {
-  displayAlertBanner(
-    isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
-    isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
-    undefined,
-    () => {
-      // If active player has no cards left in their hand, pass
-      if (
-        (isPlayerTurn.value && playerHand.value.length < 1) ||
-        (!isPlayerTurn.value && opponentHand.value.length < 1)
-      ) {
-        let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
-        pass(isCpuPass)
-      } else {
-        if (isPlayerTurn.value) {
-          boardDisabled.value = false
-        } else {
-          // CPU logic
-          determineCpuCard((card: Card) => {
-            // console.log('CPU card: ', card)
-            if (card) {
-              playCard(card, () => {
-                finishTurn()
-              })
-            } else {
-              pass(true)
-            }
-          })
-        }
+function startTurn(skipTurnBanner?: boolean) {
+  if (skipTurnBanner) {
+    determineMove()
+  } else {
+    displayAlertBanner(
+      isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
+      isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
+      undefined,
+      () => {
+        determineMove()
       }
+    )
+  }
+}
+
+function determineMove() {
+  // If active player has no cards left in their hand, pass
+  if (
+    (isPlayerTurn.value && playerHand.value.length < 1) ||
+    (!isPlayerTurn.value && opponentHand.value.length < 1)
+  ) {
+    let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
+    pass(isCpuPass)
+  } else {
+    if (isPlayerTurn.value) {
+      boardDisabled.value = false
+    } else {
+      // CPU logic
+      determineCpuCard((card: Card) => {
+        // console.log('CPU card: ', card)
+        if (card) {
+          playCard(card, () => {
+            finishTurn()
+          })
+        } else {
+          pass(true)
+        }
+      })
     }
-  )
+  }
 }
 
 function playCard(card: Card, callback: Function) {
@@ -409,28 +417,34 @@ function pass(isCpu?: boolean) {
     playerIsPassed.value = true
   }
   // Switch turn to other player after pass
-  isPlayerTurn.value = !isPlayerTurn.value
+  // isPlayerTurn.value = !isPlayerTurn.value
 
   displayAlertBanner(
     isCpu ? 'Opponent Has Passed' : 'You Have Passed',
     undefined,
     'fa-flag',
     () => {
-      finishTurn()
+      finishTurn(true)
     }
   )
 }
 
-function finishTurn() {
+function finishTurn(passedThisTurn?: boolean) {
   // If both players have passed, determine winner
   if (playerIsPassed.value && opponentIsPassed.value) {
     determineRoundWinner()
   } else {
-    // If neither player has passed, switch turn
-    if (!(playerIsPassed.value || opponentIsPassed.value)) {
+    let skipTurnBanner = false
+
+    // If neither player has passed, or a player passed this turn, switch turn
+    if (!(playerIsPassed.value || opponentIsPassed.value) || passedThisTurn) {
       isPlayerTurn.value = !isPlayerTurn.value
+    } else {
+      // If a player didn't pass this turn, but a player has already passed, assume it's a player's subsequent turn, so skip the turn banner
+      skipTurnBanner = true
     }
-    startTurn()
+
+    startTurn(skipTurnBanner)
   }
 }
 
