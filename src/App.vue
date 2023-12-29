@@ -227,9 +227,9 @@ function setupGame(callback: Function) {
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
   // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
-  // console.log("setupGame() playerHand: ", JSON.parse(JSON.stringify(playerHand.value)))
-  // console.log("setupGame() opponentHand: ", JSON.parse(JSON.stringify(opponentHand.value)))
+  // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
   // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
+  // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
 
   playerBoardCards.value = [[], [], []]
   opponentBoardCards.value = [[], [], []]
@@ -298,7 +298,6 @@ function determineMove() {
     } else {
       // CPU logic
       determineCpuCard((card: Card) => {
-        // console.log('CPU card: ', card)
         if (card) {
           playCard(card, () => {
             finishTurn()
@@ -312,7 +311,6 @@ function determineMove() {
 }
 
 function playCard(card: Card, callback: Function) {
-  // console.log('playCard() card: ', card)
   boardDisabled.value = true
 
   // Board row indexes for each card type
@@ -396,37 +394,55 @@ function playCard(card: Card, callback: Function) {
 function determineCpuCard(callback: Function) {
   let card = null
   let cpuIsWinning = opponentTotal.value > playerTotal.value
-  let smallScoreDifference = Math.abs(playerTotal.value - opponentTotal.value) < 8
-  let isFinalRound = playerHasRound.value && opponentHasRound.value
-  let playerIsRoundUp = playerHasRound.value && !opponentHasRound.value
+  // let smallScoreDifference = Math.abs(playerTotal.value - opponentTotal.value) < 8
+  // let isFinalRound = playerHasRound.value && opponentHasRound.value
+  // let playerIsRoundUp = playerHasRound.value && !opponentHasRound.value
 
-  // If round isn't yet won, or there's a small score difference...
+  // If the player hasn't passed and the CPU isn't winning
   if (!(playerIsPassed.value && cpuIsWinning)) {
-    // Play card if...
-    // • It's the final round
-    // • The player is a round up and hasn't passed yet
-    // • The player is a round up, the player has passed, and the CPU is still losing the round
-    // • At worst it's a draw (the CPU may be a round up) the CPU has more than 5 cards in hand, and the score difference is negligible
-    if (
-      isFinalRound ||
-      (playerIsRoundUp && !playerIsPassed.value) ||
-      (playerIsRoundUp && playerIsPassed.value && !cpuIsWinning) ||
-      (!playerHasRound.value && (opponentHandCount.value > 5 || smallScoreDifference))
-    ) {
-      // card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)] // Select random card - TEMP
+    // Find any spy cards
+    let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+    if (spyCards.length > 0) {
+      // Find the lowest value spy card
+      spyCards.sort(compareCardValues)
+      card = spyCards[0]
+    }
+    // No spy cards... decide card
+    else {
+      // TODO: Special card decision logic
+      let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
-      // Find any spy cards
-      let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
-      if (spyCards.length > 0) {
-        // Find the lowest value spy card
-        spyCards.sort(compareCardValues)
-        card = spyCards[0]
+      // If it's a must win round
+      if (playerHasRound.value) {
+        // Sort cards lowest to highest
+        cpuStandardCards.sort(compareCardValues)
+        // Play lowest value card
+        card = cpuStandardCards[0]
       }
-      // No spy cards... find lowest value card
+      // Decide whether to play card or not
       else {
-        let standardCards = opponentHand.value.filter((card) => card.type !== 'special')
-        standardCards.sort(compareCardValues)
-        card = standardCards[0]
+        // If the CPU decided to beat the player's current total, determine the total value of the CPU's remaining hand cards
+        let runningCpuTotal = opponentTotal.value
+        let remainingTotal = 0
+        let handIndex = 0
+        // Sort cards lowest to highest
+        cpuStandardCards.sort(compareCardValues)
+
+        // Determine the upper index of cards required to beat the player
+        while (runningCpuTotal < playerTotal.value) {
+          runningCpuTotal = runningCpuTotal + cpuStandardCards[handIndex].defaultValue
+          handIndex++
+        }
+        // Determine the total value of the CPU's remaining hand cards
+        while (handIndex < cpuStandardCards.length) {
+          remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
+          handIndex++
+        }
+        // If there's theoretically enough points left to win another round
+        if (remainingTotal > 20) {
+          // Play lowest value card
+          card = cpuStandardCards[0]
+        }
       }
     }
   }
