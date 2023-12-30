@@ -491,6 +491,7 @@ function finishTurn(passedThisTurn?: boolean) {
 
 function determineRoundWinner() {
   let isPlayerRoundWin = false
+  let isOpponentRoundWin = false
   let isDraw = false
   let isPlayerMatchWin = false
   let isOpponentMatchWin = false
@@ -502,25 +503,27 @@ function determineRoundWinner() {
   } else {
     if (playerTotal.value > opponentTotal.value) {
       isPlayerRoundWin = true
+    } else {
+      isOpponentRoundWin = true
     }
   }
 
-  // MATCH END CONDITION - Match is a draw, and each player has already won a round
+  // MATCH END CONDITION - End match as a draw (round is a draw and each player has already won a round)
   if (isDraw && playerHasRound.value && opponentHasRound.value) {
     isMatchDraw = true
-    modalTitle.value = 'Match Drawn'
   }
-  // MATCH END CONDITION - Declare match winner (match isn't a draw and the round winner has already won a round)
+  // MATCH END CONDITION - Round winner has already won a round
   else if (
-    !isDraw &&
-    ((isPlayerRoundWin && playerHasRound.value) || (!isPlayerRoundWin && opponentHasRound.value))
+    (isPlayerRoundWin && playerHasRound.value) ||
+    (isOpponentRoundWin && opponentHasRound.value)
   ) {
-    // End match as a win
     isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
-    modalAvatar.value = isPlayerRoundWin ? playerLeaderCard.image : opponentLeaderCard.image
-    modalTitle.value = isPlayerRoundWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
   }
-  // MATCH END CONDITION - If neither player has any cards left after round 1
+  // MATCH END CONDITION - Round is a draw and ONE player has already won a round
+  else if (isDraw && (playerHasRound.value || opponentHasRound.value)) {
+    playerHasRound.value ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
+  }
+  // MATCH END CONDITION - Neither player has any cards left after round 1
   else if (
     playerHand.value.length === 0 &&
     opponentHand.value.length === 0 &&
@@ -528,11 +531,8 @@ function determineRoundWinner() {
   ) {
     if (isDraw) {
       isMatchDraw = true
-      modalTitle.value = 'Match Drawn'
     } else {
       isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
-      modalAvatar.value = isPlayerRoundWin ? playerLeaderCard.image : opponentLeaderCard.image
-      modalTitle.value = isPlayerRoundWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
     }
   }
 
@@ -540,6 +540,12 @@ function determineRoundWinner() {
   if (isPlayerMatchWin || isOpponentMatchWin || isMatchDraw) {
     // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
 
+    if (isMatchDraw) {
+      modalTitle.value = 'Match Drawn'
+    } else {
+      modalAvatar.value = isPlayerMatchWin ? playerLeaderCard.image : opponentLeaderCard.image
+      modalTitle.value = isPlayerMatchWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
+    }
     modalButtons.value = ['Play Again']
     modalIcon.value = null
 
