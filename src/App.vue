@@ -26,7 +26,7 @@ import Modal from './components/Modal.vue'
 
 // DATA
 
-let loading = ref(true)
+let loading = ref(false)
 let isDesktop = ref(false)
 
 let alertBannerAvatar = ref()
@@ -142,12 +142,8 @@ onMounted(() => {
   onResize()
   window.addEventListener('resize', onResize)
 
-  preloadCardImages(allPlayerCards, () => {
-    preloadCardImages(allOpponentCards, () => {
-      // TODO: Call this from main menu "New Game" or "Continue" click
-      startNewGame()
-    })
-  })
+  // TODO: Call this from main menu "New Game" or "Continue" click
+  startNewGame()
 })
 
 // METHODS - Game Setup
@@ -197,6 +193,8 @@ function loadImage(image: string, callback: Function) {
 }
 
 function startNewGame() {
+  loading.value = true
+
   setupGame(() => {
     loading.value = false
 
@@ -222,38 +220,42 @@ function setupGame(callback: Function) {
   playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards))
   opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards))
 
-  // Generate a random hand of 10 cards for each player
-  playerHand.value = dealRandomCards(playerDeck.value, 10)
-  opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+  preloadCardImages(playerDeck.value, () => {
+    preloadCardImages(opponentDeck.value, () => {
+      // Generate a random hand of 10 cards for each player
+      playerHand.value = dealRandomCards(playerDeck.value, 10)
+      opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-  // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
-  // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-  // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
-  // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
+      // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+      // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
+      // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
+      // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
 
-  playerBoardCards.value = [[], [], []]
-  opponentBoardCards.value = [[], [], []]
-  playerDeadPile.value = []
-  opponentDeadPile.value = []
+      playerBoardCards.value = [[], [], []]
+      opponentBoardCards.value = [[], [], []]
+      playerDeadPile.value = []
+      opponentDeadPile.value = []
 
-  boardDisabled.value = true
-  roundNumber.value = 1
-  playerHasRound.value = false
-  opponentHasRound.value = false
-  playerIsPassed.value = false
-  opponentIsPassed.value = false
+      boardDisabled.value = true
+      roundNumber.value = 1
+      playerHasRound.value = false
+      opponentHasRound.value = false
+      playerIsPassed.value = false
+      opponentIsPassed.value = false
 
-  modalAvatar.value = null
-  modalButtons.value = null
-  modalIcon.value = null
-  modalTitle.value = ''
+      modalAvatar.value = null
+      modalButtons.value = null
+      modalIcon.value = null
+      modalTitle.value = ''
 
-  // Decide lead player / first turn
-  playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+      // Decide lead player / first turn
+      playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
-  if (callback) {
-    callback()
-  }
+      if (callback) {
+        callback()
+      }
+    })
+  })
 }
 
 function dealRandomCards(arr: Card[], amount: number) {
@@ -275,7 +277,7 @@ function startTurn(skipTurnBanner?: boolean) {
   } else {
     displayAlertBanner(
       isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
-      isPlayerTurn.value ? playerLeaderCard.image : opponentLeaderCard.image,
+      isPlayerTurn.value ? playerLeader.value.image : opponentLeader.value.image,
       undefined,
       () => {
         determineMove()
@@ -543,7 +545,7 @@ function determineRoundWinner() {
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
     } else {
-      modalAvatar.value = isPlayerMatchWin ? playerLeaderCard.image : opponentLeaderCard.image
+      modalAvatar.value = isPlayerMatchWin ? playerLeader.value.image : opponentLeader.value.image
       modalTitle.value = isPlayerMatchWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
     }
     modalButtons.value = ['Play Again']
@@ -565,11 +567,11 @@ function determineRoundWinner() {
     } else if (isPlayerRoundWin) {
       playerHasRound.value = true
       alertTitle = 'You Win The Round!'
-      alertAvatar = playerLeaderCard.image
+      alertAvatar = playerLeader.value.image
     } else {
       opponentHasRound.value = true
       alertTitle = 'Opponent Wins The Round'
-      alertAvatar = opponentLeaderCard.image
+      alertAvatar = opponentLeader.value.image
     }
 
     displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
