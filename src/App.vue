@@ -350,11 +350,6 @@ function playCard(card: Card, callback: Function) {
       card.animationName = undefined
 
       resetActiveCard(() => {
-        // TODO: Decoy card
-        // • Add visual highlight to board rows containing eligible cards for swapping
-        // • Enable ONLY cards eligible for swapping
-        // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
-
         // Push card to relevant board array
         boardArr.push(card)
 
@@ -374,18 +369,11 @@ function playCard(card: Card, callback: Function) {
           setTimeout(() => {
             card.animationName = undefined
 
-            if (card.ability === 'spy') {
-              // Draw 2 cards if card is a spy
-              if (isPlayerTurn.value) {
-                playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
-              } else {
-                opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
+            performAbility(card, () => {
+              if (callback) {
+                callback()
               }
-            }
-
-            if (callback) {
-              callback()
-            }
+            })
           }, 500)
         }, 400)
       })
@@ -396,9 +384,6 @@ function playCard(card: Card, callback: Function) {
 function determineCpuCard(callback: Function) {
   let card = null
   let cpuIsWinning = opponentTotal.value > playerTotal.value
-  // let smallScoreDifference = Math.abs(playerTotal.value - opponentTotal.value) < 8
-  // let isFinalRound = playerHasRound.value && opponentHasRound.value
-  // let playerIsRoundUp = playerHasRound.value && !opponentHasRound.value
 
   // If the player hasn't passed and the CPU isn't winning
   if (!(playerIsPassed.value && cpuIsWinning)) {
@@ -451,6 +436,78 @@ function determineCpuCard(callback: Function) {
 
   if (callback) {
     callback(card)
+  }
+}
+
+function performAbility(card: Card, callback: Function) {
+  // Perform card ability
+  if (card.ability === 'spy') {
+    // Draw 2 cards if card is a spy
+    // TODO: Apply shine animations to drawn cards
+    if (isPlayerTurn.value) {
+      playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
+    } else {
+      opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
+    }
+    if (callback) {
+      callback()
+    }
+  } else if (card.ability === 'ranged_scorch') {
+    // TODO: Reuse this logic for close scorch
+    // let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
+    // let cardRow = isPlayerTurn.value ? opponentBoardCards.value[cardRowIndex] : playerBoardCards.value[cardRowIndex]
+
+    // Work out if other player's ranged cards total 10 or above (excluding any Hero cards)
+    let rangedCards = isPlayerTurn.value ? opponentBoardCards.value[1] : playerBoardCards.value[1]
+    let rangedCardsTotal = 0
+    // console.log('rangedCards: ', rangedCards)
+    //
+    if (rangedCards.length > 0) {
+      for (const rangedCard of rangedCards) {
+        rangedCardsTotal = rangedCardsTotal + rangedCard.value
+      }
+      // console.log('rangedCardsTotal: ', rangedCardsTotal)
+      //
+      // If other player's ranged cards total 10 or above, perform ranged scorch
+      if (rangedCardsTotal > 9) {
+        // Find highest value card(s)
+        const maxValue = Math.max(...rangedCards.map((o) => o.value), 0)
+        // console.log('maxValue: ', maxValue)
+
+        // Apply Scorch animation to all cards of maxValue
+        for (let i = 0; i < rangedCards.length; i++) {
+          if (rangedCards[i].value === maxValue && !rangedCards[i].hero) {
+            rangedCards[i].animationName = 'scorch'
+          }
+        }
+
+        setTimeout(() => {
+          let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
+
+          // Move scorched cards from board to dead pile
+          for (let i = 0; i < rangedCards.length; i++) {
+            if (rangedCards[i].value === maxValue && !rangedCards[i].hero) {
+              rangedCards[i].animationName = undefined
+              deadPile.value.push(rangedCards[i])
+              rangedCards.splice(i, 1)
+              i--
+            }
+          }
+          if (callback) {
+            callback()
+          }
+        }, 1000)
+      }
+    }
+
+    // TODO: Decoy card
+    // • Add visual highlight to board rows containing eligible cards for swapping
+    // • Enable ONLY cards eligible for swapping
+    // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
+  } else {
+    if (callback) {
+      callback()
+    }
   }
 }
 
