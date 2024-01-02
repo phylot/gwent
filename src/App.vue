@@ -490,6 +490,10 @@ function performAbility(card: Card, callback: Function) {
           callback()
         }
       }, 1000)
+    } else {
+      if (callback) {
+        callback()
+      }
     }
 
     // TODO: Decoy card
