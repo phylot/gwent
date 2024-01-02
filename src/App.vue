@@ -452,52 +452,44 @@ function performAbility(card: Card, callback: Function) {
     if (callback) {
       callback()
     }
-  } else if (card.ability === 'ranged_scorch') {
-    // TODO: Reuse this logic for close scorch
-    // let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
-    // let cardRow = isPlayerTurn.value ? opponentBoardCards.value[cardRowIndex] : playerBoardCards.value[cardRowIndex]
+  } else if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
+    let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
+    let cardRow = isPlayerTurn.value
+      ? opponentBoardCards.value[cardRowIndex]
+      : playerBoardCards.value[cardRowIndex]
+    let cardRowTotal = isPlayerTurn.value
+      ? rowTotals.value.opponent[cardRowIndex]
+      : rowTotals.value.player[cardRowIndex]
 
-    // Work out if other player's ranged cards total 10 or above (excluding any Hero cards)
-    let rangedCards = isPlayerTurn.value ? opponentBoardCards.value[1] : playerBoardCards.value[1]
-    let rangedCardsTotal = 0
-    // console.log('rangedCards: ', rangedCards)
-    //
-    if (rangedCards.length > 0) {
-      for (const rangedCard of rangedCards) {
-        rangedCardsTotal = rangedCardsTotal + rangedCard.value
+    // If cards are present in the relevant board card row, and they total 10 or above
+    if (cardRow.length > 0 && cardRowTotal > 9) {
+      // Find highest value of all non-hero card(s)
+      const nonHeroCards = cardRow.filter((card) => !card.hero)
+      const maxValue = Math.max(...nonHeroCards.map((o) => o.value), 0)
+
+      // Apply Scorch animation to highest value non-hero cards
+      for (let i = 0; i < cardRow.length; i++) {
+        if (cardRow[i].value === maxValue && !cardRow[i].hero) {
+          cardRow[i].animationName = 'scorch'
+        }
       }
-      // console.log('rangedCardsTotal: ', rangedCardsTotal)
-      //
-      // If other player's ranged cards total 10 or above, perform ranged scorch
-      if (rangedCardsTotal > 9) {
-        // Find highest value card(s)
-        const maxValue = Math.max(...rangedCards.map((o) => o.value), 0)
-        // console.log('maxValue: ', maxValue)
 
-        // Apply Scorch animation to all cards of maxValue
-        for (let i = 0; i < rangedCards.length; i++) {
-          if (rangedCards[i].value === maxValue && !rangedCards[i].hero) {
-            rangedCards[i].animationName = 'scorch'
+      setTimeout(() => {
+        // Move scorched cards from board to dead pile
+        let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
+
+        for (let i = 0; i < cardRow.length; i++) {
+          if (cardRow[i].value === maxValue && !cardRow[i].hero) {
+            cardRow[i].animationName = undefined
+            deadPile.value.push(cardRow[i])
+            cardRow.splice(i, 1)
+            i--
           }
         }
-
-        setTimeout(() => {
-          let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
-
-          // Move scorched cards from board to dead pile
-          for (let i = 0; i < rangedCards.length; i++) {
-            if (rangedCards[i].value === maxValue && !rangedCards[i].hero) {
-              rangedCards[i].animationName = undefined
-              deadPile.value.push(rangedCards[i])
-              rangedCards.splice(i, 1)
-              i--
-            }
-          }
-          if (callback) {
-            callback()
-          }
-        }, 1000)
-      }
+        if (callback) {
+          callback()
+        }
+      }, 1000)
     }
 
     // TODO: Decoy card
