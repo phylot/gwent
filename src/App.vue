@@ -439,20 +439,42 @@ function determineCpuCard(callback: Function) {
   }
 }
 
-function performAbility(card: Card, callback: Function) {
+async function performAbility(card: Card, callback: Function) {
   // Perform card ability
   if (card.ability === 'spy') {
+    await performSpy()
+  }
+
+  if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
+    await performRowScorch(card)
+  }
+
+  // TODO: Decoy card
+  // • Add visual highlight to board rows containing eligible cards for swapping
+  // • Enable ONLY cards eligible for swapping
+  // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
+
+  if (callback) {
+    callback()
+  }
+}
+
+function performSpy() {
+  return new Promise<void>((resolve) => {
     // Draw 2 cards if card is a spy
-    // TODO: Apply shine animations to drawn cards
     if (isPlayerTurn.value) {
       playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
     } else {
       opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
     }
-    if (callback) {
-      callback()
-    }
-  } else if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
+
+    // TODO: Apply shine animations to drawn cards
+    resolve()
+  })
+}
+
+function performRowScorch(card: Card) {
+  return new Promise<void>((resolve) => {
     let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
     let cardRow = isPlayerTurn.value
       ? opponentBoardCards.value[cardRowIndex]
@@ -486,25 +508,12 @@ function performAbility(card: Card, callback: Function) {
             i--
           }
         }
-        if (callback) {
-          callback()
-        }
+        resolve()
       }, 1000)
     } else {
-      if (callback) {
-        callback()
-      }
+      resolve()
     }
-
-    // TODO: Decoy card
-    // • Add visual highlight to board rows containing eligible cards for swapping
-    // • Enable ONLY cards eligible for swapping
-    // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
-  } else {
-    if (callback) {
-      callback()
-    }
-  }
+  })
 }
 
 function pass(isCpu?: boolean) {
