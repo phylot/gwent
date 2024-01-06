@@ -412,23 +412,34 @@ function determineCpuCard(callback: Function) {
         let runningCpuTotal = opponentTotal.value
         let remainingTotal = 0
         let handIndex = 0
+        let canWin = false
+
         // Sort cards lowest to highest
         cpuStandardCards.sort(compareCardValues)
 
-        // Determine the upper index of cards required to beat the player
-        while (runningCpuTotal < playerTotal.value) {
-          runningCpuTotal = runningCpuTotal + cpuStandardCards[handIndex].defaultValue
-          handIndex++
+        // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
+        for (let i = 0; i < cpuStandardCards.length; i++) {
+          if (runningCpuTotal <= playerTotal.value) {
+            runningCpuTotal = runningCpuTotal + cpuStandardCards[i].defaultValue
+            handIndex++
+          }
+          if (runningCpuTotal > playerTotal.value) {
+            canWin = true
+          }
         }
-        // Determine the total value of the CPU's remaining hand cards
-        while (handIndex < cpuStandardCards.length) {
-          remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
-          handIndex++
-        }
-        // If there's theoretically enough points left to win another round
-        if (remainingTotal > 20) {
-          // Play lowest value card
-          card = cpuStandardCards[0]
+
+        // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
+        if (canWin) {
+          // Determine the total value of the CPU's remaining hand cards
+          while (handIndex < cpuStandardCards.length) {
+            remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
+            handIndex++
+          }
+          // If there's theoretically enough points left to win another round
+          if (remainingTotal > 20) {
+            // Play lowest value card
+            card = cpuStandardCards[0]
+          }
         }
       }
     }
