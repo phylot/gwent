@@ -321,23 +321,33 @@ function playCard(card: Card, callback: Function) {
     ranged: 1,
     siege: 2
   }
-  let boardArr
+  let boardArr = isPlayerTurn.value
+    ? playerBoardCards.value[abilityIndexes[card.type]]
+    : opponentBoardCards.value[abilityIndexes[card.type]]
+  let boardArrIndex = 0
   let handArr = isPlayerTurn.value ? playerHand : opponentHand
 
   // Determine relevant board array
   if (card.type === 'special') {
     boardArr = specialDeadPile.value
   } else if (card.ability === 'spy') {
-    if (isPlayerTurn.value) {
-      boardArr = opponentBoardCards.value[abilityIndexes[card.type]]
-    } else {
-      boardArr = playerBoardCards.value[abilityIndexes[card.type]]
-    }
+    boardArr = isPlayerTurn.value
+      ? opponentBoardCards.value[abilityIndexes[card.type]]
+      : playerBoardCards.value[abilityIndexes[card.type]]
   } else {
-    if (isPlayerTurn.value) {
-      boardArr = playerBoardCards.value[abilityIndexes[card.type]]
-    } else {
-      boardArr = opponentBoardCards.value[abilityIndexes[card.type]]
+    // Determine the specific array position for 'bond' cards, so they're placed adjacent to one another
+    if (card.ability === 'bond') {
+      let bondFound = false
+      for (let i = 0; i < boardArr.length; i++) {
+        if (boardArr[i].ability === 'bond') {
+          bondFound = true
+        } else {
+          if (bondFound) {
+            boardArrIndex = i
+            break
+          }
+        }
+      }
     }
   }
 
@@ -350,8 +360,14 @@ function playCard(card: Card, callback: Function) {
       card.animationName = undefined
 
       resetActiveCard(() => {
+        // Insert card into relevant board array at specific index
+        if (boardArrIndex) {
+          boardArr.splice(boardArrIndex, 0, card)
+        }
         // Push card to relevant board array
-        boardArr.push(card)
+        else {
+          boardArr.push(card)
+        }
 
         // Remove card from hand
         for (let i = 0; i < handArr.value.length; i++) {
@@ -412,7 +428,7 @@ function determineCpuCard(callback: Function) {
         let runningCpuTotal = opponentTotal.value
         let remainingTotal = 0
         let handIndex = 0
-        let canWin = false
+        // let canWin = false
 
         // Sort cards lowest to highest
         cpuStandardCards.sort(compareCardValues)
@@ -422,19 +438,19 @@ function determineCpuCard(callback: Function) {
           if (runningCpuTotal <= playerTotal.value) {
             runningCpuTotal = runningCpuTotal + cpuStandardCards[i].defaultValue
             handIndex++
-          }
-          if (runningCpuTotal > playerTotal.value) {
-            canWin = true
+          } else {
+            break
           }
         }
 
         // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
-        if (canWin) {
+        if (runningCpuTotal > playerTotal.value) {
           // Determine the total value of the CPU's remaining hand cards
           while (handIndex < cpuStandardCards.length) {
             remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
             handIndex++
           }
+
           // If there's theoretically enough points left to win another round
           if (remainingTotal > 20) {
             // Play lowest value card
