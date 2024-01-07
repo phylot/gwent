@@ -5,6 +5,7 @@ const props = defineProps<{
   ability?: string
   abilityIcon?: string
   animationName?: string
+  active?: boolean
   defaultValue?: number
   desktop?: boolean
   disabled?: boolean
@@ -15,18 +16,19 @@ const props = defineProps<{
   value?: number
 }>()
 
-const imageUrl = computed(() => {
-  return new URL(`../assets/images/${props.image}`, import.meta.url)
-})
 const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
+})
+
+const imageUrl = computed(() => {
+  return new URL(`../assets/images/${props.image}`, import.meta.url)
 })
 </script>
 
 <template>
   <div
     class="board-card"
-    :class="{ disabled: disabled }"
+    :class="{ active: props.active, disabled: disabled }"
     @click="disabled ? null : $emit('boardcard-click', $event)"
     @keyup.enter="disabled ? null : $emit('boardcard-enter', $event)"
     @keyup.space="disabled ? null : $emit('boardcard-space', $event)"
