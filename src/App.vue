@@ -157,13 +157,13 @@ function onResize() {
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
-function preloadCardImages(cards: Card[], callback: Function) {
-  let imageCount = cards?.length || 0
+function preloadImages(images: [], callback: Function) {
+  let imageCount = images?.length || 0
   let imagesLoaded = 0
 
   if (imageCount > 0) {
     for (let i = 0; i < imageCount; i++) {
-      loadImage(cards[i].image, () => {
+      loadImage(images[i], () => {
         imagesLoaded++
         if (imagesLoaded == imageCount) {
           if (callback) {
@@ -220,41 +220,44 @@ function setupGame(callback: Function) {
   playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards))
   opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards))
 
-  preloadCardImages(playerDeck.value, () => {
-    preloadCardImages(opponentDeck.value, () => {
-      // Generate a random hand of 10 cards for each player
-      playerHand.value = dealRandomCards(playerDeck.value, 10)
-      opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+  let playerCardImages = playerDeck.value.map((card: Card) => card.image)
+  let opponentCardImages = opponentDeck.value.map((card: Card) => card.image)
+  let otherImages = [playerLeader.value.image, opponentLeader.value.image, 'scorch-flame.jpg']
+  let allImages = playerCardImages.concat(opponentCardImages, otherImages)
 
-      // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
-      // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-      // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
-      // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
+  preloadImages(allImages, () => {
+    // Generate a random hand of 10 cards for each player
+    playerHand.value = dealRandomCards(playerDeck.value, 10)
+    opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-      playerBoardCards.value = [[], [], []]
-      opponentBoardCards.value = [[], [], []]
-      playerDeadPile.value = []
-      opponentDeadPile.value = []
+    // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+    // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
+    // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
+    // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
 
-      boardDisabled.value = true
-      roundNumber.value = 1
-      playerHasRound.value = false
-      opponentHasRound.value = false
-      playerIsPassed.value = false
-      opponentIsPassed.value = false
+    playerBoardCards.value = [[], [], []]
+    opponentBoardCards.value = [[], [], []]
+    playerDeadPile.value = []
+    opponentDeadPile.value = []
 
-      modalAvatar.value = null
-      modalButtons.value = null
-      modalIcon.value = null
-      modalTitle.value = ''
+    boardDisabled.value = true
+    roundNumber.value = 1
+    playerHasRound.value = false
+    opponentHasRound.value = false
+    playerIsPassed.value = false
+    opponentIsPassed.value = false
 
-      // Decide lead player / first turn
-      playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+    modalAvatar.value = null
+    modalButtons.value = null
+    modalIcon.value = null
+    modalTitle.value = ''
 
-      if (callback) {
-        callback()
-      }
-    })
+    // Decide lead player / first turn
+    playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+
+    if (callback) {
+      callback()
+    }
   })
 }
 
