@@ -388,7 +388,7 @@ function playCard(card: Card, callback: Function) {
           setTimeout(() => {
             card.animationName = undefined
 
-            performAbility(card, () => {
+            performAbility(card, boardArr, () => {
               if (callback) {
                 callback()
               }
@@ -469,14 +469,19 @@ function determineCpuCard(callback: Function) {
   }
 }
 
-async function performAbility(card: Card, callback: Function) {
+async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // Perform card ability
-  if (card.ability === 'spy') {
-    await performSpy()
+
+  if (card.ability === 'bond') {
+    await performBond(card, rowArr)
   }
 
   if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
     await performRowScorch(card)
+  }
+
+  if (card.ability === 'spy') {
+    await performSpy()
   }
 
   // TODO: Decoy card
@@ -489,16 +494,23 @@ async function performAbility(card: Card, callback: Function) {
   }
 }
 
-function performSpy() {
+function performBond(card: Card, rowArr: Card[]) {
   return new Promise<void>((resolve) => {
-    // Draw 2 cards if card is a spy
-    if (isPlayerTurn.value) {
-      playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
-    } else {
-      opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
+    let bondIndexes = []
+    let multiplier = 0
+
+    // Loop through row array and save the index of each bond card and calculate multiplier amount
+    for (let i = 0; i < rowArr.length; i++) {
+      if (rowArr[i].ability === 'bond') {
+        bondIndexes.push(i)
+        multiplier++
+      }
     }
 
-    // TODO: Apply shine animations to drawn cards
+    // Set the new value of each bond card
+    for (const bondIndex of bondIndexes) {
+      rowArr[bondIndex].value = rowArr[bondIndex].defaultValue * multiplier
+    }
     resolve()
   })
 }
@@ -528,6 +540,7 @@ function performRowScorch(card: Card) {
 
       setTimeout(() => {
         // Move scorched cards from board to dead pile
+        // TODO: Reset each card 'value' to 'defaultValue'
         let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
 
         for (let i = 0; i < cardRow.length; i++) {
@@ -543,6 +556,20 @@ function performRowScorch(card: Card) {
     } else {
       resolve()
     }
+  })
+}
+
+function performSpy() {
+  return new Promise<void>((resolve) => {
+    // Draw 2 cards if card is a spy
+    if (isPlayerTurn.value) {
+      playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
+    } else {
+      opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
+    }
+
+    // TODO: Apply shine animations to drawn cards
+    resolve()
   })
 }
 
@@ -695,6 +722,7 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
   opponentIsPassed.value = false
 
   // Move each player's cards from board rows to dead pile
+  // TODO: Reset each card 'value' to 'defaultValue'
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     playerDeadPile.value = playerDeadPile.value.concat(playerBoardCards.value[i])
     playerBoardCards.value[i] = []
