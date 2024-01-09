@@ -20,6 +20,21 @@ const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
 })
 
+const classes = computed(() => {
+  return {
+    active: props.active,
+    disabled: props.disabled
+  }
+})
+
+const cardClasses = computed(() => {
+  return {
+    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
+    hero: props.hero,
+    increased: props.value && props.defaultValue && props.value > props.defaultValue
+  }
+})
+
 const imageUrl = computed(() => {
   return new URL(`../assets/images/${props.image}`, import.meta.url)
 })
@@ -28,7 +43,7 @@ const imageUrl = computed(() => {
 <template>
   <div
     class="board-card"
-    :class="{ active: props.active, disabled: disabled }"
+    :class="classes"
     @click="disabled ? null : $emit('boardcard-click', $event)"
     @keyup.enter="disabled ? null : $emit('boardcard-enter', $event)"
     @keyup.space="disabled ? null : $emit('boardcard-space', $event)"
@@ -37,7 +52,7 @@ const imageUrl = computed(() => {
       <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
-        :class="{ hero: props.hero }"
+        :class="cardClasses"
         :style="{
           backgroundImage: `url(${imageUrl})`,
           backgroundColor: props.image ? '#000000' : 'grey'

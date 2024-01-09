@@ -122,6 +122,21 @@ body {
   background-color: #c9883a;
 }
 
+.card.increased .card-stat-badge.value,
+.card.decreased .card-stat-badge.value {
+  border-color: #ffffff;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.card.increased .card-stat-badge.value {
+  background-color: #24871a;
+}
+
+.card.decreased .card-stat-badge.value {
+  background-color: #e51715;
+}
+
 .card.hero .card-stat-badge.value {
   border-style: dotted;
   border-color: #f9a825;

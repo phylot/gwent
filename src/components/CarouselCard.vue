@@ -15,9 +15,19 @@ const props = defineProps<{
   typeIcon?: string
   value?: number
 }>()
+
 const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
+
 const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
+})
+
+const cardClasses = computed(() => {
+  return {
+    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
+    hero: props.hero,
+    increased: props.value && props.defaultValue && props.value > props.defaultValue
+  }
 })
 </script>
 
@@ -28,7 +38,7 @@ const animationClass = computed(() => {
       <div class="card-border">
         <div
           class="card"
-          :class="{ hero: props.hero }"
+          :class="cardClasses"
           :style="{ backgroundImage: `url(${imageUrl})` }"
         >
           <template v-if="props.image">

@@ -510,6 +510,7 @@ function performBond(card: Card, rowArr: Card[]) {
     // Set the new value of each bond card
     for (const bondIndex of bondIndexes) {
       rowArr[bondIndex].value = rowArr[bondIndex].defaultValue * multiplier
+      // rowArr[bondIndex].value = rowArr[bondIndex].defaultValue - 1
     }
     resolve()
   })
