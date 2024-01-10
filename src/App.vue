@@ -431,7 +431,6 @@ function determineCpuCard(callback: Function) {
         let runningCpuTotal = opponentTotal.value
         let remainingTotal = 0
         let handIndex = 0
-        // let canWin = false
 
         // Sort cards lowest to highest
         cpuStandardCards.sort(compareCardValues)
@@ -472,10 +471,6 @@ function determineCpuCard(callback: Function) {
 async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // Perform card ability
 
-  if (card.ability === 'bond') {
-    await performBond(card, rowArr)
-  }
-
   if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
     await performRowScorch(card)
   }
@@ -489,12 +484,16 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // • Enable ONLY cards eligible for swapping
   // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
+  // Recalculate card values
+  // TODO: If full scorch, reuse this function on all 6 board rows instead
+  await calculateRow(rowArr)
+
   if (callback) {
     callback()
   }
 }
 
-function performBond(card: Card, rowArr: Card[]) {
+function performBond(rowArr: Card[]) {
   return new Promise<void>((resolve) => {
     let bondIndexes = []
     let multiplier = 0
@@ -510,8 +509,43 @@ function performBond(card: Card, rowArr: Card[]) {
     // Set the new value of each bond card
     for (const bondIndex of bondIndexes) {
       rowArr[bondIndex].value = rowArr[bondIndex].defaultValue * multiplier
-      // rowArr[bondIndex].value = rowArr[bondIndex].defaultValue - 1
     }
+    resolve()
+  })
+}
+
+function performBoost(rowArr: Card[]) {
+  return new Promise<void>((resolve) => {
+    let boostCardCount = 0
+
+    // Determine number of 'boost' cards in row
+    for (let i = 0; i < rowArr.length; i++) {
+      if (rowArr[i].ability === 'boost') {
+        boostCardCount++
+      }
+    }
+
+    // Loop through row array and add 1 to the value of eligible cards
+    for (let i = 0; i < rowArr.length; i++) {
+      if (!rowArr[i].hero) {
+        let boostValue = rowArr[i].ability === 'boost' ? boostCardCount - 1 : boostCardCount
+        rowArr[i].value = rowArr[i].value + boostValue
+      }
+    }
+    resolve()
+  })
+}
+
+async function calculateRow(rowArr: Card[]) {
+  // Reset card values to default before recalculating row
+  for (const card of rowArr) {
+    card.value = card.defaultValue
+  }
+  // TODO: Weather card first
+  await performBond(rowArr)
+  await performBoost(rowArr)
+
+  return new Promise<void>((resolve) => {
     resolve()
   })
 }
@@ -553,7 +587,7 @@ function performRowScorch(card: Card) {
           }
         }
         resolve()
-      }, 1000)
+      }, 2000)
     } else {
       resolve()
     }
