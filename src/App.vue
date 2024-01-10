@@ -26,7 +26,7 @@ import Modal from './components/Modal.vue'
 
 // DATA
 
-let loading = ref(false)
+let loading = ref(true)
 let isDesktop = ref(false)
 
 let alertBannerAvatar = ref()
