@@ -61,6 +61,9 @@ let playerHandIsActive = ref(false)
 let activeCardRow = ref(emptyCardArray)
 let slideIndex = ref(1)
 let cardModal = ref(false)
+let cardModalConfirmText = ref()
+let cardModalCancelText = ref()
+let resolveCardModal = ref()
 let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
 
@@ -575,7 +578,7 @@ function performRowScorch(card: Card) {
 
       setTimeout(() => {
         // Move scorched cards from board to dead pile
-        // TODO: Reset each card 'value' to 'defaultValue'
+        // TODO: resetActiveCard() - Reset each card 'value' to 'defaultValue'
         let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
 
         for (let i = 0; i < cardRow.length; i++) {
@@ -781,7 +784,7 @@ async function handCardClick(index: number) {
       closeCardModal()
     })
   } else {
-    // If player hand isn't currently active, reload carousel component (hide / show it)
+    // If player hand isn't currently active, reload carousel component (hide then show it)
     if (!playerHandIsActive.value) {
       carouselIsHidden.value = true
     }
@@ -793,7 +796,15 @@ async function handCardClick(index: number) {
       playerHandIsActive.value = true
       slideIndex.value = index + 1
       showSlide()
-      cardModal.value = true
+      showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
+        if (ok) {
+          playCard(activeCardRow.value[slideIndex.value - 1], () => {
+            finishTurn()
+          })
+        } else {
+          closeCardModal()
+        }
+      })
     })
   }
 }
@@ -802,14 +813,18 @@ function playerBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = playerBoardCards.value[rowIndex]
   slideIndex.value = index + 1
   showSlide()
-  cardModal.value = true
+  showCardModal(undefined, 'CLOSE').then(() => {
+    closeCardModal()
+  })
 }
 
 function opponentBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = opponentBoardCards.value[rowIndex]
   slideIndex.value = index + 1
   showSlide()
-  cardModal.value = true
+  showCardModal(undefined, 'CLOSE').then(() => {
+    closeCardModal()
+  })
 }
 
 function playerDeadPileClick() {
@@ -818,6 +833,24 @@ function playerDeadPileClick() {
 
 function opponentDeadPileClick() {
   console.log('opponentDeadPileClick')
+}
+
+function showCardModal(confirmText?: string, cancelText?: string) {
+  return new Promise((resolve) => {
+    cardModalConfirmText.value = confirmText
+    cardModalCancelText.value = cancelText
+    resolveCardModal.value = resolve
+    cardModal.value = true
+  })
+}
+
+function closeCardModal() {
+  resetActiveCard(() => {
+    playerHandIsActive.value = false
+    cardModal.value = false
+    cardModalConfirmText.value = null
+    cardModalCancelText.value = null
+  })
 }
 
 function resetActiveCard(callback: Function) {
@@ -849,27 +882,6 @@ function showSlide(index?: number) {
   activeCardRow.value[slideIndex.value - 1].active = true
 }
 
-function closeCardModal() {
-  resetActiveCard(() => {
-    playerHandIsActive.value = false
-    cardModal.value = false
-  })
-}
-
-function confirmCardModal() {
-  // If the player is playing a card...
-  // TODO: Also determine if player is healing a card
-  if (playerHandIsActive.value) {
-    playCard(activeCardRow.value[slideIndex.value - 1], () => {
-      finishTurn()
-    })
-  } else {
-    // Player is redrawing a card before the game, or swapping a decoy card, etc.
-  }
-}
-
-// METHODS - Helpers
-
 function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
   alertBannerTitle.value = title || ''
   alertBannerAvatar.value = avatar || null
@@ -890,6 +902,8 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
     }, 200)
   }, 1400)
 }
+
+// METHODS - Helpers
 
 function getRowTotal(arr: Card[]) {
   let total = 0
@@ -984,27 +998,28 @@ function compareCardValues(a: Card, b: Card) {
         </div>
 
         <button
-          v-if="playerHandIsActive"
+          v-if="cardModalConfirmText"
           class="btn large primary no-mobile-highlight"
           :disabled="boardDisabled"
           tabindex="2"
           type="button"
-          @click="confirmCardModal"
-          @keyup.enter="confirmCardModal"
-          @keyup.space="confirmCardModal"
+          @click="resolveCardModal(true)"
+          @keyup.enter="resolveCardModal(true)"
+          @keyup.space="resolveCardModal(true)"
         >
-          PLAY CARD
+          {{ cardModalConfirmText }}
         </button>
         <button
+          v-if="cardModalCancelText"
           class="btn large no-mobile-highlight"
           :disabled="boardDisabled"
           tabindex="2"
           type="button"
-          @click="closeCardModal"
-          @keyup.enter="closeCardModal"
-          @keyup.space="closeCardModal"
+          @click="resolveCardModal(false)"
+          @keyup.enter="resolveCardModal(false)"
+          @keyup.space="resolveCardModal(false)"
         >
-          {{ playerHandIsActive ? 'CANCEL' : 'CLOSE' }}
+          {{ cardModalCancelText }}
         </button>
       </CardModal>
 
