@@ -597,6 +597,7 @@ body {
   bottom: 70px;
   left: 0;
   right: 0;
+  color: #ffffff;
 }
 
 .card-modal .card-modal-wrapper {
@@ -617,6 +618,13 @@ body {
   justify-content: center;
 }
 
+.card-modal h1 {
+  margin: 0;
+  padding: 10px;
+  font-size: 18px;
+  background-color: #000000;
+}
+
 /* Card Carousel */
 
 .card-carousel {
@@ -625,6 +633,7 @@ body {
   width: 300px;
   align-items: center;
   justify-content: center;
+  margin-top: 10px;
 }
 
 .slides {
@@ -1092,6 +1101,11 @@ body {
     bottom: 110px;
   }
 
+  .card-modal h1 {
+    padding: 15px;
+    font-size: 22px;
+  }
+
   /* Card Carousel (Desktop / Tablet) */
 
   .card-carousel {
@@ -1109,7 +1123,7 @@ body {
   /* Carousel Card (Desktop / Tablet) */
 
   .carousel-card {
-    height: 530px;
+    height: 510px;
   }
 
   .carousel-card .card-wrap {
@@ -1144,8 +1158,7 @@ body {
   }
 
   .carousel-card .carousel-card-details {
-    margin-top: 20px;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
     line-height: 22px;
     color: #ffffff;

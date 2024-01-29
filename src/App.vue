@@ -50,6 +50,7 @@ const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.
 const opponentImg = new URL(`./assets/images/${opponentLeader.value.image}`, import.meta.url)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
+let cardSwapActive = ref(false)
 let playerBoardCards = ref(emptyPlayerBoardArrays)
 let opponentBoardCards = ref(emptyOpponentBoardArrays)
 let playerBuffs = ref(emptyPlayerBuffsArrays)
@@ -59,10 +60,11 @@ let opponentDeadPile = ref(emptyCardArray)
 let specialDeadPile = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
 let activeCardRow = ref(emptyCardArray)
-let slideIndex = ref(1)
+let slideIndex = ref(0)
 let cardModal = ref(false)
 let cardModalConfirmText = ref()
 let cardModalCancelText = ref()
+let cardModalTitle = ref()
 let resolveCardModal = ref()
 let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
@@ -206,13 +208,10 @@ function startNewGame() {
       undefined,
       'gi-crown-coin',
       () => {
-        // TODO: Swap cards dialog + logic
-        // • return promise (to delay/prevent below callback)
-        // • Dialog actions are "SWAP" and "DONE"
-        // • Add title attribute to CardModal slot
-
-        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
-          startTurn()
+        showCardSwapModal(() => {
+          displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
+            startTurn()
+          })
         })
       }
     )
@@ -273,6 +272,66 @@ function dealRandomCards(arr: Card[], amount: number) {
     arr.splice(randomIndex, 1)
   }
   return cards
+}
+
+function showCardSwapModal(callback: Function) {
+  cardSwapActive.value = true
+
+  resetActiveCard(() => {
+    activeCardRow.value = playerHand.value
+    slideIndex.value = 0
+    showSlide()
+    boardDisabled.value = false
+
+    showCardModal('SWAP', 'DONE', 'Swap Cards (1 of 2)').then((ok) => {
+      boardDisabled.value = true
+      if (ok) {
+        swapModalCard(() => {
+          boardDisabled.value = false
+
+          showCardModal('SWAP', 'DONE', 'Swap Cards (2 of 2)').then((ok) => {
+            boardDisabled.value = true
+            if (ok) {
+              swapModalCard(() => {
+                cardSwapActive.value = false
+                closeCardModal()
+                callback()
+              })
+            } else {
+              closeCardModal()
+              callback()
+            }
+          })
+        })
+      } else {
+        closeCardModal()
+        callback()
+      }
+    })
+  })
+}
+
+function swapModalCard(callback: Function) {
+  activeCardRow.value[slideIndex.value].animationName = 'shine'
+
+  setTimeout(() => {
+    activeCardRow.value[slideIndex.value].animationName = 'white-fade-in'
+
+    setTimeout(() => {
+      // Splice a random card into the player's hand
+      playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
+      showSlide()
+      activeCardRow.value[slideIndex.value].animationName = 'white-fade-out'
+
+      setTimeout(() => {
+        activeCardRow.value[slideIndex.value].animationName = 'shine'
+
+        setTimeout(() => {
+          callback()
+        }, 500)
+      }, 400)
+    }, 400)
+  }, 500)
 }
 
 // METHODS - Game Loop
@@ -578,7 +637,7 @@ function performRowScorch(card: Card) {
 
       setTimeout(() => {
         // Move scorched cards from board to dead pile
-        // TODO: resetActiveCard() - Reset each card 'value' to 'defaultValue'
+        // TODO: resetCards() - Reset each card 'value' to 'defaultValue'
         let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
 
         for (let i = 0; i < cardRow.length; i++) {
@@ -760,7 +819,7 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
   opponentIsPassed.value = false
 
   // Move each player's cards from board rows to dead pile
-  // TODO: Reset each card 'value' to 'defaultValue'
+  // TODO: resetCards() - Reset each card 'value' to 'defaultValue'  + 'animationName' to null
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     playerDeadPile.value = playerDeadPile.value.concat(playerBoardCards.value[i])
     playerBoardCards.value[i] = []
@@ -778,40 +837,46 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 // METHODS - Events
 
 async function handCardClick(index: number) {
-  // If the clicked card is already active, close the card carousel
-  if (activeCardRow.value[index]?.active) {
-    resetActiveCard(() => {
-      closeCardModal()
-    })
+  // If swapping cards before the game
+  if (cardSwapActive.value) {
+    slideIndex.value = index
+    showSlide()
   } else {
-    // If player hand isn't currently active, reload carousel component (hide then show it)
-    if (!playerHandIsActive.value) {
-      carouselIsHidden.value = true
-    }
-    await nextTick()
-    carouselIsHidden.value = false
-
-    resetActiveCard(() => {
-      activeCardRow.value = playerHand.value
-      playerHandIsActive.value = true
-      slideIndex.value = index + 1
-      showSlide()
-      showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
-        if (ok) {
-          playCard(activeCardRow.value[slideIndex.value - 1], () => {
-            finishTurn()
-          })
-        } else {
-          closeCardModal()
-        }
+    // If the clicked card is already active, close the card carousel
+    if (activeCardRow.value[index]?.active) {
+      resetActiveCard(() => {
+        closeCardModal()
       })
-    })
+    } else {
+      // If player hand isn't currently active, reload carousel component (hide then show it)
+      if (!playerHandIsActive.value) {
+        carouselIsHidden.value = true
+      }
+      await nextTick()
+      carouselIsHidden.value = false
+
+      resetActiveCard(() => {
+        activeCardRow.value = playerHand.value
+        playerHandIsActive.value = true
+        slideIndex.value = index
+        showSlide()
+        showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
+          if (ok) {
+            playCard(activeCardRow.value[slideIndex.value], () => {
+              finishTurn()
+            })
+          } else {
+            closeCardModal()
+          }
+        })
+      })
+    }
   }
 }
 
 function playerBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = playerBoardCards.value[rowIndex]
-  slideIndex.value = index + 1
+  slideIndex.value = index
   showSlide()
   showCardModal(undefined, 'CLOSE').then(() => {
     closeCardModal()
@@ -820,7 +885,7 @@ function playerBoardCardClick(index: number, rowIndex: number) {
 
 function opponentBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = opponentBoardCards.value[rowIndex]
-  slideIndex.value = index + 1
+  slideIndex.value = index
   showSlide()
   showCardModal(undefined, 'CLOSE').then(() => {
     closeCardModal()
@@ -835,10 +900,11 @@ function opponentDeadPileClick() {
   console.log('opponentDeadPileClick')
 }
 
-function showCardModal(confirmText?: string, cancelText?: string) {
+function showCardModal(confirmText?: string, cancelText?: string, titleText?: string) {
   return new Promise((resolve) => {
     cardModalConfirmText.value = confirmText
     cardModalCancelText.value = cancelText
+    cardModalTitle.value = titleText
     resolveCardModal.value = resolve
     cardModal.value = true
   })
@@ -850,6 +916,7 @@ function closeCardModal() {
     cardModal.value = false
     cardModalConfirmText.value = null
     cardModalCancelText.value = null
+    cardModalTitle.value = null
   })
 }
 
@@ -868,18 +935,17 @@ function changeSlide(index: number) {
 
 function showSlide(index?: number) {
   if (index || index === 0) {
-    if (index > activeCardRow.value.length) {
-      slideIndex.value = 1
+    if (index === activeCardRow.value.length) {
+      slideIndex.value = 0
     }
-    if (index < 1) {
-      slideIndex.value = activeCardRow.value.length
+    if (index < 0) {
+      slideIndex.value = activeCardRow.value.length - 1
     }
   }
 
-  for (let i = 0; i < activeCardRow.value.length; i++) {
-    activeCardRow.value[i].active = false
-  }
-  activeCardRow.value[slideIndex.value - 1].active = true
+  resetActiveCard(() => {
+    activeCardRow.value[slideIndex.value].active = true
+  })
 }
 
 function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
@@ -948,6 +1014,8 @@ function compareCardValues(a: Card, b: Card) {
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
+        <h1 v-if="cardModalTitle">{{ cardModalTitle }}</h1>
+
         <div v-if="!carouselIsHidden" class="card-carousel">
           <div class="slides">
             <CarouselCard

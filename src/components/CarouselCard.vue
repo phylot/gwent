@@ -16,8 +16,6 @@ const props = defineProps<{
   value?: number
 }>()
 
-const imageUrl = new URL(`../assets/images/${props.image}`, import.meta.url)
-
 const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
 })
@@ -29,6 +27,10 @@ const cardClasses = computed(() => {
     increased: props.value && props.defaultValue && props.value > props.defaultValue
   }
 })
+
+const imageUrl = computed(() => {
+  return new URL(`../assets/images/${props.image}`, import.meta.url)
+})
 </script>
 
 <template>
@@ -36,11 +38,7 @@ const cardClasses = computed(() => {
     <div class="card-wrap">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border">
-        <div
-          class="card"
-          :class="cardClasses"
-          :style="{ backgroundImage: `url(${imageUrl})` }"
-        >
+        <div class="card" :class="cardClasses" :style="{ backgroundImage: `url(${imageUrl})` }">
           <template v-if="props.image">
             <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
               {{ value }}
