@@ -209,6 +209,8 @@ function startNewGame() {
       'gi-crown-coin',
       () => {
         showCardSwapModal(() => {
+          cardSwapActive.value = false
+
           displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
             startTurn()
           })
@@ -293,7 +295,6 @@ function showCardSwapModal(callback: Function) {
             boardDisabled.value = true
             if (ok) {
               swapModalCard(() => {
-                cardSwapActive.value = false
                 closeCardModal()
                 callback()
               })
@@ -327,6 +328,7 @@ function swapModalCard(callback: Function) {
         activeCardRow.value[slideIndex.value].animationName = 'shine'
 
         setTimeout(() => {
+          activeCardRow.value[slideIndex.value].animationName = undefined
           callback()
         }, 500)
       }, 400)
