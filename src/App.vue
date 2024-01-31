@@ -282,7 +282,6 @@ function showCardSwapModal(callback: Function) {
   resetActiveModalCard(() => {
     activeCardRow.value = playerHand.value
     slideIndex.value = 0
-    showSlide()
     boardDisabled.value = false
 
     showCardModal('SWAP', 'DONE', 'Swap Cards (1 of 2)').then((ok) => {
@@ -862,7 +861,6 @@ async function handCardClick(index: number) {
         activeCardRow.value = playerHand.value
         playerHandIsActive.value = true
         slideIndex.value = index
-        showSlide()
         showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
           if (ok) {
             playCard(activeCardRow.value[slideIndex.value], () => {
@@ -880,7 +878,6 @@ async function handCardClick(index: number) {
 function playerBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = playerBoardCards.value[rowIndex]
   slideIndex.value = index
-  showSlide()
   showCardModal(undefined, 'CLOSE').then(() => {
     closeCardModal()
   })
@@ -889,18 +886,17 @@ function playerBoardCardClick(index: number, rowIndex: number) {
 function opponentBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = opponentBoardCards.value[rowIndex]
   slideIndex.value = index
-  showSlide()
   showCardModal(undefined, 'CLOSE').then(() => {
     closeCardModal()
   })
 }
 
-function playerDeadPileClick() {
-  console.log('playerDeadPileClick')
-}
-
-function opponentDeadPileClick() {
-  console.log('opponentDeadPileClick')
+function deadPileClick(isPlayer?: boolean) {
+  activeCardRow.value = isPlayer ? playerDeadPile.value : opponentDeadPile.value
+  slideIndex.value = 0
+  showCardModal(undefined, 'CLOSE').then(() => {
+    closeCardModal()
+  })
 }
 
 function showCardModal(confirmText?: string, cancelText?: string, titleText?: string) {
@@ -909,6 +905,7 @@ function showCardModal(confirmText?: string, cancelText?: string, titleText?: st
     cardModalCancelText.value = cancelText
     cardModalTitle.value = titleText
     resolveCardModal.value = resolve
+    showSlide()
     cardModal.value = true
   })
 }
@@ -1189,11 +1186,15 @@ function compareCardValues(a: Card, b: Card) {
               <div
                 :aria-label="`Player Dead Pile (${playerDeadPile.length})`"
                 class="dead-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled }"
+                :class="{ disabled: boardDisabled || playerDeadPile.length < 1 }"
                 role="button"
-                @click="boardDisabled ? null : playerDeadPileClick()"
-                @keyup.enter="boardDisabled ? null : playerDeadPileClick()"
-                @keyup.space="boardDisabled ? null : playerDeadPileClick()"
+                @click="boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)"
+                @keyup.enter="
+                  boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)
+                "
+                @keyup.space="
+                  boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)
+                "
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 {{ playerDeadPile.length }}
@@ -1258,11 +1259,11 @@ function compareCardValues(a: Card, b: Card) {
               <div
                 :aria-label="`Opponent Dead Pile (${opponentDeadPile.length})`"
                 class="dead-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled }"
+                :class="{ disabled: boardDisabled || opponentDeadPile.length < 1 }"
                 role="button"
-                @boardcard-click="boardDisabled ? null : opponentDeadPileClick()"
-                @boardcard-enter="boardDisabled ? null : opponentDeadPileClick()"
-                @boardcard-space="boardDisabled ? null : opponentDeadPileClick()"
+                @click="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
+                @keyup.enter="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
+                @keyup.space="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
                 {{ opponentDeadPile.length }}
