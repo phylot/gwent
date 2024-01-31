@@ -279,7 +279,7 @@ function dealRandomCards(arr: Card[], amount: number) {
 function showCardSwapModal(callback: Function) {
   cardSwapActive.value = true
 
-  resetActiveCard(() => {
+  resetActiveModalCard(() => {
     activeCardRow.value = playerHand.value
     slideIndex.value = 0
     showSlide()
@@ -426,7 +426,7 @@ function playCard(card: Card, callback: Function) {
     setTimeout(() => {
       card.animationName = undefined
 
-      resetActiveCard(() => {
+      resetActiveModalCard(() => {
         // Insert card into relevant board array at specific index
         if (boardArrIndex) {
           boardArr.splice(boardArrIndex, 0, card)
@@ -639,17 +639,16 @@ function performRowScorch(card: Card) {
 
       setTimeout(() => {
         // Move scorched cards from board to dead pile
-        // TODO: resetCards() - Reset each card 'value' to 'defaultValue'
         let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
 
         for (let i = 0; i < cardRow.length; i++) {
           if (cardRow[i].value === maxValue && !cardRow[i].hero) {
-            cardRow[i].animationName = undefined
             deadPile.value.push(cardRow[i])
             cardRow.splice(i, 1)
             i--
           }
         }
+        resetCards(deadPile.value)
         resolve()
       }, 2000)
     } else {
@@ -821,7 +820,6 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
   opponentIsPassed.value = false
 
   // Move each player's cards from board rows to dead pile
-  // TODO: resetCards() - Reset each card 'value' to 'defaultValue'  + 'animationName' to null
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     playerDeadPile.value = playerDeadPile.value.concat(playerBoardCards.value[i])
     playerBoardCards.value[i] = []
@@ -830,6 +828,9 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
     opponentDeadPile.value = opponentDeadPile.value.concat(opponentBoardCards.value[i])
     opponentBoardCards.value[i] = []
   }
+
+  resetCards(playerDeadPile.value)
+  resetCards(opponentDeadPile.value)
 
   if (callback) {
     callback()
@@ -846,7 +847,7 @@ async function handCardClick(index: number) {
   } else {
     // If the clicked card is already active, close the card carousel
     if (activeCardRow.value[index]?.active) {
-      resetActiveCard(() => {
+      resetActiveModalCard(() => {
         closeCardModal()
       })
     } else {
@@ -857,7 +858,7 @@ async function handCardClick(index: number) {
       await nextTick()
       carouselIsHidden.value = false
 
-      resetActiveCard(() => {
+      resetActiveModalCard(() => {
         activeCardRow.value = playerHand.value
         playerHandIsActive.value = true
         slideIndex.value = index
@@ -913,22 +914,13 @@ function showCardModal(confirmText?: string, cancelText?: string, titleText?: st
 }
 
 function closeCardModal() {
-  resetActiveCard(() => {
+  resetActiveModalCard(() => {
     playerHandIsActive.value = false
     cardModal.value = false
     cardModalConfirmText.value = null
     cardModalCancelText.value = null
     cardModalTitle.value = null
   })
-}
-
-function resetActiveCard(callback: Function) {
-  for (let i = 0; i < activeCardRow.value.length; i++) {
-    activeCardRow.value[i].active = false
-  }
-  if (callback) {
-    callback()
-  }
 }
 
 function changeSlide(index: number) {
@@ -945,9 +937,18 @@ function showSlide(index?: number) {
     }
   }
 
-  resetActiveCard(() => {
+  resetActiveModalCard(() => {
     activeCardRow.value[slideIndex.value].active = true
   })
+}
+
+function resetActiveModalCard(callback: Function) {
+  for (let i = 0; i < activeCardRow.value.length; i++) {
+    activeCardRow.value[i].active = false
+  }
+  if (callback) {
+    callback()
+  }
 }
 
 function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
@@ -972,6 +973,13 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
 }
 
 // METHODS - Helpers
+
+function resetCards(arr: Card[]) {
+  for (const card of arr) {
+    card.animationName = undefined
+    card.value = card.defaultValue
+  }
+}
 
 function getRowTotal(arr: Card[]) {
   let total = 0
