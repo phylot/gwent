@@ -538,6 +538,10 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
     await performRowScorch(card)
   }
 
+  if (card.ability === 'muster') {
+    await performMuster(card)
+  }
+
   if (card.ability === 'spy') {
     await performSpy()
   }
@@ -599,20 +603,6 @@ function performBoost(rowArr: Card[]) {
   })
 }
 
-async function calculateRow(rowArr: Card[]) {
-  // Reset card values to default before recalculating row
-  for (const card of rowArr) {
-    card.value = card.defaultValue
-  }
-  // TODO: Weather card first
-  await performBond(rowArr)
-  await performBoost(rowArr)
-
-  return new Promise<void>((resolve) => {
-    resolve()
-  })
-}
-
 function performRowScorch(card: Card) {
   return new Promise<void>((resolve) => {
     let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
@@ -656,6 +646,29 @@ function performRowScorch(card: Card) {
   })
 }
 
+function performMuster(card: Card) {
+  return new Promise<void>((resolve) => {
+    // Board row indexes for each card type
+    const abilityIndexes: Record<string, number> = {
+      close: 0,
+      ranged: 1,
+      siege: 2
+    }
+    let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
+    let boardCards = isPlayerTurn.value ? playerBoardCards : opponentBoardCards
+
+    for (let i = 0; i < deck.length; i++) {
+      // Find deck cards of the same muster name as played card, move them to the relevant board row, and remove found cards from deck
+      if (deck[i].musterName === card.musterName) {
+        boardCards.value[abilityIndexes[deck[i].type]].push(deck[i])
+        deck.splice(i, 1)
+        // TODO: Board card animation
+      }
+    }
+    resolve()
+  })
+}
+
 function performSpy() {
   return new Promise<void>((resolve) => {
     // Draw 2 cards if card is a spy
@@ -666,6 +679,20 @@ function performSpy() {
     }
 
     // TODO: Apply shine animations to drawn cards
+    resolve()
+  })
+}
+
+async function calculateRow(rowArr: Card[]) {
+  // Reset card values to default before recalculating row
+  for (const card of rowArr) {
+    card.value = card.defaultValue
+  }
+  // TODO: Weather card first
+  await performBond(rowArr)
+  await performBoost(rowArr)
+
+  return new Promise<void>((resolve) => {
     resolve()
   })
 }
@@ -1175,8 +1202,10 @@ function compareCardValues(a: Card, b: Card) {
           </div>
           <div class="details">
             <div class="name">
-              <div class="title">Wellington</div>
-              <div class="subtitle">British</div>
+              <div class="title">{{ playerLeader.name }}</div>
+              <div class="subtitle">
+                {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
+              </div>
             </div>
             <div class="stats">
               <div class="hand-total">
@@ -1248,8 +1277,12 @@ function compareCardValues(a: Card, b: Card) {
           </div>
           <div class="details">
             <div class="name">
-              <div class="title">Napoleon</div>
-              <div class="subtitle">French</div>
+              <div class="title">{{ opponentLeader.name }}</div>
+              <div class="subtitle">
+                {{
+                  opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)
+                }}
+              </div>
             </div>
             <div class="stats">
               <div class="hand-total">
