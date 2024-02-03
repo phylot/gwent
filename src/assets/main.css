@@ -440,20 +440,21 @@ body {
 }
 
 .game-details .stats .hand-total,
-.game-details .stats .dead-pile {
+.game-details .stats .discard-pile {
   display: flex;
   align-items: center;
   width: 35px;
   height: 25px;
   font-size: 12px;
+  font-weight: bold;
 }
 
-.game-details .stats .dead-pile {
+.game-details .stats .discard-pile {
   cursor: pointer;
 }
 
 .game-details .player-details .stats .hand-total,
-.game-details .player-details .stats .dead-pile {
+.game-details .player-details .stats .discard-pile {
   flex-direction: row-reverse;
 }
 
@@ -765,12 +766,14 @@ body {
 }
 
 .carousel-card .carousel-card-details .title {
+  margin: 0;
   font-size: 11px;
   font-weight: bold;
 }
 
 .carousel-card .carousel-card-details .description {
   margin-top: 5px;
+  margin-bottom: 0;
   font-size: 10px;
 }
 
@@ -1061,13 +1064,13 @@ body {
   }
 
   .game-details .stats .hand-total,
-  .game-details .stats .dead-pile {
+  .game-details .stats .discard-pile {
     height: 40px;
     width: 70px;
     font-size: 20px;
   }
 
-  .game-details .stats .dead-pile.disabled {
+  .game-details .stats .discard-pile.disabled {
     cursor: not-allowed;
   }
 

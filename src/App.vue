@@ -55,9 +55,9 @@ let playerBoardCards = ref(emptyPlayerBoardArrays)
 let opponentBoardCards = ref(emptyOpponentBoardArrays)
 let playerBuffs = ref(emptyPlayerBuffsArrays)
 let opponentBuffs = ref(emptyOpponentBuffsArrays)
-let playerDeadPile = ref(emptyCardArray)
-let opponentDeadPile = ref(emptyCardArray)
-let specialDeadPile = ref(emptyCardArray)
+let playerDiscardPile = ref(emptyCardArray)
+let opponentDiscardPile = ref(emptyCardArray)
+let specialDiscardPile = ref(emptyCardArray)
 let playerHandIsActive = ref(false)
 let activeCardRow = ref(emptyCardArray)
 let slideIndex = ref(0)
@@ -142,8 +142,8 @@ const opponentHandCount = computed((): number => {
 
 const recentSpecialCard = computed(() => {
   let card = null
-  if (specialDeadPile.value.length > 0) {
-    card = specialDeadPile.value[specialDeadPile.value.length - 1]
+  if (specialDiscardPile.value.length > 0) {
+    card = specialDiscardPile.value[specialDiscardPile.value.length - 1]
   }
   return card
 })
@@ -248,8 +248,8 @@ function setupGame(callback: Function) {
 
     playerBoardCards.value = [[], [], []]
     opponentBoardCards.value = [[], [], []]
-    playerDeadPile.value = []
-    opponentDeadPile.value = []
+    playerDiscardPile.value = []
+    opponentDiscardPile.value = []
 
     boardDisabled.value = true
     roundNumber.value = 1
@@ -319,27 +319,16 @@ function showCardSwapModal(callback: Function) {
 }
 
 function swapModalCard(callback: Function) {
-  activeCardRow.value[slideIndex.value].animationName = 'shine'
-
-  setTimeout(() => {
-    activeCardRow.value[slideIndex.value].animationName = 'white-fade-in'
-
-    setTimeout(() => {
-      // Splice a random card into the player's hand
-      playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
-      showSlide()
-      activeCardRow.value[slideIndex.value].animationName = 'white-fade-out'
-
-      setTimeout(() => {
-        activeCardRow.value[slideIndex.value].animationName = 'shine'
-
-        setTimeout(() => {
-          activeCardRow.value[slideIndex.value].animationName = undefined
-          callback()
-        }, 500)
-      }, 400)
-    }, 400)
-  }, 500)
+  doCardDisappearAnimation(activeCardRow.value[slideIndex.value], () => {
+    // Reset then push swapped card back to deck, then splice a random card into the player's hand
+    resetCards([activeCardRow.value[slideIndex.value]])
+    playerDeck.value.push(activeCardRow.value[slideIndex.value])
+    playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
+    showSlide()
+    doCardAppearAnimation(activeCardRow.value[slideIndex.value], () => {
+      callback()
+    })
+  })
 }
 
 // METHODS - Game Loop
@@ -397,7 +386,7 @@ function playCard(card: Card, arr?: Card[], callback?: Function) {
 
   // Determine relevant board array
   if (card.type === 'special') {
-    boardArr = specialDeadPile.value
+    boardArr = specialDiscardPile.value
   } else if (card.ability === 'spy') {
     boardArr = isPlayerTurn.value
       ? opponentBoardCards.value[abilityIndexes[card.type]]
@@ -419,50 +408,35 @@ function playCard(card: Card, arr?: Card[], callback?: Function) {
     }
   }
 
-  // Carousel card animations
-  card.animationName = 'shine'
+  doCardDisappearAnimation(card, () => {
+    resetActiveModalCard(() => {
+      // Insert card into relevant board array at specific index
+      if (boardArrIndex) {
+        boardArr.splice(boardArrIndex, 0, card)
+      }
+      // Push card to relevant board array
+      else {
+        boardArr.push(card)
+      }
 
-  setTimeout(() => {
-    card.animationName = 'white-fade-in'
-    setTimeout(() => {
-      card.animationName = undefined
-
-      resetActiveModalCard(() => {
-        // Insert card into relevant board array at specific index
-        if (boardArrIndex) {
-          boardArr.splice(boardArrIndex, 0, card)
+      // Remove card from hand or discard pile
+      for (let i = 0; i < handArr.value.length; i++) {
+        if (handArr.value[i].id == card.id) {
+          handArr.value.splice(i, 1)
         }
-        // Push card to relevant board array
-        else {
-          boardArr.push(card)
-        }
+      }
 
-        // Remove card from hand or dead pile
-        for (let i = 0; i < handArr.value.length; i++) {
-          if (handArr.value[i].id == card.id) {
-            handArr.value.splice(i, 1)
+      closeCardModal()
+
+      doCardAppearAnimation(card, () => {
+        performAbility(card, boardArr, () => {
+          if (callback) {
+            callback()
           }
-        }
-
-        closeCardModal()
-
-        // Board card animations
-        card.animationName = 'white-fade-out'
-        setTimeout(() => {
-          card.animationName = 'shine'
-          setTimeout(() => {
-            card.animationName = undefined
-
-            performAbility(card, boardArr, () => {
-              if (callback) {
-                callback()
-              }
-            })
-          }, 500)
-        }, 400)
+        })
       })
-    }, 400)
-  }, 500)
+    })
+  })
 }
 
 function determineCpuCard(arr?: Card[], callback?: Function) {
@@ -614,8 +588,8 @@ function performBoost(rowArr: Card[]) {
 function performHeal() {
   return new Promise<void>((resolve) => {
     // Create array containing only viable cards (no hero or special)
-    let deadPile = isPlayerTurn.value ? playerDeadPile.value : opponentDeadPile.value
-    activeCardRow.value = deadPile.filter((card) => !card.hero && card.type !== 'special')
+    let discardPile = isPlayerTurn.value ? playerDiscardPile.value : opponentDiscardPile.value
+    activeCardRow.value = discardPile.filter((card) => !card.hero && card.type !== 'special')
     slideIndex.value = 0
 
     if (activeCardRow.value.length > 0) {
@@ -625,9 +599,9 @@ function performHeal() {
         showCardModal('PLAY CARD', 'CANCEL', 'Revive Card').then((ok) => {
           if (ok) {
             let healedCardId = activeCardRow.value[slideIndex.value].id
-            let healedCard = playerDeadPile.value.find((o) => o.id === healedCardId) as Card
+            let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
 
-            playCard(healedCard, deadPile, () => {
+            playCard(healedCard, discardPile, () => {
               finishTurn()
             })
           } else {
@@ -636,9 +610,9 @@ function performHeal() {
           }
         })
       } else {
-        // Is opponent's turn... Play best dead pile card
-        determineCpuCard(deadPile, (card: Card) => {
-          playCard(card, deadPile, () => {
+        // Is opponent's turn... Play best discard pile card
+        determineCpuCard(discardPile, (card: Card) => {
+          playCard(card, discardPile, () => {
             finishTurn()
           })
         })
@@ -676,17 +650,17 @@ function performRowScorch(card: Card) {
 
       if (scorchCardFound) {
         setTimeout(() => {
-          // Move scorched cards from board to dead pile
-          let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
+          // Move scorched cards from board to discard pile
+          let discardPile = isPlayerTurn.value ? opponentDiscardPile : playerDiscardPile
 
           for (let i = 0; i < cardRow.length; i++) {
             if (cardRow[i].value === maxValue && !cardRow[i].hero) {
-              deadPile.value.push(cardRow[i])
+              discardPile.value.push(cardRow[i])
               cardRow.splice(i, 1)
               i--
             }
           }
-          resetCards(deadPile.value)
+          resetCards(discardPile.value)
           resolve()
         }, 2000)
       } else {
@@ -702,16 +676,25 @@ function performMuster(card: Card) {
   return new Promise<void>((resolve) => {
     let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
     let boardCards = isPlayerTurn.value ? playerBoardCards : opponentBoardCards
+    let cardsFound = false
 
     for (let i = 0; i < deck.length; i++) {
+      let deckCard = deck[i]
       // Find deck cards of the same muster name as played card, move them to the relevant board row, and remove found cards from deck
-      if (deck[i].musterName === card.musterName) {
-        boardCards.value[abilityIndexes[deck[i].type]].push(deck[i])
+      if (deckCard.musterName === card.musterName) {
+        cardsFound = true
+        boardCards.value[abilityIndexes[deckCard.type]].push(deckCard)
         deck.splice(i, 1)
-        // TODO: Board card animation
+        doCardAppearAnimation(deckCard)
       }
     }
-    resolve()
+    // If cards found, allow time for animations
+    setTimeout(
+      () => {
+        resolve()
+      },
+      cardsFound ? 1000 : 0
+    )
   })
 }
 
@@ -891,18 +874,18 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
   playerIsPassed.value = false
   opponentIsPassed.value = false
 
-  // Move each player's cards from board rows to dead pile
+  // Move each player's cards from board rows to discard pile
   for (let i = 0; i < playerBoardCards.value.length; i++) {
-    playerDeadPile.value = playerDeadPile.value.concat(playerBoardCards.value[i])
+    playerDiscardPile.value = playerDiscardPile.value.concat(playerBoardCards.value[i])
     playerBoardCards.value[i] = []
   }
   for (let i = 0; i < opponentBoardCards.value.length; i++) {
-    opponentDeadPile.value = opponentDeadPile.value.concat(opponentBoardCards.value[i])
+    opponentDiscardPile.value = opponentDiscardPile.value.concat(opponentBoardCards.value[i])
     opponentBoardCards.value[i] = []
   }
 
-  resetCards(playerDeadPile.value)
-  resetCards(opponentDeadPile.value)
+  resetCards(playerDiscardPile.value)
+  resetCards(opponentDiscardPile.value)
 
   if (callback) {
     callback()
@@ -964,8 +947,8 @@ function opponentBoardCardClick(index: number, rowIndex: number) {
   })
 }
 
-function deadPileClick(isPlayer?: boolean) {
-  activeCardRow.value = isPlayer ? playerDeadPile.value : opponentDeadPile.value
+function discardPileClick(isPlayer?: boolean) {
+  activeCardRow.value = isPlayer ? playerDiscardPile.value : opponentDiscardPile.value
   slideIndex.value = 0
   showCardModal(undefined, 'CLOSE').then(() => {
     closeCardModal()
@@ -1044,8 +1027,35 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
 
 // METHODS - Helpers
 
+function doCardAppearAnimation(card: Card, callback?: Function) {
+  card.animationName = 'white-fade-out'
+  setTimeout(() => {
+    card.animationName = 'shine'
+    setTimeout(() => {
+      card.animationName = undefined
+      if (callback) {
+        callback()
+      }
+    }, 500)
+  }, 400)
+}
+
+function doCardDisappearAnimation(card: Card, callback?: Function) {
+  card.animationName = 'shine'
+  setTimeout(() => {
+    card.animationName = 'white-fade-in'
+    setTimeout(() => {
+      card.animationName = undefined
+      if (callback) {
+        callback()
+      }
+    }, 400)
+  }, 500)
+}
+
 function resetCards(arr: Card[]) {
   for (const card of arr) {
+    card.active = false
     card.animationName = undefined
     card.value = card.defaultValue
   }
@@ -1126,8 +1136,6 @@ function compareCardValues(a: Card, b: Card) {
             role="button"
             tabindex="2"
             @click="boardDisabled ? null : changeSlide(-1)"
-            @keyup.enter="boardDisabled ? null : changeSlide(-1)"
-            @keyup.space="boardDisabled ? null : changeSlide(-1)"
           >
             <v-icon name="hi-chevron-left" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </button>
@@ -1138,8 +1146,6 @@ function compareCardValues(a: Card, b: Card) {
             role="button"
             tabindex="2"
             @click="boardDisabled ? null : changeSlide(1)"
-            @keyup.enter="boardDisabled ? null : changeSlide(1)"
-            @keyup.space="boardDisabled ? null : changeSlide(1)"
           >
             <v-icon name="hi-chevron-right" class="icon" :scale="isDesktop ? 1.5 : 1" />
           </button>
@@ -1260,21 +1266,23 @@ function compareCardValues(a: Card, b: Card) {
                 {{ playerHandCount }}
               </div>
               <div
-                :aria-label="`Player Dead Pile (${playerDeadPile.length})`"
-                class="dead-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled || playerDeadPile.length < 1 }"
+                :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
+                class="discard-pile no-mobile-highlight"
+                :class="{ disabled: boardDisabled || playerDiscardPile.length < 1 }"
                 role="button"
-                :title="`Player Dead Pile (${playerDeadPile.length})`"
-                @click="boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)"
+                :title="`Player Discard Pile (${playerDiscardPile.length})`"
+                @click="
+                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
+                "
                 @keyup.enter="
-                  boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)
+                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
                 "
                 @keyup.space="
-                  boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)
+                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
                 "
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
-                {{ playerDeadPile.length }}
+                {{ playerDiscardPile.length }}
               </div>
             </div>
           </div>
@@ -1338,17 +1346,21 @@ function compareCardValues(a: Card, b: Card) {
                 {{ opponentHandCount }}
               </div>
               <div
-                :aria-label="`Opponent Dead Pile (${opponentDeadPile.length})`"
-                class="dead-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled || opponentDeadPile.length < 1 }"
+                :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                class="discard-pile no-mobile-highlight"
+                :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
                 role="button"
-                :title="`Opponent Dead Pile (${opponentDeadPile.length})`"
-                @click="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
-                @keyup.enter="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
-                @keyup.space="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
+                :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                @click="boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()"
+                @keyup.enter="
+                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                "
+                @keyup.space="
+                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                "
               >
                 <v-icon name="io-skull" class="icon" :scale="isDesktop ? 2 : 1" />
-                {{ opponentDeadPile.length }}
+                {{ opponentDiscardPile.length }}
               </div>
             </div>
           </div>

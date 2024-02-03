@@ -56,8 +56,8 @@ const imageUrl = computed(() => {
     </div>
 
     <div class="carousel-card-details">
-      <div v-html="props.name" class="title"></div>
-      <div v-html="props.description" class="description"></div>
+      <h2 v-html="props.name" class="title"></h2>
+      <p v-if="props.description" v-html="props.description" class="description"></p>
     </div>
   </div>
 </template>
