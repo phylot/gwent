@@ -78,6 +78,13 @@ let opponentIsPassed = ref(false)
 let playerHasRound = ref(false)
 let opponentHasRound = ref(false)
 
+// Board row indexes for each card 'type'
+const abilityIndexes: Record<string, number> = {
+  close: 0,
+  ranged: 1,
+  siege: 2
+}
+
 // COMPUTED DATA
 
 const opponentTotal = computed((): number => {
@@ -234,9 +241,9 @@ function setupGame(callback: Function) {
     playerHand.value = dealRandomCards(playerDeck.value, 10)
     opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-    // console.log("setupGame() playerDeck: ", JSON.parse(JSON.stringify(playerDeck.value)))
+    // console.log('setupGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
     // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-    // console.log("setupGame() opponentDeck: ", JSON.parse(JSON.stringify(opponentDeck.value)))
+    // console.log('setupGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
     // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
 
     playerBoardCards.value = [[], [], []]
@@ -365,9 +372,9 @@ function determineMove() {
       boardDisabled.value = false
     } else {
       // CPU logic
-      determineCpuCard((card: Card) => {
+      determineCpuCard(undefined, (card: Card) => {
         if (card) {
-          playCard(card, () => {
+          playCard(card, undefined, () => {
             finishTurn()
           })
         } else {
@@ -378,20 +385,15 @@ function determineMove() {
   }
 }
 
-function playCard(card: Card, callback: Function) {
+function playCard(card: Card, arr?: Card[], callback?: Function) {
   boardDisabled.value = true
 
-  // Board row indexes for each card type
-  const abilityIndexes: Record<string, number> = {
-    close: 0,
-    ranged: 1,
-    siege: 2
-  }
+  // If no card array specified, assume card array is player or opponent hand
+  let handArr = arr || isPlayerTurn.value ? playerHand : opponentHand
   let boardArr = isPlayerTurn.value
     ? playerBoardCards.value[abilityIndexes[card.type]]
     : opponentBoardCards.value[abilityIndexes[card.type]]
   let boardArrIndex = 0
-  let handArr = isPlayerTurn.value ? playerHand : opponentHand
 
   // Determine relevant board array
   if (card.type === 'special') {
@@ -435,7 +437,7 @@ function playCard(card: Card, callback: Function) {
           boardArr.push(card)
         }
 
-        // Remove card from hand
+        // Remove card from hand or dead pile
         for (let i = 0; i < handArr.value.length; i++) {
           if (handArr.value[i].id == card.id) {
             handArr.value.splice(i, 1)
@@ -463,14 +465,16 @@ function playCard(card: Card, callback: Function) {
   }, 500)
 }
 
-function determineCpuCard(callback: Function) {
+function determineCpuCard(arr?: Card[], callback?: Function) {
+  // If no card array specified, assume card array is opponent's hand
+  let cardArr = arr || opponentHand.value
   let card = null
   let cpuIsWinning = opponentTotal.value > playerTotal.value
 
   // If the player hasn't passed and the CPU isn't winning
   if (!(playerIsPassed.value && cpuIsWinning)) {
     // Find any spy cards
-    let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+    let spyCards = cardArr.filter((card) => card.ability === 'spy')
     if (spyCards.length > 0) {
       // Find the lowest value spy card
       spyCards.sort(compareCardValues)
@@ -479,7 +483,7 @@ function determineCpuCard(callback: Function) {
     // No spy cards... decide card
     else {
       // TODO: Special card decision logic
-      let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
+      let cpuStandardCards = cardArr.filter((card) => card.type !== 'special')
 
       // If it's a must win round
       if (playerHasRound.value) {
@@ -533,6 +537,10 @@ function determineCpuCard(callback: Function) {
 
 async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // Perform card ability
+
+  if (card.ability === 'heal') {
+    await performHeal()
+  }
 
   if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
     await performRowScorch(card)
@@ -603,6 +611,44 @@ function performBoost(rowArr: Card[]) {
   })
 }
 
+function performHeal() {
+  return new Promise<void>((resolve) => {
+    // Create array containing only viable cards (no hero or special)
+    let deadPile = isPlayerTurn.value ? playerDeadPile.value : opponentDeadPile.value
+    activeCardRow.value = deadPile.filter((card) => !card.hero && card.type !== 'special')
+    slideIndex.value = 0
+
+    if (activeCardRow.value.length > 0) {
+      if (isPlayerTurn.value) {
+        boardDisabled.value = false
+
+        showCardModal('PLAY CARD', 'CANCEL', 'Revive Card').then((ok) => {
+          if (ok) {
+            let healedCardId = activeCardRow.value[slideIndex.value].id
+            let healedCard = playerDeadPile.value.find((o) => o.id === healedCardId) as Card
+
+            playCard(healedCard, deadPile, () => {
+              finishTurn()
+            })
+          } else {
+            // Player cancels heal, turn continues
+            resolve()
+          }
+        })
+      } else {
+        // Is opponent's turn... Play best dead pile card
+        determineCpuCard(deadPile, (card: Card) => {
+          playCard(card, deadPile, () => {
+            finishTurn()
+          })
+        })
+      }
+    } else {
+      finishTurn()
+    }
+  })
+}
+
 function performRowScorch(card: Card) {
   return new Promise<void>((resolve) => {
     let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
@@ -612,6 +658,7 @@ function performRowScorch(card: Card) {
     let cardRowTotal = isPlayerTurn.value
       ? rowTotals.value.opponent[cardRowIndex]
       : rowTotals.value.player[cardRowIndex]
+    let scorchCardFound = false
 
     // If cards are present in the relevant board card row, and they total 10 or above
     if (cardRow.length > 0 && cardRowTotal > 9) {
@@ -622,24 +669,29 @@ function performRowScorch(card: Card) {
       // Apply Scorch animation to highest value non-hero cards
       for (let i = 0; i < cardRow.length; i++) {
         if (cardRow[i].value === maxValue && !cardRow[i].hero) {
+          scorchCardFound = true
           cardRow[i].animationName = 'scorch'
         }
       }
 
-      setTimeout(() => {
-        // Move scorched cards from board to dead pile
-        let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
+      if (scorchCardFound) {
+        setTimeout(() => {
+          // Move scorched cards from board to dead pile
+          let deadPile = isPlayerTurn.value ? opponentDeadPile : playerDeadPile
 
-        for (let i = 0; i < cardRow.length; i++) {
-          if (cardRow[i].value === maxValue && !cardRow[i].hero) {
-            deadPile.value.push(cardRow[i])
-            cardRow.splice(i, 1)
-            i--
+          for (let i = 0; i < cardRow.length; i++) {
+            if (cardRow[i].value === maxValue && !cardRow[i].hero) {
+              deadPile.value.push(cardRow[i])
+              cardRow.splice(i, 1)
+              i--
+            }
           }
-        }
-        resetCards(deadPile.value)
+          resetCards(deadPile.value)
+          resolve()
+        }, 2000)
+      } else {
         resolve()
-      }, 2000)
+      }
     } else {
       resolve()
     }
@@ -648,12 +700,6 @@ function performRowScorch(card: Card) {
 
 function performMuster(card: Card) {
   return new Promise<void>((resolve) => {
-    // Board row indexes for each card type
-    const abilityIndexes: Record<string, number> = {
-      close: 0,
-      ranged: 1,
-      siege: 2
-    }
     let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
     let boardCards = isPlayerTurn.value ? playerBoardCards : opponentBoardCards
 
@@ -890,7 +936,7 @@ async function handCardClick(index: number) {
         slideIndex.value = index
         showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
           if (ok) {
-            playCard(activeCardRow.value[slideIndex.value], () => {
+            playCard(activeCardRow.value[slideIndex.value], undefined, () => {
               finishTurn()
             })
           } else {
@@ -1171,6 +1217,7 @@ function compareCardValues(a: Card, b: Card) {
           class="btn pass-btn no-mobile-highlight"
           :class="{ disabled: boardDisabled }"
           :disabled="boardDisabled"
+          title="Pass"
           type="button"
           @click="pass()"
         >
@@ -1208,7 +1255,7 @@ function compareCardValues(a: Card, b: Card) {
               </div>
             </div>
             <div class="stats">
-              <div class="hand-total">
+              <div class="hand-total" :title="`Player Hand (${playerHandCount})`">
                 <v-icon name="fa-layer-group" class="icon" :scale="isDesktop ? 2 : 1" />
                 {{ playerHandCount }}
               </div>
@@ -1217,6 +1264,7 @@ function compareCardValues(a: Card, b: Card) {
                 class="dead-pile no-mobile-highlight"
                 :class="{ disabled: boardDisabled || playerDeadPile.length < 1 }"
                 role="button"
+                :title="`Player Dead Pile (${playerDeadPile.length})`"
                 @click="boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)"
                 @keyup.enter="
                   boardDisabled || playerDeadPile.length < 1 ? null : deadPileClick(true)
@@ -1285,7 +1333,7 @@ function compareCardValues(a: Card, b: Card) {
               </div>
             </div>
             <div class="stats">
-              <div class="hand-total">
+              <div class="hand-total" :title="`Opponent Hand (${opponentHandCount})`">
                 <v-icon name="fa-layer-group" class="icon" :scale="isDesktop ? 2 : 1" />
                 {{ opponentHandCount }}
               </div>
@@ -1294,6 +1342,7 @@ function compareCardValues(a: Card, b: Card) {
                 class="dead-pile no-mobile-highlight"
                 :class="{ disabled: boardDisabled || opponentDeadPile.length < 1 }"
                 role="button"
+                :title="`Opponent Dead Pile (${opponentDeadPile.length})`"
                 @click="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
                 @keyup.enter="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
                 @keyup.space="boardDisabled || opponentDeadPile.length < 1 ? null : deadPileClick()"
