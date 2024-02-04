@@ -50,7 +50,7 @@ const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.
 const opponentImg = new URL(`./assets/images/${opponentLeader.value.image}`, import.meta.url)
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
-let cardSwapActive = ref(false)
+let cardRedrawActive = ref(false)
 let playerBoardCards = ref(emptyPlayerBoardArrays)
 let opponentBoardCards = ref(emptyOpponentBoardArrays)
 let playerBuffs = ref(emptyPlayerBuffsArrays)
@@ -215,12 +215,17 @@ function startNewGame() {
       undefined,
       'gi-crown-coin',
       () => {
-        showCardSwapModal(() => {
-          cardSwapActive.value = false
+        showCardRedrawModal(() => {
+          cardRedrawActive.value = false
 
-          displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
-            startTurn()
-          })
+          displayAlertBanner(
+            `Round ${roundNumber.value} Start`,
+            undefined,
+            'gi-sands-of-time',
+            () => {
+              startTurn()
+            }
+          )
         })
       }
     )
@@ -283,21 +288,21 @@ function dealRandomCards(arr: Card[], amount: number) {
   return cards
 }
 
-function showCardSwapModal(callback: Function) {
-  cardSwapActive.value = true
+function showCardRedrawModal(callback: Function) {
+  cardRedrawActive.value = true
 
   resetActiveModalCard(() => {
     activeCardRow.value = playerHand.value
     slideIndex.value = 0
     boardDisabled.value = false
 
-    showCardModal('SWAP', 'DONE', 'Swap Cards (1 of 2)').then((ok) => {
+    showCardModal('REDRAW', 'DONE', 'Choose card to redraw (1 of 2)').then((ok) => {
       boardDisabled.value = true
       if (ok) {
         swapModalCard(() => {
           boardDisabled.value = false
 
-          showCardModal('SWAP', 'DONE', 'Swap Cards (2 of 2)').then((ok) => {
+          showCardModal('REDRAW', 'DONE', 'Choose card to redraw (2 of 2)').then((ok) => {
             boardDisabled.value = true
             if (ok) {
               swapModalCard(() => {
@@ -605,7 +610,7 @@ function performHeal() {
         slideIndex.value = 0
         boardDisabled.value = false
 
-        showCardModal('PLAY CARD', 'CANCEL', 'Revive Card').then((ok) => {
+        showCardModal('PLAY CARD', 'CANCEL', 'Choose card to revive').then((ok) => {
           if (ok) {
             let healedCardId = activeCardRow.value[slideIndex.value].id
             let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
@@ -859,7 +864,7 @@ function determineRoundWinner() {
   // No match winner yet... set relevant round flag to true (or both if draw)
   else {
     let alertTitle = ''
-    let alertAvatar
+    let alertIcon
 
     if (isDraw) {
       playerHasRound.value = true
@@ -867,20 +872,26 @@ function determineRoundWinner() {
       alertTitle = 'Round Drawn'
     } else if (isPlayerRoundWin) {
       playerHasRound.value = true
-      alertTitle = 'You Win The Round!'
-      alertAvatar = playerLeader.value.image
+      alertTitle = 'You won the round!'
+      alertIcon = 'gi-round-star'
     } else {
       opponentHasRound.value = true
-      alertTitle = 'Opponent Wins The Round'
-      alertAvatar = opponentLeader.value.image
+      alertTitle = 'Your opponent won the round'
+      alertIcon = 'gi-broken-shield'
     }
 
-    displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
+    // displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
+    displayAlertBanner(alertTitle, undefined, alertIcon, () => {
       // Otherwise, start next round
       setupRound(isDraw, isPlayerRoundWin, () => {
-        displayAlertBanner(`Round ${roundNumber.value}`, undefined, undefined, () => {
-          startTurn()
-        })
+        displayAlertBanner(
+          `Round ${roundNumber.value} Start`,
+          undefined,
+          'gi-sands-of-time',
+          () => {
+            startTurn()
+          }
+        )
       })
     })
   }
@@ -924,8 +935,8 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 // METHODS - Events
 
 async function handCardClick(index: number) {
-  // If swapping cards before the game
-  if (cardSwapActive.value) {
+  // If redrawing cards before the game
+  if (cardRedrawActive.value) {
     slideIndex.value = index
     showSlide()
   } else {

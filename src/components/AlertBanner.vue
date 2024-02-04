@@ -19,7 +19,12 @@ const avatarImg = computed(() => {
     <div v-if="modelValue" class="alert-banner" role="alert">
       <div v-if="avatar || icon" class="mark">
         <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
-        <v-icon v-if="icon" :name="icon" class="icon" />
+        <v-icon
+          v-if="icon"
+          class="icon"
+          :fill="icon === 'gi-round-star' ? 'gold' : null"
+          :name="icon"
+        />
       </div>
       <div class="heading">
         <slot>
