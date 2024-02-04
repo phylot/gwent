@@ -464,7 +464,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
     let spyCards = cardArr.filter((card) => card.ability === 'spy')
     if (spyCards.length > 0) {
       // Find the lowest value spy card
-      spyCards.sort(sortLowToHigh)
+      spyCards.sort(sortCardsLowToHigh)
       card = spyCards[0]
     }
     // No spy cards... decide card
@@ -475,7 +475,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
       // If it's a must win round
       if (playerHasRound.value) {
         // Sort cards lowest to highest
-        cpuStandardCards.sort(sortLowToHigh)
+        cpuStandardCards.sort(sortCardsLowToHigh)
         // Play lowest value card
         card = cpuStandardCards[0]
       }
@@ -487,7 +487,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
         let handIndex = 0
 
         // Sort cards lowest to highest
-        cpuStandardCards.sort(sortLowToHigh)
+        cpuStandardCards.sort(sortCardsLowToHigh)
 
         // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
         for (let i = 0; i < cpuStandardCards.length; i++) {
@@ -643,12 +643,12 @@ function determineCpuHealCard(arr: Card[], callback?: Function) {
   let spyCards = arr.filter((card) => card.ability === 'spy')
   if (spyCards.length > 0) {
     // Find the lowest value spy card
-    spyCards.sort(sortLowToHigh)
+    spyCards.sort(sortCardsLowToHigh)
     card = spyCards[0]
   }
   // No spy cards... select highest value card
   else {
-    arr.sort(sortHighToLow)
+    arr.sort(sortCardsHighToLow)
     card = arr[0]
   }
 
@@ -880,7 +880,6 @@ function determineRoundWinner() {
       alertIcon = 'gi-broken-shield'
     }
 
-    // displayAlertBanner(alertTitle, alertAvatar, undefined, () => {
     displayAlertBanner(alertTitle, undefined, alertIcon, () => {
       // Otherwise, start next round
       setupRound(isDraw, isPlayerRoundWin, () => {
@@ -1113,12 +1112,12 @@ function getChanceOutcome(percentage: number) {
   return Math.random() < percentage
 }
 
-function sortLowToHigh(a: Card, b: Card) {
+function sortCardsLowToHigh(a: Card, b: Card) {
   return a.defaultValue - b.defaultValue
 }
 
-function sortHighToLow(a: Card, b: Card) {
-  return a.defaultValue + b.defaultValue
+function sortCardsHighToLow(a: Card, b: Card) {
+  return b.defaultValue - a.defaultValue
 }
 </script>
 
