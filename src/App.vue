@@ -325,10 +325,13 @@ function showCardRedrawModal(callback: Function) {
 
 function swapModalCard(callback: Function) {
   doCardDisappearAnimation(activeCardRow.value[slideIndex.value], () => {
-    // Reset then push swapped card back to deck, then splice a random card into the player's hand
-    resetCards([activeCardRow.value[slideIndex.value]])
-    playerDeck.value.push(activeCardRow.value[slideIndex.value])
+    // Make deep copy of swapped card and reset it
+    let swappedCard = JSON.parse(JSON.stringify(activeCardRow.value[slideIndex.value]))
+    resetCards([swappedCard])
+    // Splice in new random card to player's hand
     playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
+    // Push swapped card back to deck
+    playerDeck.value.push(swappedCard)
     showSlide()
     doCardAppearAnimation(activeCardRow.value[slideIndex.value], () => {
       callback()
