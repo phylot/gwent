@@ -363,7 +363,7 @@ function determineMove() {
       // CPU logic
       determineCpuCard(undefined, (card: Card) => {
         if (card) {
-          playCard(card, undefined, () => {
+          playCard(card, false, () => {
             finishTurn()
           })
         } else {
@@ -374,11 +374,17 @@ function determineMove() {
   }
 }
 
-function playCard(card: Card, arr?: Card[], callback?: Function) {
+function playCard(card: Card, isHeal: boolean, callback?: Function) {
   boardDisabled.value = true
 
   // If no card array specified, assume card array is player or opponent hand
-  let handArr = arr || isPlayerTurn.value ? playerHand : opponentHand
+  let handArr = isHeal
+    ? isPlayerTurn.value
+      ? playerDiscardPile
+      : opponentDiscardPile
+    : isPlayerTurn.value
+    ? playerHand
+    : opponentHand
   let boardArr = isPlayerTurn.value
     ? playerBoardCards.value[abilityIndexes[card.type]]
     : opponentBoardCards.value[abilityIndexes[card.type]]
@@ -419,7 +425,9 @@ function playCard(card: Card, arr?: Card[], callback?: Function) {
         boardArr.push(card)
       }
 
-      // Remove card from hand or discard pile
+      // TODO: BUG - Card not getting removed from discard pile array
+
+      // Remove card from hand (or discard pile)
       for (let i = 0; i < handArr.value.length; i++) {
         if (handArr.value[i].id == card.id) {
           handArr.value.splice(i, 1)
@@ -451,7 +459,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
     let spyCards = cardArr.filter((card) => card.ability === 'spy')
     if (spyCards.length > 0) {
       // Find the lowest value spy card
-      spyCards.sort(compareCardValues)
+      spyCards.sort(sortLowToHigh)
       card = spyCards[0]
     }
     // No spy cards... decide card
@@ -462,7 +470,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
       // If it's a must win round
       if (playerHasRound.value) {
         // Sort cards lowest to highest
-        cpuStandardCards.sort(compareCardValues)
+        cpuStandardCards.sort(sortLowToHigh)
         // Play lowest value card
         card = cpuStandardCards[0]
       }
@@ -474,7 +482,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
         let handIndex = 0
 
         // Sort cards lowest to highest
-        cpuStandardCards.sort(compareCardValues)
+        cpuStandardCards.sort(sortLowToHigh)
 
         // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
         for (let i = 0; i < cpuStandardCards.length; i++) {
@@ -589,11 +597,12 @@ function performHeal() {
   return new Promise<void>((resolve) => {
     // Create array containing only viable cards (no hero or special)
     let discardPile = isPlayerTurn.value ? playerDiscardPile.value : opponentDiscardPile.value
-    activeCardRow.value = discardPile.filter((card) => !card.hero && card.type !== 'special')
-    slideIndex.value = 0
+    let validHealCards = discardPile.filter((card) => !card.hero && card.type !== 'special')
 
-    if (activeCardRow.value.length > 0) {
+    if (validHealCards.length > 0) {
       if (isPlayerTurn.value) {
+        activeCardRow.value = validHealCards
+        slideIndex.value = 0
         boardDisabled.value = false
 
         showCardModal('PLAY CARD', 'CANCEL', 'Revive Card').then((ok) => {
@@ -601,7 +610,7 @@ function performHeal() {
             let healedCardId = activeCardRow.value[slideIndex.value].id
             let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
 
-            playCard(healedCard, discardPile, () => {
+            playCard(healedCard, true, () => {
               finishTurn()
             })
           } else {
@@ -610,9 +619,9 @@ function performHeal() {
           }
         })
       } else {
-        // Is opponent's turn... Play best discard pile card
-        determineCpuCard(discardPile, (card: Card) => {
-          playCard(card, discardPile, () => {
+        // Is opponent's turn... Play best valid discard pile card
+        determineCpuHealCard(validHealCards, (card: Card) => {
+          playCard(card, true, () => {
             finishTurn()
           })
         })
@@ -621,6 +630,26 @@ function performHeal() {
       finishTurn()
     }
   })
+}
+
+function determineCpuHealCard(arr: Card[], callback?: Function) {
+  let card = null
+  // Find any spy cards
+  let spyCards = arr.filter((card) => card.ability === 'spy')
+  if (spyCards.length > 0) {
+    // Find the lowest value spy card
+    spyCards.sort(sortLowToHigh)
+    card = spyCards[0]
+  }
+  // No spy cards... select highest value card
+  else {
+    arr.sort(sortHighToLow)
+    card = arr[0]
+  }
+
+  if (callback) {
+    callback(card)
+  }
 }
 
 function performRowScorch(card: Card) {
@@ -919,7 +948,7 @@ async function handCardClick(index: number) {
         slideIndex.value = index
         showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
           if (ok) {
-            playCard(activeCardRow.value[slideIndex.value], undefined, () => {
+            playCard(activeCardRow.value[slideIndex.value], false, () => {
               finishTurn()
             })
           } else {
@@ -1073,8 +1102,12 @@ function getChanceOutcome(percentage: number) {
   return Math.random() < percentage
 }
 
-function compareCardValues(a: Card, b: Card) {
+function sortLowToHigh(a: Card, b: Card) {
   return a.defaultValue - b.defaultValue
+}
+
+function sortHighToLow(a: Card, b: Card) {
+  return a.defaultValue + b.defaultValue
 }
 </script>
 
