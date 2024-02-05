@@ -629,6 +629,7 @@ function performHeal() {
             })
           } else {
             // Player cancels heal, turn continues
+            closeCardModal()
             resolve()
           }
         })
