@@ -211,7 +211,7 @@ function startNewGame() {
     loading.value = false
 
     displayAlertBanner(
-      isPlayerTurn.value ? 'You Go First' : 'Opponent Goes First',
+      isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
       undefined,
       'gi-crown-coin',
       () => {
@@ -346,7 +346,7 @@ function startTurn(skipTurnBanner?: boolean) {
     determineMove()
   } else {
     displayAlertBanner(
-      isPlayerTurn.value ? 'Your Turn' : "Opponent's Turn",
+      isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
       isPlayerTurn.value ? playerLeader.value.image : opponentLeader.value.image,
       undefined,
       () => {
@@ -432,8 +432,6 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
       else {
         boardArr.push(card)
       }
-
-      // TODO: BUG - Card not getting removed from discard pile array
 
       // Remove card from hand (or discard pile)
       for (let i = 0; i < handArr.value.length; i++) {
@@ -772,7 +770,7 @@ function pass(isCpu?: boolean) {
   }
 
   displayAlertBanner(
-    isCpu ? 'Opponent Has Passed' : 'You Have Passed',
+    isCpu ? 'Opponent has passed' : 'You have passed',
     undefined,
     'fa-flag',
     () => {
@@ -855,9 +853,9 @@ function determineRoundWinner() {
       modalTitle.value = 'Match Drawn'
     } else {
       modalAvatar.value = isPlayerMatchWin ? playerLeader.value.image : opponentLeader.value.image
-      modalTitle.value = isPlayerMatchWin ? 'You Win The Match!!!' : 'Opponent Wins The Match'
+      modalTitle.value = isPlayerMatchWin ? 'You won the match!!!' : 'Opponent won the match'
     }
-    modalButtons.value = ['Play Again']
+    modalButtons.value = ['PLAY AGAIN']
     modalIcon.value = null
 
     modal.value.show().then(() => {
