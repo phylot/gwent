@@ -85,6 +85,9 @@ const abilityIndexes: Record<string, number> = {
   siege: 2
 }
 
+// CPU
+let cpuDifficulty = 0.3
+
 // COMPUTED DATA
 
 const opponentTotal = computed((): number => {
@@ -461,57 +464,62 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
 
   // If the player hasn't passed and the CPU isn't winning
   if (!(playerIsPassed.value && cpuIsWinning)) {
-    // Find any spy cards
-    let spyCards = cardArr.filter((card) => card.ability === 'spy')
-    if (spyCards.length > 0) {
-      // Find the lowest value spy card
-      spyCards.sort(sortCardsLowToHigh)
-      card = spyCards[0]
-    }
-    // No spy cards... decide card
-    else {
-      // TODO: Special card decision logic
-      let cpuStandardCards = cardArr.filter((card) => card.type !== 'special')
-
-      // If it's a must win round
-      if (playerHasRound.value) {
-        // Sort cards lowest to highest
-        cpuStandardCards.sort(sortCardsLowToHigh)
-        // Play lowest value card
-        card = cpuStandardCards[0]
+    // Play a random card "by mistake" based on difficulty setting, but if the player has passed, play a spy or lowest value card
+    if (getChanceOutcome(cpuDifficulty) && !playerIsPassed.value) {
+      card = cardArr[Math.floor(Math.random() * cardArr.length)]
+    } else {
+      // Find any spy cards
+      let spyCards = cardArr.filter((card) => card.ability === 'spy')
+      if (spyCards.length > 0) {
+        // Find the lowest value spy card
+        spyCards.sort(sortCardsLowToHigh)
+        card = spyCards[0]
       }
-      // Decide whether to play card or not
+      // No spy cards... decide card
       else {
-        // If the CPU decided to beat the player's current total, determine the total value of the CPU's remaining hand cards
-        let runningCpuTotal = opponentTotal.value
-        let remainingTotal = 0
-        let handIndex = 0
+        // TODO: Special card decision logic
+        let cpuStandardCards = cardArr.filter((card) => card.type !== 'special')
 
-        // Sort cards lowest to highest
-        cpuStandardCards.sort(sortCardsLowToHigh)
-
-        // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
-        for (let i = 0; i < cpuStandardCards.length; i++) {
-          if (runningCpuTotal <= playerTotal.value) {
-            runningCpuTotal = runningCpuTotal + cpuStandardCards[i].defaultValue
-            handIndex++
-          } else {
-            break
-          }
+        // If it's a must win round
+        if (playerHasRound.value) {
+          // Sort cards lowest to highest
+          cpuStandardCards.sort(sortCardsLowToHigh)
+          // Play lowest value card
+          card = cpuStandardCards[0]
         }
+        // Decide whether to play card or not
+        else {
+          // If the CPU decided to beat the player's current total, determine the total value of the CPU's remaining hand cards
+          let runningCpuTotal = opponentTotal.value
+          let remainingTotal = 0
+          let handIndex = 0
 
-        // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
-        if (runningCpuTotal > playerTotal.value) {
-          // Determine the total value of the CPU's remaining hand cards
-          while (handIndex < cpuStandardCards.length) {
-            remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
-            handIndex++
+          // Sort cards lowest to highest
+          cpuStandardCards.sort(sortCardsLowToHigh)
+
+          // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
+          for (let i = 0; i < cpuStandardCards.length; i++) {
+            if (runningCpuTotal <= playerTotal.value) {
+              runningCpuTotal = runningCpuTotal + cpuStandardCards[i].defaultValue
+              handIndex++
+            } else {
+              break
+            }
           }
 
-          // If there's theoretically enough points left to win another round
-          if (remainingTotal > 20) {
-            // Play lowest value card
-            card = cpuStandardCards[0]
+          // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
+          if (runningCpuTotal > playerTotal.value) {
+            // Determine the total value of the CPU's remaining hand cards
+            while (handIndex < cpuStandardCards.length) {
+              remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
+              handIndex++
+            }
+
+            // If there's theoretically enough points left to win another round
+            if (remainingTotal > 20) {
+              // Play lowest value card
+              card = cpuStandardCards[0]
+            }
           }
         }
       }
@@ -853,7 +861,7 @@ function determineRoundWinner() {
       modalTitle.value = 'Match Drawn'
     } else {
       modalAvatar.value = isPlayerMatchWin ? playerLeader.value.image : opponentLeader.value.image
-      modalTitle.value = isPlayerMatchWin ? 'You won the match!!!' : 'Opponent won the match'
+      modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
     modalButtons.value = ['PLAY AGAIN']
     modalIcon.value = null
