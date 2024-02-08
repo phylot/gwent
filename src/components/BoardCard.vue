@@ -36,7 +36,9 @@ const cardClasses = computed(() => {
 })
 
 const imageUrl = computed(() => {
-  return new URL(`../assets/images/${props.image}`, import.meta.url)
+  if (props.image) {
+    return new URL(`../assets/images/${props.image}`, import.meta.url)
+  }
 })
 </script>
 
@@ -54,7 +56,7 @@ const imageUrl = computed(() => {
         class="card"
         :class="cardClasses"
         :style="{
-          backgroundImage: `url(${imageUrl})`,
+          backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
           backgroundColor: props.image ? '#000000' : 'grey'
         }"
       >

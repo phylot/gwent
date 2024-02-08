@@ -29,7 +29,9 @@ const cardClasses = computed(() => {
 })
 
 const imageUrl = computed(() => {
-  return new URL(`../assets/images/${props.image}`, import.meta.url)
+  if (props.image) {
+    return new URL(`../assets/images/${props.image}`, import.meta.url)
+  }
 })
 </script>
 
@@ -38,7 +40,11 @@ const imageUrl = computed(() => {
     <div class="card-wrap">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border">
-        <div class="card" :class="cardClasses" :style="{ backgroundImage: `url(${imageUrl})` }">
+        <div
+          class="card"
+          :class="cardClasses"
+          :style="{ backgroundImage: imageUrl ? `url(${imageUrl})` : 'none' }"
+        >
           <template v-if="props.image">
             <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
               {{ value }}
