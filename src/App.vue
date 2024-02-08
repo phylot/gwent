@@ -48,6 +48,7 @@ const playerLeader = ref(playerLeaderCard)
 const opponentLeader = ref(opponentLeaderCard)
 const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.meta.url)
 const opponentImg = new URL(`./assets/images/${opponentLeader.value.image}`, import.meta.url)
+let allImageUrls = ref<string[]>([])
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 let cardRedrawActive = ref(false)
@@ -205,6 +206,7 @@ function loadImage(image: string, callback: Function) {
     console.log('loadImage ERROR: ', err)
   }
   img.src = new URL(`./assets/images/${image}`, import.meta.url).href
+  allImageUrls.value.push(img.src)
 }
 
 function startNewGame() {
@@ -1485,5 +1487,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="image-preload">
+    <img v-for="(url, i) in allImageUrls" :src="url" :key="i" />
   </div>
 </template>
