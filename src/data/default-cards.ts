@@ -9,6 +9,7 @@ interface Card {
   hero?: boolean
   id: string
   image: string
+  imageUrl?: string | undefined
   musterName?: string
   name?: string
   type: string

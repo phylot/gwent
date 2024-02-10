@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 
 const props = defineProps<{
   avatar?: string
@@ -8,17 +7,13 @@ const props = defineProps<{
   modelValue: boolean
   title: string
 }>()
-
-const avatarImg = computed(() => {
-  return new URL(`../assets/images/${props.avatar}`, import.meta.url)
-})
 </script>
 
 <template>
   <transition name="fade">
     <div v-if="modelValue" class="alert-banner" role="alert">
       <div v-if="avatar || icon" class="mark">
-        <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
+        <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${props.avatar})` }"></div>
         <v-icon
           v-if="icon"
           class="icon"

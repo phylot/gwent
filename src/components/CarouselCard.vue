@@ -10,7 +10,7 @@ const props = defineProps<{
   desktop?: boolean
   faction?: string
   hero?: boolean
-  image?: string
+  imageUrl?: string
   name?: string
   typeIcon?: string
   value?: number
@@ -29,8 +29,8 @@ const cardClasses = computed(() => {
 })
 
 const imageUrl = computed(() => {
-  if (props.image) {
-    return new URL(`../assets/images/${props.image}`, import.meta.url)
+  if (props.imageUrl) {
+    return props.imageUrl
   }
 })
 </script>
@@ -45,7 +45,7 @@ const imageUrl = computed(() => {
           :class="cardClasses"
           :style="{ backgroundImage: imageUrl ? `url(${imageUrl})` : 'none' }"
         >
-          <template v-if="props.image">
+          <template v-if="props.imageUrl">
             <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
               {{ value }}
             </div>
@@ -56,7 +56,6 @@ const imageUrl = computed(() => {
               <v-icon :name="typeIcon" class="icon" :scale="desktop ? 2 : 1.2" />
             </div>
           </template>
-          <div v-else style="color: #ffffff">Placeholder</div>
         </div>
       </div>
     </div>

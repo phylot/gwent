@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 defineExpose({
   show,
@@ -18,10 +18,6 @@ const props = defineProps<{
 let localModelValue = ref(false)
 let resolvePromise = ref()
 let rejectPromise = ref()
-
-const avatarImg = computed(() => {
-  return new URL(`../assets/images/${props.avatar}`, import.meta.url)
-})
 
 watch(
   () => props.modelValue,
@@ -47,7 +43,7 @@ function hide() {
     <div v-if="localModelValue" class="modal" role="dialog">
       <slot>
         <div class="heading">
-          <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatarImg})` }"></div>
+          <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${props.avatar})` }"></div>
           <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
           <h2>{{ props.title }}</h2>
         </div>

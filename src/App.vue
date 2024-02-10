@@ -42,13 +42,10 @@ let modalModel = ref(false)
 let modalTitle = ref('')
 
 // Board-related
+const playerLeader = ref()
+const opponentLeader = ref()
 let playerDeck = ref()
 let opponentDeck = ref()
-const playerLeader = ref(playerLeaderCard)
-const opponentLeader = ref(opponentLeaderCard)
-const playerImg = new URL(`./assets/images/${playerLeader.value.image}`, import.meta.url)
-const opponentImg = new URL(`./assets/images/${opponentLeader.value.image}`, import.meta.url)
-let allImageUrls = ref<string[]>([])
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 let cardRedrawActive = ref(false)
@@ -159,7 +156,9 @@ onMounted(() => {
   window.addEventListener('resize', onResize)
 
   // TODO: Call this from main menu "New Game" or "Continue" click
-  startNewGame()
+  setupGame(() => {
+    startNewGame()
+  })
 })
 
 // METHODS - Game Setup
@@ -173,29 +172,48 @@ function onResize() {
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
-function preloadImages(images: [], callback: Function) {
-  let imageCount = images?.length || 0
-  let imagesLoaded = 0
+function preloadCards(cards: Card[]) {
+  return new Promise((resolve) => {
+    let imageCount = cards?.length || 0
+    let imagesLoaded = 0
 
-  if (imageCount > 0) {
-    for (let i = 0; i < imageCount; i++) {
-      loadImage(images[i], () => {
-        imagesLoaded++
-        if (imagesLoaded == imageCount) {
-          if (callback) {
-            callback()
+    if (imageCount > 0) {
+      for (let i = 0; i < imageCount; i++) {
+        cards[i].imageUrl = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
+        loadImage(cards[i].imageUrl!, () => {
+          imagesLoaded++
+          if (imagesLoaded == imageCount) {
+            resolve(cards)
           }
-        }
-      })
+        })
+      }
+    } else {
+      resolve(cards)
     }
-  } else {
-    if (callback) {
-      callback()
-    }
-  }
+  })
 }
 
-function loadImage(image: string, callback: Function) {
+function preloadAssets(assets: string[]) {
+  return new Promise<void>((resolve) => {
+    let imageCount = assets?.length || 0
+    let imagesLoaded = 0
+
+    if (imageCount > 0) {
+      for (let i = 0; i < imageCount; i++) {
+        loadImage(new URL(`./assets/images/${assets[i]}`, import.meta.url).href, () => {
+          imagesLoaded++
+          if (imagesLoaded == imageCount) {
+            resolve()
+          }
+        })
+      }
+    } else {
+      resolve()
+    }
+  })
+}
+
+function loadImage(imageUrl: string, callback: Function) {
   let img = new Image()
   img.onload = function () {
     if (callback) {
@@ -205,14 +223,44 @@ function loadImage(image: string, callback: Function) {
   img.onerror = function (err) {
     console.log('loadImage ERROR: ', err)
   }
-  img.src = new URL(`./assets/images/${image}`, import.meta.url).href
-  allImageUrls.value.push(img.src)
+  img.src = imageUrl
 }
 
 function startNewGame() {
   loading.value = true
 
   setupGame(() => {
+    // Generate a random hand of 10 cards for each player
+    playerHand.value = dealRandomCards(playerDeck.value, 10)
+    opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+
+    // console.log('startNewGame() playerLeader: ', JSON.parse(JSON.stringify(playerLeader.value)))
+    // console.log('startNewGame() opponentLeader: ', JSON.parse(JSON.stringify(opponentLeader.value)))
+    // console.log('startNewGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
+    // console.log('startNewGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
+    // console.log('startNewGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
+    // console.log('startNewGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
+
+    playerBoardCards.value = [[], [], []]
+    opponentBoardCards.value = [[], [], []]
+    playerDiscardPile.value = []
+    opponentDiscardPile.value = []
+
+    boardDisabled.value = true
+    roundNumber.value = 1
+    playerHasRound.value = false
+    opponentHasRound.value = false
+    playerIsPassed.value = false
+    opponentIsPassed.value = false
+
+    modalAvatar.value = null
+    modalButtons.value = null
+    modalIcon.value = null
+    modalTitle.value = ''
+
+    // Decide lead player / first turn
+    playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+
     loading.value = false
 
     displayAlertBanner(
@@ -237,49 +285,23 @@ function startNewGame() {
   })
 }
 
-function setupGame(callback: Function) {
-  playerDeck.value = JSON.parse(JSON.stringify(allPlayerCards))
-  opponentDeck.value = JSON.parse(JSON.stringify(allOpponentCards))
+async function setupGame(callback: Function) {
+  // Generate card image URLs and preload images
+  loading.value = true
 
-  let playerCardImages = playerDeck.value.map((card: Card) => card.image)
-  let opponentCardImages = opponentDeck.value.map((card: Card) => card.image)
-  let otherImages = [playerLeader.value.image, opponentLeader.value.image, 'scorch-flame.jpg']
-  let allImages = playerCardImages.concat(opponentCardImages, otherImages)
+  playerLeader.value = await preloadCards([JSON.parse(JSON.stringify(playerLeaderCard))])
+  playerLeader.value = playerLeader.value[0]
+  opponentLeader.value = await preloadCards([JSON.parse(JSON.stringify(opponentLeaderCard))])
+  opponentLeader.value = opponentLeader.value[0]
 
-  preloadImages(allImages, () => {
-    // Generate a random hand of 10 cards for each player
-    playerHand.value = dealRandomCards(playerDeck.value, 10)
-    opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+  playerDeck.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
+  opponentDeck.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
 
-    // console.log('setupGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
-    // console.log('setupGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-    // console.log('setupGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
-    // console.log('setupGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
+  await preloadAssets(['scorch-flame.jpg'])
 
-    playerBoardCards.value = [[], [], []]
-    opponentBoardCards.value = [[], [], []]
-    playerDiscardPile.value = []
-    opponentDiscardPile.value = []
-
-    boardDisabled.value = true
-    roundNumber.value = 1
-    playerHasRound.value = false
-    opponentHasRound.value = false
-    playerIsPassed.value = false
-    opponentIsPassed.value = false
-
-    modalAvatar.value = null
-    modalButtons.value = null
-    modalIcon.value = null
-    modalTitle.value = ''
-
-    // Decide lead player / first turn
-    playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
-
-    if (callback) {
-      callback()
-    }
-  })
+  if (callback) {
+    callback()
+  }
 }
 
 function dealRandomCards(arr: Card[], amount: number) {
@@ -352,7 +374,7 @@ function startTurn(skipTurnBanner?: boolean) {
   } else {
     displayAlertBanner(
       isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
-      isPlayerTurn.value ? playerLeader.value.image : opponentLeader.value.image,
+      isPlayerTurn.value ? playerLeader.value.imageUrl : opponentLeader.value.imageUrl,
       undefined,
       () => {
         determineMove()
@@ -863,7 +885,9 @@ function determineRoundWinner() {
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
     } else {
-      modalAvatar.value = isPlayerMatchWin ? playerLeader.value.image : opponentLeader.value.image
+      modalAvatar.value = isPlayerMatchWin
+        ? playerLeader.value.imageUrl
+        : opponentLeader.value.imageUrl
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
     modalButtons.value = ['PLAY AGAIN']
@@ -1175,7 +1199,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
               :desktop="isDesktop"
               :faction="card.faction"
               :hero="card.hero"
-              :image="card.image"
+              :image-url="card.imageUrl"
               :name="card.name"
               tabindex="2"
               :type-icon="card.typeIcon"
@@ -1259,7 +1283,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
               :disabled="boardDisabled"
               :faction="card.faction"
               :hero="card.hero"
-              :image="card.image"
+              :image-url="card.imageUrl"
               :key="j"
               role="button"
               tabindex="4"
@@ -1284,7 +1308,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         >
           <span>PASS</span>
         </button>
-        <div class="player-details">
+        <div v-if="playerLeader" class="player-details">
           <div class="total">
             <v-icon
               v-if="playerHasRound"
@@ -1304,7 +1328,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             <div
               class="avatar"
               :class="{ active: isPlayerTurn }"
-              :style="{ backgroundImage: `url(${playerImg})` }"
+              :style="{ backgroundImage: `url(${playerLeader.imageUrl})` }"
             ></div>
             <div class="stat-badge player">{{ playerTotal }}</div>
           </div>
@@ -1355,7 +1379,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :disabled="boardDisabled"
           :faction="recentSpecialCard.faction"
           :hero="recentSpecialCard.hero"
-          :image="recentSpecialCard.image"
+          :image-url="recentSpecialCard.imageUrl"
           tabindex="5"
           :type-icon="recentSpecialCard.typeIcon"
           :value="recentSpecialCard.value"
@@ -1380,13 +1404,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
               fill="white"
             />
             <div
+              v-if="opponentLeader"
               class="avatar"
               :class="{ active: !isPlayerTurn }"
-              :style="{ backgroundImage: `url(${opponentImg})` }"
+              :style="{ backgroundImage: `url(${opponentLeader.imageUrl})` }"
             ></div>
             <div class="stat-badge opponent">{{ opponentTotal }}</div>
           </div>
-          <div class="details">
+          <div v-if="opponentLeader" class="details">
             <div class="name">
               <div class="title">{{ opponentLeader.name }}</div>
               <div class="subtitle">
@@ -1449,7 +1474,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
               :disabled="boardDisabled"
               :faction="card.faction"
               :hero="card.hero"
-              :image="card.image"
+              :image-url="card.imageUrl"
               :key="j"
               role="button"
               tabindex="3"
@@ -1474,7 +1499,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :disabled="boardDisabled"
             :faction="card.faction"
             :hero="card.hero"
-            :image="card.image"
+            :image-url="card.imageUrl"
             :key="i"
             role="button"
             tabindex="1"
@@ -1487,9 +1512,5 @@ function sortCardsHighToLow(a: Card, b: Card) {
         </div>
       </div>
     </div>
-  </div>
-
-  <div id="image-preload">
-    <img v-for="(url, i) in allImageUrls" :src="url" :key="i" />
   </div>
 </template>
