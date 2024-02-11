@@ -43,9 +43,13 @@ let modalTitle = ref('')
 
 // Board-related
 const playerLeader = ref()
+const playerLeaderDefault = ref()
 const opponentLeader = ref()
+const opponentLeaderDefault = ref()
 let playerDeck = ref()
+let playerDeckDefault = ref()
 let opponentDeck = ref()
+let opponentDeckDefault = ref()
 let playerHand = ref(emptyCardArray)
 let opponentHand = ref(emptyCardArray)
 let cardRedrawActive = ref(false)
@@ -172,6 +176,25 @@ function onResize() {
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
+async function setupGame(callback: Function) {
+  // Generate card image URLs and preload images
+  loading.value = true
+
+  playerLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(playerLeaderCard))])
+  playerLeaderDefault.value = playerLeaderDefault.value[0]
+  opponentLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(opponentLeaderCard))])
+  opponentLeaderDefault.value = opponentLeaderDefault.value[0]
+
+  playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
+  opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
+
+  await preloadAssets(['scorch-flame.jpg'])
+
+  if (callback) {
+    callback()
+  }
+}
+
 function preloadCards(cards: Card[]) {
   return new Promise((resolve) => {
     let imageCount = cards?.length || 0
@@ -227,81 +250,68 @@ function loadImage(imageUrl: string, callback: Function) {
 }
 
 function startNewGame() {
+  boardDisabled.value = true
   loading.value = true
 
-  setupGame(() => {
-    // Generate a random hand of 10 cards for each player
-    playerHand.value = dealRandomCards(playerDeck.value, 10)
-    opponentHand.value = dealRandomCards(opponentDeck.value, 10)
+  // Set leader cards and decks to their default state
+  playerLeader.value = JSON.parse(JSON.stringify(playerLeaderDefault.value))
+  opponentLeader.value = JSON.parse(JSON.stringify(opponentLeaderDefault.value))
+  playerDeck.value = JSON.parse(JSON.stringify(playerDeckDefault.value))
+  opponentDeck.value = JSON.parse(JSON.stringify(opponentDeckDefault.value))
 
-    // console.log('startNewGame() playerLeader: ', JSON.parse(JSON.stringify(playerLeader.value)))
-    // console.log('startNewGame() opponentLeader: ', JSON.parse(JSON.stringify(opponentLeader.value)))
-    // console.log('startNewGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
-    // console.log('startNewGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-    // console.log('startNewGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
-    // console.log('startNewGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
+  // Generate a random hand of 10 cards for each player
+  playerHand.value = dealRandomCards(playerDeck.value, 10)
+  opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-    playerBoardCards.value = [[], [], []]
-    opponentBoardCards.value = [[], [], []]
-    playerDiscardPile.value = []
-    opponentDiscardPile.value = []
+  // console.log('startNewGame() playerLeader: ', JSON.parse(JSON.stringify(playerLeader.value)))
+  // console.log('startNewGame() opponentLeader: ', JSON.parse(JSON.stringify(opponentLeader.value)))
+  // console.log('startNewGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
+  // console.log('startNewGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
+  // console.log('startNewGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
+  // console.log('startNewGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
 
-    boardDisabled.value = true
-    roundNumber.value = 1
-    playerHasRound.value = false
-    opponentHasRound.value = false
-    playerIsPassed.value = false
-    opponentIsPassed.value = false
+  // Empty all board rows and card piles
+  playerBoardCards.value = [[], [], []]
+  opponentBoardCards.value = [[], [], []]
+  playerDiscardPile.value = []
+  opponentDiscardPile.value = []
+  specialDiscardPile.value = []
 
-    modalAvatar.value = null
-    modalButtons.value = null
-    modalIcon.value = null
-    modalTitle.value = ''
+  roundNumber.value = 1
+  playerHasRound.value = false
+  opponentHasRound.value = false
+  playerIsPassed.value = false
+  opponentIsPassed.value = false
 
-    // Decide lead player / first turn
-    playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
+  modalAvatar.value = null
+  modalButtons.value = null
+  modalIcon.value = null
+  modalTitle.value = ''
 
-    loading.value = false
+  // Decide lead player / first turn
+  playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
-    displayAlertBanner(
-      isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
-      undefined,
-      'gi-crown-coin',
-      () => {
-        showCardRedrawModal(() => {
-          cardRedrawActive.value = false
+  loading.value = false
 
-          displayAlertBanner(
-            `Round ${roundNumber.value} Start`,
-            undefined,
-            'gi-sands-of-time',
-            () => {
-              startTurn()
-            }
-          )
-        })
-      }
-    )
-  })
-}
+  displayAlertBanner(
+    isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
+    undefined,
+    'gi-crown-coin',
+    () => {
+      showCardRedrawModal(() => {
+        cardRedrawActive.value = false
 
-async function setupGame(callback: Function) {
-  // Generate card image URLs and preload images
-  loading.value = true
-
-  playerLeader.value = await preloadCards([JSON.parse(JSON.stringify(playerLeaderCard))])
-  playerLeader.value = playerLeader.value[0]
-  opponentLeader.value = await preloadCards([JSON.parse(JSON.stringify(opponentLeaderCard))])
-  opponentLeader.value = opponentLeader.value[0]
-
-  playerDeck.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
-  opponentDeck.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
-
-  await preloadAssets(['scorch-flame.jpg'])
-
-  if (callback) {
-    callback()
-  }
+        displayAlertBanner(
+          `Round ${roundNumber.value} Start`,
+          undefined,
+          'gi-sands-of-time',
+          () => {
+            startTurn()
+          }
+        )
+      })
+    }
+  )
 }
 
 function dealRandomCards(arr: Card[], amount: number) {
@@ -1273,7 +1283,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
-              :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :active="card.active"
               :animation-name="card.animationName"
@@ -1369,7 +1378,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
         <BoardCard
           v-if="recentSpecialCard"
-          :ability="recentSpecialCard.ability"
           :ability-icon="recentSpecialCard.abilityIcon"
           :active="recentSpecialCard.active"
           :animation-name="recentSpecialCard.animationName"
@@ -1464,7 +1472,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <div class="card-container">
             <BoardCard
               v-for="(card, j) in row"
-              :ability="card.ability"
               :ability-icon="card.abilityIcon"
               :active="card.active"
               :animation-name="card.animationName"
@@ -1490,7 +1497,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <div class="card-row player-hand">
           <BoardCard
             v-for="(card, i) in playerHand"
-            :ability="card.ability"
             :ability-icon="card.abilityIcon"
             :active="card.active"
             class="no-mobile-highlight"

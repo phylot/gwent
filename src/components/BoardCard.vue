@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 
 const props = defineProps<{
-  ability?: string
   abilityIcon?: string
   animationName?: string
   active?: boolean
@@ -11,7 +10,7 @@ const props = defineProps<{
   disabled?: boolean
   faction?: string
   hero?: boolean
-  imageUrl?: string
+  imageUrl?: string | undefined
   typeIcon?: string
   value?: number
 }>()
@@ -34,12 +33,6 @@ const cardClasses = computed(() => {
     increased: props.value && props.defaultValue && props.value > props.defaultValue
   }
 })
-
-const imageUrl = computed(() => {
-  if (props.imageUrl) {
-    return props.imageUrl
-  }
-})
 </script>
 
 <template>
@@ -56,7 +49,7 @@ const imageUrl = computed(() => {
         class="card"
         :class="cardClasses"
         :style="{
-          backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+          backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
           backgroundColor: props.imageUrl ? '#000000' : 'grey'
         }"
       >

@@ -10,7 +10,7 @@ const props = defineProps<{
   desktop?: boolean
   faction?: string
   hero?: boolean
-  imageUrl?: string
+  imageUrl: string | undefined
   name?: string
   typeIcon?: string
   value?: number
@@ -27,12 +27,6 @@ const cardClasses = computed(() => {
     increased: props.value && props.defaultValue && props.value > props.defaultValue
   }
 })
-
-const imageUrl = computed(() => {
-  if (props.imageUrl) {
-    return props.imageUrl
-  }
-})
 </script>
 
 <template>
@@ -43,7 +37,7 @@ const imageUrl = computed(() => {
         <div
           class="card"
           :class="cardClasses"
-          :style="{ backgroundImage: imageUrl ? `url(${imageUrl})` : 'none' }"
+          :style="{ backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none' }"
         >
           <template v-if="props.imageUrl">
             <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
