@@ -188,7 +188,7 @@ async function setupGame(callback: Function) {
   playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
   opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
 
-  await preloadAssets(['scorch-flame.jpg'])
+  await preloadAssets(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
   if (callback) {
     callback()
