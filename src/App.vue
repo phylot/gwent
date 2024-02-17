@@ -188,7 +188,7 @@ async function setupGame(callback: Function) {
   playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
   opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
 
-  await preloadAssets(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
+  await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
   if (callback) {
     callback()
@@ -216,14 +216,14 @@ function preloadCards(cards: Card[]) {
   })
 }
 
-function preloadAssets(assets: string[]) {
+function preloadImages(fileNames: string[]) {
   return new Promise<void>((resolve) => {
-    let imageCount = assets?.length || 0
+    let imageCount = fileNames?.length || 0
     let imagesLoaded = 0
 
     if (imageCount > 0) {
       for (let i = 0; i < imageCount; i++) {
-        loadImage(new URL(`./assets/images/${assets[i]}`, import.meta.url).href, () => {
+        loadImage(new URL(`./assets/images/${fileNames[i]}`, import.meta.url).href, () => {
           imagesLoaded++
           if (imagesLoaded == imageCount) {
             resolve()
@@ -572,26 +572,40 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
     await performHeal()
   }
 
+  if (card.ability === 'muster') {
+    await performMuster(card)
+  }
+
   if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
     await performRowScorch(card)
   }
 
-  if (card.ability === 'muster') {
-    await performMuster(card)
+  if (card.ability === 'scorch') {
+    await performScorch()
   }
 
   if (card.ability === 'spy') {
     await performSpy()
   }
 
+  if (card.ability === 'scorch') {
+    // Recalculate card values for ALL rows after full scorch
+    for (let i = 0; i < 2; i++) {
+      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+      for (const cardRow of boardCardArrays) {
+        await calculateRow(cardRow)
+      }
+    }
+  } else {
+    // Recalculate card values for row
+    await calculateRow(rowArr)
+  }
+
   // TODO: Decoy card
   // • Add visual highlight to board rows containing eligible cards for swapping
   // • Enable ONLY cards eligible for swapping
   // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
-
-  // Recalculate card values
-  // TODO: If full scorch, reuse this function on all 6 board rows instead
-  await calculateRow(rowArr)
 
   if (callback) {
     callback()
@@ -644,8 +658,8 @@ function performBoost(rowArr: Card[]) {
 function performHeal() {
   return new Promise<void>((resolve) => {
     // Create array containing only viable cards (no hero or special)
-    let discardPile = isPlayerTurn.value ? playerDiscardPile.value : opponentDiscardPile.value
-    let validHealCards = discardPile.filter((card) => !card.hero && card.type !== 'special')
+    let discardPile = isPlayerTurn.value ? playerDiscardPile : opponentDiscardPile
+    let validHealCards = discardPile.value.filter((card) => !card.hero && card.type !== 'special')
 
     if (validHealCards.length > 0) {
       if (isPlayerTurn.value) {
@@ -701,55 +715,6 @@ function determineCpuHealCard(arr: Card[], callback?: Function) {
   }
 }
 
-function performRowScorch(card: Card) {
-  return new Promise<void>((resolve) => {
-    let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
-    let cardRow = isPlayerTurn.value
-      ? opponentBoardCards.value[cardRowIndex]
-      : playerBoardCards.value[cardRowIndex]
-    let cardRowTotal = isPlayerTurn.value
-      ? rowTotals.value.opponent[cardRowIndex]
-      : rowTotals.value.player[cardRowIndex]
-    let scorchCardFound = false
-
-    // If cards are present in the relevant board card row, and they total 10 or above
-    if (cardRow.length > 0 && cardRowTotal > 9) {
-      // Find highest value of all non-hero card(s)
-      const nonHeroCards = cardRow.filter((card) => !card.hero)
-      const maxValue = Math.max(...nonHeroCards.map((o) => o.value), 0)
-
-      // Apply Scorch animation to highest value non-hero cards
-      for (let i = 0; i < cardRow.length; i++) {
-        if (cardRow[i].value === maxValue && !cardRow[i].hero) {
-          scorchCardFound = true
-          cardRow[i].animationName = 'scorch'
-        }
-      }
-
-      if (scorchCardFound) {
-        setTimeout(() => {
-          // Move scorched cards from board to discard pile
-          let discardPile = isPlayerTurn.value ? opponentDiscardPile : playerDiscardPile
-
-          for (let i = 0; i < cardRow.length; i++) {
-            if (cardRow[i].value === maxValue && !cardRow[i].hero) {
-              discardPile.value.push(cardRow[i])
-              cardRow.splice(i, 1)
-              i--
-            }
-          }
-          resetCards(discardPile.value)
-          resolve()
-        }, 2000)
-      } else {
-        resolve()
-      }
-    } else {
-      resolve()
-    }
-  })
-}
-
 function performMuster(card: Card) {
   return new Promise<void>((resolve) => {
     let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
@@ -773,6 +738,120 @@ function performMuster(card: Card) {
       },
       cardsFound ? 1000 : 0
     )
+  })
+}
+
+function performRowScorch(card: Card) {
+  return new Promise<void>((resolve) => {
+    let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
+    let cardRow = isPlayerTurn.value
+      ? opponentBoardCards.value[cardRowIndex]
+      : playerBoardCards.value[cardRowIndex]
+    let cardRowTotal = isPlayerTurn.value
+      ? rowTotals.value.opponent[cardRowIndex]
+      : rowTotals.value.player[cardRowIndex]
+    let scorchCardFound = false
+
+    // If cards are present in the relevant board card row, and they total 10 or above
+    if (cardRow.length > 0 && cardRowTotal > 9) {
+      // Find highest value of all non-hero card(s)
+      const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value), 0)
+
+      for (const card of cardRow) {
+        if (card.value === maxValue && !card.hero && card.type !== 'special') {
+          scorchCardFound = true
+          card.animationName = 'scorch'
+        }
+      }
+
+      if (scorchCardFound) {
+        setTimeout(() => {
+          // Move scorched cards from board to discard pile
+          let discardPile = isPlayerTurn.value ? opponentDiscardPile : playerDiscardPile
+
+          for (let i = 0; i < cardRow.length; i++) {
+            if (
+              cardRow[i].value === maxValue &&
+              !cardRow[i].hero &&
+              cardRow[i].type !== 'special'
+            ) {
+              discardPile.value.push(cardRow[i])
+              cardRow.splice(i, 1)
+              i--
+            }
+          }
+          resetCards(discardPile.value)
+          resolve()
+        }, 2000)
+      } else {
+        resolve()
+      }
+    } else {
+      resolve()
+    }
+  })
+}
+
+function performScorch() {
+  return new Promise<void>((resolve) => {
+    let highestCardValue = 0
+    let scorchCardFound = false
+
+    // For each player
+    for (let i = 0; i < 2; i++) {
+      // Find highest value of all non-hero card(s)
+      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+      for (const cardRow of boardCardArrays) {
+        const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+        const maxValue = Math.max(...nonApplicableCards.map((o) => o.value), 0)
+        highestCardValue = maxValue > highestCardValue ? maxValue : highestCardValue
+      }
+    }
+
+    // For each player
+    for (let i = 0; i < 2; i++) {
+      // Apply Scorch animation to highest value non-hero cards
+      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+      for (const cardRow of boardCardArrays) {
+        for (const card of cardRow) {
+          if (card.value === highestCardValue && !card.hero && card.type !== 'special') {
+            scorchCardFound = true
+            card.animationName = 'scorch'
+          }
+        }
+      }
+    }
+
+    if (scorchCardFound) {
+      setTimeout(() => {
+        // For each player
+        for (let i = 0; i < 2; i++) {
+          // Scorch the highest value non-hero cards
+          let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+          let discardPile = i < 1 ? playerDiscardPile : opponentDiscardPile
+
+          for (const cardRow of boardCardArrays) {
+            for (let i = 0; i < cardRow.length; i++) {
+              if (
+                cardRow[i].value === highestCardValue &&
+                !cardRow[i].hero &&
+                cardRow[i].type !== 'special'
+              ) {
+                discardPile.value.push(cardRow[i])
+                cardRow.splice(i, 1)
+                i--
+              }
+            }
+            resetCards(discardPile.value)
+          }
+        }
+        resolve()
+      }, 2000)
+    } else {
+      resolve()
+    }
   })
 }
 
