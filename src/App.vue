@@ -96,7 +96,7 @@ const opponentTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < opponentBoardCards.value.length; i++) {
     for (let j = 0; j < opponentBoardCards.value[i].length; j++) {
-      total = total + opponentBoardCards.value[i][j].value
+      total = total + (opponentBoardCards.value[i][j].value || 0)
     }
   }
   return total
@@ -106,7 +106,7 @@ const playerTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     for (let j = 0; j < playerBoardCards.value[i].length; j++) {
-      total = total + playerBoardCards.value[i][j].value
+      total = total + (playerBoardCards.value[i][j].value || 0)
     }
   }
   return total
@@ -534,7 +534,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
           // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
           for (let i = 0; i < cpuStandardCards.length; i++) {
             if (runningCpuTotal <= playerTotal.value) {
-              runningCpuTotal = runningCpuTotal + cpuStandardCards[i].defaultValue
+              runningCpuTotal = runningCpuTotal + (cpuStandardCards[i].defaultValue || 0)
               handIndex++
             } else {
               break
@@ -545,7 +545,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
           if (runningCpuTotal > playerTotal.value) {
             // Determine the total value of the CPU's remaining hand cards
             while (handIndex < cpuStandardCards.length) {
-              remainingTotal = remainingTotal + cpuStandardCards[handIndex].defaultValue
+              remainingTotal = remainingTotal + (cpuStandardCards[handIndex].defaultValue || 0)
               handIndex++
             }
 
@@ -627,7 +627,7 @@ function performBond(rowArr: Card[]) {
 
     // Set the new value of each bond card
     for (const bondIndex of bondIndexes) {
-      rowArr[bondIndex].value = rowArr[bondIndex].defaultValue * multiplier
+      rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
     }
     resolve()
   })
@@ -648,7 +648,7 @@ function performBoost(rowArr: Card[]) {
     for (let i = 0; i < rowArr.length; i++) {
       if (!rowArr[i].hero) {
         let boostValue = rowArr[i].ability === 'boost' ? boostCardCount - 1 : boostCardCount
-        rowArr[i].value = rowArr[i].value + boostValue
+        rowArr[i].value = (rowArr[i].value || 0) + boostValue
       }
     }
     resolve()
@@ -756,7 +756,7 @@ function performRowScorch(card: Card) {
     if (cardRow.length > 0 && cardRowTotal > 9) {
       // Find highest value of all non-hero card(s)
       const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
-      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value), 0)
+      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
 
       for (const card of cardRow) {
         if (card.value === maxValue && !card.hero && card.type !== 'special') {
@@ -804,7 +804,7 @@ function performScorch() {
       let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
       for (const cardRow of boardCardArrays) {
         const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
-        const maxValue = Math.max(...nonApplicableCards.map((o) => o.value), 0)
+        const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
         highestCardValue = maxValue > highestCardValue ? maxValue : highestCardValue
       }
     }
@@ -1228,7 +1228,7 @@ function resetCards(arr: Card[]) {
 function getRowTotal(arr: Card[]) {
   let total = 0
   for (let i = 0; i < arr.length; i++) {
-    total = total + arr[i].value
+    total = total + (arr[i].value || 0)
   }
   return total
 }
@@ -1238,11 +1238,11 @@ function getChanceOutcome(percentage: number) {
 }
 
 function sortCardsLowToHigh(a: Card, b: Card) {
-  return a.defaultValue - b.defaultValue
+  return (a.defaultValue || 0) - (b.defaultValue || 0)
 }
 
 function sortCardsHighToLow(a: Card, b: Card) {
-  return b.defaultValue - a.defaultValue
+  return (b.defaultValue || 0) - (a.defaultValue || 0)
 }
 </script>
 
