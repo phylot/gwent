@@ -516,10 +516,17 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
 
         // If it's a must win round
         if (playerHasRound.value) {
-          // Sort cards lowest to highest
-          cpuStandardCards.sort(sortCardsLowToHigh)
-          // Play lowest value card
-          card = cpuStandardCards[0]
+          // If standard cards are available
+          if (cpuStandardCards.length > 0) {
+            // Sort cards lowest to highest
+            cpuStandardCards.sort(sortCardsLowToHigh)
+            // Play the lowest value card
+            card = cpuStandardCards[0]
+          }
+          // Play the next non-standard card
+          else {
+            card = cardArr[0]
+          }
         }
         // Decide whether to play card or not
         else {
@@ -551,7 +558,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
 
             // If there's theoretically enough points left to win another round
             if (remainingTotal > 20) {
-              // Play lowest value card
+              // Play the lowest value card
               card = cpuStandardCards[0]
             }
           }
