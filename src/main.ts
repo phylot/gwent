@@ -28,6 +28,7 @@ import {
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined,
+  MdTouchappRound,
   FaFlag,
 } from 'oh-vue-icons/icons'
 
@@ -58,6 +59,7 @@ addIcons(
   HiSolidEye,
   IoSkull,
   MdHandshakeOutlined,
+  MdTouchappRound,
   FaFlag,
 )
 

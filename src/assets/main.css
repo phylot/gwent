@@ -482,10 +482,6 @@ html {
   display: flex;
   height: 70px;
   box-sizing: border-box;
-  background-position: 5px 35px;
-  background-size: 30px 30px;
-  background-repeat: no-repeat;
-  background-color: transparent;
 }
 
 .opponent-board .card-row {
@@ -494,18 +490,6 @@ html {
 
 .player-board .card-row {
   border-top: 1px solid #5c6166;
-}
-
-.card-row.card-row1 {
-  background-image: url('./images/broadsword.svg');
-}
-
-.card-row.card-row2 {
-  background-image: url('./images/crossbow.svg');
-}
-
-.card-row.card-row3 {
-  background-image: url('./images/catapult.svg');
 }
 
 .row-stats {
@@ -532,6 +516,21 @@ html {
   display: flex;
   justify-content: center;
   overflow: hidden;
+  background-position: center;
+  background-size: 30px;
+  background-repeat: no-repeat;
+}
+
+.card-row.card-row1 .card-container {
+  background-image: url('./images/broadsword.svg');
+}
+
+.card-row.card-row2 .card-container {
+  background-image: url('./images/crossbow.svg');
+}
+
+.card-row.card-row3 .card-container {
+  background-image: url('./images/catapult.svg');
 }
 
 .player-hand {
@@ -1006,8 +1005,10 @@ html {
   .game-details,
   .card-row {
     height: 110px;
-    background-position: 10px 65px;
-    background-size: 35px 35px;
+  }
+
+  .card-container {
+    background-size: 50px;
   }
 
   .row-stats {

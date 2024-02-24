@@ -1055,6 +1055,17 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
     opponentBoardCards.value[i] = []
   }
 
+  // Move each special card to the relevant player's discard pile
+  for (let i = 0; i < specialDiscardPile.value.length; i++) {
+    let discardPile =
+      specialDiscardPile.value[i].faction === playerLeaderCard.faction
+        ? playerDiscardPile
+        : opponentDiscardPile
+    discardPile.value.push(specialDiscardPile.value[i])
+    specialDiscardPile.value.splice(i, 1)
+    i--
+  }
+
   resetCards(playerDiscardPile.value)
   resetCards(opponentDiscardPile.value)
 
