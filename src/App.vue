@@ -620,7 +620,9 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
   if (callback) {
-    callback()
+    setTimeout(() => {
+      callback()
+    }, 500)
   }
 }
 
@@ -869,14 +871,11 @@ function performScorch() {
 
 function performSpy() {
   return new Promise<void>((resolve) => {
-    // Draw 2 cards if card is a spy
-    if (isPlayerTurn.value) {
-      playerHand.value.push(...dealRandomCards(playerDeck.value, 2))
-    } else {
-      opponentHand.value.push(...dealRandomCards(opponentDeck.value, 2))
-    }
+    let hand = isPlayerTurn.value ? playerHand : opponentHand
+    let deck = isPlayerTurn.value ? playerDeck : opponentDeck
+    // Draw 2 cards
+    hand.value.push(...dealRandomCards(deck.value, 2))
 
-    // TODO: Apply shine animations to drawn cards
     resolve()
   })
 }
