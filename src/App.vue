@@ -394,12 +394,12 @@ function startTurn(skipTurnBanner?: boolean) {
 }
 
 function determineMove() {
-  // If active player has no cards left in their hand, pass
+  // If active player's hand is empty, pass
   if (
     (isPlayerTurn.value && playerHand.value.length < 1) ||
     (!isPlayerTurn.value && opponentHand.value.length < 1)
   ) {
-    let isCpuPass = !isPlayerTurn.value && opponentHand.value.length < 1
+    let isCpuPass = !isPlayerTurn.value
     pass(isCpuPass)
   } else {
     if (isPlayerTurn.value) {
@@ -409,7 +409,12 @@ function determineMove() {
       determineCpuCard(undefined, (card: Card) => {
         if (card) {
           playCard(card, false, () => {
-            finishTurn()
+            // If CPU hand is now empty, pass
+            if (opponentHand.value.length < 1) {
+              pass(true)
+            } else {
+              finishTurn()
+            }
           })
         } else {
           pass(true)
@@ -680,7 +685,7 @@ function performHeal() {
             let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
 
             playCard(healedCard, true, () => {
-              finishTurn()
+              resolve()
             })
           } else {
             // Player cancels heal, turn continues
@@ -692,12 +697,12 @@ function performHeal() {
         // Is opponent's turn... Play best valid discard pile card
         determineCpuHealCard(validHealCards, (card: Card) => {
           playCard(card, true, () => {
-            finishTurn()
+            resolve()
           })
         })
       }
     } else {
-      finishTurn()
+      resolve()
     }
   })
 }
@@ -1102,7 +1107,12 @@ async function handCardClick(index: number) {
         showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
           if (ok) {
             playCard(activeCardRow.value[slideIndex.value], false, () => {
-              finishTurn()
+              // If player hand is now empty, pass
+              if (playerHand.value.length < 1) {
+                pass()
+              } else {
+                finishTurn()
+              }
             })
           } else {
             closeCardModal()
