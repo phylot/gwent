@@ -164,7 +164,7 @@ html {
 }
 
 .animation-overlay {
-  z-index: 1000;
+  z-index: 100;
   display: none;
   position: absolute;
   top: 0;
@@ -301,6 +301,19 @@ html {
   margin: 5px;
 }
 
+/* Overlay */
+
+.overlay {
+  z-index: 2000;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: black;
+  opacity: 0.5;
+}
+
 /* Board Layout */
 
 .game-container {
@@ -328,11 +341,6 @@ html {
 
 .player-board {
   flex: 1 1;
-}
-
-.player-board,
-.opponent-board {
-  background-color: #9aa0a8;
 }
 
 /* Central Game Stats */
@@ -480,8 +488,10 @@ html {
 
 .card-row {
   display: flex;
+  position: relative;
   height: 70px;
   box-sizing: border-box;
+  background-color: #9aa0a8;
 }
 
 .opponent-board .card-row {
@@ -490,6 +500,25 @@ html {
 
 .player-board .card-row {
   border-top: 1px solid #5c6166;
+}
+
+.card-row.row-select {
+  z-index: 3000;
+  position: relative;
+  border: 1px solid chartreuse;
+  animation: pulse 1s infinite;
+  cursor: pointer;
+}
+
+.icon.row-select {
+  position: absolute;
+  top: 10px;
+  left: 40px;
+}
+
+.icon.row-select,
+.card-row.row-select .board-card {
+  cursor: pointer;
 }
 
 .row-stats {
@@ -608,7 +637,7 @@ html {
 /* Card Modal */
 
 .card-modal {
-  z-index: 5000;
+  z-index: 3000;
   position: absolute;
   top: 0;
   bottom: 70px;
@@ -1005,6 +1034,12 @@ html {
   .game-details,
   .card-row {
     height: 110px;
+  }
+
+  .icon.row-select {
+    position: absolute;
+    top: 20px;
+    left: 80px;
   }
 
   .card-container {

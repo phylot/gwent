@@ -17,6 +17,15 @@ interface Card {
   value?: number
 }
 
+interface RowFlag {
+  cardSelect: boolean
+  double: boolean
+  doubleIcon: string
+  rowSelect: boolean
+  weather: boolean
+  weatherIcon: string
+}
+
 const allOpponentCards: Card[] = [
   { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'french', id: "201", image: "fr-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
   { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'french', id: "202", image: "fr-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
@@ -47,8 +56,8 @@ const allOpponentCards: Card[] = [
   { ability: 'heal', abilityIcon: "gi-heart-plus", active: false, defaultValue: 6, description: "<strong>Medic:</strong> Choose one card from your discard pile and play it instantly (no <strong>Heroes</strong> or <strong>Special</strong> cards).", faction: 'french', id: "227", image: "fr-leroux.png", name: "Helene Leroux", type: "siege", typeIcon: "gi-catapult", value: 6 },
   { ability: 'scorch', abilityIcon: "io-skull", active: false, description: "Discards after playing. Kills the <strong>strongest card(s)</strong> on the battlefield.", faction: 'french', id: "228", image: "scorch.png", name: "Scorch", type: "special" },
   { ability: 'scorch', abilityIcon: "io-skull", active: false, description: "Discards after playing. Kills the <strong>strongest card(s)</strong> on the battlefield.", faction: 'french', id: "229", image: "scorch.png", name: "Scorch", type: "special" },
-  // { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "222" ,image: "fr-drummer.jpg", name: "Drummer", type: "special", value: 0 },
-  // { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "223", image: "fr-drummer.jpg", name: "Drummer", type: "special", value: 0 },
+  { ability: 'double', abilityIcon: "fa-drum", active: false, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "230" ,image: "fr-drummer.jpg", name: "Drummer", type: "special" },
+  { ability: 'double', abilityIcon: "fa-drum", active: false, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "231", image: "fr-drummer.jpg", name: "Drummer", type: "special" },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "224", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "225", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "226", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
@@ -85,8 +94,8 @@ const allPlayerCards: Card[] = [
   { ability: 'boost', abilityIcon: "fa-plus", active: false, defaultValue: 6, description: "<strong>Morale Boost:</strong> Adds + 1 to all units in the row (excluding itself).", faction: 'british', id: "025", image: "br-fredrickson.jpg", name: "Capt. William Frederickson", type: "ranged", typeIcon: "gi-crossbow", value: 6 },
   { ability: 'scorch', abilityIcon: "io-skull", active: false, description: "Discards after playing. Kills the <strong>strongest card(s)</strong> on the battlefield.", faction: 'british', id: "026", image: "scorch.png", name: "Scorch", type: "special" },
   { ability: 'scorch', abilityIcon: "io-skull", active: false, description: "Discards after playing. Kills the <strong>strongest card(s)</strong> on the battlefield.", faction: 'british', id: "027", image: "scorch.png", name: "Scorch", type: "special" },
-  // { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'british', id: "026", image: "br-drummer.jpg", name: "Drummer", type: "special", value: 0 },
-  // { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'british', id: "027", image: "br-drummer.jpg", name: "Drummer", type: "special", value: 0 },
+  { ability: 'double', abilityIcon: "fa-drum", active: false, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'british', id: "028", image: "br-drummer.jpg", name: "Drummer", type: "special" },
+  { ability: 'double', abilityIcon: "fa-drum", active: false, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'british', id: "029", image: "br-drummer.jpg", name: "Drummer", type: "special" },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "028", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "029", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
   // { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", id: "030", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
@@ -103,89 +112,30 @@ const emptyPlayerBoardArrays: Card[][] = [[], [], []]
 
 const emptyOpponentBoardArrays: Card[][] = [[], [], []]
 
-const emptyPlayerBuffsArrays: Card[][] = [[], [], []]
+const defaultPlayerRowFlagArrays: RowFlag[] = [
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "bi-snow3", },
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "ri-foggy-line", },
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "gi-heavy-rain", },
+]
 
-const emptyOpponentBuffsArrays: Card[][] = [[], [], []]
-
+const defaultOpponentRowFlagArrays: RowFlag[] = [
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "bi-snow3", },
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "ri-foggy-line", },
+  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "gi-heavy-rain", },
+]
 
 const emptyCardArray: Card[] = []
 
-const dummyOpponentCards: Card[][] = [
-  [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "101", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "102", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "103", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "104", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "105", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "106", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-  ],
-  [
-    { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", faction: 'french', id: "124", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
-    { ability: 'decoy', abilityIcon: "gi-scarecrow", active: false, defaultValue: 0, description: "Swap with a card on the battlefield to return it to your hand.", faction: 'french', id: "125", image: "decoy.jpg", name: "Decoy", type: "special", value: 0 },
-  ],
-  [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 8, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "018",  image: "br-cannon.jpg", name: "Cannon", type: "siege", typeIcon: "gi-catapult", value: 8 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 8, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "019",  image: "br-cannon.jpg", name: "Cannon", type: "siege", typeIcon: "gi-catapult", value: 8 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 8, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "019",  image: "br-cannon.jpg", name: "Cannon", type: "siege", typeIcon: "gi-catapult", value: 8 },
-  ]
-]
-
-const dummyPlayerCards: Card[][] = [
-  [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "101", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "102", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "103", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "104", image: "br-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
-    { ability: 'boost', abilityIcon: "fa-plus", active: false, defaultValue: 3, description: "<strong>Morale Boost:</strong> Adds + 1 to all units in the row (excluding itself).", faction: 'british', image: "br-sergent.jpg", id: "105", name: "Sergent", type: "close", typeIcon: "gi-broadsword", value: 3 },
-  ],
-  [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 4, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "107", image: "br-rifle.jpg", name: "Rifleman", type: "ranged", typeIcon: "gi-crossbow", value: 4 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 4, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "108", image: "br-rifle.jpg", name: "Rifleman", type: "ranged", typeIcon: "gi-crossbow", value: 4 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 4, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "109", image: "br-rifle.jpg", name: "Rifleman", type: "ranged", typeIcon: "gi-crossbow", value: 4 },  ],
-  [
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 8, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "118",  image: "br-cannon.jpg", name: "Cannon", type: "siege", typeIcon: "gi-catapult", value: 8 },
-    { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 8, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'british', id: "119",  image: "br-cannon.jpg", name: "Cannon", type: "siege", typeIcon: "gi-catapult", value: 8 },
-  ]
-]
-
-const dummySpecialCards: Card[] = [
-  { ability: 'rain', abilityIcon: "gi-heavy-rain", active: false, defaultValue: 0, description: "Sets the strength of all <strong>Siege Combat</strong> cards to 1 for both players.", faction: "british", id: "025", image: "rain.png", name: "Torrential Rain", type: "special", value: 0 },
-  { ability: 'scorch', abilityIcon: "io-skull", active: false, defaultValue: 0, description: "Discards after playing. Kills the strongest card(s) on the battlefield.", faction: "british", id: "026", image: "scorch.png", name: "Scorch", type: "special", value: 0 },
-  { ability: 'clear', abilityIcon: "gi-sunflower", active: false, defaultValue: 0, description: "Removes all <strong>Weather Card</strong> (Biting Frost, Impenetrable Fog and Torrential Rain) effects.", faction: "british", id: "027", image: "clear.png", name: "Clear Weather", type: "special", value: 0 }
-]
-
-const dummyPlayerBuffs: Card[][] = [
-  [],
-  [
-    { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'british', id: "022", image: "br-drummer.jpg", name: "Commander's Horn", type: "special", value: 0 }
-  ],
-  []
-]
-const dummyOpponentBuffs: Card[][] = [
-  [
-    { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "122", image: "fr-drummer.jpg", name: "Commander's Horn", type: "special", value: 0 }
-  ],
-  [],
-  [
-    { ability: 'double', abilityIcon: "fa-drum", active: false, defaultValue: 0, description: "Doubles the strength of all unit cards in that row. Limited to 1 per row.", faction: 'french', id: "123", image: "fr-drummer.jpg", name: "Drummer", type: "special", value: 0 },
-    { ability: 'rain', abilityIcon: "gi-heavy-rain", active: false, defaultValue: 0, description: "Sets the strength of all <strong>Siege Combat</strong> cards to 1 for both players.", faction: 'french', id: "028", image: "rain.png", name: "Torrential Rain", type: "special", value: 0 },
-  ]
-]
-
 export {
   type Card,
+  type RowFlag,
   allOpponentCards,
   allPlayerCards,
   playerLeaderCard,
   opponentLeaderCard,
   emptyPlayerBoardArrays,
   emptyOpponentBoardArrays,
-  emptyPlayerBuffsArrays,
-  emptyOpponentBuffsArrays,
+  defaultPlayerRowFlagArrays,
+  defaultOpponentRowFlagArrays,
   emptyCardArray,
-  dummyOpponentCards,
-  dummyPlayerCards,
-  dummySpecialCards,
-  dummyPlayerBuffs,
-  dummyOpponentBuffs,
 }

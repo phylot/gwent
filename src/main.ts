@@ -5,6 +5,7 @@ import App from './App.vue'
 
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import {
+  BiSnow3,
   FaChevronLeft,
   FaChevronRight,
   FaDrum,
@@ -30,12 +31,14 @@ import {
   MdHandshakeOutlined,
   MdTouchappRound,
   FaFlag,
+  RiFoggyLine,
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
 import './assets/base.css'
 
 addIcons(
+  BiSnow3,
   FaChevronLeft,
   FaChevronRight,
   FaDrum,
@@ -61,6 +64,7 @@ addIcons(
   MdHandshakeOutlined,
   MdTouchappRound,
   FaFlag,
+  RiFoggyLine,
 )
 
 const app = createApp(App)

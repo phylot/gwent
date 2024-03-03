@@ -3,26 +3,23 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
+  type RowFlag,
   allOpponentCards,
   allPlayerCards,
   playerLeaderCard,
   opponentLeaderCard,
   emptyPlayerBoardArrays,
   emptyOpponentBoardArrays,
-  emptyPlayerBuffsArrays,
-  emptyOpponentBuffsArrays,
+  defaultPlayerRowFlagArrays,
+  defaultOpponentRowFlagArrays,
   emptyCardArray
-  // dummyPlayerCards,
-  // dummyOpponentCards,
-  // dummySpecialCards,
-  // dummyPlayerBuffs,
-  // dummyOpponentBuffs,
 } from './data/default-cards'
 import AlertBanner from './components/AlertBanner.vue'
 import BoardCard from './components/BoardCard.vue'
 import CardModal from './components/CardModal.vue'
 import CarouselCard from './components/CarouselCard.vue'
 import Modal from './components/Modal.vue'
+import OverlayScreen from './components/OverlayScreen.vue'
 
 // DATA
 
@@ -34,12 +31,14 @@ let alertBannerIcon = ref()
 let alertBannerModel = ref(false)
 let alertBannerTitle = ref('')
 
-const modal = ref()
+let modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
 let modalIcon = ref()
 let modalModel = ref(false)
 let modalTitle = ref('')
+
+let overlayScreenModel = ref(false)
 
 // Board-related
 const playerLeader = ref()
@@ -55,8 +54,10 @@ let opponentHand = ref(emptyCardArray)
 let cardRedrawActive = ref(false)
 let playerBoardCards = ref(emptyPlayerBoardArrays)
 let opponentBoardCards = ref(emptyOpponentBoardArrays)
-let playerBuffs = ref(emptyPlayerBuffsArrays)
-let opponentBuffs = ref(emptyOpponentBuffsArrays)
+let playerRowFlags = ref()
+let playerRowFlagsDefault = ref()
+let opponentRowFlags = ref()
+let opponentRowFlagsDefault = ref()
 let playerDiscardPile = ref(emptyCardArray)
 let opponentDiscardPile = ref(emptyCardArray)
 let specialDiscardPile = ref(emptyCardArray)
@@ -70,6 +71,7 @@ let cardModalTitle = ref()
 let resolveCardModal = ref()
 let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
+let resolveRowClick = ref()
 
 // Game stats
 let roundNumber = ref(1)
@@ -188,6 +190,9 @@ async function setupGame(callback: Function) {
   playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
   opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
 
+  playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultPlayerRowFlagArrays))
+  opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultOpponentRowFlagArrays))
+
   await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
   if (callback) {
@@ -263,19 +268,16 @@ function startNewGame() {
   playerHand.value = dealRandomCards(playerDeck.value, 10)
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
-  // console.log('startNewGame() playerLeader: ', JSON.parse(JSON.stringify(playerLeader.value)))
-  // console.log('startNewGame() opponentLeader: ', JSON.parse(JSON.stringify(opponentLeader.value)))
-  // console.log('startNewGame() playerDeck: ', JSON.parse(JSON.stringify(playerDeck.value)))
-  // console.log('startNewGame() playerHand: ', JSON.parse(JSON.stringify(playerHand.value)))
-  // console.log('startNewGame() opponentDeck: ', JSON.parse(JSON.stringify(opponentDeck.value)))
-  // console.log('startNewGame() opponentHand: ', JSON.parse(JSON.stringify(opponentHand.value)))
-
   // Empty all board rows and card piles
   playerBoardCards.value = [[], [], []]
   opponentBoardCards.value = [[], [], []]
   playerDiscardPile.value = []
   opponentDiscardPile.value = []
   specialDiscardPile.value = []
+
+  // Reset row flags
+  playerRowFlags.value = JSON.parse(JSON.stringify(playerRowFlagsDefault.value))
+  opponentRowFlags.value = JSON.parse(JSON.stringify(opponentRowFlagsDefault.value))
 
   roundNumber.value = 1
   playerHasRound.value = false
@@ -580,6 +582,10 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
 async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   // Perform card ability
 
+  if (card.ability === 'double') {
+    await performDouble()
+  }
+
   if (card.ability === 'heal') {
     await performHeal()
   }
@@ -600,19 +606,7 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
     await performSpy()
   }
 
-  if (card.ability === 'scorch') {
-    // Recalculate card values for ALL rows after full scorch
-    for (let i = 0; i < 2; i++) {
-      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
-
-      for (const cardRow of boardCardArrays) {
-        await calculateRow(cardRow)
-      }
-    }
-  } else {
-    // Recalculate card values for row
-    await calculateRow(rowArr)
-  }
+  await calculateRows()
 
   // TODO: Decoy card
   // • Add visual highlight to board rows containing eligible cards for swapping
@@ -626,47 +620,41 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
   }
 }
 
-function performBond(rowArr: Card[]) {
+function performDouble() {
   return new Promise<void>((resolve) => {
-    let bondIndexes = []
-    let multiplier = 0
-
-    // Loop through row array and save the index of each bond card and calculate multiplier amount
-    for (let i = 0; i < rowArr.length; i++) {
-      if (rowArr[i].ability === 'bond') {
-        bondIndexes.push(i)
-        multiplier++
+    // If it's the player's turn, enable 'Row Select' mode
+    if (isPlayerTurn.value) {
+      overlayScreenModel.value = true
+      // Highlight each applicable player row
+      for (let i = 0; i < playerRowFlags.value.length; i++) {
+        if (!playerRowFlags.value[i].double) {
+          playerRowFlags.value[i].rowSelect = true
+        }
       }
-    }
 
-    // Set the new value of each bond card
-    for (const bondIndex of bondIndexes) {
-      rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
+      // TODO: Disable player hand, or trap focus on rows (can be accessed by keyboard)
+
+      return new Promise<number>((resolveClick) => {
+        resolveRowClick.value = resolveClick
+      }).then((rowIndex) => {
+        playerRowFlags.value[rowIndex].double = true
+        for (const rowFlag of playerRowFlags.value) {
+          rowFlag.rowSelect = false
+        }
+        overlayScreenModel.value = false
+        resolve()
+      })
     }
-    resolve()
+    // Is CPU turn... determineCpuBuffRow (return index, or reference to opponentRowFlags sub-array??
+    else {
+      // await determineCpuBuffRow()
+      resolve()
+    }
   })
 }
 
-function performBoost(rowArr: Card[]) {
-  return new Promise<void>((resolve) => {
-    let boostCardCount = 0
-
-    // Determine number of 'boost' cards in row
-    for (let i = 0; i < rowArr.length; i++) {
-      if (rowArr[i].ability === 'boost') {
-        boostCardCount++
-      }
-    }
-
-    // Loop through row array and add 1 to the value of eligible cards
-    for (let i = 0; i < rowArr.length; i++) {
-      if (!rowArr[i].hero) {
-        let boostValue = rowArr[i].ability === 'boost' ? boostCardCount - 1 : boostCardCount
-        rowArr[i].value = (rowArr[i].value || 0) + boostValue
-      }
-    }
-    resolve()
-  })
+function rowClick(rowIndex: number) {
+  resolveRowClick.value(rowIndex)
 }
 
 function performHeal() {
@@ -873,23 +861,91 @@ function performSpy() {
   return new Promise<void>((resolve) => {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? playerDeck : opponentDeck
+
     // Draw 2 cards
     hand.value.push(...dealRandomCards(deck.value, 2))
-
     resolve()
   })
 }
 
-async function calculateRow(rowArr: Card[]) {
+async function calculateRows() {
+  for (let i = 0; i < 2; i++) {
+    let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+    let rowFlags = i < 1 ? playerRowFlags.value : opponentRowFlags.value
+
+    for (let j = 0; j < boardCardArrays.length; j++) {
+      await calculateRow(boardCardArrays[j], rowFlags[j])
+    }
+  }
+}
+
+async function calculateRow(rowArr: Card[], rowFlag: RowFlag) {
   // Reset card values to default before recalculating row
   for (const card of rowArr) {
     card.value = card.defaultValue
   }
   // TODO: Weather card first
-  await performBond(rowArr)
-  await performBoost(rowArr)
+  await calculateBond(rowArr)
+  await calculateBoost(rowArr)
+  await calculateDouble(rowArr, rowFlag)
 
   return new Promise<void>((resolve) => {
+    resolve()
+  })
+}
+
+function calculateBond(rowArr: Card[]) {
+  return new Promise<void>((resolve) => {
+    let bondIndexes = []
+    let multiplier = 0
+
+    // Loop through row array and save the index of each bond card and calculate multiplier amount
+    for (let i = 0; i < rowArr.length; i++) {
+      if (rowArr[i].ability === 'bond') {
+        bondIndexes.push(i)
+        multiplier++
+      }
+    }
+
+    // Set the new value of each bond card
+    for (const bondIndex of bondIndexes) {
+      rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
+    }
+    resolve()
+  })
+}
+
+function calculateBoost(rowArr: Card[]) {
+  return new Promise<void>((resolve) => {
+    let boostCardCount = 0
+
+    // Determine number of 'boost' cards in row
+    for (let i = 0; i < rowArr.length; i++) {
+      if (rowArr[i].ability === 'boost') {
+        boostCardCount++
+      }
+    }
+
+    // Loop through row array and add 1 to the value of eligible cards
+    for (let i = 0; i < rowArr.length; i++) {
+      if (!rowArr[i].hero) {
+        let boostValue = rowArr[i].ability === 'boost' ? boostCardCount - 1 : boostCardCount
+        rowArr[i].value = (rowArr[i].value || 0) + boostValue
+      }
+    }
+    resolve()
+  })
+}
+
+function calculateDouble(rowArr: Card[], rowFlag: RowFlag) {
+  return new Promise<void>((resolve) => {
+    if (rowFlag.double) {
+      for (const card of rowArr) {
+        if (card.value && !card.hero) {
+          card.value = card.value * 2
+        }
+      }
+    }
     resolve()
   })
 }
@@ -1072,6 +1128,10 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 
   resetCards(playerDiscardPile.value)
   resetCards(opponentDiscardPile.value)
+
+  // Reset row flags
+  playerRowFlags.value = JSON.parse(JSON.stringify(playerRowFlagsDefault.value))
+  opponentRowFlags.value = JSON.parse(JSON.stringify(opponentRowFlagsDefault.value))
 
   if (callback) {
     callback()
@@ -1297,6 +1357,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :title="alertBannerTitle"
     ></AlertBanner>
 
+    <OverlayScreen v-model="overlayScreenModel"></OverlayScreen>
+
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
         <h1 v-if="cardModalTitle">{{ cardModalTitle }}</h1>
@@ -1374,21 +1436,25 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
       <div class="opponent-board">
         <div
-          v-for="(row, i) in opponentBoardCards"
+          v-for="(rowFlag, i) in opponentRowFlags"
           class="card-row"
-          :class="`card-row${i + 1}`"
+          :class="[`card-row${i + 1}`, { 'row-select': rowFlag.rowSelect }]"
           :key="`opponent-row-${i}`"
+          @click="rowFlag.rowSelect ? rowClick(i) : null"
         >
           <div class="row-stats">
             <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
-            <div v-for="(card, key) in opponentBuffs[i]" class="ability card-stat-badge" :key="key">
-              <v-icon :name="card.abilityIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            <div v-if="rowFlag.double" class="ability card-stat-badge">
+              <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
+            <div v-if="rowFlag.weather" class="ability card-stat-badge">
+              <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
           </div>
 
           <div class="card-container">
             <BoardCard
-              v-for="(card, j) in row"
+              v-for="(card, j) in opponentBoardCards[i]"
               :ability-icon="card.abilityIcon"
               :active="card.active"
               :animation-name="card.animationName"
@@ -1488,7 +1554,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :active="recentSpecialCard.active"
           :animation-name="recentSpecialCard.animationName"
           class="no-mobile-highlight"
-          :default-value="recentSpecialCard.value"
           :desktop="isDesktop"
           :disabled="boardDisabled"
           :faction="recentSpecialCard.faction"
@@ -1496,7 +1561,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :image-url="recentSpecialCard.imageUrl"
           tabindex="5"
           :type-icon="recentSpecialCard.typeIcon"
-          :value="recentSpecialCard.value"
         />
         <BoardCard v-else :desktop="isDesktop" disabled class="no-mobile-highlight" tabindex="5" />
 
@@ -1563,21 +1627,34 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
       <div class="player-board">
         <div
-          v-for="(row, i) in playerBoardCards"
+          v-for="(rowFlag, i) in playerRowFlags"
           class="card-row"
-          :class="`card-row${i + 1}`"
+          :class="[`card-row${i + 1}`, { 'row-select': rowFlag.rowSelect }]"
           :key="`player-row-${i}`"
+          @click="rowFlag.rowSelect ? rowClick(i) : null"
         >
+          <v-icon
+            v-if="rowFlag.rowSelect"
+            name="md-touchapp-round"
+            class="icon row-select"
+            :scale="isDesktop ? 3.8 : 2.5"
+            animation="pulse"
+            fill="chartreuse"
+          />
+
           <div class="row-stats">
             <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
-            <div v-for="(card, key) in playerBuffs[i]" class="ability card-stat-badge" :key="key">
-              <v-icon :name="card.abilityIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            <div v-if="rowFlag.double" class="ability card-stat-badge">
+              <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
+            </div>
+            <div v-if="rowFlag.weather" class="ability card-stat-badge">
+              <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="isDesktop ? 1 : 0.8" />
             </div>
           </div>
 
           <div class="card-container">
             <BoardCard
-              v-for="(card, j) in row"
+              v-for="(card, j) in playerBoardCards[i]"
               :ability-icon="card.abilityIcon"
               :active="card.active"
               :animation-name="card.animationName"
