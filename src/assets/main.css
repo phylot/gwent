@@ -511,6 +511,7 @@ html {
 }
 
 .icon.row-select {
+  z-index: 3100;
   position: absolute;
   top: 10px;
   left: 40px;
