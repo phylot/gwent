@@ -401,14 +401,13 @@ function determineMove() {
     (isPlayerTurn.value && playerHand.value.length < 1) ||
     (!isPlayerTurn.value && opponentHand.value.length < 1)
   ) {
-    let isCpuPass = !isPlayerTurn.value
-    pass(isCpuPass)
+    pass(!isPlayerTurn.value)
   } else {
     if (isPlayerTurn.value) {
       boardDisabled.value = false
     } else {
       // CPU logic
-      determineCpuCard(undefined, (card: Card) => {
+      determineCpuCard((card: Card) => {
         if (card) {
           playCard(card, false, () => {
             // If CPU hand is now empty, pass
@@ -497,9 +496,8 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
   })
 }
 
-function determineCpuCard(arr?: Card[], callback?: Function) {
+function determineCpuCard(callback?: Function) {
   // If no card array specified, assume card array is opponent's hand
-  let cardArr = arr || opponentHand.value
   let card = null
   let cpuIsWinning = opponentTotal.value > playerTotal.value
 
@@ -507,10 +505,10 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
   if (!(playerIsPassed.value && cpuIsWinning)) {
     // Play a random card "by mistake" based on difficulty setting, but if the player has passed, play a spy or lowest value card
     if (getChanceOutcome(cpuDifficulty) && !playerIsPassed.value) {
-      card = cardArr[Math.floor(Math.random() * cardArr.length)]
+      card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)]
     } else {
       // Find any spy cards
-      let spyCards = cardArr.filter((card) => card.ability === 'spy')
+      let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
       if (spyCards.length > 0) {
         // Find the lowest value spy card
         spyCards.sort(sortCardsLowToHigh)
@@ -519,7 +517,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
       // No spy cards... decide card
       else {
         // TODO: Special card decision logic
-        let cpuStandardCards = cardArr.filter((card) => card.type !== 'special')
+        let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
         // If it's a must win round
         if (playerHasRound.value) {
@@ -532,7 +530,7 @@ function determineCpuCard(arr?: Card[], callback?: Function) {
           }
           // Play the next non-standard card
           else {
-            card = cardArr[0]
+            card = opponentHand.value[0]
           }
         }
         // Decide whether to play card or not
@@ -647,14 +645,39 @@ function performDouble() {
     }
     // Is CPU turn... determineCpuBuffRow (return index, or reference to opponentRowFlags sub-array??
     else {
-      // await determineCpuBuffRow()
-      resolve()
+      determineCpuDoubleRow(() => {
+        resolve()
+      })
     }
   })
 }
 
-function rowClick(rowIndex: number) {
-  resolveRowClick.value(rowIndex)
+function determineCpuDoubleRow(callback?: Function) {
+  let rowIndex = 0
+  let highestRowTotal = 0
+
+  // Work out which row has the highest value (excluding hero cards)
+  for (let i = 0; i < opponentRowFlags.value.length; i++) {
+    if (!opponentRowFlags.value[i].double) {
+      let rowTotal = 0
+      if (opponentBoardCards.value[i].length > 0) {
+        for (const card of opponentBoardCards.value[i]) {
+          if (card.value && !card.hero) {
+            rowTotal = rowTotal + card.value
+          }
+        }
+        if (rowTotal > highestRowTotal) {
+          highestRowTotal = rowTotal
+          rowIndex = i
+        }
+      }
+    }
+  }
+  opponentRowFlags.value[rowIndex].double = true
+
+  if (callback) {
+    callback()
+  }
 }
 
 function performHeal() {
@@ -1139,6 +1162,10 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 }
 
 // METHODS - Events
+
+function rowClick(rowIndex: number) {
+  resolveRowClick.value(rowIndex)
+}
 
 async function handCardClick(index: number) {
   // If redrawing cards before the game
