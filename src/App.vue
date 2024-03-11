@@ -516,7 +516,6 @@ function determineCpuCard(callback?: Function) {
       }
       // No spy cards... decide card
       else {
-        // TODO: Special card decision logic
         let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
         // If it's a must win round
@@ -528,9 +527,20 @@ function determineCpuCard(callback?: Function) {
             // Play the lowest value card
             card = cpuStandardCards[0]
           }
-          // Play the next non-standard card
+          // No standard cards... Play the next non-standard card ('card' may remain 'null', if no beneficial card available)
           else {
-            card = opponentHand.value[0]
+            for (let i = 0; i < opponentHand.value.length; i++) {
+              // Only play scorch if it's beneficial
+              if (opponentHand.value[i].ability === 'scorch') {
+                if (cpuShouldScorch()) {
+                  card = opponentHand.value[i]
+                  break
+                }
+              } else {
+                card = opponentHand.value[i]
+                break
+              }
+            }
           }
         }
         // Decide whether to play card or not
@@ -575,6 +585,38 @@ function determineCpuCard(callback?: Function) {
   if (callback) {
     callback(card)
   }
+}
+
+function cpuShouldScorch() {
+  let highestCardValue = 0
+  let cpuScorchCount = 0
+  let playerScorchCount = 0
+
+  // For each player
+  for (let i = 0; i < 2; i++) {
+    // Find highest value of all non-hero card(s)
+    let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+    for (const cardRow of boardCardArrays) {
+      const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
+      highestCardValue = maxValue > highestCardValue ? maxValue : highestCardValue
+    }
+  }
+
+  // For each player
+  for (let i = 0; i < 2; i++) {
+    // Count how many cards will be scorched per player
+    let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+    for (const cardRow of boardCardArrays) {
+      for (const card of cardRow) {
+        if (card.value === highestCardValue && !card.hero && card.type !== 'special') {
+          i < 1 ? playerScorchCount++ : cpuScorchCount++
+        }
+      }
+    }
+  }
+  return playerScorchCount > cpuScorchCount
 }
 
 async function performAbility(card: Card, rowArr: Card[], callback: Function) {
