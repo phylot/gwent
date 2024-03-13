@@ -497,7 +497,6 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
 }
 
 function determineCpuCard(callback?: Function) {
-  // If no card array specified, assume card array is opponent's hand
   let card = null
   let cpuIsWinning = opponentTotal.value > playerTotal.value
 
@@ -505,7 +504,26 @@ function determineCpuCard(callback?: Function) {
   if (!(playerIsPassed.value && cpuIsWinning)) {
     // Play a random card "by mistake" based on difficulty setting, but if the player has passed, play a spy or lowest value card
     if (getChanceOutcome(cpuDifficulty) && !playerIsPassed.value) {
-      card = opponentHand.value[Math.floor(Math.random() * opponentHand.value.length)]
+      // Select a random card...
+      let handCopy = JSON.parse(JSON.stringify(opponentHand.value))
+
+      for (let i = 0; i < handCopy.length; i++) {
+        let randomIndex = Math.floor(Math.random() * handCopy.length)
+        let randomCard = opponentHand.value[randomIndex]
+
+        // If it's a scorch card, determine whether it should be played
+        if (randomCard.ability === 'scorch') {
+          if (cpuShouldScorch()) {
+            card = randomCard
+            break
+          }
+        } else {
+          card = randomCard
+          break
+        }
+        handCopy.splice(randomIndex, 1)
+        i--
+      }
     } else {
       // Find any spy cards
       let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
