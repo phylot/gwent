@@ -695,24 +695,33 @@ function performDouble() {
       return new Promise<number>((resolveClick) => {
         resolveRowClick.value = resolveClick
       }).then((rowIndex) => {
-        playerRowFlags.value[rowIndex].double = true
+        playerRowFlags.value[rowIndex].highlight = true
+        // Disable row select for all rows
         for (const rowFlag of playerRowFlags.value) {
           rowFlag.rowSelect = false
         }
-        overlayScreenModel.value = false
-        resolve()
+        setTimeout(() => {
+          playerRowFlags.value[rowIndex].double = true
+          setTimeout(() => {
+            playerRowFlags.value[rowIndex].highlight = false
+            overlayScreenModel.value = false
+            resolve()
+          }, 500)
+        }, 500)
       })
     }
-    // Is CPU turn... determineCpuBuffRow (return index, or reference to opponentRowFlags sub-array??
+    // Is CPU turn
     else {
-      determineCpuDoubleRow(() => {
-        resolve()
+      performCpuDouble(() => {
+        setTimeout(() => {
+          resolve()
+        }, 1000)
       })
     }
   })
 }
 
-function determineCpuDoubleRow(callback?: Function) {
+function performCpuDouble(callback?: Function) {
   let rowIndex = 0
   let highestRowTotal = 0
 
@@ -1525,7 +1534,12 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <div
           v-for="(rowFlag, i) in opponentRowFlags"
           class="card-row"
-          :class="[`card-row${i + 1}`, { 'row-select': rowFlag.rowSelect }]"
+          :class="[
+            `card-row${i + 1}`,
+            { 'row-select': rowFlag.rowSelect },
+            ,
+            { highlight: rowFlag.highlight }
+          ]"
           :key="`opponent-row-${i}`"
           @click="rowFlag.rowSelect ? rowClick(i) : null"
         >
@@ -1716,7 +1730,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <div
           v-for="(rowFlag, i) in playerRowFlags"
           class="card-row"
-          :class="[`card-row${i + 1}`, { 'row-select': rowFlag.rowSelect }]"
+          :class="[
+            `card-row${i + 1}`,
+            { 'row-select': rowFlag.rowSelect },
+            { highlight: rowFlag.highlight }
+          ]"
           :key="`player-row-${i}`"
           @click="rowFlag.rowSelect ? rowClick(i) : null"
         >

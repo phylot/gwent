@@ -503,6 +503,11 @@ html {
   border-top: 1px solid #5c6166;
 }
 
+.card-row.highlight {
+  z-index: 3000;
+  position: relative;
+}
+
 .card-row.row-select {
   z-index: 3000;
   position: relative;
