@@ -254,8 +254,8 @@ html {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 80%;
-  max-width: 280px;
-  padding: 10px 20px;
+  max-width: 400px;
+  padding: 15px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -269,8 +269,13 @@ html {
   align-items: center;
 }
 
-.modal .heading h2 {
+.modal h2 {
   font-size: 1.2em;
+}
+
+.modal h3 {
+  margin-top: 0;
+  font-size: 1em;
 }
 
 .modal .heading .avatar,
@@ -290,16 +295,58 @@ html {
   background-size: cover;
 }
 
+.modal .body {
+  display: flex;
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 0;
+}
+
+.match-stats {
+  flex-grow: 1;
+  flex-basis: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.match-stats.player {
+  align-items: end;
+  padding-right: 15px;
+  border-right: 1px solid #ffffff;
+}
+
+.match-stats.opponent {
+  align-items: start;
+  padding-left: 15px;
+}
+
+.match-stats .round-total {
+  position: relative;
+  height: 20px;
+}
+
+.match-stats .round-total.win {
+  font-weight: bold;
+}
+
+.match-stats .round-total .icon {
+  position: absolute;
+  top: -2px;
+}
+
+.match-stats.player .round-total .icon {
+  left: -25px;
+}
+
+.match-stats.opponent .round-total .icon {
+  right: -25px;
+}
+
 .modal .btn-container {
   width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 10px;
-}
-
-.modal .btn-container .btn {
-  margin: 5px;
 }
 
 /* Overlay */
@@ -1014,13 +1061,13 @@ html {
   }
 
   .alert-banner .heading h2 {
-    font-size: 1.3em;
+    font-size: 1.2em;
   }
 
   /* General Modal (Desktop / Tablet) */
 
   .modal {
-    max-width: 380px;
+    max-width: 600px;
     padding: 20px 30px;
   }
 
@@ -1036,8 +1083,36 @@ html {
     font-size: 1.8em;
   }
 
-  .modal .button-container {
-    padding: 15px;
+  .modal .heading h3 {
+    font-size: 1.2em;
+  }
+
+  .match-stats.player {
+    padding-right: 20px;
+  }
+
+  .match-stats.opponent {
+    padding-left: 20px;
+  }
+
+  .match-stats .round-total {
+    height: 30px;
+  }
+
+  .match-stats .round-total .icon {
+    top: -4px;
+  }
+
+  .match-stats.player .round-total .icon {
+    left: -40px;
+  }
+
+  .match-stats.opponent .round-total .icon {
+    right: -40px;
+  }
+
+  .modal .btn-container {
+    padding: 10px 0;
   }
 
   /* Board Layout (Desktop / Tablet) */

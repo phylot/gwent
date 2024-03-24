@@ -17,6 +17,11 @@ interface Card {
   value?: number
 }
 
+interface RoundTotal {
+  isWin: boolean
+  value: number
+}
+
 interface RowFlag {
   cardSelect: boolean
   double: boolean
@@ -128,6 +133,7 @@ const emptyCardArray: Card[] = []
 
 export {
   type Card,
+  type RoundTotal,
   type RowFlag,
   allOpponentCards,
   allPlayerCards,

@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import {
   type Card,
+  type RoundTotal,
   type RowFlag,
   allOpponentCards,
   allPlayerCards,
@@ -81,6 +82,8 @@ let playerIsPassed = ref(false)
 let opponentIsPassed = ref(false)
 let playerHasRound = ref(false)
 let opponentHasRound = ref(false)
+let playerRoundTotals = ref<Array<RoundTotal>>([])
+let opponentRoundTotals = ref<Array<RoundTotal>>([])
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -284,6 +287,8 @@ function startNewGame() {
   opponentHasRound.value = false
   playerIsPassed.value = false
   opponentIsPassed.value = false
+  playerRoundTotals.value = []
+  opponentRoundTotals.value = []
 
   modalAvatar.value = null
   modalButtons.value = null
@@ -1098,6 +1103,16 @@ function determineRoundWinner() {
     }
   }
 
+  // Record player round totals
+  playerRoundTotals.value.push({
+    isWin: isPlayerRoundWin,
+    value: playerTotal.value,
+  })
+  opponentRoundTotals.value.push({
+    isWin: isOpponentRoundWin,
+    value: opponentTotal.value,
+  })
+
   // MATCH END CONDITION - End match as a draw (round is a draw and each player has already won a round)
   if (isDraw && playerHasRound.value && opponentHasRound.value) {
     isMatchDraw = true
@@ -1128,7 +1143,6 @@ function determineRoundWinner() {
 
   // Match is won or drawn
   if (isPlayerMatchWin || isOpponentMatchWin || isMatchDraw) {
-    // TODO: show match summary dialog / match stats... "Play Again" / "Main Menu" / "View Board"
 
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
@@ -1138,6 +1152,8 @@ function determineRoundWinner() {
         : opponentLeader.value.imageUrl
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
+    // TODO: "Main Menu" / "View Board" options
+    // modalButtons.value = ['PLAY AGAIN', "VIEW BOARD", 'MAIN MENU']
     modalButtons.value = ['PLAY AGAIN']
     modalIcon.value = null
 
@@ -1443,7 +1459,27 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :icon="modalIcon"
       ref="modal"
       :title="modalTitle"
-    ></Modal>
+    >
+      <div class="match-stats player">
+        <h3>Player</h3>
+          <div
+            v-for="(total, i) in playerRoundTotals"
+            class="round-total"
+            :class="{ win: total.isWin }"
+            :key="i"
+          >
+            <v-icon v-if="total.isWin" name="gi-round-star" class="icon" fill="gold" :scale="isDesktop ? 1.5 : 1" />
+            {{ total.value }}
+          </div>
+      </div>
+      <div class="match-stats opponent">
+        <h3>Opponent</h3>
+        <div v-for="(total, i) in opponentRoundTotals" class="round-total" :class="{ win: total.isWin }" :key="i">
+          <v-icon v-if="total.isWin" name="gi-round-star" class="icon" fill="gold" :scale="isDesktop ? 1.5 : 1" />
+          {{ total.value }}
+        </div>
+      </div>
+    </Modal>
 
     <AlertBanner
       v-model="alertBannerModel"

@@ -77,9 +77,13 @@ body {
 /*  font-size: 1.5em;*/
 /*}*/
 
-/*@media (min-height: 880px) and (orientation: landscape),*/
-/*(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {*/
-/*  h1 {*/
-/*    font-size: 2em;*/
-/*  }*/
-/*}*/
+@media (min-height: 880px) and (orientation: landscape),
+(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  body {
+    font-size: 20px;
+  }
+
+  /*h1 {*/
+  /*  font-size: 2em;*/
+  /*}*/
+}

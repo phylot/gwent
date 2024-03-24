@@ -41,31 +41,37 @@ function hide() {
 <template>
   <transition name="fade">
     <div v-if="localModelValue" class="modal" role="dialog">
-      <slot>
-        <div class="heading">
-          <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${props.avatar})` }"></div>
-          <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
-          <h2>{{ props.title }}</h2>
-        </div>
+      <div v-if="props.title" class="heading">
+        <div
+          v-if="avatar"
+          class="avatar"
+          :style="{ backgroundImage: `url(${props.avatar})` }"
+        ></div>
+        <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
+        <h2>{{ props.title }}</h2>
+      </div>
 
-        <div v-if="props.buttons" class="btn-container">
-          <button
-            v-for="(button, i) in buttons"
-            class="btn large"
-            :class="{ primary: i === 0 }"
-            @click="
-              resolvePromise(i + 1);
-              hide();
-            "
-            @keydown.enter="
-              resolvePromise(i + 1);
-              hide();
-            "
-          >
-            {{ button }}
-          </button>
-        </div>
-      </slot>
+      <div class="body">
+        <slot></slot>
+      </div>
+
+      <div v-if="props.buttons" class="btn-container">
+        <button
+          v-for="(button, i) in buttons"
+          class="btn large"
+          :class="{ primary: i === 0 }"
+          @click="
+            resolvePromise(i + 1);
+            hide();
+          "
+          @keydown.enter="
+            resolvePromise(i + 1);
+            hide();
+          "
+        >
+          {{ button }}
+        </button>
+      </div>
     </div>
   </transition>
 </template>
