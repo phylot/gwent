@@ -168,9 +168,7 @@ html {
   display: none;
   position: absolute;
   top: 0;
-  /*bottom: 0;*/
   left: 0;
-  /*right: 0;*/
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -186,6 +184,75 @@ html {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.award {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 0.7em;
+  font-weight: bold;
+  border-radius: 25px;
+  background-color: black;
+}
+
+.award.reverse {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.award .icon {
+  padding: 3px;
+  border-radius: 50%;
+  background-color: black;
+}
+
+.award .name {
+  padding: 0 10px 0 5px;
+}
+
+.award.reverse .name {
+  padding: 0 5px 0 10px;
+}
+
+.award.fieldmarshal {
+  background-color: #357266;
+}
+
+.award.fieldmarshal .icon {
+  background-color: #408679;
+}
+
+.award.heavyweight {
+  background-color: #403F4C;
+}
+
+.award.heavyweight .icon {
+  background-color: #514e5e;
+}
+
+.award.spymaster {
+  background-color: #712F79;
+}
+
+.award.spymaster .icon {
+  background-color: #85398f;
+}
+
+.award.tactician {
+  background-color: #ad507f;
+}
+
+.award.tactician .icon {
+  background-color: #c06092;
+}
+
+.award.tyrant {
+  background-color: #b9351d;
+}
+
+.award.tyrant .icon {
+  background-color: #d5462b;
 }
 
 /* Alert Banner */
@@ -385,10 +452,12 @@ html {
   display: flex;
   flex-direction: column-reverse;
   justify-content: end;
+  background: radial-gradient(#f0e4e4, transparent);
 }
 
 .player-board {
   flex: 1 1;
+  background: radial-gradient(#f0e4e4, transparent);
 }
 
 /* Central Game Stats */
@@ -398,7 +467,7 @@ html {
   justify-content: center;
   align-items: center;
   height: 70px;
-  background-color: #bfbfbf;
+  background: radial-gradient(#dfdfdf, #bfbfbf);
 }
 
 .game-details .pass-btn {
@@ -539,7 +608,6 @@ html {
   position: relative;
   height: 70px;
   box-sizing: border-box;
-  background-color: #9aa0a8;
 }
 
 .opponent-board .card-row {
@@ -553,6 +621,7 @@ html {
 .card-row.highlight {
   z-index: 3000;
   position: relative;
+  background-color: #b2afaf;
 }
 
 .card-row.row-select {
@@ -561,6 +630,7 @@ html {
   border: 1px solid chartreuse;
   animation: pulse 1s infinite;
   cursor: pointer;
+  background-color: #b2afaf;
 }
 
 .icon.row-select {
@@ -1024,6 +1094,22 @@ html {
     font-size: 20px;
   }
 
+  .award {
+    font-size: 0.8em;
+  }
+
+  .award .icon {
+    padding: 5px;
+  }
+
+  .award .name {
+    padding: 0 20px 0 10px;
+  }
+
+  .award.reverse .name {
+    padding: 0 10px 0 20px;
+  }
+
   /* Alert Banner (Desktop / Tablet) */
 
   .alert-banner {
@@ -1083,7 +1169,7 @@ html {
     font-size: 1.8em;
   }
 
-  .modal .heading h3 {
+  .modal h3 {
     font-size: 1.2em;
   }
 

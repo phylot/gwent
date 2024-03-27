@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
+import { type Card, type RoundTotal, type RowFlag } from './types'
+
 import {
-  type Card,
-  type RoundTotal,
-  type RowFlag,
+  defaultPlayerRowFlagArrays,
+  defaultOpponentRowFlagArrays,
+  defaultPlayerAwards,
+  defaultOpponentAwards,
+  emptyCardArray,
+  emptyPlayerBoardArrays,
+  emptyOpponentBoardArrays
+} from './data/board'
+import {
   allOpponentCards,
   allPlayerCards,
   playerLeaderCard,
-  opponentLeaderCard,
-  emptyPlayerBoardArrays,
-  emptyOpponentBoardArrays,
-  defaultPlayerRowFlagArrays,
-  defaultOpponentRowFlagArrays,
-  emptyCardArray
+  opponentLeaderCard
 } from './data/default-cards'
 import AlertBanner from './components/AlertBanner.vue'
 import BoardCard from './components/BoardCard.vue'
@@ -84,6 +87,8 @@ let playerHasRound = ref(false)
 let opponentHasRound = ref(false)
 let playerRoundTotals = ref<Array<RoundTotal>>([])
 let opponentRoundTotals = ref<Array<RoundTotal>>([])
+let playerAwards = ref()
+let opponentAwards = ref()
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -290,6 +295,10 @@ function startNewGame() {
   playerRoundTotals.value = []
   opponentRoundTotals.value = []
 
+  // Reset awards
+  playerAwards.value = JSON.parse(JSON.stringify(defaultPlayerAwards))
+  opponentAwards.value = JSON.parse(JSON.stringify(defaultOpponentAwards))
+
   modalAvatar.value = null
   modalButtons.value = null
   modalIcon.value = null
@@ -469,6 +478,14 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
       }
     }
   }
+
+  let awards = isPlayerTurn.value ? playerAwards : opponentAwards
+  // Record spy cards for 'Spy Master' award
+  if (card.ability === 'spy') {
+    awards.value.spymaster.count++
+  }
+  // Record total cards played for 'Tactician' award
+  awards.value.tactician.count++
 
   doCardDisappearAnimation(card, () => {
     resetActiveModalCard(() => {
@@ -878,6 +895,11 @@ function performRowScorch(card: Card) {
               discardPile.value.push(cardRow[i])
               cardRow.splice(i, 1)
               i--
+
+              // Record scorch for 'Tyrant' award
+              isPlayerTurn.value
+                ? playerAwards.value.tyrant.count++
+                : opponentAwards.value.tyrant.count++
             }
           }
           resetCards(discardPile.value)
@@ -941,6 +963,10 @@ function performScorch() {
                 discardPile.value.push(cardRow[i])
                 cardRow.splice(i, 1)
                 i--
+                // Record scorch for 'Tyrant' award
+                isPlayerTurn.value
+                  ? playerAwards.value.tyrant.count++
+                  : opponentAwards.value.tyrant.count++
               }
             }
             resetCards(discardPile.value)
@@ -1106,12 +1132,27 @@ function determineRoundWinner() {
   // Record player round totals
   playerRoundTotals.value.push({
     isWin: isPlayerRoundWin,
-    value: playerTotal.value,
+    value: playerTotal.value
   })
   opponentRoundTotals.value.push({
     isWin: isOpponentRoundWin,
-    value: opponentTotal.value,
+    value: opponentTotal.value
   })
+
+  // Record round scores for 'Field Marshal' award
+  if (playerTotal.value > playerAwards.value.fieldmarshal.count) {
+    playerAwards.value.fieldmarshal.count = playerTotal.value
+  }
+  if (opponentTotal.value > opponentAwards.value.fieldmarshal.count) {
+    opponentAwards.value.fieldmarshal.count = opponentTotal.value
+  }
+  // Record siege row totals for 'Heavyweight' award
+  if (rowTotals.value.player[2] > playerAwards.value.heavyweight.count) {
+    playerAwards.value.heavyweight.count = rowTotals.value.player[2]
+  }
+  if (rowTotals.value.opponent[2] > opponentAwards.value.heavyweight.count) {
+    opponentAwards.value.heavyweight.count = rowTotals.value.opponent[2]
+  }
 
   // MATCH END CONDITION - End match as a draw (round is a draw and each player has already won a round)
   if (isDraw && playerHasRound.value && opponentHasRound.value) {
@@ -1143,10 +1184,28 @@ function determineRoundWinner() {
 
   // Match is won or drawn
   if (isPlayerMatchWin || isOpponentMatchWin || isMatchDraw) {
+    // Determine awards
+    for (let i = 0; i < 2; i++) {
+      let awards = i < 1 ? playerAwards.value : opponentAwards.value
+
+      for (const awardKey in awards) {
+        if (awards[awardKey].count >= awards[awardKey].targetCount) {
+          awards[awardKey].active = true
+        }
+      }
+    }
 
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
     } else {
+      // Determine 'Tactician' award
+      let tacticianAward = isPlayerMatchWin
+        ? playerAwards.value.tactician
+        : opponentAwards.value.tactician
+      if (tacticianAward.count < tacticianAward.targetCount) {
+        tacticianAward.active = true
+      }
+
       modalAvatar.value = isPlayerMatchWin
         ? playerLeader.value.imageUrl
         : opponentLeader.value.imageUrl
@@ -1462,22 +1521,51 @@ function sortCardsHighToLow(a: Card, b: Card) {
     >
       <div class="match-stats player">
         <h3>Player</h3>
-          <div
-            v-for="(total, i) in playerRoundTotals"
-            class="round-total"
-            :class="{ win: total.isWin }"
-            :key="i"
-          >
-            <v-icon v-if="total.isWin" name="gi-round-star" class="icon" fill="gold" :scale="isDesktop ? 1.5 : 1" />
-            {{ total.value }}
+        <div
+          v-for="(total, i) in playerRoundTotals"
+          class="round-total"
+          :class="{ win: total.isWin }"
+          :key="i"
+        >
+          <v-icon
+            v-if="total.isWin"
+            name="gi-round-star"
+            class="icon"
+            fill="gold"
+            :scale="isDesktop ? 1.5 : 1"
+          />
+          {{ total.value }}
+        </div>
+        <template v-for="(award, key) in playerAwards">
+          <div v-if="award.active" class="award reverse" :class="key" :key="key">
+            <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
+            <div class="name">{{ award.name }}</div>
           </div>
+        </template>
       </div>
       <div class="match-stats opponent">
         <h3>Opponent</h3>
-        <div v-for="(total, i) in opponentRoundTotals" class="round-total" :class="{ win: total.isWin }" :key="i">
-          <v-icon v-if="total.isWin" name="gi-round-star" class="icon" fill="gold" :scale="isDesktop ? 1.5 : 1" />
+        <div
+          v-for="(total, i) in opponentRoundTotals"
+          class="round-total"
+          :class="{ win: total.isWin }"
+          :key="i"
+        >
+          <v-icon
+            v-if="total.isWin"
+            name="gi-round-star"
+            class="icon"
+            fill="gold"
+            :scale="isDesktop ? 1.5 : 1"
+          />
           {{ total.value }}
         </div>
+        <template v-for="(award, key) in opponentAwards">
+          <div v-if="award.active" class="award" :class="key" :key="key">
+            <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
+            <div class="name">{{ award.name }}</div>
+          </div>
+        </template>
       </div>
     </Modal>
 

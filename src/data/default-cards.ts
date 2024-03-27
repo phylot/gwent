@@ -1,35 +1,4 @@
-interface Card {
-  ability?: string
-  abilityIcon?: string
-  active: boolean
-  animationName?: string
-  defaultValue?: number
-  description?: string
-  faction: string
-  hero?: boolean
-  id: string
-  image: string
-  imageUrl?: string
-  musterName?: string
-  name?: string
-  type: string
-  typeIcon?: string
-  value?: number
-}
-
-interface RoundTotal {
-  isWin: boolean
-  value: number
-}
-
-interface RowFlag {
-  cardSelect: boolean
-  double: boolean
-  doubleIcon: string
-  rowSelect: boolean
-  weather: boolean
-  weatherIcon: string
-}
+import { type Card } from "@/types"
 
 const allOpponentCards: Card[] = [
   { ability: 'bond', abilityIcon: "md-handshake-outlined", active: false, defaultValue: 1, description: "<strong>Tight Bond:</strong> Place next to a card with the same name to double the value of both cards.", faction: 'french', id: "201", image: "fr-infantry.jpg", name: "Poor Fucking Infantry", type: "close", typeIcon: "gi-broadsword", value: 1 },
@@ -113,35 +82,9 @@ const playerLeaderCard: Card = { ability: 'clear', active: false, defaultValue: 
 
 const opponentLeaderCard: Card = { ability: 'reinforce', active: false, defaultValue: 0, description: "<strong>Reinforce</strong> Magically summon 2 x Poor Fucking Infantry cards.", faction: 'french', id: "902", image: "fr-napoleon.jpg", name: "Napoleon", type: "leader", value: 0 };
 
-const emptyPlayerBoardArrays: Card[][] = [[], [], []]
-
-const emptyOpponentBoardArrays: Card[][] = [[], [], []]
-
-const defaultPlayerRowFlagArrays: RowFlag[] = [
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "bi-snow3", },
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "ri-foggy-line", },
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "gi-heavy-rain", },
-]
-
-const defaultOpponentRowFlagArrays: RowFlag[] = [
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "bi-snow3", },
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "ri-foggy-line", },
-  { cardSelect: false, double: false, doubleIcon: 'fa-drum', rowSelect: false, weather: false, weatherIcon: "gi-heavy-rain", },
-]
-
-const emptyCardArray: Card[] = []
-
 export {
-  type Card,
-  type RoundTotal,
-  type RowFlag,
   allOpponentCards,
   allPlayerCards,
   playerLeaderCard,
   opponentLeaderCard,
-  emptyPlayerBoardArrays,
-  emptyOpponentBoardArrays,
-  defaultPlayerRowFlagArrays,
-  defaultOpponentRowFlagArrays,
-  emptyCardArray,
 }
