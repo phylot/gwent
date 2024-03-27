@@ -1202,7 +1202,7 @@ function determineRoundWinner() {
       let tacticianAward = isPlayerMatchWin
         ? playerAwards.value.tactician
         : opponentAwards.value.tactician
-      if (tacticianAward.count < tacticianAward.targetCount) {
+      if (tacticianAward.count <= tacticianAward.targetCount) {
         tacticianAward.active = true
       }
 
