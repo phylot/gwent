@@ -1189,7 +1189,7 @@ function determineRoundWinner() {
       let awards = i < 1 ? playerAwards.value : opponentAwards.value
 
       for (const awardKey in awards) {
-        if (awards[awardKey].count >= awards[awardKey].targetCount) {
+        if (awards[awardKey].count >= awards[awardKey].targetCount && awardKey !== "tactician") {
           awards[awardKey].active = true
         }
       }
