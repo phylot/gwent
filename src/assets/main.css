@@ -248,11 +248,11 @@ html {
 }
 
 .award.tyrant {
-  background-color: #b9351d;
+  background-color: #c1292e;
 }
 
 .award.tyrant .icon {
-  background-color: #d5462b;
+  background-color: #d83b41;
 }
 
 /* Alert Banner */
@@ -365,7 +365,6 @@ html {
 .modal .body {
   display: flex;
   width: 100%;
-  min-height: 100px;
   padding: 10px 0;
 }
 

@@ -479,13 +479,13 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
     }
   }
 
-  let awards = isPlayerTurn.value ? playerAwards : opponentAwards
+  let awards = isPlayerTurn.value ? playerAwards.value : opponentAwards.value
   // Record spy cards for 'Spy Master' award
   if (card.ability === 'spy') {
-    awards.value.spymaster.count++
+    awards.spymaster.count++
   }
   // Record total cards played for 'Tactician' award
-  awards.value.tactician.count++
+  awards.tactician.count++
 
   doCardDisappearAnimation(card, () => {
     resetActiveModalCard(() => {
