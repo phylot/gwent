@@ -50,7 +50,7 @@ const cardClasses = computed(() => {
         :class="cardClasses"
         :style="{
           backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
-          backgroundColor: props.imageUrl ? '#000000' : 'grey'
+          backgroundColor: props.imageUrl ? '#000000' : '#a4a4a4'
         }"
       >
         <template v-if="props.imageUrl">
