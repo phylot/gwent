@@ -55,7 +55,7 @@ const cardClasses = computed(() => {
     </div>
 
     <div class="carousel-card-details">
-      <h2 v-html="props.name" class="title"></h2>
+      <h3 v-html="props.name" class="title"></h3>
       <p v-if="props.description" v-html="props.description" class="description"></p>
     </div>
   </div>

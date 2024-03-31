@@ -48,7 +48,7 @@ function hide() {
           :style="{ backgroundImage: `url(${props.avatar})` }"
         ></div>
         <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
-        <h2>{{ props.title }}</h2>
+        <h1>{{ props.title }}</h1>
       </div>
 
       <div class="body">

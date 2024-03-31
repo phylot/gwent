@@ -1511,7 +1511,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :title="modalTitle"
     >
       <div class="match-stats player">
-        <h3>Player</h3>
+        <h2>Player</h2>
         <div
           v-for="(total, i) in playerRoundTotals"
           class="round-total"
@@ -1535,7 +1535,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         </template>
       </div>
       <div class="match-stats opponent">
-        <h3>Opponent</h3>
+        <h2>Opponent</h2>
         <div
           v-for="(total, i) in opponentRoundTotals"
           class="round-total"
@@ -1572,7 +1572,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <div class="scroll-container">
       <CardModal v-if="cardModal" class="quick-fade">
-        <h1 v-if="cardModalTitle">{{ cardModalTitle }}</h1>
+        <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
 
         <div v-if="!carouselIsHidden" class="card-carousel">
           <div class="slides">
