@@ -107,7 +107,7 @@ const opponentTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < opponentBoardCards.value.length; i++) {
     for (let j = 0; j < opponentBoardCards.value[i].length; j++) {
-      total = total + (opponentBoardCards.value[i][j].value || 0)
+      total += (opponentBoardCards.value[i][j].value || 0)
     }
   }
   return total
@@ -117,7 +117,7 @@ const playerTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     for (let j = 0; j < playerBoardCards.value[i].length; j++) {
-      total = total + (playerBoardCards.value[i][j].value || 0)
+      total += (playerBoardCards.value[i][j].value || 0)
     }
   }
   return total
@@ -748,7 +748,7 @@ function performCpuDouble(callback?: Function) {
       if (opponentBoardCards.value[i].length > 0) {
         for (const card of opponentBoardCards.value[i]) {
           if (card.value && !card.hero) {
-            rowTotal = rowTotal + card.value
+            rowTotal += card.value
           }
         }
         if (rowTotal > highestRowTotal) {
@@ -1480,7 +1480,7 @@ function resetCards(arr: Card[]) {
 function getRowTotal(arr: Card[]) {
   let total = 0
   for (let i = 0; i < arr.length; i++) {
-    total = total + (arr[i].value || 0)
+    total += (arr[i].value || 0)
   }
   return total
 }

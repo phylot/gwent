@@ -71,3 +71,89 @@ const cardClasses = computed(() => {
     </div>
   </div>
 </template>
+
+<style>
+.board-card {
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.board-card.disabled {
+  cursor: not-allowed;
+}
+
+.board-card.active {
+  border-color: chartreuse;
+  animation: pulse 1.1s infinite;
+}
+
+.board-card:last-child,
+.board-card:hover,
+.board-card.active {
+  overflow: visible;
+}
+
+.board-card .card-wrap {
+  width: 50px;
+  height: 100%;
+  box-sizing: content-box;
+  border-radius: 4px;
+}
+
+.board-card .card {
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #000000;
+}
+
+.board-card .card-stat-badge {
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+}
+
+.board-card .card-stat-badge.type {
+  bottom: 2px;
+}
+
+.board-card .placeholder {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid #60656b;
+}
+
+.placeholder .icon {
+  color: #60656b;
+}
+
+/* Desktop / Tablet Styles */
+
+@media (min-height: 880px) and (orientation: landscape),
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .board-card .card-wrap {
+    width: 90px;
+  }
+
+  .board-card .card-stat-badge {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+
+  .board-card .card-stat-badge.type {
+    bottom: 3px;
+  }
+}
+</style>

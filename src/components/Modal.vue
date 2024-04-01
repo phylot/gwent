@@ -75,3 +75,93 @@ function hide() {
     </div>
   </transition>
 </template>
+
+<style>
+.modal {
+  z-index: 8000;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 400px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal .heading {
+  display: flex;
+  align-items: center;
+}
+
+.modal h2 {
+  margin-bottom: 10px;
+}
+
+.modal .heading .avatar,
+.modal .heading .icon {
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  min-height: 50px;
+  margin-right: 10px;
+}
+
+.modal .heading .avatar {
+  border: 2px solid #000000;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+.modal .body {
+  display: flex;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.modal .btn-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Desktop / Tablet Styles */
+
+@media (min-height: 880px) and (orientation: landscape),
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  /* General Modal (Desktop / Tablet) */
+
+  .modal {
+    max-width: 600px;
+    padding: 20px 30px;
+  }
+
+  .modal .heading {
+    padding: 10px 0;
+  }
+
+  .modal .heading .avatar {
+    width: 70px;
+    min-width: 70px;
+    height: 70px;
+    min-height: 70px;
+    margin-right: 20px;
+  }
+
+  .modal h2 {
+    margin-bottom: 20px;
+  }
+
+  .modal .btn-container {
+    padding: 10px 0;
+  }
+}
+</style>
