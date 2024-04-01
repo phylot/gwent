@@ -614,7 +614,7 @@
 /* Carousel Card */
 
 .carousel-card {
-  height: 300px;
+  height: 310px;
   overflow: hidden;
 }
 
@@ -807,35 +807,6 @@
 /* Desktop / Tablet Styles */
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  /* Common Shared Classes */
-
-  .btn {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .btn.large {
-    min-width: 250px;
-    margin: 10px 0;
-    padding: 20px;
-    font-size: 20px;
-  }
-
-  .award {
-    font-size: 0.8em;
-  }
-
-  .award .icon {
-    padding: 5px;
-  }
-
-  .award .name {
-    padding: 0 20px 0 10px;
-  }
-
-  .award.reverse .name {
-    padding: 0 10px 0 20px;
-  }
 
   /* Alert Banner (Desktop / Tablet) */
 
@@ -966,7 +937,6 @@
 
   .game-details .pass-btn {
     width: 55px;
-    font-size: 20px;
   }
 
   .player-details {
@@ -1075,7 +1045,7 @@
   /* Carousel Card (Desktop / Tablet) */
 
   .carousel-card {
-    height: 510px;
+    height: 490px;
   }
 
   .carousel-card .card-wrap {

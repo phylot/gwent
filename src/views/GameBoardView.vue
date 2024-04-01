@@ -182,7 +182,7 @@ onMounted(() => {
 
 async function setupGame(callback: Function) {
   // Generate card image URLs and preload images
-  emit("loading-change", true)
+  emit('loading-change', true)
 
   playerLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(playerLeaderCard))])
   playerLeaderDefault.value = playerLeaderDefault.value[0]
@@ -258,7 +258,7 @@ function loadImage(imageUrl: string, callback: Function) {
 
 function startNewGame() {
   boardDisabled.value = true
-  emit("loading-change", true)
+  emit('loading-change', true)
 
   // Set leader cards and decks to their default state
   playerLeader.value = JSON.parse(JSON.stringify(playerLeaderDefault.value))
@@ -301,8 +301,7 @@ function startNewGame() {
   // Decide lead player / first turn
   playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
-
-  emit("loading-change", false)
+  emit('loading-change', false)
 
   displayAlertBanner(
     isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
@@ -443,8 +442,8 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
       ? playerDiscardPile
       : opponentDiscardPile
     : isPlayerTurn.value
-      ? playerHand
-      : opponentHand
+    ? playerHand
+    : opponentHand
   let boardArr = isPlayerTurn.value
     ? playerBoardCards.value[abilityIndexes[card.type]]
     : opponentBoardCards.value[abilityIndexes[card.type]]
@@ -1731,7 +1730,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
           <div class="details">
             <div class="name">
-              <div class="title">{{ playerLeader.name }}</div>
+              <div class="title">
+                <h2>{{ playerLeader.name }}</h2>
+              </div>
               <div class="subtitle">
                 {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
               </div>
@@ -1778,7 +1779,13 @@ function sortCardsHighToLow(a: Card, b: Card) {
           tabindex="5"
           :type-icon="recentSpecialCard.typeIcon"
         />
-        <BoardCard v-else :desktop="props.desktop" disabled class="no-mobile-highlight" tabindex="5" />
+        <BoardCard
+          v-else
+          :desktop="props.desktop"
+          disabled
+          class="no-mobile-highlight"
+          tabindex="5"
+        />
 
         <div class="opponent-details">
           <div class="total">
@@ -1807,7 +1814,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
           <div v-if="opponentLeader" class="details">
             <div class="name">
-              <div class="title">{{ opponentLeader.name }}</div>
+              <div class="title">
+                <h2>{{ opponentLeader.name }}</h2>
+              </div>
               <div class="subtitle">
                 {{
                   opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)

@@ -1,200 +1,232 @@
 /* Common Shared Classes */
 
 .btn {
-    padding: 5px;
-    font-size: 11px;
-    font-weight: bold;
-    border: 1px solid #ffffff;
-    border-radius: 9999px;
-    color: #ffffff;
-    background-color: #000000;
-    cursor: pointer;
+  margin: 5px 0;
+  padding: 10px;
+  font-size: 0.8em;
+  font-weight: bold;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+  color: #ffffff;
+  background-color: #000000;
+  cursor: pointer;
 }
 
 .btn.large {
-    min-width: 150px;
-    margin: 5px 0;
-    padding: 13px;
-    font-size: 14px;
+  min-width: 150px;
+  margin: 5px 0;
+  padding: 13px;
+  font-size: 1em;
 }
 
 .btn.primary {
-    border: 1px solid #000000;
-    color: #000000;
-    background-color: #ffffff;
+  border: 1px solid #000000;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .btn.disabled {
-    border: 1px solid #757575;
-    color: #757575;
-    background-color: #e0e0e0;
-    cursor: not-allowed;
+  border: 1px solid #757575;
+  color: #757575;
+  background-color: #e0e0e0;
+  cursor: not-allowed;
 }
 
 .stat-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 2px solid #000000;
-    border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px solid #000000;
+  border-radius: 50%;
 }
 
 .stat-badge.player {
-    background-color: lemonchiffon;
+  background-color: lemonchiffon;
 }
 
 .stat-badge.opponent {
-    background-color: lightskyblue;
+  background-color: lightskyblue;
 }
 
 .card-wrap {
-    position: relative;
-    overflow: hidden;
-    box-sizing: content-box;
+  position: relative;
+  overflow: hidden;
+  box-sizing: content-box;
 }
 
 .card {
-    position: relative;
-    overflow: hidden;
-    box-sizing: border-box;
-    background-position: center;
-    background-size: cover;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-position: center;
+  background-size: cover;
 }
 
 .card-stat-badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #000000;
-    border-radius: 50%;
-    color: #000000;
-    background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .card-stat-badge.ability {
-    border-color: #ffffff;
-    color: #ffffff;
-    background-color: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+  background-color: #000000;
 }
 
 .card-stat-badge.type {
-    position: absolute;
-    right: 0;
-    border-color: #775022;
-    background-color: #c9883a;
+  position: absolute;
+  right: 0;
+  border-color: #775022;
+  background-color: #c9883a;
 }
 
 .card.increased .card-stat-badge.value,
 .card.decreased .card-stat-badge.value {
-    border-color: #ffffff;
-    font-weight: bold;
-    color: #ffffff;
+  border-color: #ffffff;
+  font-weight: bold;
+  color: #ffffff;
 }
 
 .card.increased .card-stat-badge.value {
-    background-color: #24871a;
+  background-color: #24871a;
 }
 
 .card.decreased .card-stat-badge.value {
-    background-color: #e51715;
+  background-color: #e51715;
 }
 
 .card.hero .card-stat-badge.value {
-    border-style: dotted;
-    border-color: #f9a825;
-    color: #f9a825;
-    background-color: #000000;
+  border-style: dotted;
+  border-color: #f9a825;
+  color: #f9a825;
+  background-color: #000000;
 }
 
 .animation-overlay {
-    z-index: 100;
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-    background-position: center;
-    background-size: cover;
+  z-index: 100;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
 }
 
 .no-mobile-highlight {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .award {
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
-    font-size: 0.7em;
-    font-weight: bold;
-    border-radius: 25px;
-    background-color: black;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 0.7em;
+  font-weight: bold;
+  border-radius: 9999px;
+  background-color: black;
 }
 
 .award.reverse {
-    flex-direction: row-reverse;
-    text-align: right;
+  flex-direction: row-reverse;
+  text-align: right;
 }
 
 .award .icon {
-    padding: 3px;
-    border-radius: 50%;
-    background-color: black;
+  padding: 3px;
+  border-radius: 50%;
+  background-color: black;
 }
 
 .award .name {
-    padding: 0 10px 0 5px;
+  padding: 0 10px 0 5px;
 }
 
 .award.reverse .name {
-    padding: 0 5px 0 10px;
+  padding: 0 5px 0 10px;
 }
 
 .award.fieldmarshal {
-    background-color: #357266;
+  background-color: #357266;
 }
 
 .award.fieldmarshal .icon {
-    background-color: #408679;
+  background-color: #408679;
 }
 
 .award.heavyweight {
-    background-color: #403F4C;
+  background-color: #403f4c;
 }
 
 .award.heavyweight .icon {
-    background-color: #514e5e;
+  background-color: #514e5e;
 }
 
 .award.spymaster {
-    background-color: #712F79;
+  background-color: #712f79;
 }
 
 .award.spymaster .icon {
-    background-color: #85398f;
+  background-color: #85398f;
 }
 
 .award.tactician {
-    background-color: #ad507f;
+  background-color: #ad507f;
 }
 
 .award.tactician .icon {
-    background-color: #c06092;
+  background-color: #c06092;
 }
 
 .award.tyrant {
-    background-color: #c1292e;
+  background-color: #c1292e;
 }
 
 .award.tyrant .icon {
-    background-color: #d83b41;
+  background-color: #d83b41;
+}
+
+/* Desktop / Tablet Styles */
+
+@media (min-height: 880px) and (orientation: landscape),
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .btn {
+    padding: 15px;
+  }
+
+  .btn.large {
+    min-width: 250px;
+    margin: 10px 0;
+    padding: 20px;
+  }
+
+  .award {
+    font-size: 0.8em;
+  }
+
+  .award .icon {
+    padding: 5px;
+  }
+
+  .award .name {
+    padding: 0 20px 0 10px;
+  }
+
+  .award.reverse .name {
+    padding: 0 10px 0 20px;
+  }
 }

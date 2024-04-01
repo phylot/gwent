@@ -35,7 +35,7 @@ function loadingChange(val: boolean) {
 
 <template>
   <transition name="fade">
-    <div v-if="loading" class="loader">Loading...</div>
+    <div v-if="loading" class="loader" role="alert">Loading...</div>
   </transition>
   <transition name="fade">
     <GameBoardView
