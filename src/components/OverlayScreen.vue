@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <transition name="fade">
+  <transition name="fast-fade">
     <div v-if="modelValue" class="overlay" role="alert"></div>
   </transition>
 </template>

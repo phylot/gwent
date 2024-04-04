@@ -168,6 +168,7 @@ const recentSpecialCard = computed(() => {
 
 const emit = defineEmits<{
   (e: 'loading-change', val: boolean): void
+  (e: 'show-menu'): void
 }>()
 
 // HOOKS
@@ -1205,13 +1206,17 @@ function determineRoundWinner() {
         : opponentLeader.value.imageUrl
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
-    // TODO: "Main Menu" / "View Board" options
-    // modalButtons.value = ['PLAY AGAIN', "VIEW BOARD", 'MAIN MENU']
-    modalButtons.value = ['PLAY AGAIN']
+    // TODO: "View Board" option
+    modalButtons.value = ['PLAY AGAIN', 'MAIN MENU']
     modalIcon.value = null
 
-    modal.value.show().then(() => {
-      startNewGame()
+    modal.value.show().then((i: number) => {
+      if (i === 1) {
+        startNewGame()
+      }
+      if (i === 2) {
+        emit('show-menu')
+      }
     })
   }
   // No match winner yet... set relevant round flag to true (or both if draw)

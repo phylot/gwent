@@ -1,3 +1,13 @@
+@font-face {
+  font-family: LouisaCP;
+  src: url('./fonts/LouisaCP.woff');
+}
+
+@font-face {
+  font-family: UniversalSerif;
+  src: url('./fonts/UniversalSerif.woff');
+}
+
 /*:root {*/
 /*  --color-text: #343434;*/
 /*}*/
@@ -33,7 +43,7 @@ p {
 }
 
 @media (min-height: 880px) and (orientation: landscape),
-(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   body {
     font-size: 20px;
   }

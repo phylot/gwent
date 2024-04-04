@@ -39,7 +39,7 @@ function hide() {
 </script>
 
 <template>
-  <transition name="fade">
+  <transition name="fast-fade">
     <div v-if="localModelValue" class="modal" role="dialog">
       <div v-if="props.title" class="heading">
         <div

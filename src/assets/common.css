@@ -230,3 +230,33 @@
     padding: 0 10px 0 20px;
   }
 }
+
+/* Animations */
+
+/* For 'transition' element */
+
+.fast-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.fast-fade-leave-active {
+  transition: all 0.2s ease-out;
+}
+
+.fast-fade-enter-from,
+.fast-fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.fade-leave-active {
+  transition: all 0.5s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

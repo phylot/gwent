@@ -9,7 +9,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <transition name="fade">
+  <transition name="fast-fade">
     <div v-if="modelValue" class="alert-banner" role="alert">
       <div v-if="avatar || icon" class="mark">
         <div
