@@ -29,8 +29,10 @@ onMounted(() => {
 
   // Preload background image
   loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
-    // Continue button required to gain user interaction to allow browser audio playback
-    showContinueBtn.value = true
+    setTimeout(() => {
+      // Continue button required to gain user interaction to allow browser audio playback
+      showContinueBtn.value = true
+    }, 2000)
   })
 })
 
@@ -55,6 +57,7 @@ function showMainMenu() {
   setTimeout(() => {
     mainMenuIsActive.value = true
     showContinueBtn.value = false
+
     setTimeout(() => {
       if (!gameIsActive.value) {
         themeSong.fade(themeSong.volume(), 0, 12000)
@@ -109,7 +112,7 @@ function loadingChange(val: boolean) {
     </div>
   </transition>
 
-  <transition name="fade">
+  <transition name="slow-fade">
     <MainMenuView
       v-if="mainMenuIsActive"
       @loading-change="loadingChange"

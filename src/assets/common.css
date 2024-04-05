@@ -260,3 +260,16 @@
 .fade-leave-to {
   opacity: 0;
 }
+
+.slow-fade-enter-active {
+  transition: all 1s ease-out;
+}
+
+.slow-fade-leave-active {
+  transition: all 1s ease-out;
+}
+
+.slow-fade-enter-from,
+.slow-fade-leave-to {
+  opacity: 0;
+}

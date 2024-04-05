@@ -24,8 +24,8 @@ onMounted(() => {
         setTimeout(() => {
           showPlayButton.value = true
         }, 1500)
-      }, 4100)
-    }, 4000)
+      }, 4600)
+    }, 3500)
   }, 9000)
 })
 </script>
