@@ -13,6 +13,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/howler": "^2.2.11",
+    "howler": "^2.2.4",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.0.35",
     "vue": "^3.2.47",

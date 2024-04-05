@@ -52,3 +52,7 @@ html {
   color: #ffffff;
   background-color: #000000;
 }
+
+.loader .icon {
+  margin: 10px;
+}

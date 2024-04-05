@@ -24,9 +24,9 @@ onMounted(() => {
         setTimeout(() => {
           showPlayButton.value = true
         }, 1500)
-      }, 4500)
-    }, 3500)
-  }, 10000)
+      }, 4100)
+    }, 4000)
+  }, 9000)
 })
 </script>
 
@@ -158,7 +158,7 @@ onMounted(() => {
   font-size: 32px;
   font-weight: 100;
   letter-spacing: 4px;
-  text-shadow: 4px 4px #000000;
+  text-shadow: 2px 2px #000000;
 }
 
 .main-menu .btn.large {
@@ -186,20 +186,20 @@ onMounted(() => {
   .main-menu .logo .lineTwo {
     font-size: 130px;
     letter-spacing: 40px;
-    text-indent: 20px;
+    text-indent: 23px;
     line-height: 130px;
     border-top: 8px solid #ffffff;
     border-bottom: 8px solid #ffffff;
   }
 
   .main-menu .logo .lineTwo span {
-    margin: 0 -32px;
+    margin: 0 -35px;
   }
 
   .main-menu .bean {
     font-size: 60px;
     letter-spacing: 7px;
-    text-shadow: 6px 6px #000000;
+    text-shadow: 4px 4px #000000;
   }
 
   .main-menu .btn.large {

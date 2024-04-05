@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
+import { Howl } from 'howler'
 import MainMenuView from './views/MainMenuView.vue'
 import GameBoardView from './views/GameBoardView.vue'
 
@@ -10,7 +11,13 @@ let cpuDifficulty = 0.3
 let mainMenuIsActive = ref(false)
 let gameIsActive = ref(false)
 let isDesktop = ref(false)
-let loading = ref(false)
+let loading = ref(true)
+let showContinueBtn = ref(false)
+let themeSong = new Howl({
+  src: ['/src/assets/audio/sharpe-theme.ogg'],
+  volume: 1,
+  preload: true
+})
 
 // GLOBAL HOOKS
 
@@ -22,8 +29,8 @@ onMounted(() => {
 
   // Preload background image
   loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
-    loading.value = false
-    showMenu()
+    // Continue button required to gain user interaction to allow browser audio playback
+    showContinueBtn.value = true
   })
 })
 
@@ -38,7 +45,26 @@ function onResize() {
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
 }
 
+function showMainMenu() {
+  loading.value = false
+  gameIsActive.value = false
+  themeSong.stop()
+  themeSong.volume(1)
+  themeSong.play()
+
+  setTimeout(() => {
+    mainMenuIsActive.value = true
+    showContinueBtn.value = false
+    setTimeout(() => {
+      if (!gameIsActive.value) {
+        themeSong.fade(themeSong.volume(), 0, 12000)
+      }
+    }, 48000)
+  }, 1500)
+}
+
 function play() {
+  themeSong.fade(themeSong.volume(), 0, 5000)
   mainMenuIsActive.value = false
   loading.value = true
 
@@ -46,11 +72,6 @@ function play() {
   setTimeout(() => {
     gameIsActive.value = true
   }, 200)
-}
-
-function showMenu() {
-  gameIsActive.value = false
-  mainMenuIsActive.value = true
 }
 
 function loadImage(imageUrl: string, callback: Function) {
@@ -73,10 +94,22 @@ function loadingChange(val: boolean) {
 
 <template>
   <transition name="fast-fade">
-    <div v-if="loading" class="loader" role="alert">Loading...</div>
+    <div v-if="loading" class="loader" role="alert">
+      <button v-if="showContinueBtn" class="btn large no-mobile-highlight" @click="showMainMenu">
+        CONTINUE
+      </button>
+      <template v-else
+        ><v-icon
+          animation="spin"
+          class="icon"
+          name="la-spinner-solid"
+          :scale="isDesktop ? 1.8 : 1.4"
+        />Loading</template
+      >
+    </div>
   </transition>
 
-  <transition name="fast-fade">
+  <transition name="fade">
     <MainMenuView
       v-if="mainMenuIsActive"
       @loading-change="loadingChange"
@@ -90,7 +123,7 @@ function loadingChange(val: boolean) {
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
       @loading-change="loadingChange"
-      @show-menu="showMenu"
+      @show-menu="showMainMenu"
     ></GameBoardView>
   </transition>
 </template>
