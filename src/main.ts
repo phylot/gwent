@@ -41,9 +41,6 @@ import {
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
-import './assets/base.css'
-import './assets/common.css'
-import './assets/game-board.css'
 
 addIcons(
   BiIncognito,

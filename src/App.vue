@@ -14,7 +14,7 @@ let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
 let themeSong = new Howl({
-  src: ['/src/assets/audio/sharpe-theme.ogg'],
+  src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
   volume: 1,
   preload: true
 })
@@ -64,7 +64,7 @@ function showMainMenu() {
 }
 
 function play() {
-  themeSong.fade(themeSong.volume(), 0, 5000)
+  themeSong.fade(themeSong.volume(), 0, 4000)
   mainMenuIsActive.value = false
   loading.value = true
 

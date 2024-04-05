@@ -1,6 +1,9 @@
 /* Global Styles */
 
 @import './normalize.css';
+@import './base.css';
+@import './common.css';
+@import './game-board.css';
 
 html,
 body {
