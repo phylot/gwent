@@ -7,47 +7,27 @@ let showPlayButton = ref(false)
 
 // EVENTS
 
-const emit = defineEmits<{
-  (e: 'loading-change', val: boolean): void
+defineEmits<{
   (e: 'play'): void
 }>()
 
 // HOOKS
 
 onMounted(() => {
-  emit('loading-change', true)
-
-  // Preload background image
-  loadImage(new URL(`../assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
-    emit('loading-change', false)
-
+  // Title sequence
+  setTimeout(() => {
+    showBean.value = true
     setTimeout(() => {
-      showBean.value = true
+      showBean.value = false
       setTimeout(() => {
-        showBean.value = false
+        showLogo.value = true
         setTimeout(() => {
-          showLogo.value = true
-          setTimeout(() => {
-            showPlayButton.value = true
-          }, 1500)
-        }, 4500)
-      }, 3500)
-    }, 10000)
-  })
+          showPlayButton.value = true
+        }, 1500)
+      }, 4500)
+    }, 3500)
+  }, 10000)
 })
-
-function loadImage(imageUrl: string, callback: Function) {
-  let img = new Image()
-  img.onload = function () {
-    if (callback) {
-      callback()
-    }
-  }
-  img.onerror = function (err) {
-    console.log('loadImage ERROR: ', err)
-  }
-  img.src = imageUrl
-}
 </script>
 
 <template>
