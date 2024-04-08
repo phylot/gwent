@@ -16,24 +16,21 @@ let showContinueBtn = ref(false)
 let themeSong = new Howl({
   src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
   volume: 1,
-  preload: true
+  preload: true,
+  onload: () => {
+    // Preload background image
+    loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
+      showContinueBtn.value = true
+    })
+  }
 })
 
 // GLOBAL HOOKS
 
 onMounted(() => {
+  loading.value = true
   onResize()
   window.addEventListener('resize', onResize)
-
-  loading.value = true
-
-  // Preload background image
-  loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
-    setTimeout(() => {
-      // Continue button required to gain user interaction to allow browser audio playback
-      showContinueBtn.value = true
-    }, 2000)
-  })
 })
 
 // GLOBAL METHODS
