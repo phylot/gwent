@@ -1,5 +1,11 @@
+<script setup lang="ts">
+defineProps<{
+  modelValue: boolean
+}>()
+</script>
+
 <template>
-  <div class="card-modal">
+  <div v-if="modelValue" class="card-modal">
     <div class="card-modal-wrapper">
       <div class="card-modal-content">
         <slot></slot>

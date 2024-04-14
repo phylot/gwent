@@ -18,8 +18,8 @@ import {
 } from './../data/default-cards'
 import AlertBanner from './../components/AlertBanner.vue'
 import BoardCard from './../components/BoardCard.vue'
+import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from './../components/CardModal.vue'
-import CarouselCard from './../components/CarouselCard.vue'
 import Modal from './../components/Modal.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 
@@ -107,7 +107,7 @@ const opponentTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < opponentBoardCards.value.length; i++) {
     for (let j = 0; j < opponentBoardCards.value[i].length; j++) {
-      total += (opponentBoardCards.value[i][j].value || 0)
+      total += opponentBoardCards.value[i][j].value || 0
     }
   }
   return total
@@ -117,7 +117,7 @@ const playerTotal = computed((): number => {
   let total = 0
   for (let i = 0; i < playerBoardCards.value.length; i++) {
     for (let j = 0; j < playerBoardCards.value[i].length; j++) {
-      total += (playerBoardCards.value[i][j].value || 0)
+      total += playerBoardCards.value[i][j].value || 0
     }
   }
   return total
@@ -1485,7 +1485,7 @@ function resetCards(arr: Card[]) {
 function getRowTotal(arr: Card[]) {
   let total = 0
   for (let i = 0; i < arr.length; i++) {
-    total += (arr[i].value || 0)
+    total += arr[i].value || 0
   }
   return total
 }
@@ -1575,53 +1575,17 @@ function sortCardsHighToLow(a: Card, b: Card) {
     <OverlayScreen v-model="overlayScreenModel"></OverlayScreen>
 
     <div class="scroll-container">
-      <CardModal v-if="cardModal" class="quick-fade">
+      <CardModal v-model="cardModal" class="quick-fade">
         <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
 
-        <div v-if="!carouselIsHidden" class="card-carousel">
-          <div class="slides">
-            <CarouselCard
-              v-for="(card, i) in activeCardRow"
-              :ability="card.ability"
-              :ability-icon="card.abilityIcon"
-              :animation-name="card.animationName"
-              class="slide fade-in"
-              :class="{ active: card.active }"
-              :default-value="card.defaultValue"
-              :description="card.description"
-              :desktop="props.desktop"
-              :faction="card.faction"
-              :hero="card.hero"
-              :image-url="card.imageUrl"
-              :name="card.name"
-              tabindex="2"
-              :type-icon="card.typeIcon"
-              :value="card.value"
-              :key="i"
-            >
-            </CarouselCard>
-          </div>
-          <button
-            class="prev-btn no-mobile-highlight"
-            :class="{ disabled: boardDisabled }"
-            :disabled="boardDisabled"
-            role="button"
-            tabindex="2"
-            @click="boardDisabled ? null : changeSlide(-1)"
-          >
-            <v-icon name="hi-chevron-left" class="icon" :scale="props.desktop ? 1.5 : 1" />
-          </button>
-          <button
-            class="next-btn no-mobile-highlight"
-            :class="{ disabled: boardDisabled }"
-            :disabled="boardDisabled"
-            role="button"
-            tabindex="2"
-            @click="boardDisabled ? null : changeSlide(1)"
-          >
-            <v-icon name="hi-chevron-right" class="icon" :scale="props.desktop ? 1.5 : 1" />
-          </button>
-        </div>
+        <CardCarousel
+          v-if="!carouselIsHidden"
+          :cards="activeCardRow"
+          :desktop="props.desktop"
+          :disabled="boardDisabled"
+          @prev-click="changeSlide"
+          @next-click="changeSlide"
+        ></CardCarousel>
 
         <button
           v-if="cardModalConfirmText"

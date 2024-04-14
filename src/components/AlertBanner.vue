@@ -1,7 +1,6 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   avatar?: string
-  desktop?: boolean
   icon?: string
   modelValue: boolean
   title: string
@@ -15,7 +14,7 @@ const props = defineProps<{
         <div
           v-if="avatar"
           class="avatar"
-          :style="{ backgroundImage: `url(${props.avatar})` }"
+          :style="{ backgroundImage: `url(${avatar})` }"
         ></div>
         <v-icon
           v-if="icon"
@@ -26,7 +25,7 @@ const props = defineProps<{
       </div>
       <div class="heading">
         <slot>
-          <h2>{{ props.title }}</h2>
+          <h2>{{ title }}</h2>
         </slot>
       </div>
     </div>
