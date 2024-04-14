@@ -74,6 +74,12 @@ function play() {
   }, 200)
 }
 
+function skip() {
+  themeSong.stop()
+  themeSong.seek(18)
+  themeSong.play()
+}
+
 function loadImage(imageUrl: string, callback: Function) {
   let img = new Image()
   img.onload = function () {
@@ -114,6 +120,7 @@ function loadingChange(val: boolean) {
       v-if="mainMenuIsActive"
       @loading-change="loadingChange"
       @play="play"
+      @skip="skip"
     ></MainMenuView>
   </transition>
 

@@ -4,11 +4,14 @@ import { onMounted, ref } from 'vue'
 let showBean = ref(false)
 let showLogo = ref(false)
 let showPlayButton = ref(false)
+let showSkipButton = ref(false)
+let isSkipped = ref(false)
 
 // EVENTS
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'play'): void
+  (e: 'skip'): void
 }>()
 
 // HOOKS
@@ -28,24 +31,38 @@ onMounted(() => {
     }, 3500)
   }, 9000)
 })
+
+function click() {
+  if (!isSkipped.value && !showSkipButton.value) {
+    showSkipButton.value = true
+    setTimeout(() => {
+      showSkipButton.value = false
+    }, 4000)
+  }
+}
+
+function skip() {
+  isSkipped.value = true
+  emit('skip')
+}
 </script>
 
 <template>
-  <div class="main-menu">
-    <transition name="fade">
-      <h1 v-if="showBean" class="bean">SEAN BEAN</h1>
+  <div class="main-menu" :class="{ animate: !isSkipped }" @click="click">
+    <transition :name="isSkipped ? 'none' : 'fade'">
+      <h1 v-if="showBean && !isSkipped" class="bean">SEAN BEAN</h1>
     </transition>
 
     <transition name="fade">
-      <div v-if="showLogo" class="logo-wrap">
+      <div v-if="showLogo || isSkipped" class="logo-wrap">
         <h1 class="logo">
           <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
         </h1>
 
         <transition name="fade">
           <button
-            v-if="showPlayButton"
-            class="btn large primary no-mobile-highlight"
+            v-if="showPlayButton || isSkipped"
+            class="btn large primary no-mobile-highlight play-btn"
             type="button"
             @click="$emit('play')"
           >
@@ -53,6 +70,17 @@ onMounted(() => {
           </button>
         </transition>
       </div>
+    </transition>
+
+    <transition name="fade">
+      <button
+        v-if="showSkipButton && !isSkipped && !showLogo"
+        class="btn large no-mobile-highlight skip-btn"
+        type="button"
+        @click="skip"
+      >
+        SKIP
+      </button>
     </transition>
   </div>
 </template>
@@ -69,6 +97,9 @@ onMounted(() => {
   color: #ffffff;
   background-repeat: no-repeat;
   background-image: url('./../assets/images/main-menu-bg.jpg');
+}
+
+.main-menu.animate {
   animation: menuBgPan 30s;
 }
 
@@ -161,8 +192,13 @@ onMounted(() => {
   text-shadow: 2px 2px #000000;
 }
 
-.main-menu .btn.large {
+.main-menu .btn.play-btn {
   margin: 60px;
+}
+
+.main-menu .btn.skip-btn {
+  position: fixed;
+  bottom: 20px;
 }
 
 /* Desktop / Tablet Styles */
