@@ -2,14 +2,18 @@
 import { onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import { Howl } from 'howler'
-import MainMenuView from './views/MainMenuView.vue'
 import GameBoardView from './views/GameBoardView.vue'
+import MainMenuView from './views/MainMenuView.vue'
+import ManageDeckView from './views/ManageDeckView.vue'
+import AwardsView from './views/AwardsView.vue'
 
 // GLOBAL DATA
 
 let cpuDifficulty = 0.3
-let mainMenuIsActive = ref(false)
 let gameIsActive = ref(false)
+let mainMenuIsActive = ref(false)
+let awardsIsActive = ref(false)
+let manageDeckIsActive = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
@@ -63,15 +67,37 @@ function showMainMenu() {
   }, 1500)
 }
 
+function showManageDeck() {
+  mainMenuIsActive.value = false
+
+  // Timeout to allow main menu to fade out
+  setTimeout(() => {
+    manageDeckIsActive.value = true
+  }, 1000)
+}
+
+function showAwards() {
+  mainMenuIsActive.value = false
+
+  // Timeout to allow main menu to fade out
+  setTimeout(() => {
+    awardsIsActive.value = true
+  }, 1000)
+}
+
 function play() {
   themeSong.fade(themeSong.volume(), 0, 4000)
   mainMenuIsActive.value = false
-  loading.value = true
 
-  // Timeout to allow loader to fade in fully
+  // Timeout to allow main menu to fade out
   setTimeout(() => {
-    gameIsActive.value = true
-  }, 200)
+    loading.value = true
+
+    // Timeout to allow loader to fade in
+    setTimeout(() => {
+      gameIsActive.value = true
+    }, 200)
+  }, 1000)
 }
 
 function skip() {
@@ -119,9 +145,19 @@ function loadingChange(val: boolean) {
     <MainMenuView
       v-if="mainMenuIsActive"
       @loading-change="loadingChange"
+      @awards="showAwards"
+      @manage-deck="showManageDeck"
       @play="play"
       @skip="skip"
     ></MainMenuView>
+  </transition>
+
+  <transition name="fast-fade">
+    <ManageDeckView v-if="manageDeckIsActive"></ManageDeckView>
+  </transition>
+
+  <transition name="fast-fade">
+    <AwardsView v-if="awardsIsActive"></AwardsView>
   </transition>
 
   <transition name="fast-fade">

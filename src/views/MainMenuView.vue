@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-let showBean = ref(false)
-let showLogo = ref(false)
-let showPlayButton = ref(false)
-let showSkipButton = ref(false)
+let beanVisible = ref(false)
+let logoVisible = ref(false)
+let playButtonVisible = ref(false)
+let skipButtonVisible = ref(false)
 let isSkipped = ref(false)
+let mainMenuVisible = ref(false)
+let beanTimeout1: ReturnType<typeof setTimeout>
+let beanTimeout2: ReturnType<typeof setTimeout>
+let logoTimeout: ReturnType<typeof setTimeout>
+let playButtonTimeout: ReturnType<typeof setTimeout>
+let titleSequenceIsFinished: boolean = false
 
 // EVENTS
 
 const emit = defineEmits<{
+  (e: 'awards'): void
+  (e: 'manage-deck'): void
   (e: 'play'): void
   (e: 'skip'): void
 }>()
@@ -18,53 +26,72 @@ const emit = defineEmits<{
 
 onMounted(() => {
   // Title sequence
-  setTimeout(() => {
-    showBean.value = true
-    setTimeout(() => {
-      showBean.value = false
-      setTimeout(() => {
-        showLogo.value = true
-        setTimeout(() => {
-          showPlayButton.value = true
+  beanTimeout1 = setTimeout(() => {
+    beanVisible.value = true
+    beanTimeout2 = setTimeout(() => {
+      beanVisible.value = false
+      logoTimeout = setTimeout(() => {
+        titleSequenceIsFinished = true
+        skipButtonVisible.value = false
+        logoVisible.value = true
+        playButtonTimeout = setTimeout(() => {
+          playButtonVisible.value = true
         }, 1500)
       }, 4600)
     }, 3500)
   }, 9000)
 })
 
-function click() {
-  if (!isSkipped.value && !showSkipButton.value) {
-    showSkipButton.value = true
+function viewClick() {
+  if (!isSkipped.value && !skipButtonVisible.value && !titleSequenceIsFinished) {
+    skipButtonVisible.value = true
     setTimeout(() => {
-      showSkipButton.value = false
+      skipButtonVisible.value = false
     }, 4000)
   }
 }
 
 function skip() {
+  clearTimeout(beanTimeout1)
+  clearTimeout(beanTimeout2)
+  clearTimeout(logoTimeout)
+  clearTimeout(playButtonTimeout)
+
+  titleSequenceIsFinished = true
   isSkipped.value = true
+  beanVisible.value = false
+  skipButtonVisible.value = false
+  logoVisible.value = true
+  playButtonVisible.value = true
   emit('skip')
+}
+
+function showMainMenu() {
+  logoVisible.value = false
+  setTimeout(() => {
+    mainMenuVisible.value = true
+  }, 500)
 }
 </script>
 
 <template>
-  <div class="main-menu" :class="{ animate: !isSkipped }" @click="click">
+  <div class="main-menu" :class="{ animate: !isSkipped }" @click="viewClick">
     <transition :name="isSkipped ? 'none' : 'fade'">
-      <h1 v-if="showBean && !isSkipped" class="bean">SEAN BEAN</h1>
+      <h1 v-if="beanVisible" class="bean">SEAN BEAN</h1>
     </transition>
 
     <transition name="fade">
-      <div v-if="showLogo || isSkipped" class="logo-wrap">
+      <div v-if="logoVisible" class="logo-container">
         <h1 class="logo">
           <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
         </h1>
 
         <transition name="fade">
           <button
-            v-if="showPlayButton || isSkipped"
+            v-if="playButtonVisible"
             class="btn large primary no-mobile-highlight play-btn"
             type="button"
-            @click="$emit('play')"
+            @click="showMainMenu"
           >
             PLAY
           </button>
@@ -73,8 +100,25 @@ function skip() {
     </transition>
 
     <transition name="fade">
+      <div v-if="mainMenuVisible" class="menu-container">
+        <h1 class="logo menu-heading">
+          <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
+        </h1>
+        <button class="btn large primary no-mobile-highlight" type="button" @click="$emit('play')">
+          QUICK MATCH
+        </button>
+        <button class="btn large no-mobile-highlight disabled" disabled type="button" @click="emit('manage-deck')">
+          MANAGE DECK
+        </button>
+        <button class="btn large no-mobile-highlight disabled" disabled type="button" @click="emit('awards')">
+          AWARDS (0)
+        </button>
+      </div>
+    </transition>
+
+    <transition name="fade">
       <button
-        v-if="showSkipButton && !isSkipped && !showLogo"
+        v-if="skipButtonVisible"
         class="btn large no-mobile-highlight skip-btn"
         type="button"
         @click="skip"
@@ -89,11 +133,14 @@ function skip() {
 /* TODO: Move to /assets/styles/main-menu.css */
 
 .main-menu {
+  position: absolute;
   width: 100%;
+  min-width: 320px;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: scroll;
   color: #ffffff;
   background-repeat: no-repeat;
   background-image: url('./../assets/images/main-menu-bg.jpg');
@@ -147,11 +194,17 @@ function skip() {
   }
 }
 
-.main-menu .logo-wrap {
-  min-width: 320px;
+.main-menu .logo-container,
+.main-menu .menu-container {
+  position: relative;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.main-menu .logo-container {
+  min-width: 320px;
   height: 300px;
 }
 
@@ -162,15 +215,24 @@ function skip() {
   text-shadow: 4px 4px #000000;
 }
 
+.main-menu .logo.menu-heading {
+  margin-bottom: 20px;
+}
+
 .main-menu .logo .lineOne {
   font-family: 'LouisaCP';
-  font-size: 80px;
-  margin-bottom: -23px;
+  font-size: 70px;
+  margin-bottom: -18px;
+}
+
+.main-menu .logo.menu-heading .lineOne {
+  font-size: 48px;
+  margin-bottom: -14px;
 }
 
 .main-menu .logo .lineTwo {
   font-family: 'UniversalSerif';
-  font-size: 54px;
+  font-size: 50px;
   font-weight: 100;
   letter-spacing: 18px;
   text-indent: 10px;
@@ -180,8 +242,19 @@ function skip() {
   border-bottom: 3px solid #ffffff;
 }
 
+.main-menu .logo.menu-heading .lineTwo {
+  font-size: 30px;
+  letter-spacing: 10px;
+  text-indent: 7px;
+  line-height: 38px;
+}
+
 .main-menu .logo .lineTwo span {
   margin: 0 -16px;
+}
+
+.main-menu .logo.menu-heading .lineTwo span {
+  margin: 0 -9px;
 }
 
 .main-menu .bean {
@@ -201,11 +274,20 @@ function skip() {
   bottom: 20px;
 }
 
+.main-menu .menu-container {
+  padding: 15px 20px;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.main-menu .menu-container .btn {
+  width: 100%;
+}
 /* Desktop / Tablet Styles */
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .main-menu .logo-wrap {
+  .main-menu .logo-container {
     width: auto;
     height: 486px;
   }
@@ -215,8 +297,8 @@ function skip() {
   }
 
   .main-menu .logo .lineOne {
-    font-size: 180px;
-    margin-bottom: -52px;
+    font-size: 170px;
+    margin-bottom: -47px;
   }
 
   .main-menu .logo .lineTwo {
@@ -226,6 +308,11 @@ function skip() {
     line-height: 130px;
     border-top: 8px solid #ffffff;
     border-bottom: 8px solid #ffffff;
+  }
+
+  .main-menu .logo.menu-heading .lineTwo {
+    border-top: 3px solid #ffffff;
+    border-bottom: 3px solid #ffffff;
   }
 
   .main-menu .logo .lineTwo span {
@@ -238,7 +325,7 @@ function skip() {
     text-shadow: 4px 4px #000000;
   }
 
-  .main-menu .btn.large {
+  .main-menu .btn.play-btn {
     margin: 90px;
   }
 }
