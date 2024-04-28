@@ -8,10 +8,11 @@ defineExpose({
 
 const props = defineProps<{
   avatar?: string
-  buttons?: []
+  buttons?: string[]
   desktop?: boolean
   icon?: string
   modelValue?: boolean
+  noPrimary?: boolean
   title: string
 }>()
 
@@ -59,7 +60,8 @@ function hide() {
         <button
           v-for="(button, i) in buttons"
           class="btn large no-mobile-highlight"
-          :class="{ primary: i === 0 }"
+          :class="{ primary: i === 0 && !props.noPrimary }"
+          :key="i"
           @click="
             resolvePromise(i + 1);
             hide();
@@ -85,13 +87,15 @@ function hide() {
   transform: translate(-50%, -50%);
   width: 80%;
   max-width: 400px;
+  max-height: 80%;
   padding: 15px 20px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   border-radius: 20px;
   color: #ffffff;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .modal .heading {

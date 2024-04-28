@@ -5,14 +5,15 @@ import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import ManageDeckView from './views/ManageDeckView.vue'
-import AwardsView from './views/AwardsView.vue'
+import Modal from './components/Modal.vue'
 
 // GLOBAL DATA
 
 let cpuDifficulty = 0.3
 let gameIsActive = ref(false)
 let mainMenuIsActive = ref(false)
-let awardsIsActive = ref(false)
+let mainMenuDisabled = ref(false)
+let awardsModal = ref()
 let manageDeckIsActive = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
@@ -77,12 +78,10 @@ function showManageDeck() {
 }
 
 function showAwards() {
-  mainMenuIsActive.value = false
-
-  // Timeout to allow main menu to fade out
-  setTimeout(() => {
-    awardsIsActive.value = true
-  }, 1000)
+  mainMenuDisabled.value = true
+  awardsModal.value.show().then(() => {
+    mainMenuDisabled.value = false
+  })
 }
 
 function play() {
@@ -127,9 +126,19 @@ function loadingChange(val: boolean) {
 <template>
   <transition name="fast-fade">
     <div v-if="loading" class="loader" role="alert">
-      <button v-if="showContinueBtn" class="btn large no-mobile-highlight" @click="showMainMenu">
-        CONTINUE
-      </button>
+      <template v-if="showContinueBtn">
+        <div class="save-warning">
+          <v-icon
+            animation="pulse"
+            class="icon"
+            name="fa-regular-save"
+            :scale="isDesktop ? 1.8 : 1.4"
+            speed="fast"
+          />WARNING: Your progress is saved to this device
+        </div>
+
+        <button class="btn large no-mobile-highlight" @click="showMainMenu">CONTINUE</button>
+      </template>
       <template v-else
         ><v-icon
           animation="spin"
@@ -141,9 +150,20 @@ function loadingChange(val: boolean) {
     </div>
   </transition>
 
+  <transition name="fast-fade">
+    <Modal :buttons="['CLOSE']" :desktop="isDesktop" no-primary ref="awardsModal" title="Awards">
+      <div class="awards">
+        <p class="no-awards-text">
+          If the game deems you have done something noteworthy, it might reward you...
+        </p>
+      </div>
+    </Modal>
+  </transition>
+
   <transition name="slow-fade">
     <MainMenuView
       v-if="mainMenuIsActive"
+      :disabled="mainMenuDisabled"
       @loading-change="loadingChange"
       @awards="showAwards"
       @manage-deck="showManageDeck"
@@ -154,10 +174,6 @@ function loadingChange(val: boolean) {
 
   <transition name="fast-fade">
     <ManageDeckView v-if="manageDeckIsActive"></ManageDeckView>
-  </transition>
-
-  <transition name="fast-fade">
-    <AwardsView v-if="awardsIsActive"></AwardsView>
   </transition>
 
   <transition name="fast-fade">

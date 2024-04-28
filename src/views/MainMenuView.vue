@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
+defineProps<{
+  disabled?: boolean
+}>()
+
 let beanVisible = ref(false)
 let logoVisible = ref(false)
 let playButtonVisible = ref(false)
@@ -104,13 +108,28 @@ function showMainMenu() {
         <h1 class="logo menu-heading">
           <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
         </h1>
-        <button class="btn large primary no-mobile-highlight" type="button" @click="$emit('play')">
+        <button
+          class="btn large primary no-mobile-highlight"
+          :disabled="disabled"
+          type="button"
+          @click="$emit('play')"
+        >
           QUICK MATCH
         </button>
-        <button class="btn large no-mobile-highlight disabled" disabled type="button" @click="emit('manage-deck')">
+        <button
+          class="btn large no-mobile-highlight disabled"
+          disabled
+          type="button"
+          @click="emit('manage-deck')"
+        >
           MANAGE DECK
         </button>
-        <button class="btn large no-mobile-highlight disabled" disabled type="button" @click="emit('awards')">
+        <button
+          class="btn large no-mobile-highlight"
+          :disabled="disabled"
+          type="button"
+          @click="emit('awards')"
+        >
           AWARDS (0)
         </button>
       </div>
@@ -120,6 +139,7 @@ function showMainMenu() {
       <button
         v-if="skipButtonVisible"
         class="btn large no-mobile-highlight skip-btn"
+        :disabled="disabled"
         type="button"
         @click="skip"
       >
@@ -133,7 +153,6 @@ function showMainMenu() {
 /* TODO: Move to /assets/styles/main-menu.css */
 
 .main-menu {
-  position: absolute;
   width: 100%;
   min-width: 320px;
   height: 100%;
@@ -238,8 +257,8 @@ function showMainMenu() {
   text-indent: 10px;
   line-height: 59px;
   text-align: center;
-  border-top: 3px solid #ffffff;
-  border-bottom: 3px solid #ffffff;
+  border-top: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
 }
 
 .main-menu .logo.menu-heading .lineTwo {
@@ -311,8 +330,8 @@ function showMainMenu() {
   }
 
   .main-menu .logo.menu-heading .lineTwo {
-    border-top: 3px solid #ffffff;
-    border-bottom: 3px solid #ffffff;
+    border-top: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
   }
 
   .main-menu .logo .lineTwo span {

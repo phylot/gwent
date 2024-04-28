@@ -95,7 +95,6 @@ let modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
 let modalIcon = ref()
-let modalModel = ref(false)
 let modalTitle = ref('')
 
 // General Overlay Screen (currently used for board row highlights)
@@ -1506,7 +1505,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
 <template>
   <div class="game-container">
     <Modal
-      v-model="modalModel"
       :avatar="modalAvatar"
       :buttons="modalButtons"
       :desktop="props.desktop"
