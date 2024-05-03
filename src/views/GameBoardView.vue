@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { type Card, type RoundTotal, type RowFlag } from './../types'
+import { type Card, type RoundTotal, type RowFlag } from '@/types'
 
 import {
   defaultPlayerRowFlagArrays,
@@ -167,6 +167,7 @@ const recentSpecialCard = computed(() => {
 
 const emit = defineEmits<{
   (e: 'loading-change', val: boolean): void
+  (e: 'save-awards', val: string[]): void
   (e: 'show-menu'): void
 }>()
 
@@ -1111,6 +1112,7 @@ function determineRoundWinner() {
   let isPlayerMatchWin = false
   let isOpponentMatchWin = false
   let isMatchDraw = false
+  let unlockedAwards = []
 
   // Determine highest round scorer
   if (playerTotal.value === opponentTotal.value) {
@@ -1185,6 +1187,9 @@ function determineRoundWinner() {
       for (const awardKey in awards) {
         if (awards[awardKey].count >= awards[awardKey].targetCount && awardKey !== 'tactician') {
           awards[awardKey].active = true
+          if (i < 1) {
+            unlockedAwards.push(awardKey)
+          }
         }
       }
     }
@@ -1198,6 +1203,9 @@ function determineRoundWinner() {
         : opponentAwards.value.tactician
       if (tacticianAward.count <= tacticianAward.targetCount) {
         tacticianAward.active = true
+        if (isPlayerMatchWin) {
+          unlockedAwards.push('tactician')
+        }
       }
 
       modalAvatar.value = isPlayerMatchWin
@@ -1205,6 +1213,10 @@ function determineRoundWinner() {
         : opponentLeader.value.imageUrl
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
+
+    // Save any unlocked awards
+    emit('save-awards', unlockedAwards)
+
     // TODO: "View Board" option
     modalButtons.value = ['PLAY AGAIN', 'MAIN MENU']
     modalIcon.value = null
@@ -1529,8 +1541,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
           />
           {{ total.value }}
         </div>
-        <template v-for="(award, key) in playerAwards">
-          <div v-if="award.active" class="award reverse" :class="key" :key="key">
+        <template v-for="(award, key) in playerAwards" :key="key">
+          <div v-if="award.active" class="award reverse" :class="key">
             <v-icon :name="award.icon" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
             <div class="name">{{ award.name }}</div>
           </div>
@@ -1553,8 +1565,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
           />
           {{ total.value }}
         </div>
-        <template v-for="(award, key) in opponentAwards">
-          <div v-if="award.active" class="award" :class="key" :key="key">
+        <template v-for="(award, key) in opponentAwards" :key="key">
+          <div v-if="award.active" class="award" :class="key">
             <v-icon :name="award.icon" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
             <div class="name">{{ award.name }}</div>
           </div>

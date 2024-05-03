@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 
 defineProps<{
+  awardsCount: number
   disabled?: boolean
 }>()
 
@@ -130,7 +131,7 @@ function showMainMenu() {
           type="button"
           @click="emit('awards')"
         >
-          AWARDS (0)
+          AWARDS ({{ awardsCount }})
         </button>
       </div>
     </transition>

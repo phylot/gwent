@@ -1,6 +1,7 @@
 interface Award {
   active: boolean
   count: number
+  description: string
   icon: string
   name: string
   targetCount: number

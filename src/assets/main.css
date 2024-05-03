@@ -74,7 +74,30 @@ html {
   min-height: 100px;
 }
 
+.awards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
 .awards .no-awards-text {
-  height: 100%;
   text-align: center;
+  text-wrap: pretty;
+}
+
+.award-container {
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  background-color: rgb(40 40 40 / 80%);
+}
+
+.award-container .award {
+  margin-bottom: 10px;
+}
+
+.award-container .description {
+  text-wrap: pretty;
 }

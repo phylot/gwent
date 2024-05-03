@@ -134,7 +134,6 @@
 .award {
   display: flex;
   align-items: center;
-  margin-top: 10px;
   font-size: 0.7em;
   font-weight: bold;
   border-radius: 9999px;
@@ -153,7 +152,8 @@
 }
 
 .award .name {
-  padding: 0 10px 0 5px;
+  padding: 0 15px 0 5px;
+  text-wrap: nowrap;
 }
 
 .award.reverse .name {

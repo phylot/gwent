@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import ManageDeckView from './views/ManageDeckView.vue'
 import Modal from './components/Modal.vue'
+import { defaultPlayerAwards } from './data/common'
 
 // GLOBAL DATA
 
@@ -18,16 +19,19 @@ let manageDeckIsActive = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
-let themeSong = new Howl({
-  src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
-  volume: 1,
-  preload: true,
-  onload: () => {
-    // Preload background image
-    loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href, () => {
-      showContinueBtn.value = true
-    })
+let themeSong: Howl
+let unlockedAwards = ref(JSON.parse(JSON.stringify(defaultPlayerAwards)))
+
+// COMPUTED DATA
+
+const awardsCount = computed((): number => {
+  let count = 0
+  for (const awardKey in unlockedAwards.value) {
+    if (unlockedAwards.value[awardKey].active) {
+      count++
+    }
   }
+  return count
 })
 
 // GLOBAL HOOKS
@@ -36,6 +40,7 @@ onMounted(() => {
   loading.value = true
   onResize()
   window.addEventListener('resize', onResize)
+  preload()
 })
 
 // GLOBAL METHODS
@@ -47,6 +52,59 @@ function onResize() {
 
   isDesktop.value =
     (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
+}
+
+async function preload() {
+  await preloadThemeSong()
+  await loadLocalStorage()
+
+  // Preload background image
+  await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
+  showContinueBtn.value = true
+}
+
+function preloadThemeSong() {
+  return new Promise<void>((resolve) => {
+    themeSong = new Howl({
+      src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
+      volume: 1,
+      preload: true,
+      onload: () => {
+        resolve()
+      },
+      onloaderror: () => {
+        resolve()
+      }
+    })
+  })
+}
+
+function loadLocalStorage() {
+  return new Promise<void>((resolve) => {
+    // Read from localStorage
+    let retrievedAwards: string | null = localStorage.getItem('awards')
+    if (retrievedAwards) {
+      unlockedAwards.value = JSON.parse(retrievedAwards)
+    }
+
+    // TODO: Set 'unlockableCards' object
+    // TODO: Set local 'unlockableCards' variable and splice in any unclocked cards into relevant player decks
+    resolve()
+  })
+}
+
+function loadImage(imageUrl: string) {
+  return new Promise<void>((resolve) => {
+    let img = new Image()
+    img.onload = function () {
+      resolve()
+    }
+    img.onerror = function (err) {
+      console.log('loadImage ERROR: ', err)
+      resolve()
+    }
+    img.src = imageUrl
+  })
 }
 
 function showMainMenu() {
@@ -105,21 +163,15 @@ function skip() {
   themeSong.play()
 }
 
-function loadImage(imageUrl: string, callback: Function) {
-  let img = new Image()
-  img.onload = function () {
-    if (callback) {
-      callback()
-    }
-  }
-  img.onerror = function (err) {
-    console.log('loadImage ERROR: ', err)
-  }
-  img.src = imageUrl
-}
-
 function loadingChange(val: boolean) {
   loading.value = val
+}
+
+function saveAwards(awardKeys: string[]) {
+  for (const awardKey of awardKeys) {
+    unlockedAwards.value[awardKey].active = true
+  }
+  localStorage.setItem('awards', JSON.stringify(unlockedAwards.value))
 }
 </script>
 
@@ -151,10 +203,27 @@ function loadingChange(val: boolean) {
   </transition>
 
   <transition name="fast-fade">
-    <Modal :buttons="['CLOSE']" :desktop="isDesktop" no-primary ref="awardsModal" title="Awards">
+    <Modal
+      :buttons="['CLOSE']"
+      :desktop="isDesktop"
+      no-primary
+      ref="awardsModal"
+      :title="`Awards (${awardsCount}/5)`"
+    >
       <div class="awards">
-        <p class="no-awards-text">
-          If the game deems you have done something noteworthy, it might reward you...
+        <div v-if="awardsCount > 0" class="awards-grid">
+          <template v-for="(award, key) in unlockedAwards" :key="key">
+            <div v-if="award.active" class="award-container">
+              <div class="award" :class="key">
+                <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
+                <div class="name">{{ award.name }}</div>
+              </div>
+              <p v-html="award.description" class="description"></p>
+            </div>
+          </template>
+        </div>
+        <p v-else class="no-awards-text">
+          If the game deems you have done something noteworthy, it may reward you...
         </p>
       </div>
     </Modal>
@@ -163,6 +232,7 @@ function loadingChange(val: boolean) {
   <transition name="slow-fade">
     <MainMenuView
       v-if="mainMenuIsActive"
+      :awards-count="awardsCount"
       :disabled="mainMenuDisabled"
       @loading-change="loadingChange"
       @awards="showAwards"
@@ -182,6 +252,7 @@ function loadingChange(val: boolean) {
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
       @loading-change="loadingChange"
+      @save-awards="saveAwards"
       @show-menu="showMainMenu"
     ></GameBoardView>
   </transition>

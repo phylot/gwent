@@ -315,6 +315,10 @@
   right: -25px;
 }
 
+.match-stats .award {
+  margin-top: 10px;
+}
+
 /* Animations */
 
 .fade-in {
