@@ -210,7 +210,7 @@ function saveAwards(awardKeys: string[]) {
       ref="awardsModal"
       :title="`Awards (${awardsCount}/5)`"
     >
-      <div class="awards">
+      <div class="awards-gallery">
         <div v-if="awardsCount > 0" class="awards-grid">
           <template v-for="(award, key) in unlockedAwards" :key="key">
             <div v-if="award.active" class="award-container">

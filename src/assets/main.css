@@ -69,18 +69,18 @@ html {
   padding: 40px;
 }
 
-.awards {
+.awards-gallery {
   width: 100%;
   min-height: 100px;
 }
 
 .awards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
 }
 
-.awards .no-awards-text {
+.awards-gallery .no-awards-text {
   text-align: center;
   text-wrap: pretty;
 }
@@ -91,7 +91,7 @@ html {
   display: flex;
   flex-direction: column;
   align-items: start;
-  background-color: rgb(40 40 40 / 80%);
+  background-color: rgb(50 50 50 / 80%);
 }
 
 .award-container .award {
