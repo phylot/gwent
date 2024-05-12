@@ -85,10 +85,10 @@ function hide() {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
+  width: 90%;
   max-width: 400px;
   max-height: 80%;
-  padding: 15px 20px;
+  padding: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -127,13 +127,11 @@ function hide() {
 .modal .body {
   display: flex;
   width: 100%;
-  padding: 10px 0;
+  padding: 20px 0;
 }
 
 .modal .btn-container {
-  width: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
 }
 

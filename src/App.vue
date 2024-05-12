@@ -189,7 +189,7 @@ function saveAwards(awardKeys: string[]) {
           />WARNING: Your progress is saved to this device
         </div>
 
-        <button class="btn large no-mobile-highlight" @click="showMainMenu">CONTINUE</button>
+        <button class="btn large no-mobile-highlight" @click="showMainMenu">Continue</button>
       </template>
       <template v-else
         ><v-icon
@@ -204,7 +204,7 @@ function saveAwards(awardKeys: string[]) {
 
   <transition name="fast-fade">
     <Modal
-      :buttons="['CLOSE']"
+      :buttons="['Close']"
       :desktop="isDesktop"
       no-primary
       ref="awardsModal"

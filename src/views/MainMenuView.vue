@@ -115,7 +115,7 @@ function showMainMenu() {
           type="button"
           @click="$emit('play')"
         >
-          QUICK MATCH
+          Quick Match
         </button>
         <button
           class="btn large no-mobile-highlight disabled"
@@ -123,7 +123,7 @@ function showMainMenu() {
           type="button"
           @click="emit('manage-deck')"
         >
-          MANAGE DECK
+          Manage Deck
         </button>
         <button
           class="btn large no-mobile-highlight"
@@ -131,7 +131,7 @@ function showMainMenu() {
           type="button"
           @click="emit('awards')"
         >
-          AWARDS ({{ awardsCount }})
+          Awards ({{ awardsCount }})
         </button>
       </div>
     </transition>
@@ -144,7 +144,7 @@ function showMainMenu() {
         type="button"
         @click="skip"
       >
-        SKIP
+        Skip
       </button>
     </transition>
   </div>

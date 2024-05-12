@@ -45,6 +45,7 @@
   align-items: center;
   width: 30px;
   height: 100%;
+  margin: 0;
 }
 
 .game-details .pass-btn span {

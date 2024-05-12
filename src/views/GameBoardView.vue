@@ -344,13 +344,13 @@ function showCardRedrawModal(callback: Function) {
     slideIndex.value = 0
     boardDisabled.value = false
 
-    showCardModal('REDRAW', 'DONE', 'Choose card to redraw (1 of 2)').then((ok) => {
+    showCardModal('Redraw', 'Done', 'Choose card to redraw (1 of 2)').then((ok) => {
       boardDisabled.value = true
       if (ok) {
         swapModalCard(() => {
           boardDisabled.value = false
 
-          showCardModal('REDRAW', 'DONE', 'Choose card to redraw (2 of 2)').then((ok) => {
+          showCardModal('Redraw', 'Done', 'Choose card to redraw (2 of 2)').then((ok) => {
             boardDisabled.value = true
             if (ok) {
               swapModalCard(() => {
@@ -458,14 +458,14 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
       ? opponentBoardCards.value[abilityIndexes[card.type]]
       : playerBoardCards.value[abilityIndexes[card.type]]
   } else {
-    // Determine the specific array position for 'bond' cards, so they're placed adjacent to one another
+    // Determine the specific array position for 'bond' cards with the same 'bondName', so they're placed adjacent to one another
     if (card.ability === 'bond') {
-      let bondFound = false
+      let bondNameFound = false
       for (let i = 0; i < boardArr.length; i++) {
-        if (boardArr[i].ability === 'bond') {
-          bondFound = true
+        if (boardArr[i].bondName === card.bondName) {
+          bondNameFound = true
         } else {
-          if (bondFound) {
+          if (bondNameFound) {
             boardArrIndex = i
             break
           }
@@ -681,6 +681,10 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
     await performSpy()
   }
 
+  if (card.ability === 'thief') {
+    await performThief()
+  }
+
   await calculateRows()
 
   // TODO: Decoy card
@@ -778,7 +782,7 @@ function performHeal() {
         slideIndex.value = 0
         boardDisabled.value = false
 
-        showCardModal('PLAY CARD', 'CANCEL', 'Choose card to revive').then((ok) => {
+        showCardModal('Play Card', 'Cancel', 'Choose card to revive').then((ok) => {
           if (ok) {
             let healedCardId = activeCardRow.value[slideIndex.value].id
             let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
@@ -986,6 +990,17 @@ function performSpy() {
   })
 }
 
+function performThief() {
+  return new Promise<void>((resolve) => {
+    let hand = isPlayerTurn.value ? playerHand : opponentHand
+    let deck = isPlayerTurn.value ? opponentDeck : playerDeck
+
+    // Draw 2 cards
+    hand.value.push(...dealRandomCards(deck.value, 1))
+    resolve()
+  })
+}
+
 async function calculateRows() {
   for (let i = 0; i < 2; i++) {
     let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
@@ -1014,21 +1029,33 @@ async function calculateRow(rowArr: Card[], rowFlag: RowFlag) {
 
 function calculateBond(rowArr: Card[]) {
   return new Promise<void>((resolve) => {
-    let bondIndexes = []
-    let multiplier = 0
+    let bondNames = []
 
-    // Loop through row array and save the index of each bond card and calculate multiplier amount
-    for (let i = 0; i < rowArr.length; i++) {
-      if (rowArr[i].ability === 'bond') {
-        bondIndexes.push(i)
-        multiplier++
+    // Loop through and save each UNIQUE bondName to an array
+    for (const card of rowArr) {
+      if (card.ability === "bond" && bondNames.indexOf(card.bondName) === -1) {
+        bondNames.push(card.bondName)
       }
     }
 
-    // Set the new value of each bond card
-    for (const bondIndex of bondIndexes) {
-      rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
+    // For each bond name
+    for (const bondName of bondNames) {
+      let bondIndexes = []
+      let multiplier = 0
+
+      // For each bondName, save the index of each card with the corresponding bondName to bondIndexes and increment multiplier
+      for (let i = 0; i < rowArr.length; i++) {
+        if (rowArr[i].bondName === bondName) {
+          bondIndexes.push(i)
+          multiplier++
+        }
+      }
+      // Set the new value of each card
+      for (const bondIndex of bondIndexes) {
+        rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
+      }
     }
+
     resolve()
   })
 }
@@ -1218,7 +1245,7 @@ function determineRoundWinner() {
     emit('save-awards', unlockedAwards)
 
     // TODO: "View Board" option
-    modalButtons.value = ['PLAY AGAIN', 'MAIN MENU']
+    modalButtons.value = ['Play Again', 'Main Menu']
     modalIcon.value = null
 
     modal.value.show().then((i: number) => {
@@ -1344,7 +1371,7 @@ async function handCardClick(index: number) {
         activeCardRow.value = playerHand.value
         playerHandIsActive.value = true
         slideIndex.value = index
-        showCardModal('PLAY CARD', 'CANCEL').then((ok) => {
+        showCardModal('Play Card', 'Cancel').then((ok) => {
           if (ok) {
             playCard(activeCardRow.value[slideIndex.value], false, () => {
               // If player hand is now empty, pass
@@ -1366,7 +1393,7 @@ async function handCardClick(index: number) {
 function playerBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = playerBoardCards.value[rowIndex]
   slideIndex.value = index
-  showCardModal(undefined, 'CLOSE').then(() => {
+  showCardModal(undefined, 'Close').then(() => {
     closeCardModal()
   })
 }
@@ -1374,7 +1401,7 @@ function playerBoardCardClick(index: number, rowIndex: number) {
 function opponentBoardCardClick(index: number, rowIndex: number) {
   activeCardRow.value = opponentBoardCards.value[rowIndex]
   slideIndex.value = index
-  showCardModal(undefined, 'CLOSE').then(() => {
+  showCardModal(undefined, 'Close').then(() => {
     closeCardModal()
   })
 }
@@ -1382,7 +1409,7 @@ function opponentBoardCardClick(index: number, rowIndex: number) {
 function discardPileClick(isPlayer?: boolean) {
   activeCardRow.value = isPlayer ? playerDiscardPile.value : opponentDiscardPile.value
   slideIndex.value = 0
-  showCardModal(undefined, 'CLOSE').then(() => {
+  showCardModal(undefined, 'Close').then(() => {
     closeCardModal()
   })
 }
@@ -1681,7 +1708,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           type="button"
           @click="pass()"
         >
-          <span>PASS</span>
+          <span>Pass</span>
         </button>
         <div v-if="playerLeader" class="player-details">
           <div class="total">
