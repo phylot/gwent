@@ -5,7 +5,7 @@ import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import ManageDeckView from './views/ManageDeckView.vue'
-import Modal from './components/Modal.vue'
+import StandardModal from './components/StandardModal.vue'
 import { defaultPlayerAwards } from './data/common'
 
 // GLOBAL DATA
@@ -203,7 +203,7 @@ function saveAwards(awardKeys: string[]) {
   </transition>
 
   <transition name="fast-fade">
-    <Modal
+    <StandardModal
       :buttons="['Close']"
       :desktop="isDesktop"
       no-primary
@@ -226,7 +226,7 @@ function saveAwards(awardKeys: string[]) {
           If the game deems you have done something noteworthy, it may reward you...
         </p>
       </div>
-    </Modal>
+    </StandardModal>
   </transition>
 
   <transition name="slow-fade">

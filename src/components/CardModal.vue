@@ -45,6 +45,7 @@ defineProps<{
 
 .card-modal h2 {
   padding: 10px;
+  border-radius: 4px;
   background-color: #000000;
 }
 
@@ -56,6 +57,7 @@ defineProps<{
 
   .card-modal h2 {
     padding: 15px;
+    border-radius: 8px;
   }
 }
 </style>

@@ -20,7 +20,7 @@ import AlertBanner from './../components/AlertBanner.vue'
 import BoardCard from './../components/BoardCard.vue'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from './../components/CardModal.vue'
-import Modal from './../components/Modal.vue'
+import StandardModal from './../components/StandardModal.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 
 // PROPS
@@ -1543,7 +1543,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
 <template>
   <div class="game-container">
-    <Modal
+    <StandardModal
       :avatar="modalAvatar"
       :buttons="modalButtons"
       :desktop="props.desktop"
@@ -1599,7 +1599,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
         </template>
       </div>
-    </Modal>
+    </StandardModal>
 
     <AlertBanner
       v-model="alertBannerModel"
@@ -1657,7 +1657,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :class="[
             `card-row${i + 1}`,
             { 'row-select': rowFlag.rowSelect },
-            ,
             { highlight: rowFlag.highlight }
           ]"
           :key="`opponent-row-${i}`"
