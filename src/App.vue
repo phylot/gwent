@@ -20,14 +20,14 @@ let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
 let themeSong: Howl
-let unlockedAwards = ref(JSON.parse(JSON.stringify(defaultPlayerAwards)))
+let playerAwards = ref(JSON.parse(JSON.stringify(defaultPlayerAwards)))
 
 // COMPUTED DATA
 
 const awardsCount = computed((): number => {
   let count = 0
-  for (const awardKey in unlockedAwards.value) {
-    if (unlockedAwards.value[awardKey].active) {
+  for (const awardKey in playerAwards.value) {
+    if (playerAwards.value[awardKey].active) {
       count++
     }
   }
@@ -84,11 +84,11 @@ function loadLocalStorage() {
     // Read from localStorage
     let retrievedAwards: string | null = localStorage.getItem('awards')
     if (retrievedAwards) {
-      unlockedAwards.value = JSON.parse(retrievedAwards)
+      playerAwards.value = JSON.parse(retrievedAwards)
     }
 
     // TODO: Set 'unlockableCards' object
-    // TODO: Set local 'unlockableCards' variable and splice in any unclocked cards into relevant player decks
+    // TODO: Set local 'unlockableCards' variable and splice any unlocked cards into relevant player decks
     resolve()
   })
 }
@@ -169,9 +169,9 @@ function loadingChange(val: boolean) {
 
 function saveAwards(awardKeys: string[]) {
   for (const awardKey of awardKeys) {
-    unlockedAwards.value[awardKey].active = true
+    playerAwards.value[awardKey].active = true
   }
-  localStorage.setItem('awards', JSON.stringify(unlockedAwards.value))
+  localStorage.setItem('awards', JSON.stringify(playerAwards.value))
 }
 </script>
 
@@ -208,11 +208,11 @@ function saveAwards(awardKeys: string[]) {
       :desktop="isDesktop"
       no-primary
       ref="awardsModal"
-      :title="`Awards (${awardsCount}/5)`"
+      :title="`Awards (${awardsCount}/${Object.keys(playerAwards).length})`"
     >
       <div class="awards-gallery">
         <div v-if="awardsCount > 0" class="awards-grid">
-          <template v-for="(award, key) in unlockedAwards" :key="key">
+          <template v-for="(award, key) in playerAwards" :key="key">
             <div v-if="award.active" class="award-container">
               <div class="award" :class="key">
                 <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />

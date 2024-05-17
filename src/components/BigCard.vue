@@ -78,7 +78,7 @@ const cardClasses = computed(() => {
 .big-card .card-border {
   width: 100%;
   height: 100%;
-  padding: 5px;
+  padding: 6px;
   box-sizing: border-box;
   border: 1px solid #000000;
   border-radius: 8px;
@@ -86,11 +86,11 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card-border.british {
-  background: linear-gradient(#d95323, #8a2d28);
+  background: linear-gradient(#e0452b, #bc1708)
 }
 
 .big-card .card-border.french {
-  background: linear-gradient(#247ec5, #185d93)
+  background: linear-gradient(#1d7eca, #0a66ae)
 }
 
 .big-card .card {
@@ -146,7 +146,7 @@ const cardClasses = computed(() => {
   }
 
   .big-card .card-border {
-    padding: 8px;
+    padding: 10px;
     border: 2px solid #000000;
     border-radius: 10px;
   }
