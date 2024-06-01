@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
+import { type Card } from '@/types'
 import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import ManageDeckView from './views/ManageDeckView.vue'
 import StandardModal from './components/StandardModal.vue'
-import { defaultPlayerAwards } from './data/common'
+
+import { defaultCards, defaultLeaderCards } from './data/cards'
+import { defaultPlayerAwards } from './data/awards'
 
 // GLOBAL DATA
 
@@ -20,6 +23,14 @@ let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
 let themeSong: Howl
+let playerCardCollection = JSON.parse(JSON.stringify(defaultCards))
+let playerLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
+let opponentCardCollection = JSON.parse(JSON.stringify(defaultCards))
+let opponentLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
+let selectedPlayerDeck: Card[] = []
+let selectedPlayerLeader: Card
+let selectedOpponentDeck: Card[] = []
+let selectedOpponentLeader: Card
 let playerAwards = ref(JSON.parse(JSON.stringify(defaultPlayerAwards)))
 
 // COMPUTED DATA
@@ -81,14 +92,30 @@ function preloadThemeSong() {
 
 function loadLocalStorage() {
   return new Promise<void>((resolve) => {
-    // Read from localStorage
+    // Read card collections from localStorage
+    let retrievedPlayerCards: string | null = localStorage.getItem('playerCards')
+    if (retrievedPlayerCards) {
+      playerCardCollection = JSON.parse(retrievedPlayerCards)
+    }
+    let retrievedPlayerLeaderCards: string | null = localStorage.getItem('playerLeaderCards')
+    if (retrievedPlayerLeaderCards) {
+      playerLeaderCards = JSON.parse(retrievedPlayerLeaderCards)
+    }
+    let retrievedOpponentCards: string | null = localStorage.getItem('opponentCards')
+    if (retrievedOpponentCards) {
+      opponentCardCollection = JSON.parse(retrievedOpponentCards)
+    }
+    let retrievedOpponentLeaderCards: string | null = localStorage.getItem('opponentLeaderCards')
+    if (retrievedOpponentLeaderCards) {
+      opponentLeaderCards = JSON.parse(retrievedOpponentLeaderCards)
+    }
+
+    // Read awards from localStorage
     let retrievedAwards: string | null = localStorage.getItem('awards')
     if (retrievedAwards) {
       playerAwards.value = JSON.parse(retrievedAwards)
     }
 
-    // TODO: Set 'unlockableCards' object
-    // TODO: Set local 'unlockableCards' variable and splice any unlocked cards into relevant player decks
     resolve()
   })
 }
@@ -149,6 +176,13 @@ function play() {
   // Timeout to allow main menu to fade out
   setTimeout(() => {
     loading.value = true
+
+    // TODO: Display Deck Manager
+    // TODO: Set decks and leaders based on player's faction choice (emit player's selected faction from Deck Manager)
+    selectedPlayerDeck = playerCardCollection.british.deck // TEMP
+    selectedOpponentDeck = opponentCardCollection.french.deck // TEMP
+    selectedPlayerLeader = playerLeaderCards.british.selected // TEMP
+    selectedOpponentLeader = opponentLeaderCards.french.selected // TEMP
 
     // Timeout to allow loader to fade in
     setTimeout(() => {
@@ -249,6 +283,10 @@ function saveAwards(awardKeys: string[]) {
   <transition name="fast-fade">
     <GameBoardView
       v-if="gameIsActive"
+      :player-cards="selectedPlayerDeck"
+      :player-leader-card="selectedPlayerLeader"
+      :opponent-cards="selectedOpponentDeck"
+      :opponent-leader-card="selectedOpponentLeader"
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
       @loading-change="loadingChange"

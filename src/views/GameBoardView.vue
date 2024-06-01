@@ -9,15 +9,9 @@ import {
   emptyPlayerBoardArrays,
   emptyOpponentBoardArrays
 } from './../data/game-board'
-import { defaultPlayerAwards, defaultOpponentAwards } from './../data/common'
-import {
-  allOpponentCards,
-  allPlayerCards,
-  playerLeaderCard,
-  opponentLeaderCard
-} from './../data/default-cards'
+import { defaultPlayerAwards, defaultOpponentAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
-import BoardCard from './../components/BoardCard.vue'
+import SmallCard from '../components/SmallCard.vue'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from './../components/CardModal.vue'
 import StandardModal from './../components/StandardModal.vue'
@@ -26,6 +20,10 @@ import OverlayScreen from './../components/OverlayScreen.vue'
 // PROPS
 
 const props = defineProps<{
+  playerCards: Card[]
+  playerLeaderCard: Card
+  opponentCards: Card[]
+  opponentLeaderCard: Card
   cpuDifficulty: number
   desktop: boolean
 }>()
@@ -185,13 +183,13 @@ async function setupGame(callback: Function) {
   // Generate card image URLs and preload images
   emit('loading-change', true)
 
-  playerLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(playerLeaderCard))])
-  playerLeaderDefault.value = playerLeaderDefault.value[0]
-  opponentLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(opponentLeaderCard))])
-  opponentLeaderDefault.value = opponentLeaderDefault.value[0]
+  playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(props.playerCards)))
+  opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(props.opponentCards)))
 
-  playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allPlayerCards)))
-  opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(allOpponentCards)))
+  playerLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(props.playerLeaderCard))])
+  playerLeaderDefault.value = playerLeaderDefault.value[0]
+  opponentLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(props.opponentLeaderCard))])
+  opponentLeaderDefault.value = opponentLeaderDefault.value[0]
 
   playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultPlayerRowFlagArrays))
   opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultOpponentRowFlagArrays))
@@ -1322,7 +1320,7 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
   // Move each special card to the relevant player's discard pile
   for (let i = 0; i < specialDiscardPile.value.length; i++) {
     let discardPile =
-      specialDiscardPile.value[i].faction === playerLeaderCard.faction
+      specialDiscardPile.value[i].faction === props.playerLeaderCard.faction
         ? playerDiscardPile
         : opponentDiscardPile
     discardPile.value.push(specialDiscardPile.value[i])
@@ -1673,7 +1671,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
 
           <div class="card-container">
-            <BoardCard
+            <SmallCard
               v-for="(card, j) in opponentBoardCards[i]"
               :ability-icon="card.abilityIcon"
               :active="card.active"
@@ -1690,9 +1688,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
               tabindex="4"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @boardcard-click="opponentBoardCardClick(j, i)"
-              @boardcard-enter="opponentBoardCardClick(j, i)"
-              @boardcard-space="opponentBoardCardClick(j, i)"
+              @smallcard-click="opponentBoardCardClick(j, i)"
+              @smallcard-enter="opponentBoardCardClick(j, i)"
+              @smallcard-space="opponentBoardCardClick(j, i)"
             />
           </div>
         </div>
@@ -1770,7 +1768,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
         </div>
 
-        <BoardCard
+        <SmallCard
           v-if="recentSpecialCard"
           :ability-icon="recentSpecialCard.abilityIcon"
           :active="recentSpecialCard.active"
@@ -1784,7 +1782,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           tabindex="5"
           :type-icon="recentSpecialCard.typeIcon"
         />
-        <BoardCard
+        <SmallCard
           v-else
           :desktop="props.desktop"
           disabled
@@ -1887,7 +1885,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
 
           <div class="card-container">
-            <BoardCard
+            <SmallCard
               v-for="(card, j) in playerBoardCards[i]"
               :ability-icon="card.abilityIcon"
               :active="card.active"
@@ -1904,15 +1902,15 @@ function sortCardsHighToLow(a: Card, b: Card) {
               tabindex="3"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @boardcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @boardcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @boardcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
+              @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
             />
           </div>
         </div>
 
         <div class="card-row player-hand">
-          <BoardCard
+          <SmallCard
             v-for="(card, i) in playerHand"
             :ability-icon="card.abilityIcon"
             :active="card.active"
@@ -1928,9 +1926,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
             tabindex="1"
             :type-icon="card.typeIcon"
             :value="card.value"
-            @boardcard-click="handCardClick(i)"
-            @boardcard-enter="handCardClick(i)"
-            @boardcard-space="handCardClick(i)"
+            @smallcard-click="handCardClick(i)"
+            @smallcard-enter="handCardClick(i)"
+            @smallcard-space="handCardClick(i)"
           />
         </div>
       </div>

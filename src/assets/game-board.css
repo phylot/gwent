@@ -52,7 +52,7 @@
   transform: rotate(-90deg);
 }
 
-.game-details .board-card {
+.game-details .small-card {
   flex-shrink: 0;
   margin: 0 5px;
 }
@@ -211,7 +211,7 @@
 }
 
 .icon.row-select,
-.card-row.row-select .board-card {
+.card-row.row-select .small-card {
   cursor: pointer;
 }
 

@@ -80,7 +80,7 @@ const cardClasses = computed(() => {
   height: 100%;
   padding: 6px;
   box-sizing: border-box;
-  border: 1px solid #000000;
+  border: 2px solid #000000;
   border-radius: 8px;
   background-color: #000000;
 }
@@ -146,12 +146,13 @@ const cardClasses = computed(() => {
   }
 
   .big-card .card-border {
-    padding: 10px;
-    border: 2px solid #000000;
+    padding: 9px;
+    border: 3px solid #000000;
     border-radius: 10px;
   }
 
   .big-card .card {
+    border: 2px solid #000000;
     border-radius: 2px;
   }
 

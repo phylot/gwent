@@ -35,6 +35,16 @@ interface Card {
   value?: number
 }
 
+interface CardCollection {
+  british: { cards: Card[]; deck: Card[] }
+  french: { cards: Card[]; deck: Card[] }
+}
+
+interface LeaderCardCollection {
+  british: { cards: Card[]; selected: Card }
+  french: { cards: Card[]; selected: Card }
+}
+
 interface RoundTotal {
   isWin: boolean
   value: number
@@ -49,4 +59,12 @@ interface RowFlag {
   weatherIcon: string
 }
 
-export { type Award, type Awards, type Card, type RoundTotal, type RowFlag }
+export {
+  type Award,
+  type Awards,
+  type Card,
+  type CardCollection,
+  type LeaderCardCollection,
+  type RoundTotal,
+  type RowFlag
+}
