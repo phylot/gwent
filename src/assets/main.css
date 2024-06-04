@@ -19,12 +19,13 @@ html {
     url('./images/br-hakeswill.jpg'), url('./images/br-harper.jpg'), url('./images/br-harris.jpg'),
     url('./images/br-hogan.jpg'), url('./images/br-infantry.jpg'), url('./images/br-moreno.jpg'),
     url('./images/br-rifle.jpg'), url('./images/br-sergent.jpg'), url('./images/br-sharpe.jpg'),
-    url('./images/br-wellington.jpg'), url('./images/clear.png'), url('./images/decoy.jpg'),
-    url('./images/fr-brand.jpg'), url('./images/fr-cannon.jpg'), url('./images/fr-cavalry.jpg'),
-    url('./images/fr-drummer.jpg'), url('./images/fr-ducos.png'), url('./images/fr-gaston.png'),
-    url('./images/fr-general-calvet.png'), url('./images/fr-infantry.jpg'),
-    url('./images/fr-leroux.png'), url('./images/fr-loup.jpg'), url('./images/fr-maquerre.png'),
-    url('./images/fr-napoleon.jpg'), url('./images/fr-oldguard.jpg'), url('./images/fr-sergent.jpg'),
+    url('./images/br-victory.jpg'), url('./images/br-wellington.jpg'), url('./images/clear.png'),
+    url('./images/decoy.jpg'), url('./images/fr-brand.jpg'), url('./images/fr-cannon.jpg'),
+    url('./images/fr-cavalry.jpg'), url('./images/fr-drummer.jpg'), url('./images/fr-ducos.png'),
+    url('./images/fr-gaston.png'), url('./images/fr-general-calvet.png'),
+    url('./images/fr-infantry.jpg'), url('./images/fr-leroux.png'), url('./images/fr-loup.jpg'),
+    url('./images/fr-maquerre.png'), url('./images/fr-napoleon.jpg'),
+    url('./images/fr-oldguard.jpg'), url('./images/fr-sergent.jpg'),
     url('./images/fr-voltigeur.jpg'), url('./images/main-menu-bg.jpg'), url('./images/rain.png'),
     url('./images/scorch-flame.jpg'), url('./images/scorch.png');
   background-size: 0;
@@ -32,13 +33,9 @@ html {
 }
 
 #app {
-  position: relative;
   width: 100%;
   min-width: 320px;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .loader {
@@ -48,6 +45,7 @@ html {
   bottom: 0;
   left: 0;
   right: 0;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -2,14 +2,8 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { type Card, type RoundTotal, type RowFlag } from '@/types'
 
-import {
-  defaultPlayerRowFlagArrays,
-  defaultOpponentRowFlagArrays,
-  emptyCardArray,
-  emptyPlayerBoardArrays,
-  emptyOpponentBoardArrays
-} from './../data/game-board'
-import { defaultPlayerAwards, defaultOpponentAwards } from './../data/awards'
+import { defaultRowFlags } from './../data/game-board'
+import { defaultAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
 import SmallCard from '../components/SmallCard.vue'
 import CardCarousel from './../components/CardCarousel.vue'
@@ -20,12 +14,12 @@ import OverlayScreen from './../components/OverlayScreen.vue'
 // PROPS
 
 const props = defineProps<{
-  playerCards: Card[]
-  playerLeaderCard: Card
-  opponentCards: Card[]
-  opponentLeaderCard: Card
   cpuDifficulty: number
   desktop: boolean
+  opponentCards: Card[]
+  opponentLeaderCard: Card
+  playerCards: Card[]
+  playerLeaderCard: Card
 }>()
 
 // BOARD-RELATED DATA
@@ -34,24 +28,24 @@ const playerLeader = ref()
 const playerLeaderDefault = ref()
 const opponentLeader = ref()
 const opponentLeaderDefault = ref()
-let playerDeck = ref()
+let playerDeck = ref<Card[]>([])
 let playerDeckDefault = ref()
-let opponentDeck = ref()
+let opponentDeck = ref<Card[]>([])
 let opponentDeckDefault = ref()
-let playerHand = ref(emptyCardArray)
-let opponentHand = ref(emptyCardArray)
+let playerHand = ref<Card[]>([])
+let opponentHand = ref<Card[]>([])
 let cardRedrawActive = ref(false)
-let playerBoardCards = ref(emptyPlayerBoardArrays)
-let opponentBoardCards = ref(emptyOpponentBoardArrays)
+let playerBoardCards = ref<Card[][]>([[],[],[]])
+let opponentBoardCards = ref<Card[][]>([[],[],[]])
 let playerRowFlags = ref()
 let playerRowFlagsDefault = ref()
 let opponentRowFlags = ref()
 let opponentRowFlagsDefault = ref()
-let playerDiscardPile = ref(emptyCardArray)
-let opponentDiscardPile = ref(emptyCardArray)
-let specialDiscardPile = ref(emptyCardArray)
+let playerDiscardPile = ref<Card[]>([]);
+let opponentDiscardPile = ref<Card[]>([]);
+let specialDiscardPile = ref<Card[]>([]);
 let playerHandIsActive = ref(false)
-let activeCardRow = ref(emptyCardArray)
+let activeCardRow = ref<Card[]>([]);
 let slideIndex = ref(0)
 let cardModal = ref(false)
 let cardModalConfirmText = ref()
@@ -183,43 +177,20 @@ async function setupGame(callback: Function) {
   // Generate card image URLs and preload images
   emit('loading-change', true)
 
-  playerDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(props.playerCards)))
-  opponentDeckDefault.value = await preloadCards(JSON.parse(JSON.stringify(props.opponentCards)))
+  playerDeckDefault.value = JSON.parse(JSON.stringify(props.playerCards))
+  opponentDeckDefault.value = JSON.parse(JSON.stringify(props.opponentCards))
 
-  playerLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(props.playerLeaderCard))])
-  playerLeaderDefault.value = playerLeaderDefault.value[0]
-  opponentLeaderDefault.value = await preloadCards([JSON.parse(JSON.stringify(props.opponentLeaderCard))])
-  opponentLeaderDefault.value = opponentLeaderDefault.value[0]
+  playerLeaderDefault.value = JSON.parse(JSON.stringify(props.playerLeaderCard))
+  opponentLeaderDefault.value = JSON.parse(JSON.stringify(props.opponentLeaderCard))
 
-  playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultPlayerRowFlagArrays))
-  opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultOpponentRowFlagArrays))
+  playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
+  opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
 
   await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
   if (callback) {
     callback()
   }
-}
-
-function preloadCards(cards: Card[]) {
-  return new Promise((resolve) => {
-    let imageCount = cards?.length || 0
-    let imagesLoaded = 0
-
-    if (imageCount > 0) {
-      for (let i = 0; i < imageCount; i++) {
-        cards[i].imageUrl = new URL(`../assets/images/${cards[i].image}`, import.meta.url).href
-        loadImage(cards[i].imageUrl!, () => {
-          imagesLoaded++
-          if (imagesLoaded == imageCount) {
-            resolve(cards)
-          }
-        })
-      }
-    } else {
-      resolve(cards)
-    }
-  })
 }
 
 function preloadImages(fileNames: string[]) {
@@ -289,8 +260,8 @@ function startNewGame() {
   opponentRoundTotals.value = []
 
   // Reset awards
-  playerAwards.value = JSON.parse(JSON.stringify(defaultPlayerAwards))
-  opponentAwards.value = JSON.parse(JSON.stringify(defaultOpponentAwards))
+  playerAwards.value = JSON.parse(JSON.stringify(defaultAwards))
+  opponentAwards.value = JSON.parse(JSON.stringify(defaultAwards))
 
   modalAvatar.value = null
   modalButtons.value = null
@@ -1540,7 +1511,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
 </script>
 
 <template>
-  <div class="game-container">
+  <div class="game-board">
     <StandardModal
       :avatar="modalAvatar"
       :buttons="modalButtons"
@@ -1609,7 +1580,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <OverlayScreen v-model="overlayScreenModel"></OverlayScreen>
 
-    <div class="scroll-container">
+    <div class="game-container">
+      <div class="board-container">
+
       <CardModal v-model="cardModal" class="quick-fade">
         <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
 
@@ -1931,6 +1904,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             @smallcard-space="handCardClick(i)"
           />
         </div>
+      </div>
       </div>
     </div>
   </div>

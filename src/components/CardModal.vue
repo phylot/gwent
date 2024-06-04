@@ -6,10 +6,8 @@ defineProps<{
 
 <template>
   <div v-if="modelValue" class="card-modal">
-    <div class="card-modal-wrapper">
-      <div class="card-modal-content">
-        <slot></slot>
-      </div>
+    <div class="card-modal-content">
+      <slot></slot>
     </div>
   </div>
 </template>
@@ -23,14 +21,6 @@ defineProps<{
   left: 0;
   right: 0;
   color: #ffffff;
-}
-
-.card-modal .card-modal-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
 }
 
 .card-modal .card-modal-content {

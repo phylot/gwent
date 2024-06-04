@@ -5,11 +5,11 @@ import { type Card } from '@/types'
 import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
-import ManageDeckView from './views/ManageDeckView.vue'
+import DeckManagerView from './views/DeckManagerView.vue'
 import StandardModal from './components/StandardModal.vue'
 
 import { defaultCards, defaultLeaderCards } from './data/cards'
-import { defaultPlayerAwards } from './data/awards'
+import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
 
@@ -31,7 +31,7 @@ let selectedPlayerDeck: Card[] = []
 let selectedPlayerLeader: Card
 let selectedOpponentDeck: Card[] = []
 let selectedOpponentLeader: Card
-let playerAwards = ref(JSON.parse(JSON.stringify(defaultPlayerAwards)))
+let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
 
 // COMPUTED DATA
 
@@ -69,9 +69,36 @@ async function preload() {
   await preloadThemeSong()
   await loadLocalStorage()
 
-  // Preload background image
+  // Preload card collections
+  for (const faction in playerCardCollection) {
+    for (const key in playerCardCollection[faction]) {
+      playerCardCollection[faction][key] = await preloadCards(playerCardCollection[faction][key])
+    }
+  }
+  for (const faction in opponentCardCollection) {
+    for (const key in opponentCardCollection[faction]) {
+      opponentCardCollection[faction][key] = await preloadCards(opponentCardCollection[faction][key])
+    }
+  }
+
+  // Preload leader cards
+  for (const faction in playerLeaderCards) {
+    playerLeaderCards[faction].cards = await preloadCards(playerLeaderCards[faction].cards)
+    playerLeaderCards[faction].selected = await preloadCards([playerLeaderCards[faction].selected])
+    playerLeaderCards[faction].selected = playerLeaderCards[faction].selected[0]
+  }
+  for (const faction in opponentLeaderCards) {
+    opponentLeaderCards[faction].cards = await preloadCards(opponentLeaderCards[faction].cards)
+    opponentLeaderCards[faction].selected = await preloadCards([opponentLeaderCards[faction].selected])
+    opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
+  }
+
+  // TODO: Preload unlockable cards
+
+  // Preload title screen background image
   await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
   showContinueBtn.value = true
+
 }
 
 function preloadThemeSong() {
@@ -120,6 +147,24 @@ function loadLocalStorage() {
   })
 }
 
+async function preloadCards(cards: Card[]) {
+    let imageCount = cards?.length || 0
+    let imagesLoaded = 0
+
+    if (imageCount > 0) {
+      for (let i = 0; i < imageCount; i++) {
+        cards[i].imageUrl = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
+        await loadImage(cards[i].imageUrl!)
+          imagesLoaded++
+          if (imagesLoaded == imageCount) {
+            return cards
+          }
+      }
+    } else {
+      return cards
+    }
+}
+
 function loadImage(imageUrl: string) {
   return new Promise<void>((resolve) => {
     let img = new Image()
@@ -133,6 +178,7 @@ function loadImage(imageUrl: string) {
     img.src = imageUrl
   })
 }
+
 
 function showMainMenu() {
   loading.value = false
@@ -277,7 +323,12 @@ function saveAwards(awardKeys: string[]) {
   </transition>
 
   <transition name="fast-fade">
-    <ManageDeckView v-if="manageDeckIsActive"></ManageDeckView>
+    <DeckManagerView
+      v-if="manageDeckIsActive"
+      :card-collection="playerCardCollection"
+      :desktop="isDesktop"
+      :leader-cards="playerLeaderCards"
+    ></DeckManagerView>
   </transition>
 
   <transition name="fast-fade">

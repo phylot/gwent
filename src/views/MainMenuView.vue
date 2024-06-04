@@ -10,13 +10,13 @@ let beanVisible = ref(false)
 let logoVisible = ref(false)
 let playButtonVisible = ref(false)
 let skipButtonVisible = ref(false)
-let isSkipped = ref(false)
 let mainMenuVisible = ref(false)
 let beanTimeout1: ReturnType<typeof setTimeout>
 let beanTimeout2: ReturnType<typeof setTimeout>
 let logoTimeout: ReturnType<typeof setTimeout>
 let playButtonTimeout: ReturnType<typeof setTimeout>
 let titleSequenceIsFinished: boolean = false
+let animationIsFinished = ref(false)
 
 // EVENTS
 
@@ -41,6 +41,7 @@ onMounted(() => {
         logoVisible.value = true
         playButtonTimeout = setTimeout(() => {
           playButtonVisible.value = true
+          animationIsFinished.value = true
         }, 1500)
       }, 4600)
     }, 3500)
@@ -48,7 +49,7 @@ onMounted(() => {
 })
 
 function viewClick() {
-  if (!isSkipped.value && !skipButtonVisible.value && !titleSequenceIsFinished) {
+  if (!skipButtonVisible.value && !titleSequenceIsFinished && !animationIsFinished.value) {
     skipButtonVisible.value = true
     setTimeout(() => {
       skipButtonVisible.value = false
@@ -63,7 +64,7 @@ function skip() {
   clearTimeout(playButtonTimeout)
 
   titleSequenceIsFinished = true
-  isSkipped.value = true
+  animationIsFinished.value = true
   beanVisible.value = false
   skipButtonVisible.value = false
   logoVisible.value = true
@@ -80,8 +81,8 @@ function showMainMenu() {
 </script>
 
 <template>
-  <div class="main-menu" :class="{ animate: !isSkipped }" @click="viewClick">
-    <transition :name="isSkipped ? 'none' : 'fade'">
+  <div class="main-menu" :class="{ animate: !animationIsFinished }" @click="viewClick">
+    <transition :name="animationIsFinished ? 'none' : 'fade'">
       <h1 v-if="beanVisible" class="bean">SEAN BEAN</h1>
     </transition>
 
@@ -115,10 +116,10 @@ function showMainMenu() {
           type="button"
           @click="$emit('play')"
         >
-          Quick Match
+          Play
         </button>
         <button
-          class="btn large no-mobile-highlight disabled"
+          class="btn disabled large no-mobile-highlight"
           disabled
           type="button"
           @click="emit('manage-deck')"
@@ -151,8 +152,6 @@ function showMainMenu() {
 </template>
 
 <style>
-/* TODO: Move to /assets/styles/main-menu.css */
-
 .main-menu {
   width: 100%;
   min-width: 320px;
@@ -167,7 +166,10 @@ function showMainMenu() {
 }
 
 .main-menu.animate {
-  animation: menuBgPan 30s;
+  animation-duration: 18.6s;
+  animation-name: menuBgPan;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
 }
 
 /* Main menu background animation */
@@ -180,12 +182,12 @@ function showMainMenu() {
   }
 
   @keyframes menuBgPan {
-    0% {
+    from {
       background-size: auto 150%;
       background-position-x: 0;
       background-position-y: 100%;
     }
-    100% {
+    to {
       background-size: auto 100%;
       background-position-x: 80%;
       background-position-y: 0;
@@ -201,12 +203,12 @@ function showMainMenu() {
   }
 
   @keyframes menuBgPan {
-    0% {
+    from {
       background-size: 250% auto;
       background-position-x: 0;
       background-position-y: 100%;
     }
-    100% {
+    to {
       background-size: 150% auto;
       background-position-x: 100%;
       background-position-y: 0;

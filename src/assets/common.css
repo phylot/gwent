@@ -236,11 +236,11 @@
 /* For 'transition' element */
 
 .fast-fade-enter-active {
-  transition: all 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
 }
 
 .fast-fade-leave-active {
-  transition: all 0.2s ease-out;
+  transition: opacity 0.2s ease-out;
 }
 
 .fast-fade-enter-from,
@@ -249,11 +249,11 @@
 }
 
 .fade-enter-active {
-  transition: all 0.5s ease-out;
+  transition: opacity 0.5s ease-out;
 }
 
 .fade-leave-active {
-  transition: all 0.5s ease-out;
+  transition: opacity 0.5s ease-out;
 }
 
 .fade-enter-from,
@@ -262,11 +262,11 @@
 }
 
 .slow-fade-enter-active {
-  transition: all 1s ease-out;
+  transition: opacity 1s ease-out;
 }
 
 .slow-fade-leave-active {
-  transition: all 1s ease-out;
+  transition: opacity 1s ease-out;
 }
 
 .slow-fade-enter-from,
