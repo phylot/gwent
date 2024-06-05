@@ -350,6 +350,7 @@
   display: block;
   animation-name: fade-in;
   animation-duration: 0.4s;
+  animation-timing-function: ease-out;
   background: #fff;
 }
 
@@ -357,6 +358,7 @@
   display: block;
   animation-name: fade-out;
   animation-duration: 0.4s;
+  animation-timing-function: ease-in;
   background: #fff;
 }
 

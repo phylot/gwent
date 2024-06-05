@@ -122,11 +122,28 @@ const emit = defineEmits<{
   transform: translate(0, 3px);
 }
 
+.prev-btn:focus:not(.disabled),
+.next-btn:focus:not(.disabled) {
+  outline: none;
+  box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
+}
+
 .prev-btn .icon {
   margin-left: -2px;
 }
 
 .next-btn .icon {
   margin-right: -2px;
+}
+
+/* Desktop / Tablet Styles */
+
+@media (min-height: 880px) and (orientation: landscape),
+(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .prev-btn:focus:not(.disabled),
+  .next-btn:focus:not(.disabled) {
+    outline: none;
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
+  }
 }
 </style>
