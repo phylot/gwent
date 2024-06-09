@@ -11,6 +11,7 @@ const props = defineProps<{
   faction?: string
   hero?: boolean
   imageUrl?: string | undefined
+  overlap?: boolean
   typeIcon?: string
   value?: number
 }>()
@@ -19,14 +20,15 @@ const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
 })
 
-const classes = computed(() => {
+const cardClasses = computed(() => {
   return {
     active: props.active,
-    disabled: props.disabled
+    disabled: props.disabled,
+    overlap: props.overlap
   }
 })
 
-const cardClasses = computed(() => {
+const cardWrapClasses = computed(() => {
   return {
     decreased: props.value && props.defaultValue && props.value < props.defaultValue,
     hero: props.hero,
@@ -38,7 +40,7 @@ const cardClasses = computed(() => {
 <template>
   <div
     class="small-card"
-    :class="classes"
+    :class="cardClasses"
     @click="disabled ? null : $emit('smallcard-click', $event)"
     @keyup.enter="disabled ? null : $emit('smallcard-enter', $event)"
     @keyup.space="disabled ? null : $emit('smallcard-space', $event)"
@@ -47,7 +49,7 @@ const cardClasses = computed(() => {
       <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
-        :class="cardClasses"
+        :class="cardWrapClasses"
         :style="{
           backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
           backgroundColor: props.imageUrl ? '#000000' : '#a4a4a4'
@@ -74,12 +76,15 @@ const cardClasses = computed(() => {
 
 <style>
 .small-card {
-  overflow: hidden;
-  height: 100%;
+  height: 70px;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
   cursor: pointer;
+}
+
+.small-card.overlap {
+  overflow: hidden;
 }
 
 .small-card.disabled {
@@ -142,6 +147,10 @@ const cardClasses = computed(() => {
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .small-card {
+    height: 110px;
+  }
+
   .small-card .card-wrap {
     width: 90px;
   }

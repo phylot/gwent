@@ -83,12 +83,12 @@ async function preload() {
 
   // Preload leader cards
   for (const faction in playerLeaderCards) {
-    playerLeaderCards[faction].cards = await preloadCards(playerLeaderCards[faction].cards)
+    playerLeaderCards[faction].collection = await preloadCards(playerLeaderCards[faction].collection)
     playerLeaderCards[faction].selected = await preloadCards([playerLeaderCards[faction].selected])
     playerLeaderCards[faction].selected = playerLeaderCards[faction].selected[0]
   }
   for (const faction in opponentLeaderCards) {
-    opponentLeaderCards[faction].cards = await preloadCards(opponentLeaderCards[faction].cards)
+    opponentLeaderCards[faction].collection = await preloadCards(opponentLeaderCards[faction].collection)
     opponentLeaderCards[faction].selected = await preloadCards([opponentLeaderCards[faction].selected])
     opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
   }
@@ -188,6 +188,8 @@ function showMainMenu() {
   themeSong.play()
 
   setTimeout(() => {
+    // TODO: Set / check a flag to determine if title sequence has already played, and if so, skip it
+
     mainMenuIsActive.value = true
     showContinueBtn.value = false
 

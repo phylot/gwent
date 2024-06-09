@@ -35,17 +35,17 @@ let opponentDeckDefault = ref()
 let playerHand = ref<Card[]>([])
 let opponentHand = ref<Card[]>([])
 let cardRedrawActive = ref(false)
-let playerBoardCards = ref<Card[][]>([[],[],[]])
-let opponentBoardCards = ref<Card[][]>([[],[],[]])
+let playerBoardCards = ref<Card[][]>([[], [], []])
+let opponentBoardCards = ref<Card[][]>([[], [], []])
 let playerRowFlags = ref()
 let playerRowFlagsDefault = ref()
 let opponentRowFlags = ref()
 let opponentRowFlagsDefault = ref()
-let playerDiscardPile = ref<Card[]>([]);
-let opponentDiscardPile = ref<Card[]>([]);
-let specialDiscardPile = ref<Card[]>([]);
+let playerDiscardPile = ref<Card[]>([])
+let opponentDiscardPile = ref<Card[]>([])
+let specialDiscardPile = ref<Card[]>([])
 let playerHandIsActive = ref(false)
-let activeCardRow = ref<Card[]>([]);
+let activeCardRow = ref<Card[]>([])
 let slideIndex = ref(0)
 let cardModal = ref(false)
 let cardModalConfirmText = ref()
@@ -638,7 +638,11 @@ async function performAbility(card: Card, rowArr: Card[], callback: Function) {
     await performMuster(card)
   }
 
-  if (card.ability === 'close_scorch' || card.ability === 'ranged_scorch') {
+  if (
+    card.ability === 'close_scorch' ||
+    card.ability === 'ranged_scorch' ||
+    card.ability === 'siege_scorch'
+  ) {
     await performRowScorch(card)
   }
 
@@ -827,13 +831,12 @@ function performMuster(card: Card) {
 
 function performRowScorch(card: Card) {
   return new Promise<void>((resolve) => {
-    let cardRowIndex = card.ability === 'close_scorch' ? 0 : 1
     let cardRow = isPlayerTurn.value
-      ? opponentBoardCards.value[cardRowIndex]
-      : playerBoardCards.value[cardRowIndex]
+      ? opponentBoardCards.value[abilityIndexes[card.type]]
+      : playerBoardCards.value[abilityIndexes[card.type]]
     let cardRowTotal = isPlayerTurn.value
-      ? rowTotals.value.opponent[cardRowIndex]
-      : rowTotals.value.player[cardRowIndex]
+      ? rowTotals.value.opponent[abilityIndexes[card.type]]
+      : rowTotals.value.player[abilityIndexes[card.type]]
     let scorchCardFound = false
 
     // If cards are present in the relevant board card row, and they total 10 or above
@@ -1002,7 +1005,7 @@ function calculateBond(rowArr: Card[]) {
 
     // Loop through and save each UNIQUE bondName to an array
     for (const card of rowArr) {
-      if (card.ability === "bond" && bondNames.indexOf(card.bondName) === -1) {
+      if (card.ability === 'bond' && bondNames.indexOf(card.bondName) === -1) {
         bondNames.push(card.bondName)
       }
     }
@@ -1582,329 +1585,333 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <div class="game-container">
       <div class="board-container">
+        <CardModal v-model="cardModal" class="quick-fade">
+          <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
 
-      <CardModal v-model="cardModal" class="quick-fade">
-        <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
-
-        <CardCarousel
-          v-if="!carouselIsHidden"
-          :cards="activeCardRow"
-          :desktop="props.desktop"
-          :disabled="boardDisabled"
-          @prev-click="changeSlide"
-          @next-click="changeSlide"
-        ></CardCarousel>
-
-        <button
-          v-if="cardModalConfirmText"
-          class="btn large primary no-mobile-highlight"
-          :disabled="boardDisabled"
-          tabindex="2"
-          type="button"
-          @click="resolveCardModal(true)"
-          @keyup.enter="resolveCardModal(true)"
-          @keyup.space="resolveCardModal(true)"
-        >
-          {{ cardModalConfirmText }}
-        </button>
-        <button
-          v-if="cardModalCancelText"
-          class="btn large no-mobile-highlight"
-          :disabled="boardDisabled"
-          tabindex="2"
-          type="button"
-          @click="resolveCardModal(false)"
-          @keyup.enter="resolveCardModal(false)"
-          @keyup.space="resolveCardModal(false)"
-        >
-          {{ cardModalCancelText }}
-        </button>
-      </CardModal>
-
-      <div class="opponent-board">
-        <div
-          v-for="(rowFlag, i) in opponentRowFlags"
-          class="card-row"
-          :class="[
-            `card-row${i + 1}`,
-            { 'row-select': rowFlag.rowSelect },
-            { highlight: rowFlag.highlight }
-          ]"
-          :key="`opponent-row-${i}`"
-          @click="rowFlag.rowSelect ? rowClick(i) : null"
-        >
-          <div class="row-stats">
-            <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
-            <div v-if="rowFlag.double" class="ability card-stat-badge">
-              <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
-            </div>
-            <div v-if="rowFlag.weather" class="ability card-stat-badge">
-              <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
-            </div>
-          </div>
-
-          <div class="card-container">
-            <SmallCard
-              v-for="(card, j) in opponentBoardCards[i]"
-              :ability-icon="card.abilityIcon"
-              :active="card.active"
-              :animation-name="card.animationName"
-              class="no-mobile-highlight"
-              :default-value="card.defaultValue"
-              :desktop="props.desktop"
-              :disabled="boardDisabled"
-              :faction="card.faction"
-              :hero="card.hero"
-              :image-url="card.imageUrl"
-              :key="j"
-              role="button"
-              tabindex="4"
-              :type-icon="card.typeIcon"
-              :value="card.value"
-              @smallcard-click="opponentBoardCardClick(j, i)"
-              @smallcard-enter="opponentBoardCardClick(j, i)"
-              @smallcard-space="opponentBoardCardClick(j, i)"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="game-details">
-        <button
-          class="btn pass-btn no-mobile-highlight"
-          :class="{ disabled: boardDisabled }"
-          :disabled="boardDisabled"
-          title="Pass"
-          type="button"
-          @click="pass()"
-        >
-          <span>Pass</span>
-        </button>
-        <div v-if="playerLeader" class="player-details">
-          <div class="total">
-            <v-icon
-              v-if="playerHasRound"
-              name="gi-round-star"
-              class="icon round-icon"
-              :scale="props.desktop ? 1.8 : 1.2"
-              fill="gold"
-            />
-            <v-icon
-              v-if="playerIsPassed"
-              name="fa-flag"
-              class="icon pass-icon"
-              :scale="props.desktop ? 1.8 : 1.2"
-              animation="float"
-              fill="white"
-            />
-            <div
-              class="avatar"
-              :class="{ active: isPlayerTurn }"
-              :style="{ backgroundImage: `url(${playerLeader.imageUrl})` }"
-            ></div>
-            <div class="stat-badge player">{{ playerTotal }}</div>
-          </div>
-          <div class="details">
-            <div class="name">
-              <div class="title">
-                <h2>{{ playerLeader.name }}</h2>
-              </div>
-              <div class="subtitle">
-                {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
-              </div>
-            </div>
-            <div class="stats">
-              <div class="hand-total" :title="`Player Hand (${playerHandCount})`">
-                <v-icon name="fa-layer-group" class="icon" :scale="props.desktop ? 2 : 1" />
-                {{ playerHandCount }}
-              </div>
-              <div
-                :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
-                class="discard-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled || playerDiscardPile.length < 1 }"
-                role="button"
-                :title="`Player Discard Pile (${playerDiscardPile.length})`"
-                @click="
-                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
-                "
-                @keyup.enter="
-                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
-                "
-                @keyup.space="
-                  boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
-                "
-              >
-                <v-icon name="io-skull" class="icon" :scale="props.desktop ? 2 : 1" />
-                {{ playerDiscardPile.length }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <SmallCard
-          v-if="recentSpecialCard"
-          :ability-icon="recentSpecialCard.abilityIcon"
-          :active="recentSpecialCard.active"
-          :animation-name="recentSpecialCard.animationName"
-          class="no-mobile-highlight"
-          :desktop="props.desktop"
-          :disabled="boardDisabled"
-          :faction="recentSpecialCard.faction"
-          :hero="recentSpecialCard.hero"
-          :image-url="recentSpecialCard.imageUrl"
-          tabindex="5"
-          :type-icon="recentSpecialCard.typeIcon"
-        />
-        <SmallCard
-          v-else
-          :desktop="props.desktop"
-          disabled
-          class="no-mobile-highlight"
-          tabindex="5"
-        />
-
-        <div class="opponent-details">
-          <div class="total">
-            <v-icon
-              v-if="opponentHasRound"
-              name="gi-round-star"
-              class="icon round-icon"
-              :scale="props.desktop ? 1.8 : 1.2"
-              fill="gold"
-            />
-            <v-icon
-              v-if="opponentIsPassed"
-              name="fa-flag"
-              class="icon pass-icon"
-              :scale="props.desktop ? 1.8 : 1.2"
-              animation="float"
-              fill="white"
-            />
-            <div
-              v-if="opponentLeader"
-              class="avatar"
-              :class="{ active: !isPlayerTurn }"
-              :style="{ backgroundImage: `url(${opponentLeader.imageUrl})` }"
-            ></div>
-            <div class="stat-badge opponent">{{ opponentTotal }}</div>
-          </div>
-          <div v-if="opponentLeader" class="details">
-            <div class="name">
-              <div class="title">
-                <h2>{{ opponentLeader.name }}</h2>
-              </div>
-              <div class="subtitle">
-                {{
-                  opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)
-                }}
-              </div>
-            </div>
-            <div class="stats">
-              <div class="hand-total" :title="`Opponent Hand (${opponentHandCount})`">
-                <v-icon name="fa-layer-group" class="icon" :scale="props.desktop ? 2 : 1" />
-                {{ opponentHandCount }}
-              </div>
-              <div
-                :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                class="discard-pile no-mobile-highlight"
-                :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
-                role="button"
-                :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                @click="boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()"
-                @keyup.enter="
-                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                "
-                @keyup.space="
-                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                "
-              >
-                <v-icon name="io-skull" class="icon" :scale="props.desktop ? 2 : 1" />
-                {{ opponentDiscardPile.length }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="player-board">
-        <div
-          v-for="(rowFlag, i) in playerRowFlags"
-          class="card-row"
-          :class="[
-            `card-row${i + 1}`,
-            { 'row-select': rowFlag.rowSelect },
-            { highlight: rowFlag.highlight }
-          ]"
-          :key="`player-row-${i}`"
-          @click="rowFlag.rowSelect ? rowClick(i) : null"
-        >
-          <v-icon
-            v-if="rowFlag.rowSelect"
-            name="md-touchapp-round"
-            class="icon row-select"
-            :scale="props.desktop ? 3.8 : 2.5"
-            animation="pulse"
-            fill="chartreuse"
-          />
-
-          <div class="row-stats">
-            <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
-            <div v-if="rowFlag.double" class="ability card-stat-badge">
-              <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
-            </div>
-            <div v-if="rowFlag.weather" class="ability card-stat-badge">
-              <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
-            </div>
-          </div>
-
-          <div class="card-container">
-            <SmallCard
-              v-for="(card, j) in playerBoardCards[i]"
-              :ability-icon="card.abilityIcon"
-              :active="card.active"
-              :animation-name="card.animationName"
-              class="no-mobile-highlight"
-              :default-value="card.defaultValue"
-              :desktop="props.desktop"
-              :disabled="boardDisabled"
-              :faction="card.faction"
-              :hero="card.hero"
-              :image-url="card.imageUrl"
-              :key="j"
-              role="button"
-              tabindex="3"
-              :type-icon="card.typeIcon"
-              :value="card.value"
-              @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
-              @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
-            />
-          </div>
-        </div>
-
-        <div class="card-row player-hand">
-          <SmallCard
-            v-for="(card, i) in playerHand"
-            :ability-icon="card.abilityIcon"
-            :active="card.active"
-            class="no-mobile-highlight"
-            :default-value="card.defaultValue"
+          <CardCarousel
+            v-if="!carouselIsHidden"
+            :cards="activeCardRow"
             :desktop="props.desktop"
             :disabled="boardDisabled"
-            :faction="card.faction"
-            :hero="card.hero"
-            :image-url="card.imageUrl"
-            :key="i"
-            role="button"
-            tabindex="1"
-            :type-icon="card.typeIcon"
-            :value="card.value"
-            @smallcard-click="handCardClick(i)"
-            @smallcard-enter="handCardClick(i)"
-            @smallcard-space="handCardClick(i)"
-          />
+            @prev-click="changeSlide"
+            @next-click="changeSlide"
+          ></CardCarousel>
+
+          <button
+            v-if="cardModalConfirmText"
+            class="btn large primary no-mobile-highlight"
+            :disabled="boardDisabled"
+            tabindex="2"
+            type="button"
+            @click="resolveCardModal(true)"
+            @keyup.enter="resolveCardModal(true)"
+            @keyup.space="resolveCardModal(true)"
+          >
+            {{ cardModalConfirmText }}
+          </button>
+          <button
+            v-if="cardModalCancelText"
+            class="btn large no-mobile-highlight"
+            :disabled="boardDisabled"
+            tabindex="2"
+            type="button"
+            @click="resolveCardModal(false)"
+            @keyup.enter="resolveCardModal(false)"
+            @keyup.space="resolveCardModal(false)"
+          >
+            {{ cardModalCancelText }}
+          </button>
+        </CardModal>
+
+        <div class="opponent-board">
+          <div
+            v-for="(rowFlag, i) in opponentRowFlags"
+            class="card-row"
+            :class="[
+              `card-row${i + 1}`,
+              { 'row-select': rowFlag.rowSelect },
+              { highlight: rowFlag.highlight }
+            ]"
+            :key="`opponent-row-${i}`"
+            @click="rowFlag.rowSelect ? rowClick(i) : null"
+          >
+            <div class="row-stats">
+              <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
+              <div v-if="rowFlag.double" class="ability card-stat-badge">
+                <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
+              </div>
+              <div v-if="rowFlag.weather" class="ability card-stat-badge">
+                <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
+              </div>
+            </div>
+
+            <div class="card-container">
+              <SmallCard
+                v-for="(card, j) in opponentBoardCards[i]"
+                :ability-icon="card.abilityIcon"
+                :active="card.active"
+                :animation-name="card.animationName"
+                class="no-mobile-highlight"
+                :default-value="card.defaultValue"
+                :desktop="props.desktop"
+                :disabled="boardDisabled"
+                :faction="card.faction"
+                :hero="card.hero"
+                :image-url="card.imageUrl"
+                :key="j"
+                overlap
+                role="button"
+                tabindex="4"
+                :type-icon="card.typeIcon"
+                :value="card.value"
+                @smallcard-click="opponentBoardCardClick(j, i)"
+                @smallcard-enter="opponentBoardCardClick(j, i)"
+                @smallcard-space="opponentBoardCardClick(j, i)"
+              />
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div class="game-details">
+          <button
+            class="btn pass-btn no-mobile-highlight"
+            :class="{ disabled: boardDisabled }"
+            :disabled="boardDisabled"
+            title="Pass"
+            type="button"
+            @click="pass()"
+          >
+            <span>Pass</span>
+          </button>
+          <div v-if="playerLeader" class="player-details">
+            <div class="total">
+              <v-icon
+                v-if="playerHasRound"
+                name="gi-round-star"
+                class="icon round-icon"
+                :scale="props.desktop ? 1.8 : 1.2"
+                fill="gold"
+              />
+              <v-icon
+                v-if="playerIsPassed"
+                name="fa-flag"
+                class="icon pass-icon"
+                :scale="props.desktop ? 1.8 : 1.2"
+                animation="float"
+                fill="white"
+              />
+              <div
+                class="avatar"
+                :class="{ active: isPlayerTurn }"
+                :style="{ backgroundImage: `url(${playerLeader.imageUrl})` }"
+              ></div>
+              <div class="stat-badge player">{{ playerTotal }}</div>
+            </div>
+            <div class="details">
+              <div class="name">
+                <div class="title">
+                  <h2>{{ playerLeader.name }}</h2>
+                </div>
+                <div class="subtitle">
+                  {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
+                </div>
+              </div>
+              <div class="stats">
+                <div class="hand-total" :title="`Player Hand (${playerHandCount})`">
+                  <v-icon name="fa-layer-group" class="icon" :scale="props.desktop ? 2 : 1" />
+                  {{ playerHandCount }}
+                </div>
+                <div
+                  :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
+                  class="discard-pile no-mobile-highlight"
+                  :class="{ disabled: boardDisabled || playerDiscardPile.length < 1 }"
+                  role="button"
+                  :title="`Player Discard Pile (${playerDiscardPile.length})`"
+                  @click="
+                    boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
+                  "
+                  @keyup.enter="
+                    boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
+                  "
+                  @keyup.space="
+                    boardDisabled || playerDiscardPile.length < 1 ? null : discardPileClick(true)
+                  "
+                >
+                  <v-icon name="io-skull" class="icon" :scale="props.desktop ? 2 : 1" />
+                  {{ playerDiscardPile.length }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <SmallCard
+            v-if="recentSpecialCard"
+            :ability-icon="recentSpecialCard.abilityIcon"
+            :active="recentSpecialCard.active"
+            :animation-name="recentSpecialCard.animationName"
+            class="no-mobile-highlight"
+            :desktop="props.desktop"
+            :disabled="boardDisabled"
+            :faction="recentSpecialCard.faction"
+            :hero="recentSpecialCard.hero"
+            :image-url="recentSpecialCard.imageUrl"
+            tabindex="5"
+            :type-icon="recentSpecialCard.typeIcon"
+          />
+          <SmallCard
+            v-else
+            :desktop="props.desktop"
+            disabled
+            class="no-mobile-highlight"
+            tabindex="5"
+          />
+
+          <div class="opponent-details">
+            <div class="total">
+              <v-icon
+                v-if="opponentHasRound"
+                name="gi-round-star"
+                class="icon round-icon"
+                :scale="props.desktop ? 1.8 : 1.2"
+                fill="gold"
+              />
+              <v-icon
+                v-if="opponentIsPassed"
+                name="fa-flag"
+                class="icon pass-icon"
+                :scale="props.desktop ? 1.8 : 1.2"
+                animation="float"
+                fill="white"
+              />
+              <div
+                v-if="opponentLeader"
+                class="avatar"
+                :class="{ active: !isPlayerTurn }"
+                :style="{ backgroundImage: `url(${opponentLeader.imageUrl})` }"
+              ></div>
+              <div class="stat-badge opponent">{{ opponentTotal }}</div>
+            </div>
+            <div v-if="opponentLeader" class="details">
+              <div class="name">
+                <div class="title">
+                  <h2>{{ opponentLeader.name }}</h2>
+                </div>
+                <div class="subtitle">
+                  {{
+                    opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)
+                  }}
+                </div>
+              </div>
+              <div class="stats">
+                <div class="hand-total" :title="`Opponent Hand (${opponentHandCount})`">
+                  <v-icon name="fa-layer-group" class="icon" :scale="props.desktop ? 2 : 1" />
+                  {{ opponentHandCount }}
+                </div>
+                <div
+                  :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                  class="discard-pile no-mobile-highlight"
+                  :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
+                  role="button"
+                  :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                  @click="
+                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                  "
+                  @keyup.enter="
+                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                  "
+                  @keyup.space="
+                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                  "
+                >
+                  <v-icon name="io-skull" class="icon" :scale="props.desktop ? 2 : 1" />
+                  {{ opponentDiscardPile.length }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-board">
+          <div
+            v-for="(rowFlag, i) in playerRowFlags"
+            class="card-row"
+            :class="[
+              `card-row${i + 1}`,
+              { 'row-select': rowFlag.rowSelect },
+              { highlight: rowFlag.highlight }
+            ]"
+            :key="`player-row-${i}`"
+            @click="rowFlag.rowSelect ? rowClick(i) : null"
+          >
+            <v-icon
+              v-if="rowFlag.rowSelect"
+              name="md-touchapp-round"
+              class="icon row-select"
+              :scale="props.desktop ? 3.8 : 2.5"
+              animation="pulse"
+              fill="chartreuse"
+            />
+
+            <div class="row-stats">
+              <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
+              <div v-if="rowFlag.double" class="ability card-stat-badge">
+                <v-icon :name="rowFlag.doubleIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
+              </div>
+              <div v-if="rowFlag.weather" class="ability card-stat-badge">
+                <v-icon :name="rowFlag.weatherIcon" class="icon" :scale="props.desktop ? 1 : 0.8" />
+              </div>
+            </div>
+
+            <div class="card-container">
+              <SmallCard
+                v-for="(card, j) in playerBoardCards[i]"
+                :ability-icon="card.abilityIcon"
+                :active="card.active"
+                :animation-name="card.animationName"
+                class="no-mobile-highlight"
+                :default-value="card.defaultValue"
+                :desktop="props.desktop"
+                :disabled="boardDisabled"
+                :faction="card.faction"
+                :hero="card.hero"
+                :image-url="card.imageUrl"
+                :key="j"
+                overlap
+                role="button"
+                tabindex="3"
+                :type-icon="card.typeIcon"
+                :value="card.value"
+                @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
+                @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
+                @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
+              />
+            </div>
+          </div>
+
+          <div class="card-row player-hand">
+            <SmallCard
+              v-for="(card, i) in playerHand"
+              :ability-icon="card.abilityIcon"
+              :active="card.active"
+              class="no-mobile-highlight"
+              :default-value="card.defaultValue"
+              :desktop="props.desktop"
+              :disabled="boardDisabled"
+              :faction="card.faction"
+              :hero="card.hero"
+              :image-url="card.imageUrl"
+              :key="i"
+              overlap
+              role="button"
+              tabindex="1"
+              :type-icon="card.typeIcon"
+              :value="card.value"
+              @smallcard-click="handCardClick(i)"
+              @smallcard-enter="handCardClick(i)"
+              @smallcard-space="handCardClick(i)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>

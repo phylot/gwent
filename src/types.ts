@@ -36,13 +36,13 @@ interface Card {
 }
 
 interface CardCollection {
-  british: { cards: Card[]; deck: Card[] }
-  french: { cards: Card[]; deck: Card[] }
+  british: { collection: Card[]; deck: Card[] }
+  french: { collection: Card[]; deck: Card[] }
 }
 
 interface LeaderCardCollection {
-  british: { cards: Card[]; selected: Card }
-  french: { cards: Card[]; selected: Card }
+  british: { collection: Card[]; selected: Card }
+  french: { collection: Card[]; selected: Card }
 }
 
 interface RoundTotal {

@@ -89,7 +89,7 @@ function showMainMenu() {
     <transition name="fade">
       <div v-if="logoVisible" class="logo-container">
         <h1 class="logo">
-          <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
+          <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
         </h1>
 
         <transition name="fade">
@@ -108,18 +108,18 @@ function showMainMenu() {
     <transition name="fade">
       <div v-if="mainMenuVisible" class="menu-container">
         <h1 class="logo menu-heading">
-          <span class="lineOne">Sharpe's</span><span class="lineTwo"><span>GWENT</span></span>
+          <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
         </h1>
         <button
           class="btn large primary no-mobile-highlight"
           :disabled="disabled"
           type="button"
-          @click="$emit('play')"
+          @click="emit('play')"
         >
           Play
         </button>
         <button
-          class="btn disabled large no-mobile-highlight"
+          class="btn large no-mobile-highlight disabled"
           disabled
           type="button"
           @click="emit('manage-deck')"
@@ -253,30 +253,27 @@ function showMainMenu() {
 }
 
 .main-menu .logo .lineTwo {
-  font-family: 'UniversalSerif';
-  font-size: 50px;
-  font-weight: 100;
-  letter-spacing: 18px;
-  text-indent: 10px;
-  line-height: 59px;
+  width: 270px;
+  display: block;
   text-align: center;
-  border-top: 2px solid #ffffff;
-  border-bottom: 2px solid #ffffff;
+  font-family: 'UniversalSerif';
+  font-size: 44px;
+  font-weight: 100;
+  letter-spacing: 20px;
+  text-indent: -3px;
+  line-height: 50px;
+  border-top: 3.5px solid #ffffff;
+  border-bottom: 3.5px solid #ffffff;
 }
 
 .main-menu .logo.menu-heading .lineTwo {
+  width: 181px;
   font-size: 30px;
-  letter-spacing: 10px;
-  text-indent: 7px;
-  line-height: 38px;
-}
-
-.main-menu .logo .lineTwo span {
-  margin: 0 -16px;
-}
-
-.main-menu .logo.menu-heading .lineTwo span {
-  margin: 0 -9px;
+  letter-spacing: 13px;
+  text-indent: -2px;
+  line-height: 32px;
+  border-top: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
 }
 
 .main-menu .bean {
@@ -319,26 +316,22 @@ function showMainMenu() {
   }
 
   .main-menu .logo .lineOne {
-    font-size: 170px;
-    margin-bottom: -47px;
+    font-size: 150px;
+    margin-bottom: -44px;
   }
 
   .main-menu .logo .lineTwo {
-    font-size: 130px;
-    letter-spacing: 40px;
-    text-indent: 23px;
-    line-height: 130px;
-    border-top: 8px solid #ffffff;
-    border-bottom: 8px solid #ffffff;
+    width: 620px;
+    font-size: 100px;
+    letter-spacing: 48px;
+    text-indent: -9px;
+    line-height: 102px;
+    border-top: 7px solid #ffffff;
+    border-bottom: 7px solid #ffffff;
   }
 
-  .main-menu .logo.menu-heading .lineTwo {
-    border-top: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
-  }
-
-  .main-menu .logo .lineTwo span {
-    margin: 0 -35px;
+  .main-menu .logo.menu-heading {
+    text-shadow: 4px 4px #000000;
   }
 
   .main-menu .bean {

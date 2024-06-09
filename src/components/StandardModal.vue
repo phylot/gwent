@@ -132,6 +132,7 @@ function hide() {
 
 .modal .btn-container {
   display: flex;
+  flex-direction: row-reverse;
   justify-content: center;
 }
 
