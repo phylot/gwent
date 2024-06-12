@@ -81,6 +81,12 @@ const cardWrapClasses = computed(() => {
   border: 1px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .small-card.overlap {

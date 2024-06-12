@@ -173,6 +173,12 @@
 
 .game-details .stats .discard-pile {
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .game-details .player-details .stats .hand-total,
@@ -437,6 +443,13 @@
   }
 }
 
+/* Card Modal */
+
+.card-modal {
+  bottom: 70px;
+}
+
+
 /* Desktop Styles */
 
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
@@ -553,20 +566,6 @@
     margin-right: 2px;
   }
 
-  /* Card Carousel (Desktop / Tablet) */
-
-  .card-carousel {
-    width: 460px;
-  }
-
-  .prev-btn,
-  .next-btn {
-    width: 70px;
-    height: 70px;
-    line-height: 70px;
-    margin-top: -35px;
-  }
-
   /* Post-match Stats (Desktop / Tablet) */
 
   .match-stats.player {
@@ -591,5 +590,11 @@
 
   .match-stats.opponent .round-total .icon {
     right: -40px;
+  }
+
+  /* Card Modal (Desktop / Tablet) */
+
+  .card-modal {
+    bottom: 110px;
   }
 }

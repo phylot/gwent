@@ -12,6 +12,12 @@
   background-color: #000000;
   cursor: pointer;
   transition: background-color 100ms ease-out, box-shadow 100ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .btn.large {
@@ -134,15 +140,6 @@
   pointer-events: none;
   background-position: center;
   background-size: cover;
-}
-
-.no-mobile-highlight {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 .award {
@@ -281,7 +278,7 @@
 }
 
 .slow-fade-enter-active {
-  transition: opacity 1s ease-out;
+  transition: opacity 1s ease-in;
 }
 
 .slow-fade-leave-active {

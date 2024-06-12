@@ -17,7 +17,7 @@ defineProps<{
   z-index: 3000;
   position: absolute;
   top: 0;
-  bottom: 70px;
+  bottom: 0;
   left: 0;
   right: 0;
   color: #ffffff;
@@ -41,10 +41,6 @@ defineProps<{
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .card-modal {
-    bottom: 110px;
-  }
-
   .card-modal h2 {
     padding: 15px;
     border-radius: 8px;

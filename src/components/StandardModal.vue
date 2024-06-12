@@ -59,7 +59,7 @@ function hide() {
       <div v-if="props.buttons" class="btn-container">
         <button
           v-for="(button, i) in buttons"
-          class="btn large no-mobile-highlight"
+          class="btn large"
           :class="{ primary: i === 0 && !props.noPrimary }"
           :key="i"
           @click="

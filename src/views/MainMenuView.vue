@@ -95,7 +95,7 @@ function showMainMenu() {
         <transition name="fade">
           <button
             v-if="playButtonVisible"
-            class="btn large primary no-mobile-highlight play-btn"
+            class="btn large primary play-btn"
             type="button"
             @click="showMainMenu"
           >
@@ -110,28 +110,13 @@ function showMainMenu() {
         <h1 class="logo menu-heading">
           <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
         </h1>
-        <button
-          class="btn large primary no-mobile-highlight"
-          :disabled="disabled"
-          type="button"
-          @click="emit('play')"
-        >
+        <button class="btn large primary" :disabled="disabled" type="button" @click="emit('play')">
           Play
         </button>
-        <button
-          class="btn large no-mobile-highlight disabled"
-          disabled
-          type="button"
-          @click="emit('manage-deck')"
-        >
+        <button class="btn large disabled" disabled type="button" @click="emit('manage-deck')">
           Manage Deck
         </button>
-        <button
-          class="btn large no-mobile-highlight"
-          :disabled="disabled"
-          type="button"
-          @click="emit('awards')"
-        >
+        <button class="btn large" :disabled="disabled" type="button" @click="emit('awards')">
           Awards ({{ awardsCount }})
         </button>
       </div>
@@ -140,7 +125,7 @@ function showMainMenu() {
     <transition name="fade">
       <button
         v-if="skipButtonVisible"
-        class="btn large no-mobile-highlight skip-btn"
+        class="btn large skip-btn"
         :disabled="disabled"
         type="button"
         @click="skip"

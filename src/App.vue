@@ -271,7 +271,7 @@ function saveAwards(awardKeys: string[]) {
           />WARNING: Your progress is saved to this device
         </div>
 
-        <button class="btn large no-mobile-highlight" @click="showMainMenu">Continue</button>
+        <button class="btn large" @click="showMainMenu">Continue</button>
       </template>
       <template v-else
         ><v-icon

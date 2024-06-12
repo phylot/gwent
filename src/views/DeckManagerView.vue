@@ -107,13 +107,9 @@ function capitaliseString(string: string) {
   <div class="deck-manager">
     <div class="deck-manager-container">
       <div class="deck-manager-heading">
-        <button class="btn no-mobile-highlight" @click="changeFaction(factionIndex - 1)">
-          Prev
-        </button>
+        <button class="btn" @click="changeFaction(factionIndex - 1)">Prev</button>
         <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
-        <button class="btn no-mobile-highlight" @click="changeFaction(factionIndex + 1)">
-          Next
-        </button>
+        <button class="btn" @click="changeFaction(factionIndex + 1)">Next</button>
       </div>
 
       <div class="deck-manager-deck">
@@ -131,7 +127,6 @@ function capitaliseString(string: string) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
-                class="no-mobile-highlight"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :faction="card.faction"
@@ -168,7 +163,6 @@ function capitaliseString(string: string) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
-                class="no-mobile-highlight"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :faction="card.faction"
@@ -189,8 +183,8 @@ function capitaliseString(string: string) {
       </div>
 
       <div class="btn-container">
-        <button class="btn primary large no-mobile-highlight" @click="save">Save</button>
-        <button class="btn large no-mobile-highlight" @click="emit('cancel')">Cancel</button>
+        <button class="btn primary large" @click="save">Save</button>
+        <button class="btn large" @click="emit('cancel')">Cancel</button>
       </div>
     </div>
   </div>

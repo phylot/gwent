@@ -52,7 +52,7 @@ let cardModalConfirmText = ref()
 let cardModalCancelText = ref()
 let cardModalTitle = ref()
 let resolveCardModal = ref()
-let carouselIsHidden = ref(false)
+// let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
 let resolveRowClick = ref()
 
@@ -308,35 +308,32 @@ function dealRandomCards(arr: Card[], amount: number) {
 function showCardRedrawModal(callback: Function) {
   cardRedrawActive.value = true
 
-  resetActiveModalCard(() => {
-    activeCardRow.value = playerHand.value
-    slideIndex.value = 0
-    boardDisabled.value = false
+  activeCardRow.value = playerHand.value
+  boardDisabled.value = false
 
-    showCardModal('Redraw', 'Done', 'Choose card to redraw (1 of 2)').then((ok) => {
-      boardDisabled.value = true
-      if (ok) {
-        swapModalCard(() => {
-          boardDisabled.value = false
+  showCardModal('Redraw', 'Done', 'Choose card to redraw (1 of 2)').then((ok) => {
+    boardDisabled.value = true
+    if (ok) {
+      swapModalCard(() => {
+        boardDisabled.value = false
 
-          showCardModal('Redraw', 'Done', 'Choose card to redraw (2 of 2)').then((ok) => {
-            boardDisabled.value = true
-            if (ok) {
-              swapModalCard(() => {
-                closeCardModal()
-                callback()
-              })
-            } else {
+        showCardModal('Redraw', 'Done', 'Choose card to redraw (2 of 2)').then((ok) => {
+          boardDisabled.value = true
+          if (ok) {
+            swapModalCard(() => {
               closeCardModal()
               callback()
-            }
-          })
+            })
+          } else {
+            closeCardModal()
+            callback()
+          }
         })
-      } else {
-        closeCardModal()
-        callback()
-      }
-    })
+      })
+    } else {
+      closeCardModal()
+      callback()
+    }
   })
 }
 
@@ -349,7 +346,6 @@ function swapModalCard(callback: Function) {
     playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
     // Push swapped card back to deck
     playerDeck.value.push(swappedCard)
-    showSlide()
     doCardAppearAnimation(activeCardRow.value[slideIndex.value], () => {
       callback()
     })
@@ -452,31 +448,28 @@ function playCard(card: Card, isHeal: boolean, callback?: Function) {
   awards.tactician.count++
 
   doCardDisappearAnimation(card, () => {
-    resetActiveModalCard(() => {
-      // Insert card into relevant board array at specific index
-      if (boardArrIndex) {
-        boardArr.splice(boardArrIndex, 0, card)
-      }
-      // Push card to relevant board array
-      else {
-        boardArr.push(card)
-      }
+    closeCardModal()
+    // Insert card into relevant board array at specific index
+    if (boardArrIndex) {
+      boardArr.splice(boardArrIndex, 0, card)
+    }
+    // Push card to relevant board array
+    else {
+      boardArr.push(card)
+    }
 
-      // Remove card from hand (or discard pile)
-      for (let i = 0; i < handArr.value.length; i++) {
-        if (handArr.value[i].id == card.id) {
-          handArr.value.splice(i, 1)
+    // Remove card from hand (or discard pile)
+    for (let i = 0; i < handArr.value.length; i++) {
+      if (handArr.value[i].id == card.id) {
+        handArr.value.splice(i, 1)
+      }
+    }
+
+    doCardAppearAnimation(card, () => {
+      performAbility(card, boardArr, () => {
+        if (callback) {
+          callback()
         }
-      }
-
-      closeCardModal()
-
-      doCardAppearAnimation(card, () => {
-        performAbility(card, boardArr, () => {
-          if (callback) {
-            callback()
-          }
-        })
       })
     })
   })
@@ -1323,40 +1316,35 @@ function rowClick(rowIndex: number) {
 async function handCardClick(index: number) {
   // If redrawing cards before the game
   if (cardRedrawActive.value) {
+    activeCardRow.value[slideIndex.value].active = false
+    activeCardRow.value[index].active = true
     slideIndex.value = index
-    showSlide()
   } else {
-    // If the clicked card is already active, close the card carousel
-    if (activeCardRow.value[index]?.active) {
-      resetActiveModalCard(() => {
-        closeCardModal()
-      })
+    // If the clicked hand card is already active, close the card carousel
+    if (playerHand.value[index]?.active) {
+      closeCardModal()
     } else {
-      // If player hand isn't currently active, reload carousel component (hide then show it)
-      if (!playerHandIsActive.value) {
-        carouselIsHidden.value = true
-      }
+      activeCardRow.value[slideIndex.value].active = false
       await nextTick()
-      carouselIsHidden.value = false
 
-      resetActiveModalCard(() => {
-        activeCardRow.value = playerHand.value
-        playerHandIsActive.value = true
-        slideIndex.value = index
-        showCardModal('Play Card', 'Cancel').then((ok) => {
-          if (ok) {
-            playCard(activeCardRow.value[slideIndex.value], false, () => {
-              // If player hand is now empty, pass
-              if (playerHand.value.length < 1) {
-                pass()
-              } else {
-                finishTurn()
-              }
-            })
-          } else {
-            closeCardModal()
-          }
-        })
+      activeCardRow.value = playerHand.value
+      activeCardRow.value[index].active = true
+      slideIndex.value = index
+      playerHandIsActive.value = true
+      showCardModal('Play Card', 'Cancel').then((ok) => {
+        if (ok) {
+          activeCardRow.value[slideIndex.value].active = false
+          playCard(activeCardRow.value[slideIndex.value], false, () => {
+            // If player hand is now empty, pass
+            if (playerHand.value.length < 1) {
+              pass()
+            } else {
+              finishTurn()
+            }
+          })
+        } else {
+          closeCardModal()
+        }
       })
     }
   }
@@ -1392,47 +1380,18 @@ function showCardModal(confirmText?: string, cancelText?: string, titleText?: st
     cardModalCancelText.value = cancelText
     cardModalTitle.value = titleText
     resolveCardModal.value = resolve
-    showSlide()
     cardModal.value = true
   })
 }
 
 function closeCardModal() {
-  resetActiveModalCard(() => {
-    playerHandIsActive.value = false
-    cardModal.value = false
-    cardModalConfirmText.value = null
-    cardModalCancelText.value = null
-    cardModalTitle.value = null
-  })
-}
-
-function changeSlide(index: number) {
-  showSlide((slideIndex.value += index))
-}
-
-function showSlide(index?: number) {
-  if (index || index === 0) {
-    if (index === activeCardRow.value.length) {
-      slideIndex.value = 0
-    }
-    if (index < 0) {
-      slideIndex.value = activeCardRow.value.length - 1
-    }
-  }
-
-  resetActiveModalCard(() => {
-    activeCardRow.value[slideIndex.value].active = true
-  })
-}
-
-function resetActiveModalCard(callback: Function) {
-  for (let i = 0; i < activeCardRow.value.length; i++) {
-    activeCardRow.value[i].active = false
-  }
-  if (callback) {
-    callback()
-  }
+  activeCardRow.value[slideIndex.value].active = false
+  playerHandIsActive.value = false
+  cardModal.value = false
+  cardModalConfirmText.value = null
+  cardModalCancelText.value = null
+  cardModalTitle.value = null
+  slideIndex.value = 0
 }
 
 function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
@@ -1589,17 +1548,15 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
 
           <CardCarousel
-            v-if="!carouselIsHidden"
+            v-model="slideIndex"
             :cards="activeCardRow"
             :desktop="props.desktop"
             :disabled="boardDisabled"
-            @prev-click="changeSlide"
-            @next-click="changeSlide"
           ></CardCarousel>
 
           <button
             v-if="cardModalConfirmText"
-            class="btn large primary no-mobile-highlight"
+            class="btn large primary"
             :disabled="boardDisabled"
             tabindex="2"
             type="button"
@@ -1611,7 +1568,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </button>
           <button
             v-if="cardModalCancelText"
-            class="btn large no-mobile-highlight"
+            class="btn large"
             :disabled="boardDisabled"
             tabindex="2"
             type="button"
@@ -1651,7 +1608,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
-                class="no-mobile-highlight"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -1674,7 +1630,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
         <div class="game-details">
           <button
-            class="btn pass-btn no-mobile-highlight"
+            class="btn pass-btn"
             :class="{ disabled: boardDisabled }"
             :disabled="boardDisabled"
             title="Pass"
@@ -1723,7 +1679,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 </div>
                 <div
                   :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
-                  class="discard-pile no-mobile-highlight"
+                  class="discard-pile"
                   :class="{ disabled: boardDisabled || playerDiscardPile.length < 1 }"
                   role="button"
                   :title="`Player Discard Pile (${playerDiscardPile.length})`"
@@ -1749,7 +1705,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :ability-icon="recentSpecialCard.abilityIcon"
             :active="recentSpecialCard.active"
             :animation-name="recentSpecialCard.animationName"
-            class="no-mobile-highlight"
             :desktop="props.desktop"
             :disabled="boardDisabled"
             :faction="recentSpecialCard.faction"
@@ -1758,13 +1713,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             tabindex="5"
             :type-icon="recentSpecialCard.typeIcon"
           />
-          <SmallCard
-            v-else
-            :desktop="props.desktop"
-            disabled
-            class="no-mobile-highlight"
-            tabindex="5"
-          />
+          <SmallCard v-else :desktop="props.desktop" disabled tabindex="5" />
 
           <div class="opponent-details">
             <div class="total">
@@ -1809,7 +1758,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 </div>
                 <div
                   :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                  class="discard-pile no-mobile-highlight"
+                  class="discard-pile"
                   :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
                   role="button"
                   :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
@@ -1868,7 +1817,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
-                class="no-mobile-highlight"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -1893,7 +1841,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
               v-for="(card, i) in playerHand"
               :ability-icon="card.abilityIcon"
               :active="card.active"
-              class="no-mobile-highlight"
               :default-value="card.defaultValue"
               :desktop="props.desktop"
               :disabled="boardDisabled"

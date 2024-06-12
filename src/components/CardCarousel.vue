@@ -1,31 +1,65 @@
 <script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
 import { type Card } from './../types'
 import BigCard from './BigCard.vue'
 
 const props = defineProps<{
+  modelValue: number
   cards: Card[]
   desktop: boolean
   disabled: boolean
 }>()
 
+let localCards = ref()
+
+// HOOKS
+
+onMounted(() => {
+  localCards.value = props.cards
+  localCards.value[props.modelValue].active = true
+})
+
+watch(
+  () => props.cards,
+  (val) => {
+    localCards.value = val
+  },
+  { deep: true }
+)
+
 // EVENTS
 
 const emit = defineEmits<{
-  (e: 'prev-click', val: number): void
-  (e: 'next-click', val: number): void
+  (e: 'update:model-value', val: number): void
 }>()
+
+function changeSlide(back?: boolean) {
+  localCards.value[props.modelValue].active = false
+
+  let newIndex = back ? props.modelValue - 1 : props.modelValue + 1
+
+  if (newIndex === props.cards.length) {
+    newIndex = 0
+  }
+  if (newIndex < 0) {
+    newIndex = props.cards.length - 1
+  }
+
+  localCards.value[newIndex].active = true
+  emit('update:model-value', newIndex)
+}
 </script>
 
 <template>
   <div class="card-carousel">
     <div class="slides">
       <BigCard
-        v-for="(card, i) in cards"
+        v-for="(card, i) in localCards"
         :ability="card.ability"
         :ability-icon="card.abilityIcon"
         :animation-name="card.animationName"
         class="slide fade-in"
-        :class="{ active: card.active }"
+        :class="{ active: i === modelValue }"
         :default-value="card.defaultValue"
         :description="card.description"
         :desktop="props.desktop"
@@ -41,22 +75,22 @@ const emit = defineEmits<{
       </BigCard>
     </div>
     <button
-      class="prev-btn no-mobile-highlight"
+      class="prev-btn"
       :class="{ disabled: disabled }"
       :disabled="disabled"
       role="button"
       tabindex="2"
-      @click="disabled ? null : emit('prev-click', -1)"
+      @click="disabled ? null : changeSlide(true)"
     >
       <v-icon name="hi-chevron-left" class="icon" :scale="props.desktop ? 1.5 : 1" />
     </button>
     <button
-      class="next-btn no-mobile-highlight"
+      class="next-btn"
       :class="{ disabled: disabled }"
       :disabled="disabled"
       role="button"
       tabindex="2"
-      @click="disabled ? null : emit('next-click', 1)"
+      @click="disabled ? null : changeSlide()"
     >
       <v-icon name="hi-chevron-right" class="icon" :scale="props.desktop ? 1.5 : 1" />
     </button>
@@ -73,23 +107,23 @@ const emit = defineEmits<{
   margin-top: 10px;
 }
 
-.slides {
+.card-carousel .slides {
   display: flex;
   height: 100%;
   align-items: center;
   justify-content: center;
 }
 
-.slide {
+.card-carousel .slide {
   display: none;
 }
 
-.slide.active {
+.card-carousel .slide.active {
   display: block;
 }
 
-.prev-btn,
-.next-btn {
+.card-carousel .prev-btn,
+.card-carousel .next-btn {
   position: absolute;
   top: 50%;
   left: 0;
@@ -105,41 +139,61 @@ const emit = defineEmits<{
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   background: #000000;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-.next-btn {
+.card-carousel .next-btn {
   left: auto;
   right: 0;
 }
 
-.prev-btn.disabled,
-.next-btn.disabled {
+.card-carousel .prev-btn.disabled,
+.card-carousel .next-btn.disabled {
   transform: none !important;
 }
 
-.prev-btn:active,
-.next-btn:active {
+.card-carousel .prev-btn:active,
+.card-carousel .next-btn:active {
   transform: translate(0, 3px);
 }
 
-.prev-btn:focus:not(.disabled),
-.next-btn:focus:not(.disabled) {
+.card-carousel .prev-btn:focus:not(.disabled),
+.card-carousel .next-btn:focus:not(.disabled) {
   outline: none;
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
 }
 
-.prev-btn .icon {
+.card-carousel .prev-btn .icon {
   margin-left: -2px;
 }
 
-.next-btn .icon {
+.card-carousel .next-btn .icon {
   margin-right: -2px;
 }
 
 /* Desktop / Tablet Styles */
 
 @media (min-height: 880px) and (orientation: landscape),
-(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  /* Card Carousel (Desktop / Tablet) */
+
+  .card-carousel {
+    width: 460px;
+  }
+
+  .card-carousel .prev-btn,
+  .card-carousel .next-btn {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    margin-top: -35px;
+  }
+
   .prev-btn:focus:not(.disabled),
   .next-btn:focus:not(.disabled) {
     outline: none;
