@@ -30,7 +30,8 @@ defineProps<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(#000000, transparent);
+  /* background: radial-gradient(#000000, transparent); */
+  background: rgb(0, 0, 0, 0.7);
 }
 
 .card-modal h2 {

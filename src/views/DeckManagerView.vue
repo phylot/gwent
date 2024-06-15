@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { type Card, type CardCollection } from '@/types'
+import CardCarousel from './../components/CardCarousel.vue'
+import CardModal from './../components/CardModal.vue'
 import SmallCard from '../components/SmallCard.vue'
 
 const props = defineProps<{
@@ -12,6 +14,18 @@ const props = defineProps<{
 let localCardCollection = ref()
 let factionKeys = ref(Object.keys(props.cardCollection))
 let factionIndex = ref(0)
+let activeCardRow = ref<Card[]>([])
+let activeDeckRowKey = ref()
+let activeCollectionRowKey = ref()
+let slideIndex = ref(0)
+let cardModal = ref(false)
+let cardModalTitle = ref()
+let cardModalConfirmText = ref()
+let cardModalDisabled = ref(true)
+let resolveCardModal = ref()
+let deckManagerDisabled = ref(false)
+let deckContainer: HTMLElement | null = null
+let collectionContainer: HTMLElement | null = null
 
 interface ManageCardCollection {
   [key: string]: Card[]
@@ -53,21 +67,20 @@ const collectionCards = computed((): ManageCardCollection => {
 
 const emit = defineEmits<{
   (e: 'cancel'): void
-  (e: 'save'): void
+  (e: 'save', val: CardCollection): void
 }>()
 
-// HOOKS
-
 onMounted(() => {
-  localCardCollection.value = props.cardCollection
-  console.log('MOUNTED localCardCollection.value: ', localCardCollection.value)
+  localCardCollection.value = JSON.parse(JSON.stringify(props.cardCollection))
 
   // Sort all cards by 'id'
   for (const faction in localCardCollection.value) {
     localCardCollection.value[faction].collection.sort(sortCardsById)
     localCardCollection.value[faction].deck.sort(sortCardsById)
   }
-  console.log('SORTED localCardCollection.value: ', localCardCollection.value)
+
+  deckContainer = document.querySelector('.deck-manager-deck')
+  collectionContainer = document.querySelector('.deck-manager-collection')
 })
 
 function changeFaction(index: number) {
@@ -78,20 +91,109 @@ function changeFaction(index: number) {
   } else {
     factionIndex.value = index
   }
+  // Scroll both deck and collection containers to top
+  if (deckContainer && collectionContainer) {
+    deckContainer.scrollTop = 0
+    collectionContainer.scrollTop = 0
+  }
 }
 
-function cardClick(card: Card) {
-  // TODO: Push card to 'deck' and splice card from 'collection'
-  // Re-sort card collection
-  // localCardCollection.value[factionKeys.value[factionIndex.value]].collection.sort(sortCardsById)
-  // localCardCollection.value[factionKeys.value[factionIndex.value]].deck.sort(sortCardsById)
+function deckCardClick(card: Card, key: string | number, index: number) {
+  slideIndex.value = index
+  activeCardRow.value = deckCards.value[key]
+  activeDeckRowKey.value = key
 
-  console.log('cardClick() card: ', card)
+  showCardModal('Remove', `${capitaliseString(String(key))} Combat`).then((ok) => {
+    cardModalDisabled.value = true
+    if (ok) {
+      moveCardToCollection(card, () => {
+        closeCardModal()
+      })
+    } else {
+      closeCardModal()
+    }
+  })
+}
+
+function collectionCardClick(card: Card, key: string | number, index: number) {
+  slideIndex.value = index
+  activeCardRow.value = collectionCards.value[key]
+  activeCollectionRowKey.value = key
+
+  showCardModal('Add', `${capitaliseString(String(key))} Combat`).then((ok) => {
+    if (ok) {
+      moveCardToDeck(card, () => {
+        closeCardModal()
+      })
+    } else {
+      closeCardModal()
+    }
+  })
+}
+
+function showCardModal(confirmText?: string, titleText?: string) {
+  deckManagerDisabled.value = true
+
+  return new Promise((resolve) => {
+    cardModalConfirmText.value = confirmText
+    cardModalTitle.value = titleText
+    resolveCardModal.value = resolve
+    cardModalDisabled.value = false
+    cardModal.value = true
+  })
+}
+
+function closeCardModal() {
+  cardModalDisabled.value = true
+  activeDeckRowKey.value = null
+  activeCollectionRowKey.value = null
+  cardModal.value = false
+  deckManagerDisabled.value = false
+}
+
+function moveCardToDeck(card: Card, callback: Function) {
+  const selectedCard = localCardCollection.value[
+    factionKeys.value[factionIndex.value]
+  ].collection.find((element: Card) => element.id === card.id)
+  const selectedCardIndex = localCardCollection.value[
+    factionKeys.value[factionIndex.value]
+  ].collection.findIndex((element: Card) => element.id === card.id)
+
+  // Push selected card to card collection
+  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.push(selectedCard)
+  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.splice(
+    selectedCardIndex,
+    1
+  )
+
+  // Re-sort card collection
+  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.sort(sortCardsById)
+  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.sort(sortCardsById)
+
+  callback()
+}
+
+function moveCardToCollection(card: Card, callback: Function) {
+  const selectedCard = localCardCollection.value[factionKeys.value[factionIndex.value]].deck.find(
+    (element: Card) => element.id === card.id
+  )
+  const selectedCardIndex = localCardCollection.value[
+    factionKeys.value[factionIndex.value]
+  ].deck.findIndex((element: Card) => element.id === card.id)
+
+  // Push selected card to card collection
+  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.push(selectedCard)
+  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.splice(selectedCardIndex, 1)
+
+  // Re-sort card collection
+  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.sort(sortCardsById)
+  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.sort(sortCardsById)
+
+  callback()
 }
 
 function save() {
-  // TODO: Pass 'localCardCollection' to parent via event + set flag in App.vue to skip intro sequence, if already played
-  emit('save')
+  emit('save', localCardCollection.value)
 }
 
 function sortCardsById(a: Card, b: Card) {
@@ -106,14 +208,62 @@ function capitaliseString(string: string) {
 <template>
   <div class="deck-manager">
     <div class="deck-manager-container">
+      <CardModal v-model="cardModal" class="quick-fade">
+        <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
+
+        <CardCarousel
+          v-model="slideIndex"
+          :cards="activeCardRow"
+          :desktop="props.desktop"
+          :disabled="cardModalDisabled"
+        ></CardCarousel>
+
+        <button
+          class="btn large primary"
+          :disabled="cardModalDisabled"
+          tabindex="2"
+          type="button"
+          @click="resolveCardModal(true)"
+          @keyup.enter="resolveCardModal(true)"
+          @keyup.space="resolveCardModal(true)"
+        >
+          {{ cardModalConfirmText }}
+        </button>
+        <button
+          class="btn large"
+          :disabled="cardModalDisabled"
+          tabindex="2"
+          type="button"
+          @click="resolveCardModal(false)"
+          @keyup.enter="resolveCardModal(false)"
+          @keyup.space="resolveCardModal(false)"
+        >
+          Close
+        </button>
+      </CardModal>
+
       <div class="deck-manager-heading">
-        <button class="btn" @click="changeFaction(factionIndex - 1)">Prev</button>
+        <button
+          class="btn"
+          :disabled="deckManagerDisabled"
+          @click="changeFaction(factionIndex - 1)"
+        >
+          Prev
+        </button>
         <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
-        <button class="btn" @click="changeFaction(factionIndex + 1)">Next</button>
+        <button
+          class="btn"
+          :disabled="deckManagerDisabled"
+          @click="changeFaction(factionIndex + 1)"
+        >
+          Next
+        </button>
       </div>
 
       <div class="deck-manager-deck">
-        <h2>Deck</h2>
+        <h2 v-if="localCardCollection">
+          Deck ({{ localCardCollection[factionKeys[factionIndex]].deck.length }})
+        </h2>
 
         <template v-for="(cardArr, key) in deckCards" :key="key">
           <template v-if="cardArr.length > 0">
@@ -127,8 +277,10 @@ function capitaliseString(string: string) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
+                :class="{ active: key === activeDeckRowKey && i === slideIndex }"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
+                :disabled="deckManagerDisabled"
                 :faction="card.faction"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
@@ -137,9 +289,9 @@ function capitaliseString(string: string) {
                 tabindex="0"
                 :type-icon="card.typeIcon"
                 :value="card.value"
-                @smallcard-click="cardClick(card)"
-                @smallcard-enter="cardClick(card)"
-                @smallcard-space="cardClick(card)"
+                @smallcard-click="deckCardClick(card, key, i)"
+                @smallcard-enter="deckCardClick(card, key, i)"
+                @smallcard-space="deckCardClick(card, key, i)"
               />
             </div>
           </template>
@@ -149,7 +301,9 @@ function capitaliseString(string: string) {
       <div class="deck-manager-stats"></div>
 
       <div class="deck-manager-collection">
-        <h2>Card Collection</h2>
+        <h2 v-if="localCardCollection">
+          Card Collection ({{ localCardCollection[factionKeys[factionIndex]].collection.length }})
+        </h2>
 
         <template v-for="(cardArr, key) in collectionCards" :key="key">
           <template v-if="cardArr.length > 0">
@@ -163,8 +317,10 @@ function capitaliseString(string: string) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
+                :class="{ active: key === activeCollectionRowKey && i === slideIndex }"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
+                :disabled="deckManagerDisabled"
                 :faction="card.faction"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
@@ -173,9 +329,9 @@ function capitaliseString(string: string) {
                 tabindex="0"
                 :type-icon="card.typeIcon"
                 :value="card.value"
-                @smallcard-click="cardClick(card)"
-                @smallcard-enter="cardClick(card)"
-                @smallcard-space="cardClick(card)"
+                @smallcard-click="collectionCardClick(card, key, i)"
+                @smallcard-enter="collectionCardClick(card, key, i)"
+                @smallcard-space="collectionCardClick(card, key, i)"
               />
             </div>
           </template>
@@ -183,8 +339,12 @@ function capitaliseString(string: string) {
       </div>
 
       <div class="btn-container">
-        <button class="btn primary large" @click="save">Save</button>
-        <button class="btn large" @click="emit('cancel')">Cancel</button>
+        <button class="btn primary large" :disabled="deckManagerDisabled" @click="save">
+          Save
+        </button>
+        <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -194,6 +354,7 @@ function capitaliseString(string: string) {
 .deck-manager {
   width: 100%;
   height: 100%;
+  min-width: 320px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,13 +363,14 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-container {
+  position: relative;
   width: 90%;
   min-width: 320px;
   margin: auto;
   display: flex;
   flex-direction: column;
   border-radius: 20px;
-  background-color: #151515;
+  background-color: #242424;
 }
 
 .deck-manager .deck-manager-heading {
@@ -247,7 +409,6 @@ function capitaliseString(string: string) {
 
 .deck-manager .deck-manager-stats {
   height: 50px;
-  background-color: #151515;
 }
 
 .deck-manager .deck-manager-deck::-webkit-scrollbar,

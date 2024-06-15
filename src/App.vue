@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
-import { type Card } from '@/types'
+import { type Card, type CardCollection } from '@/types'
 import { Howl } from 'howler'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
@@ -18,11 +18,12 @@ let gameIsActive = ref(false)
 let mainMenuIsActive = ref(false)
 let mainMenuDisabled = ref(false)
 let awardsModal = ref()
-let manageDeckIsActive = ref(false)
+let deckManagerIsActive = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
 let themeSong: Howl
+let titleSequenceHasPlayed = ref(false)
 let playerCardCollection = JSON.parse(JSON.stringify(defaultCards))
 let playerLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
 let opponentCardCollection = JSON.parse(JSON.stringify(defaultCards))
@@ -77,19 +78,27 @@ async function preload() {
   }
   for (const faction in opponentCardCollection) {
     for (const key in opponentCardCollection[faction]) {
-      opponentCardCollection[faction][key] = await preloadCards(opponentCardCollection[faction][key])
+      opponentCardCollection[faction][key] = await preloadCards(
+        opponentCardCollection[faction][key]
+      )
     }
   }
 
   // Preload leader cards
   for (const faction in playerLeaderCards) {
-    playerLeaderCards[faction].collection = await preloadCards(playerLeaderCards[faction].collection)
+    playerLeaderCards[faction].collection = await preloadCards(
+      playerLeaderCards[faction].collection
+    )
     playerLeaderCards[faction].selected = await preloadCards([playerLeaderCards[faction].selected])
     playerLeaderCards[faction].selected = playerLeaderCards[faction].selected[0]
   }
   for (const faction in opponentLeaderCards) {
-    opponentLeaderCards[faction].collection = await preloadCards(opponentLeaderCards[faction].collection)
-    opponentLeaderCards[faction].selected = await preloadCards([opponentLeaderCards[faction].selected])
+    opponentLeaderCards[faction].collection = await preloadCards(
+      opponentLeaderCards[faction].collection
+    )
+    opponentLeaderCards[faction].selected = await preloadCards([
+      opponentLeaderCards[faction].selected
+    ])
     opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
   }
 
@@ -98,7 +107,6 @@ async function preload() {
   // Preload title screen background image
   await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
   showContinueBtn.value = true
-
 }
 
 function preloadThemeSong() {
@@ -148,21 +156,21 @@ function loadLocalStorage() {
 }
 
 async function preloadCards(cards: Card[]) {
-    let imageCount = cards?.length || 0
-    let imagesLoaded = 0
+  let imageCount = cards?.length || 0
+  let imagesLoaded = 0
 
-    if (imageCount > 0) {
-      for (let i = 0; i < imageCount; i++) {
-        cards[i].imageUrl = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
-        await loadImage(cards[i].imageUrl!)
-          imagesLoaded++
-          if (imagesLoaded == imageCount) {
-            return cards
-          }
+  if (imageCount > 0) {
+    for (let i = 0; i < imageCount; i++) {
+      cards[i].imageUrl = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
+      await loadImage(cards[i].imageUrl!)
+      imagesLoaded++
+      if (imagesLoaded == imageCount) {
+        return cards
       }
-    } else {
-      return cards
     }
+  } else {
+    return cards
+  }
 }
 
 function loadImage(imageUrl: string) {
@@ -179,26 +187,28 @@ function loadImage(imageUrl: string) {
   })
 }
 
-
 function showMainMenu() {
   loading.value = false
+  showContinueBtn.value = false
   gameIsActive.value = false
+  deckManagerIsActive.value = false
+
   themeSong.stop()
   themeSong.volume(1)
   themeSong.play()
 
-  setTimeout(() => {
-    // TODO: Set / check a flag to determine if title sequence has already played, and if so, skip it
+  setTimeout(
+    () => {
+      mainMenuIsActive.value = true
 
-    mainMenuIsActive.value = true
-    showContinueBtn.value = false
-
-    setTimeout(() => {
-      if (!gameIsActive.value) {
-        themeSong.fade(themeSong.volume(), 0, 12000)
-      }
-    }, 48000)
-  }, 1500)
+      setTimeout(() => {
+        if (!gameIsActive.value) {
+          themeSong.fade(themeSong.volume(), 0, 12000)
+        }
+      }, 48000)
+    },
+    titleSequenceHasPlayed.value ? 0 : 1500
+  )
 }
 
 function showManageDeck() {
@@ -206,8 +216,17 @@ function showManageDeck() {
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
-    manageDeckIsActive.value = true
+    deckManagerIsActive.value = true
   }, 1000)
+}
+
+function closeDeckManager() {
+  deckManagerIsActive.value = false
+
+  // Timeout to allow Deck Manager to fade out
+  setTimeout(() => {
+    showMainMenu()
+  }, 200)
 }
 
 function showAwards() {
@@ -221,7 +240,7 @@ function play() {
   themeSong.fade(themeSong.volume(), 0, 4000)
   mainMenuIsActive.value = false
 
-  // Timeout to allow main menu to fade out
+  // Timeout to allow Main Menu to fade out
   setTimeout(() => {
     loading.value = true
 
@@ -245,15 +264,38 @@ function skip() {
   themeSong.play()
 }
 
-function loadingChange(val: boolean) {
-  loading.value = val
+function deckManagerSave(collection: CardCollection) {
+  playerCardCollection = collection
+  saveCardsToStorage(() => {
+    showMainMenu()
+  })
 }
 
-function saveAwards(awardKeys: string[]) {
+// TODO: New deck manager emit('select', faction) event, used to determine player's card factions before match
+// function deckManagerSelect(faction: string) {
+// }
+
+function saveCardsToStorage(callback: Function) {
+  localStorage.setItem('awards', JSON.stringify(playerAwards.value))
+  localStorage.setItem('playerCards', JSON.stringify(playerCardCollection))
+  localStorage.setItem('playerLeaderCards', JSON.stringify(playerLeaderCards))
+  localStorage.setItem('opponentCards', JSON.stringify(opponentCardCollection))
+  localStorage.setItem('opponentLeaderCards', JSON.stringify(opponentLeaderCards))
+
+  if (callback) {
+    callback()
+  }
+}
+
+function saveAwardsToStorage(awardKeys: string[]) {
   for (const awardKey of awardKeys) {
     playerAwards.value[awardKey].active = true
   }
   localStorage.setItem('awards', JSON.stringify(playerAwards.value))
+}
+
+function loadingChange(val: boolean) {
+  loading.value = val
 }
 </script>
 
@@ -316,20 +358,24 @@ function saveAwards(awardKeys: string[]) {
       v-if="mainMenuIsActive"
       :awards-count="awardsCount"
       :disabled="mainMenuDisabled"
+      :show-menu="titleSequenceHasPlayed"
       @loading-change="loadingChange"
       @awards="showAwards"
       @manage-deck="showManageDeck"
       @play="play"
       @skip="skip"
+      @title-sequence-end="titleSequenceHasPlayed = true"
     ></MainMenuView>
   </transition>
 
   <transition name="fast-fade">
     <DeckManagerView
-      v-if="manageDeckIsActive"
+      v-if="deckManagerIsActive"
       :card-collection="playerCardCollection"
       :desktop="isDesktop"
       :leader-cards="playerLeaderCards"
+      @cancel="closeDeckManager"
+      @save="deckManagerSave"
     ></DeckManagerView>
   </transition>
 
@@ -343,7 +389,7 @@ function saveAwards(awardKeys: string[]) {
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
       @loading-change="loadingChange"
-      @save-awards="saveAwards"
+      @save-awards="saveAwardsToStorage"
       @show-menu="showMainMenu"
     ></GameBoardView>
   </transition>

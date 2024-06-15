@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   awardsCount: number
   disabled?: boolean
+  showMenu: boolean
 }>()
 
 let beanVisible = ref(false)
@@ -15,7 +16,7 @@ let beanTimeout1: ReturnType<typeof setTimeout>
 let beanTimeout2: ReturnType<typeof setTimeout>
 let logoTimeout: ReturnType<typeof setTimeout>
 let playButtonTimeout: ReturnType<typeof setTimeout>
-let titleSequenceIsFinished: boolean = false
+let titleSequenceHasPlayed: boolean = false
 let animationIsFinished = ref(false)
 
 // EVENTS
@@ -25,31 +26,38 @@ const emit = defineEmits<{
   (e: 'manage-deck'): void
   (e: 'play'): void
   (e: 'skip'): void
+  (e: 'title-sequence-end'): void
 }>()
 
 // HOOKS
 
 onMounted(() => {
-  // Title sequence
-  beanTimeout1 = setTimeout(() => {
-    beanVisible.value = true
-    beanTimeout2 = setTimeout(() => {
-      beanVisible.value = false
-      logoTimeout = setTimeout(() => {
-        titleSequenceIsFinished = true
-        skipButtonVisible.value = false
-        logoVisible.value = true
-        playButtonTimeout = setTimeout(() => {
-          playButtonVisible.value = true
-          animationIsFinished.value = true
-        }, 1500)
-      }, 4600)
-    }, 3500)
-  }, 9000)
+  if (props.showMenu) {
+    animationIsFinished.value = true
+    showMainMenu()
+  } else {
+    // Title sequence
+    beanTimeout1 = setTimeout(() => {
+      beanVisible.value = true
+      beanTimeout2 = setTimeout(() => {
+        beanVisible.value = false
+        logoTimeout = setTimeout(() => {
+          skipButtonVisible.value = false
+          logoVisible.value = true
+          titleSequenceHasPlayed = true
+          emit('title-sequence-end')
+          playButtonTimeout = setTimeout(() => {
+            playButtonVisible.value = true
+            animationIsFinished.value = true
+          }, 1500)
+        }, 4600)
+      }, 3500)
+    }, 9000)
+  }
 })
 
 function viewClick() {
-  if (!skipButtonVisible.value && !titleSequenceIsFinished && !animationIsFinished.value) {
+  if (!skipButtonVisible.value && !titleSequenceHasPlayed && !animationIsFinished.value) {
     skipButtonVisible.value = true
     setTimeout(() => {
       skipButtonVisible.value = false
@@ -63,12 +71,13 @@ function skip() {
   clearTimeout(logoTimeout)
   clearTimeout(playButtonTimeout)
 
-  titleSequenceIsFinished = true
   animationIsFinished.value = true
   beanVisible.value = false
   skipButtonVisible.value = false
   logoVisible.value = true
   playButtonVisible.value = true
+  titleSequenceHasPlayed = true
+  emit('title-sequence-end')
   emit('skip')
 }
 
@@ -113,9 +122,7 @@ function showMainMenu() {
         <button class="btn large primary" :disabled="disabled" type="button" @click="emit('play')">
           Play
         </button>
-        <button class="btn large disabled" disabled type="button" @click="emit('manage-deck')">
-          Manage Deck
-        </button>
+        <button class="btn large" type="button" @click="emit('manage-deck')">Manage Deck</button>
         <button class="btn large" :disabled="disabled" type="button" @click="emit('awards')">
           Awards ({{ awardsCount }})
         </button>

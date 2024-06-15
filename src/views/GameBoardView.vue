@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { type Card, type RoundTotal, type RowFlag } from '@/types'
 
 import { defaultRowFlags } from './../data/game-board'
@@ -52,7 +52,6 @@ let cardModalConfirmText = ref()
 let cardModalCancelText = ref()
 let cardModalTitle = ref()
 let resolveCardModal = ref()
-// let carouselIsHidden = ref(false)
 let boardDisabled = ref(true)
 let resolveRowClick = ref()
 
@@ -307,7 +306,7 @@ function dealRandomCards(arr: Card[], amount: number) {
 
 function showCardRedrawModal(callback: Function) {
   cardRedrawActive.value = true
-
+  playerHandIsActive.value = true
   activeCardRow.value = playerHand.value
   boardDisabled.value = false
 
@@ -796,6 +795,7 @@ function determineCpuHealCard(arr: Card[], callback?: Function) {
   }
 }
 
+
 function performMuster(card: Card) {
   return new Promise<void>((resolve) => {
     let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
@@ -810,6 +810,7 @@ function performMuster(card: Card) {
         boardCards.value[abilityIndexes[deckCard.type]].push(deckCard)
         deck.splice(i, 1)
         doCardAppearAnimation(deckCard)
+        i--
       }
     }
     // If cards found, allow time for animations
@@ -1316,21 +1317,16 @@ function rowClick(rowIndex: number) {
 async function handCardClick(index: number) {
   // If redrawing cards before the game
   if (cardRedrawActive.value) {
-    activeCardRow.value[slideIndex.value].active = false
-    activeCardRow.value[index].active = true
     slideIndex.value = index
   } else {
     // If the clicked hand card is already active, close the card carousel
-    if (playerHand.value[index]?.active) {
+    if (playerHandIsActive.value && index === slideIndex.value) {
       closeCardModal()
     } else {
-      activeCardRow.value[slideIndex.value].active = false
-      await nextTick()
-
-      activeCardRow.value = playerHand.value
-      activeCardRow.value[index].active = true
-      slideIndex.value = index
       playerHandIsActive.value = true
+      activeCardRow.value = playerHand.value
+      slideIndex.value = index
+
       showCardModal('Play Card', 'Cancel').then((ok) => {
         if (ok) {
           activeCardRow.value[slideIndex.value].active = false
@@ -1385,7 +1381,7 @@ function showCardModal(confirmText?: string, cancelText?: string, titleText?: st
 }
 
 function closeCardModal() {
-  activeCardRow.value[slideIndex.value].active = false
+  // activeCardRow.value[slideIndex.value].active = false
   playerHandIsActive.value = false
   cardModal.value = false
   cardModalConfirmText.value = null
@@ -1841,6 +1837,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
               v-for="(card, i) in playerHand"
               :ability-icon="card.abilityIcon"
               :active="card.active"
+              :class="{ active: playerHandIsActive && i === slideIndex }"
               :default-value="card.defaultValue"
               :desktop="props.desktop"
               :disabled="boardDisabled"

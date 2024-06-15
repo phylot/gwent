@@ -20,6 +20,13 @@ const animationClass = computed(() => {
   return props.animationName ? props.animationName : null
 })
 
+const cardBorderClasses = computed(() => {
+  return {
+    [String(props.faction)]: props.faction,
+    hero: props.hero
+  }
+})
+
 const cardClasses = computed(() => {
   return {
     decreased: props.value && props.defaultValue && props.value < props.defaultValue,
@@ -33,7 +40,7 @@ const cardClasses = computed(() => {
   <div class="big-card">
     <div class="card-wrap">
       <div class="animation-overlay" :class="animationClass"></div>
-      <div class="card-border" :class="props.faction">
+      <div class="card-border" :class="cardBorderClasses">
         <div
           class="card"
           :class="cardClasses"
@@ -86,11 +93,15 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card-border.british {
-  background: linear-gradient(#e0452b, #bc1708)
+  background: linear-gradient(#e0452b, #bc1708);
 }
 
 .big-card .card-border.french {
-  background: linear-gradient(#1d7eca, #0a66ae)
+  background: linear-gradient(#1d7eca, #0a66ae);
+}
+
+.big-card .card-border.hero {
+  background: linear-gradient(#d98c0e, #a86c0b);
 }
 
 .big-card .card {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { type Card } from './../types'
 import BigCard from './BigCard.vue'
 
@@ -10,14 +10,7 @@ const props = defineProps<{
   disabled: boolean
 }>()
 
-let localCards = ref()
-
-// HOOKS
-
-onMounted(() => {
-  localCards.value = props.cards
-  localCards.value[props.modelValue].active = true
-})
+let localCards = ref(props.cards)
 
 watch(
   () => props.cards,
@@ -27,15 +20,11 @@ watch(
   { deep: true }
 )
 
-// EVENTS
-
 const emit = defineEmits<{
   (e: 'update:model-value', val: number): void
 }>()
 
 function changeSlide(back?: boolean) {
-  localCards.value[props.modelValue].active = false
-
   let newIndex = back ? props.modelValue - 1 : props.modelValue + 1
 
   if (newIndex === props.cards.length) {
@@ -44,8 +33,6 @@ function changeSlide(back?: boolean) {
   if (newIndex < 0) {
     newIndex = props.cards.length - 1
   }
-
-  localCards.value[newIndex].active = true
   emit('update:model-value', newIndex)
 }
 </script>
@@ -133,7 +120,7 @@ function changeSlide(back?: boolean) {
   align-items: center;
   justify-content: center;
   margin-top: -25px;
-  border: 2px solid black;
+  border: 1px solid #ffffff;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
