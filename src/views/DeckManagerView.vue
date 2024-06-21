@@ -9,6 +9,7 @@ const props = defineProps<{
   cardCollection: CardCollection
   desktop: boolean
   leaderCards: Card
+  preMatch: boolean
 }>()
 
 let localCardCollection = ref()
@@ -29,6 +30,11 @@ let collectionContainer: HTMLElement | null = null
 
 interface ManageCardCollection {
   [key: string]: Card[]
+}
+
+interface FactionAndCollection {
+  faction: string
+  collection: CardCollection
 }
 
 const deckCards = computed((): ManageCardCollection => {
@@ -66,7 +72,9 @@ const collectionCards = computed((): ManageCardCollection => {
 })
 
 const emit = defineEmits<{
+  (e: 'back'): void
   (e: 'cancel'): void
+  (e: 'faction-selected', val: FactionAndCollection): void
   (e: 'save', val: CardCollection): void
 }>()
 
@@ -194,6 +202,13 @@ function moveCardToCollection(card: Card, callback: Function) {
 
 function save() {
   emit('save', localCardCollection.value)
+}
+
+function factionSelected() {
+  emit('faction-selected', {
+    faction: factionKeys.value[factionIndex.value],
+    collection: localCardCollection.value
+  })
 }
 
 function sortCardsById(a: Card, b: Card) {
@@ -339,12 +354,27 @@ function capitaliseString(string: string) {
       </div>
 
       <div class="btn-container">
-        <button class="btn primary large" :disabled="deckManagerDisabled" @click="save">
-          Save
-        </button>
-        <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
-          Cancel
-        </button>
+        <template v-if="preMatch">
+          <button
+            class="btn primary large"
+            :disabled="deckManagerDisabled"
+            @click="factionSelected"
+          >
+            Select
+          </button>
+          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('back')">
+            Back
+          </button>
+        </template>
+
+        <template v-else>
+          <button class="btn primary large" :disabled="deckManagerDisabled" @click="save">
+            Save
+          </button>
+          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
+            Cancel
+          </button>
+        </template>
       </div>
     </div>
   </div>

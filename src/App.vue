@@ -19,11 +19,13 @@ let mainMenuIsActive = ref(false)
 let mainMenuDisabled = ref(false)
 let awardsModal = ref()
 let deckManagerIsActive = ref(false)
+let deckManagerIsPreMatch = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
 let themeSong: Howl
 let titleSequenceHasPlayed = ref(false)
+let themeSongFadeTimeout: ReturnType<typeof setTimeout>
 let playerCardCollection = JSON.parse(JSON.stringify(defaultCards))
 let playerLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
 let opponentCardCollection = JSON.parse(JSON.stringify(defaultCards))
@@ -45,6 +47,11 @@ const awardsCount = computed((): number => {
   }
   return count
 })
+
+interface FactionAndCollection {
+  faction: string
+  collection: CardCollection
+}
 
 // GLOBAL HOOKS
 
@@ -191,8 +198,8 @@ function showMainMenu() {
   loading.value = false
   showContinueBtn.value = false
   gameIsActive.value = false
-  deckManagerIsActive.value = false
 
+  clearTimeout(themeSongFadeTimeout)
   themeSong.stop()
   themeSong.volume(1)
   themeSong.play()
@@ -201,7 +208,7 @@ function showMainMenu() {
     () => {
       mainMenuIsActive.value = true
 
-      setTimeout(() => {
+      themeSongFadeTimeout = setTimeout(() => {
         if (!gameIsActive.value) {
           themeSong.fade(themeSong.volume(), 0, 12000)
         }
@@ -211,8 +218,9 @@ function showMainMenu() {
   )
 }
 
-function showManageDeck() {
+function showDeckManager(preMatch: boolean) {
   mainMenuIsActive.value = false
+  deckManagerIsPreMatch.value = preMatch
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
@@ -220,13 +228,27 @@ function showManageDeck() {
   }, 1000)
 }
 
-function closeDeckManager() {
+function cancelDeckManager() {
   deckManagerIsActive.value = false
+  themeSong.fade(themeSong.volume(), 0, 1200)
 
-  // Timeout to allow Deck Manager to fade out
+  // Timeout to allow theme song to fade out
   setTimeout(() => {
     showMainMenu()
-  }, 200)
+  }, 1200)
+}
+
+function deckManagerSave(collection: CardCollection) {
+  playerCardCollection = collection
+  deckManagerIsActive.value = false
+  themeSong.fade(themeSong.volume(), 0, 1200)
+
+  saveCardsToStorage(() => {
+    // Timeout to allow theme song to fade out
+    setTimeout(() => {
+      showMainMenu()
+    }, 1200)
+  })
 }
 
 function showAwards() {
@@ -237,25 +259,35 @@ function showAwards() {
 }
 
 function play() {
+  clearTimeout(themeSongFadeTimeout)
   themeSong.fade(themeSong.volume(), 0, 4000)
   mainMenuIsActive.value = false
 
   // Timeout to allow Main Menu to fade out
   setTimeout(() => {
-    loading.value = true
+    showDeckManager(true)
+  }, 1000)
+}
 
-    // TODO: Display Deck Manager
-    // TODO: Set decks and leaders based on player's faction choice (emit player's selected faction from Deck Manager)
-    selectedPlayerDeck = playerCardCollection.british.deck // TEMP
-    selectedOpponentDeck = opponentCardCollection.french.deck // TEMP
-    selectedPlayerLeader = playerLeaderCards.british.selected // TEMP
-    selectedOpponentLeader = opponentLeaderCards.french.selected // TEMP
+function setupGameAndStart(deckSelection: FactionAndCollection) {
+  let opponentFaction: string = deckSelection.faction === 'british' ? 'french' : 'british'
+  loading.value = true
+  deckManagerIsActive.value = false
+
+  playerCardCollection = deckSelection.collection
+  saveCardsToStorage(() => {
+    // Set decks and leaders based on player's faction choice
+    selectedPlayerDeck = playerCardCollection[deckSelection.faction].deck
+    selectedPlayerLeader = playerLeaderCards[deckSelection.faction].selected
+
+    selectedOpponentDeck = opponentCardCollection[opponentFaction].deck
+    selectedOpponentLeader = opponentLeaderCards[opponentFaction].selected
 
     // Timeout to allow loader to fade in
     setTimeout(() => {
       gameIsActive.value = true
     }, 200)
-  }, 1000)
+  })
 }
 
 function skip() {
@@ -264,19 +296,7 @@ function skip() {
   themeSong.play()
 }
 
-function deckManagerSave(collection: CardCollection) {
-  playerCardCollection = collection
-  saveCardsToStorage(() => {
-    showMainMenu()
-  })
-}
-
-// TODO: New deck manager emit('select', faction) event, used to determine player's card factions before match
-// function deckManagerSelect(faction: string) {
-// }
-
 function saveCardsToStorage(callback: Function) {
-  localStorage.setItem('awards', JSON.stringify(playerAwards.value))
   localStorage.setItem('playerCards', JSON.stringify(playerCardCollection))
   localStorage.setItem('playerLeaderCards', JSON.stringify(playerLeaderCards))
   localStorage.setItem('opponentCards', JSON.stringify(opponentCardCollection))
@@ -361,7 +381,7 @@ function loadingChange(val: boolean) {
       :show-menu="titleSequenceHasPlayed"
       @loading-change="loadingChange"
       @awards="showAwards"
-      @manage-deck="showManageDeck"
+      @manage-deck="showDeckManager"
       @play="play"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
@@ -374,7 +394,10 @@ function loadingChange(val: boolean) {
       :card-collection="playerCardCollection"
       :desktop="isDesktop"
       :leader-cards="playerLeaderCards"
-      @cancel="closeDeckManager"
+      :pre-match="deckManagerIsPreMatch"
+      @back="showMainMenu"
+      @cancel="cancelDeckManager"
+      @faction-selected="setupGameAndStart"
       @save="deckManagerSave"
     ></DeckManagerView>
   </transition>

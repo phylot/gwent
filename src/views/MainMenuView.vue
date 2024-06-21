@@ -23,7 +23,7 @@ let animationIsFinished = ref(false)
 
 const emit = defineEmits<{
   (e: 'awards'): void
-  (e: 'manage-deck'): void
+  (e: 'manage-deck', preMatch: boolean): void
   (e: 'play'): void
   (e: 'skip'): void
   (e: 'title-sequence-end'): void
@@ -122,7 +122,7 @@ function showMainMenu() {
         <button class="btn large primary" :disabled="disabled" type="button" @click="emit('play')">
           Play
         </button>
-        <button class="btn large" type="button" @click="emit('manage-deck')">Manage Deck</button>
+        <button class="btn large" type="button" @click="emit('manage-deck', false)">Manage Deck</button>
         <button class="btn large" :disabled="disabled" type="button" @click="emit('awards')">
           Awards ({{ awardsCount }})
         </button>
