@@ -85,7 +85,6 @@ let alertBannerTitle = ref('')
 let modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
-let modalIcon = ref()
 let modalTitle = ref('')
 
 // General Overlay Screen (currently used for board row highlights)
@@ -264,7 +263,6 @@ function startNewGame() {
 
   modalAvatar.value = null
   modalButtons.value = null
-  modalIcon.value = null
   modalTitle.value = ''
 
   // Decide lead player / first turn
@@ -795,7 +793,6 @@ function determineCpuHealCard(arr: Card[], callback?: Function) {
   }
 }
 
-
 function performMuster(card: Card) {
   return new Promise<void>((resolve) => {
     let deck = isPlayerTurn.value ? playerDeck.value : opponentDeck.value
@@ -1210,9 +1207,7 @@ function determineRoundWinner() {
     // Save any unlocked awards
     emit('save-awards', unlockedAwards)
 
-    // TODO: "View Board" option
     modalButtons.value = ['Play Again', 'Main Menu']
-    modalIcon.value = null
 
     modal.value.show().then((i: number) => {
       if (i === 1) {
@@ -1390,6 +1385,20 @@ function closeCardModal() {
   slideIndex.value = 0
 }
 
+function showPauseModal() {
+  boardDisabled.value = true
+  modalAvatar.value = null
+  modalButtons.value = ['Resume', 'Quit']
+  modalTitle.value = 'Paused'
+
+  modal.value.show().then((i: number) => {
+    boardDisabled.value = false
+    if (i === 2) {
+      emit('show-menu')
+    }
+  })
+}
+
 function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
   alertBannerTitle.value = title || ''
   alertBannerAvatar.value = avatar || null
@@ -1474,11 +1483,10 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :avatar="modalAvatar"
       :buttons="modalButtons"
       :desktop="props.desktop"
-      :icon="modalIcon"
       ref="modal"
       :title="modalTitle"
     >
-      <div class="match-stats player">
+      <div v-if="playerRoundTotals.length > 0" class="match-stats player">
         <h2>Player</h2>
         <div
           v-for="(total, i) in playerRoundTotals"
@@ -1502,7 +1510,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </div>
         </template>
       </div>
-      <div class="match-stats opponent">
+      <div v-if="playerRoundTotals.length > 0" class="match-stats opponent">
         <h2>Opponent</h2>
         <div
           v-for="(total, i) in opponentRoundTotals"
@@ -1541,7 +1549,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
     <div class="game-container">
       <div class="board-container">
         <CardModal v-model="cardModal" class="quick-fade">
-          <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
+          <template v-if="cardModalTitle" v-slot:header>
+            <h2>{{ cardModalTitle }}</h2>
+          </template>
 
           <CardCarousel
             v-model="slideIndex"
@@ -1858,5 +1868,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
         </div>
       </div>
     </div>
+
+    <button
+      class="pause-menu-btn btn"
+      :class="{ disabled: boardDisabled }"
+      :disabled="boardDisabled"
+      @click="showPauseModal"
+    >
+      <v-icon name="la-cog-solid" class="icon" fill="white" :scale="props.desktop ? 1.8 : 1.2" />
+    </button>
   </div>
 </template>

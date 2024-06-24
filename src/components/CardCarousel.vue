@@ -140,8 +140,11 @@ function changeSlide(back?: boolean) {
 }
 
 .card-carousel .prev-btn.disabled,
-.card-carousel .next-btn.disabled {
+.card-carousel .prev-btn:disabled,
+.card-carousel .next-btn.disabled,
+.card-carousel .next-btn:disabled {
   transform: none !important;
+  cursor: not-allowed;
 }
 
 .card-carousel .prev-btn:active,
@@ -149,8 +152,8 @@ function changeSlide(back?: boolean) {
   transform: translate(0, 3px);
 }
 
-.card-carousel .prev-btn:focus:not(.disabled),
-.card-carousel .next-btn:focus:not(.disabled) {
+.card-carousel .prev-btn:focus:not(.disabled):not(:disabled),
+.card-carousel .next-btn:focus:not(.disabled):not(:disabled) {
   outline: none;
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
 }
@@ -181,8 +184,8 @@ function changeSlide(back?: boolean) {
     margin-top: -35px;
   }
 
-  .prev-btn:focus:not(.disabled),
-  .next-btn:focus:not(.disabled) {
+  .prev-btn:focus:not(.disabled):not(:disabled),
+  .next-btn:focus:not(.disabled):not(:disabled) {
     outline: none;
     box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
   }

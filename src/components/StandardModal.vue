@@ -41,46 +41,56 @@ function hide() {
 
 <template>
   <transition name="fast-fade">
-    <div v-if="localModelValue" class="modal" role="dialog">
-      <div v-if="props.title" class="heading">
-        <div
-          v-if="avatar"
-          class="avatar"
-          :style="{ backgroundImage: `url(${props.avatar})` }"
-        ></div>
-        <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
-        <h1>{{ props.title }}</h1>
-      </div>
+    <div v-if="localModelValue" class="standard-modal" role="dialog">
+      <div class="modal">
+        <div v-if="props.title" class="heading">
+          <div
+            v-if="avatar"
+            class="avatar"
+            :style="{ backgroundImage: `url(${props.avatar})` }"
+          ></div>
+          <v-icon v-if="icon" :name="icon" class="icon" :scale="desktop ? 3 : 1.5" />
+          <h1>{{ props.title }}</h1>
+        </div>
 
-      <div class="body">
-        <slot></slot>
-      </div>
+        <div class="body">
+          <slot></slot>
+        </div>
 
-      <div v-if="props.buttons" class="btn-container">
-        <button
-          v-for="(button, i) in buttons"
-          class="btn large"
-          :class="{ primary: i === 0 && !props.noPrimary }"
-          :key="i"
-          @click="
-            resolvePromise(i + 1);
-            hide();
-          "
-          @keydown.enter="
-            resolvePromise(i + 1);
-            hide();
-          "
-        >
-          {{ button }}
-        </button>
+        <div v-if="props.buttons" class="btn-container">
+          <button
+            v-for="(button, i) in buttons"
+            class="btn large"
+            :class="{ primary: i === 0 && !props.noPrimary }"
+            :key="i"
+            @click="
+              resolvePromise(i + 1);
+              hide();
+            "
+            @keydown.enter="
+              resolvePromise(i + 1);
+              hide();
+            "
+          >
+            {{ button }}
+          </button>
+        </div>
       </div>
     </div>
   </transition>
 </template>
 
 <style>
-.modal {
+.standard-modal {
   z-index: 8000;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal {
   position: absolute;
   left: 50%;
   top: 50%;

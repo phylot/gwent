@@ -341,6 +341,17 @@
   bottom: 70px;
 }
 
+/* Pause Menu Button */
+
+.btn.pause-menu-btn {
+  z-index: 7000;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  border: none;
+  background-color: rgb(0, 0, 0, 0.5);
+}
+
 /* Desktop Styles */
 
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {

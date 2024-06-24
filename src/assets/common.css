@@ -32,6 +32,10 @@
   background-color: #ffffff;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+}
+
 .btn.disabled {
   border: 1px solid #757575;
   color: #757575;
@@ -39,11 +43,11 @@
   cursor: not-allowed;
 }
 
-.btn:hover:not(.disabled) {
+.btn:hover:not(:disabled):not(.disabled) {
   background-color: #191919;
 }
 
-.btn.primary:hover:not(.disabled) {
+.btn.primary:not(:disabled):hover:not(.disabled) {
   background-color: #e7e7e7;
 }
 
@@ -290,7 +294,7 @@
   opacity: 0;
 }
 
-/* Board-related / General Animations */
+/* Board-related */
 
 .fade-in {
   animation-name: fade-in;

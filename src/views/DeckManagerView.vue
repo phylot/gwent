@@ -111,7 +111,10 @@ function deckCardClick(card: Card, key: string | number, index: number) {
   activeCardRow.value = deckCards.value[key]
   activeDeckRowKey.value = key
 
-  showCardModal('Remove', `${capitaliseString(String(key))} Combat`).then((ok) => {
+  showCardModal(
+    'Remove',
+    `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
+  ).then((ok) => {
     cardModalDisabled.value = true
     if (ok) {
       moveCardToCollection(card, () => {
@@ -128,7 +131,10 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   activeCardRow.value = collectionCards.value[key]
   activeCollectionRowKey.value = key
 
-  showCardModal('Add', `${capitaliseString(String(key))} Combat`).then((ok) => {
+  showCardModal(
+    'Add',
+    `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
+  ).then((ok) => {
     if (ok) {
       moveCardToDeck(card, () => {
         closeCardModal()
@@ -224,7 +230,16 @@ function capitaliseString(string: string) {
   <div class="deck-manager">
     <div class="deck-manager-container">
       <CardModal v-model="cardModal" class="quick-fade">
-        <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
+        <template v-slot:header>
+          <div class="type card-stat-badge">
+            <v-icon
+              :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
+              class="icon"
+              :scale="desktop ? 1.5 : 0.8"
+            />
+          </div>
+          <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
+        </template>
 
         <CardCarousel
           v-model="slideIndex"
@@ -282,9 +297,18 @@ function capitaliseString(string: string) {
 
         <template v-for="(cardArr, key) in deckCards" :key="key">
           <template v-if="cardArr.length > 0">
-            <h3>
-              {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
-            </h3>
+            <div class="deck-manager-type-heading">
+              <div class="type card-stat-badge">
+                <v-icon
+                  :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
+                  class="icon"
+                  :scale="desktop ? 1.2 : 0.9"
+                />
+              </div>
+              <h3>
+                {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
+              </h3>
+            </div>
 
             <div class="deck-manager-card-row">
               <SmallCard
@@ -322,9 +346,18 @@ function capitaliseString(string: string) {
 
         <template v-for="(cardArr, key) in collectionCards" :key="key">
           <template v-if="cardArr.length > 0">
-            <h3>
-              {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
-            </h3>
+            <div class="deck-manager-type-heading">
+              <div class="type card-stat-badge">
+                <v-icon
+                  :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
+                  class="icon"
+                  :scale="desktop ? 1.5 : 1"
+                />
+              </div>
+              <h3>
+                {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
+              </h3>
+            </div>
 
             <div class="deck-manager-card-row">
               <SmallCard
@@ -431,6 +464,19 @@ function capitaliseString(string: string) {
   text-align: center;
 }
 
+.deck-manager .deck-manager-type-heading {
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.deck-manager .deck-manager-type-heading .card-stat-badge {
+  width: 22px;
+  height: 22px;
+  position: unset;
+}
+
 .deck-manager .deck-manager-card-row {
   margin: 10px 0;
   display: flex;
@@ -468,6 +514,12 @@ function capitaliseString(string: string) {
   align-items: center;
 }
 
+.deck-manager .card-modal .card-modal-header .card-stat-badge {
+  width: 25px;
+  height: 25px;
+  position: unset;
+}
+
 /* Desktop Styles */
 
 @media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
@@ -488,6 +540,20 @@ function capitaliseString(string: string) {
   .deck-manager .deck-manager-deck,
   .deck-manager .deck-manager-collection {
     height: 350px;
+  }
+
+  .deck-manager .deck-manager-type-heading {
+    gap: 12px;
+  }
+
+  .deck-manager .deck-manager-type-heading .card-stat-badge {
+    width: 30px;
+    height: 30px;
+  }
+
+  .deck-manager .card-modal .card-modal-header .card-stat-badge {
+    width: 40px;
+    height: 40px;
   }
 }
 </style>

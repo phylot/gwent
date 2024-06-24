@@ -34,7 +34,7 @@ defineProps<{
 
 <style>
 .alert-banner {
-  z-index: 7000;
+  z-index: 6000;
   position: absolute;
   top: 50%;
   transform: translate(0, -50%);
