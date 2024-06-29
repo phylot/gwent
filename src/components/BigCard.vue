@@ -70,7 +70,7 @@ const cardClasses = computed(() => {
 
 <style>
 .big-card {
-  height: 310px;
+  height: 300px;
   overflow: hidden;
 }
 

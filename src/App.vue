@@ -221,6 +221,9 @@ function showMainMenu() {
 function showDeckManager(preMatch: boolean) {
   mainMenuIsActive.value = false
   deckManagerIsPreMatch.value = preMatch
+  clearTimeout(themeSongFadeTimeout)
+  themeSong.fade(themeSong.volume(), 0, 4000)
+
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
@@ -230,7 +233,6 @@ function showDeckManager(preMatch: boolean) {
 
 function cancelDeckManager() {
   deckManagerIsActive.value = false
-  themeSong.fade(themeSong.volume(), 0, 1200)
 
   // Timeout to allow theme song to fade out
   setTimeout(() => {
@@ -260,7 +262,6 @@ function showAwards() {
 
 function play() {
   clearTimeout(themeSongFadeTimeout)
-  themeSong.fade(themeSong.volume(), 0, 4000)
   mainMenuIsActive.value = false
 
   // Timeout to allow Main Menu to fade out
@@ -395,7 +396,6 @@ function loadingChange(val: boolean) {
       :desktop="isDesktop"
       :leader-cards="playerLeaderCards"
       :pre-match="deckManagerIsPreMatch"
-      @back="showMainMenu"
       @cancel="cancelDeckManager"
       @faction-selected="setupGameAndStart"
       @save="deckManagerSave"

@@ -13,6 +13,7 @@ const props = defineProps<{
 }>()
 
 let localCardCollection = ref()
+let localLeaderCards = ref()
 let factionKeys = ref(Object.keys(props.cardCollection))
 let factionIndex = ref(0)
 let activeCardRow = ref<Card[]>([])
@@ -71,8 +72,59 @@ const collectionCards = computed((): ManageCardCollection => {
   return cards
 })
 
+const totalDeckCards = computed((): number => {
+  let total = 0
+
+  if (localCardCollection.value) {
+    total = localCardCollection.value[factionKeys.value[factionIndex.value]].deck.length
+  }
+  return total
+})
+
+const totalUnitCards = computed((): number => {
+  let total = 0
+
+  if (localCardCollection.value) {
+    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
+      if (card.value) {
+        total++
+      }
+    }
+  }
+  return total
+})
+
+const totalSpecialCards = computed((): number => {
+  let total = 0
+
+  if (localCardCollection.value) {
+    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
+      if (card.type === 'special') {
+        total++
+      }
+    }
+  }
+  return total
+})
+
+const totalUnitStrength = computed((): number => {
+  let total = 0
+
+  if (localCardCollection.value) {
+    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
+      if (card.value) {
+        total = total + card.value
+      }
+    }
+  }
+  return total
+})
+
+const invalidUnitTotal = computed((): boolean => {
+  return totalUnitCards.value < 22
+})
+
 const emit = defineEmits<{
-  (e: 'back'): void
   (e: 'cancel'): void
   (e: 'faction-selected', val: FactionAndCollection): void
   (e: 'save', val: CardCollection): void
@@ -80,6 +132,7 @@ const emit = defineEmits<{
 
 onMounted(() => {
   localCardCollection.value = JSON.parse(JSON.stringify(props.cardCollection))
+  localLeaderCards.value = JSON.parse(JSON.stringify(props.leaderCards))
 
   // Sort all cards by 'id'
   for (const faction in localCardCollection.value) {
@@ -274,16 +327,18 @@ function capitaliseString(string: string) {
 
       <div class="deck-manager-heading">
         <button
+          :class="{ disabled: totalUnitCards < 22 }"
           class="btn"
-          :disabled="deckManagerDisabled"
+          :disabled="deckManagerDisabled || totalUnitCards < 22"
           @click="changeFaction(factionIndex - 1)"
         >
           Prev
         </button>
         <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
         <button
+          :class="{ disabled: invalidUnitTotal }"
           class="btn"
-          :disabled="deckManagerDisabled"
+          :disabled="deckManagerDisabled || invalidUnitTotal"
           @click="changeFaction(factionIndex + 1)"
         >
           Next
@@ -291,9 +346,7 @@ function capitaliseString(string: string) {
       </div>
 
       <div class="deck-manager-deck">
-        <h2 v-if="localCardCollection">
-          Deck ({{ localCardCollection[factionKeys[factionIndex]].deck.length }})
-        </h2>
+        <h2 v-if="localCardCollection">Deck ({{ totalDeckCards }})</h2>
 
         <template v-for="(cardArr, key) in deckCards" :key="key">
           <template v-if="cardArr.length > 0">
@@ -337,7 +390,32 @@ function capitaliseString(string: string) {
         </template>
       </div>
 
-      <div class="deck-manager-stats"></div>
+      <div class="deck-manager-stats">
+        <div class="deck-manager-stat">
+          <h4>Deck Cards</h4>
+          {{ totalDeckCards }}
+        </div>
+        <div :class="{ error: invalidUnitTotal }" class="deck-manager-stat">
+          <h4>Unit Cards</h4>
+          {{ `${totalUnitCards}${invalidUnitTotal ? '/22' : ''}` }}
+        </div>
+        <div v-if="localLeaderCards" class="deck-manager-leader">
+          <div
+            class="avatar"
+            :style="{
+              backgroundImage: `url(${ localLeaderCards[factionKeys[factionIndex]].selected.imageUrl })`
+            }"
+          ></div>
+        </div>
+        <div class="deck-manager-stat">
+          <h4>Special Cards</h4>
+          {{ totalSpecialCards }}
+        </div>
+        <div class="deck-manager-stat">
+          <h4>Total Strength</h4>
+          {{ totalUnitStrength }}
+        </div>
+      </div>
 
       <div class="deck-manager-collection">
         <h2 v-if="localCardCollection">
@@ -351,7 +429,7 @@ function capitaliseString(string: string) {
                 <v-icon
                   :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
                   class="icon"
-                  :scale="desktop ? 1.5 : 1"
+                  :scale="desktop ? 1.2 : 0.9"
                 />
               </div>
               <h3>
@@ -389,19 +467,25 @@ function capitaliseString(string: string) {
       <div class="btn-container">
         <template v-if="preMatch">
           <button
+            :class="{ disabled: invalidUnitTotal }"
             class="btn primary large"
-            :disabled="deckManagerDisabled"
+            :disabled="deckManagerDisabled || invalidUnitTotal"
             @click="factionSelected"
           >
             Select
           </button>
-          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('back')">
+          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
             Back
           </button>
         </template>
 
         <template v-else>
-          <button class="btn primary large" :disabled="deckManagerDisabled" @click="save">
+          <button
+            :class="{ disabled: invalidUnitTotal }"
+            class="btn primary large"
+            :disabled="deckManagerDisabled || invalidUnitTotal"
+            @click="save"
+          >
             Save
           </button>
           <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
@@ -454,18 +538,17 @@ function capitaliseString(string: string) {
   padding: 10px 0 10px 10px;
   overflow-y: scroll;
   border-top: 1px solid #353535;
-  border-bottom: 1px solid #686868;
-  background: linear-gradient(#000000, #373738);
+  background: linear-gradient(#242424, #000000);
 }
 
 .deck-manager .deck-manager-deck h2,
 .deck-manager .deck-manager-collection h2 {
-  padding-bottom: 10px;
+  padding: 5px 0;
   text-align: center;
 }
 
 .deck-manager .deck-manager-type-heading {
-  padding: 10px 0;
+  padding: 5px 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -485,6 +568,40 @@ function capitaliseString(string: string) {
 
 .deck-manager .deck-manager-stats {
   height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  background-color: #000000;
+}
+
+.deck-manager .deck-manager-stat {
+  text-align: center;
+}
+
+.deck-manager .deck-manager-leader {
+  position: relative;
+  height: 100%;
+  width: 60px;
+}
+
+.deck-manager .deck-manager-leader .avatar {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  border: 5px solid #000000;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+
+.deck-manager .deck-manager-stat.error {
+  color: #ff2525;
 }
 
 .deck-manager .deck-manager-deck::-webkit-scrollbar,
@@ -539,16 +656,39 @@ function capitaliseString(string: string) {
 
   .deck-manager .deck-manager-deck,
   .deck-manager .deck-manager-collection {
-    height: 350px;
+    height: 285px;
+  }
+
+  .deck-manager .deck-manager-deck h2,
+  .deck-manager .deck-manager-collection h2 {
+    padding: 10px 0;
+    text-align: center;
   }
 
   .deck-manager .deck-manager-type-heading {
+    padding: 10px 0;
     gap: 12px;
   }
 
   .deck-manager .deck-manager-type-heading .card-stat-badge {
     width: 30px;
     height: 30px;
+  }
+
+  .deck-manager .deck-manager-stats {
+    height: 80px;
+    gap: 40px;
+  }
+
+  .deck-manager .deck-manager-leader {
+    width: 100px;
+  }
+
+  .deck-manager .deck-manager-leader .avatar {
+    top: -10px;
+    width: 100px;
+    height: 100px;
+    border: 8px solid #000000;
   }
 
   .deck-manager .card-modal .card-modal-header .card-stat-badge {

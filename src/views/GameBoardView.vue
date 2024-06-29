@@ -1550,6 +1550,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       <div class="board-container">
         <CardModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
+            <v-icon v-if="cardRedrawActive" name="gi-card-exchange" class="icon" :scale="props.desktop ? 2.2 : 1.3" />
             <h2>{{ cardModalTitle }}</h2>
           </template>
 
