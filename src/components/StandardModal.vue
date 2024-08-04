@@ -10,6 +10,7 @@ const props = defineProps<{
   avatar?: string
   buttons?: string[]
   desktop?: boolean
+  disabled?: boolean
   icon?: string
   modelValue?: boolean
   noPrimary?: boolean
@@ -62,15 +63,9 @@ function hide() {
             v-for="(button, i) in buttons"
             class="btn large"
             :class="{ primary: i === 0 && !props.noPrimary }"
+            :disabled="props.disabled"
             :key="i"
-            @click="
-              resolvePromise(i + 1);
-              hide();
-            "
-            @keydown.enter="
-              resolvePromise(i + 1);
-              hide();
-            "
+            @click="resolvePromise(i + 1) + hide()"
           >
             {{ button }}
           </button>

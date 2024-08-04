@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <div v-if="modelValue" class="card-modal">
+  <div v-if="modelValue" class="card-modal" role="dialog">
     <div class="card-modal-content">
       <div v-if="slots.header" class="card-modal-header">
         <slot name="header"></slot>

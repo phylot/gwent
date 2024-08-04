@@ -30,6 +30,7 @@ interface Card {
   imageUrl?: string
   musterName?: string
   name?: string
+  replaceId?: string,
   type: string
   typeIcon?: string
   value?: number

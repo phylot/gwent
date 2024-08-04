@@ -3,21 +3,22 @@ import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
 import { type Card, type CardCollection } from '@/types'
 import { Howl } from 'howler'
+import DeckManagerView from './views/DeckManagerView.vue'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
-import DeckManagerView from './views/DeckManagerView.vue'
+import CardUnlockModal from './components/CardUnlockModal.vue'
 import StandardModal from './components/StandardModal.vue'
 
-import { defaultCards, defaultLeaderCards } from './data/cards'
+import { defaultCards, defaultLeaderCards, unlockableCards } from './data/cards'
 import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
 
 let cpuDifficulty = 0.3
 let gameIsActive = ref(false)
+let gameBoardDisabled = ref(false)
 let mainMenuIsActive = ref(false)
 let mainMenuDisabled = ref(false)
-let awardsModal = ref()
 let deckManagerIsActive = ref(false)
 let deckManagerIsPreMatch = ref(false)
 let isDesktop = ref(false)
@@ -35,7 +36,10 @@ let selectedPlayerLeader: Card
 let selectedOpponentDeck: Card[] = []
 let selectedOpponentLeader: Card
 let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
-
+let awardsModal = ref()
+let playerWins: number = 0
+let unlockedCard = ref<Card>()
+let cardUnlockModal = ref()
 // COMPUTED DATA
 
 const awardsCount = computed((): number => {
@@ -109,8 +113,6 @@ async function preload() {
     opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
   }
 
-  // TODO: Preload unlockable cards
-
   // Preload title screen background image
   await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
   showContinueBtn.value = true
@@ -156,6 +158,12 @@ function loadLocalStorage() {
     let retrievedAwards: string | null = localStorage.getItem('awards')
     if (retrievedAwards) {
       playerAwards.value = JSON.parse(retrievedAwards)
+    }
+
+    // Read total player wins from localStorage
+    let retrievedWins: string | null = localStorage.getItem('playerWins')
+    if (retrievedWins) {
+      playerWins = JSON.parse(retrievedWins)
     }
 
     resolve()
@@ -220,10 +228,10 @@ function showMainMenu() {
 
 function showDeckManager(preMatch: boolean) {
   mainMenuIsActive.value = false
+  gameIsActive.value = false
   deckManagerIsPreMatch.value = preMatch
   clearTimeout(themeSongFadeTimeout)
   themeSong.fade(themeSong.volume(), 0, 4000)
-
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
@@ -297,7 +305,7 @@ function skip() {
   themeSong.play()
 }
 
-function saveCardsToStorage(callback: Function) {
+function saveCardsToStorage(callback?: Function) {
   localStorage.setItem('playerCards', JSON.stringify(playerCardCollection))
   localStorage.setItem('playerLeaderCards', JSON.stringify(playerLeaderCards))
   localStorage.setItem('opponentCards', JSON.stringify(opponentCardCollection))
@@ -317,6 +325,62 @@ function saveAwardsToStorage(awardKeys: string[]) {
 
 function loadingChange(val: boolean) {
   loading.value = val
+}
+
+async function determineCardUnlock() {
+  playerWins++
+  localStorage.setItem('playerWins', JSON.stringify(playerWins))
+
+  // If there's an unlockable card match...
+  if (unlockableCards[playerWins]) {
+    let card = unlockableCards[playerWins]
+    let cardWasReplaced = false
+
+    // Preload unlocked card
+    let preloadedCard = await preloadCards([card])
+    if (preloadedCard) {
+      card = preloadedCard[0]
+    }
+
+    // Copy card to player's collection
+    playerCardCollection[card.faction].collection.push(card)
+
+    // Copy card to opponent deck or collection
+    for (let i = 0; i < opponentCardCollection[card.faction].deck.length; i++) {
+      let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
+
+      // If there's a deck card with an 'id' that matches the unlocked card's 'replace_id', move the deck card to the collection
+      if (opponentDeckCard.id === card.replaceId) {
+        // Move replaced card from opponent's deck to their collection, then add the unlocked card to opponent deck
+        opponentCardCollection[card.faction].collection.push(opponentDeckCard)
+        opponentCardCollection[card.faction].deck.splice(i, 1)
+        opponentCardCollection[card.faction].deck.push(card)
+        cardWasReplaced = true
+      }
+    }
+    // If no card was found and replaced in opponent deck, add the unlocked card to opponent collection
+    if (!cardWasReplaced) {
+      opponentCardCollection[card.faction].collection.push(card)
+    }
+
+    // Disable GameBoardView
+    gameBoardDisabled.value = true
+
+    // Set global reactive unlocked card
+    unlockedCard.value = card
+
+    setTimeout(() => {
+      cardUnlockModal.value.show().then((res: boolean) => {
+        if (res) {
+          showDeckManager(false)
+        }
+        gameBoardDisabled.value = false
+      })
+    }, 1000)
+
+    // Save playerWins and player / opponent card collections to localStorage
+    saveCardsToStorage()
+  }
 }
 </script>
 
@@ -347,32 +411,36 @@ function loadingChange(val: boolean) {
     </div>
   </transition>
 
-  <transition name="fast-fade">
-    <StandardModal
-      :buttons="['Close']"
-      :desktop="isDesktop"
-      no-primary
-      ref="awardsModal"
-      :title="`Awards (${awardsCount}/${Object.keys(playerAwards).length})`"
-    >
-      <div class="awards-gallery">
-        <div v-if="awardsCount > 0" class="awards-grid">
-          <template v-for="(award, key) in playerAwards" :key="key">
-            <div v-if="award.active" class="award-container">
-              <div class="award" :class="key">
-                <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
-                <div class="name">{{ award.name }}</div>
-              </div>
-              <p v-html="award.description" class="description"></p>
+  <CardUnlockModal
+    :card="unlockedCard"
+    :desktop="isDesktop"
+    ref="cardUnlockModal"
+  ></CardUnlockModal>
+
+  <StandardModal
+    :buttons="['Close']"
+    :desktop="isDesktop"
+    no-primary
+    ref="awardsModal"
+    :title="`Awards (${awardsCount}/${Object.keys(playerAwards).length})`"
+  >
+    <div class="awards-gallery">
+      <div v-if="awardsCount > 0" class="awards-grid">
+        <template v-for="(award, key) in playerAwards" :key="key">
+          <div v-if="award.active" class="award-container">
+            <div class="award" :class="key">
+              <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
+              <div class="name">{{ award.name }}</div>
             </div>
-          </template>
-        </div>
-        <p v-else class="no-awards-text">
-          If the game deems you have done something noteworthy, it may reward you...
-        </p>
+            <p v-html="award.description" class="description"></p>
+          </div>
+        </template>
       </div>
-    </StandardModal>
-  </transition>
+      <p v-else class="no-awards-text">
+        If the game deems you have done something noteworthy, it may reward you...
+      </p>
+    </div>
+  </StandardModal>
 
   <transition name="slow-fade">
     <MainMenuView
@@ -405,13 +473,15 @@ function loadingChange(val: boolean) {
   <transition name="fast-fade">
     <GameBoardView
       v-if="gameIsActive"
-      :player-cards="selectedPlayerDeck"
-      :player-leader-card="selectedPlayerLeader"
-      :opponent-cards="selectedOpponentDeck"
-      :opponent-leader-card="selectedOpponentLeader"
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
+      :disabled="gameBoardDisabled"
+      :opponent-cards="selectedOpponentDeck"
+      :opponent-leader-card="selectedOpponentLeader"
+      :player-cards="selectedPlayerDeck"
+      :player-leader-card="selectedPlayerLeader"
       @loading-change="loadingChange"
+      @player-win="determineCardUnlock"
       @save-awards="saveAwardsToStorage"
       @show-menu="showMainMenu"
     ></GameBoardView>

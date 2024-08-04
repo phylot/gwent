@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { type Card, type CardCollection } from '@/types'
 import CardCarousel from './../components/CardCarousel.vue'
-import CardModal from './../components/CardModal.vue'
+import CardCarouselModal from '../components/CardCarouselModal.vue'
 import SmallCard from '../components/SmallCard.vue'
 
 const props = defineProps<{
@@ -282,7 +282,7 @@ function capitaliseString(string: string) {
 <template>
   <div class="deck-manager">
     <div class="deck-manager-container">
-      <CardModal v-model="cardModal" class="quick-fade">
+      <CardCarouselModal v-model="cardModal" class="quick-fade">
         <template v-slot:header>
           <div class="type card-stat-badge">
             <v-icon
@@ -307,8 +307,6 @@ function capitaliseString(string: string) {
           tabindex="2"
           type="button"
           @click="resolveCardModal(true)"
-          @keyup.enter="resolveCardModal(true)"
-          @keyup.space="resolveCardModal(true)"
         >
           {{ cardModalConfirmText }}
         </button>
@@ -318,12 +316,10 @@ function capitaliseString(string: string) {
           tabindex="2"
           type="button"
           @click="resolveCardModal(false)"
-          @keyup.enter="resolveCardModal(false)"
-          @keyup.space="resolveCardModal(false)"
         >
           Close
         </button>
-      </CardModal>
+      </CardCarouselModal>
 
       <div class="deck-manager-heading">
         <button
@@ -587,6 +583,7 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-leader .avatar {
+  z-index: 1000;
   position: absolute;
   top: -5px;
   left: 0;

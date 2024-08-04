@@ -170,7 +170,6 @@ function changeSlide(back?: boolean) {
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  /* Card Carousel (Desktop / Tablet) */
 
   .card-carousel {
     width: 460px;

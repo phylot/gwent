@@ -9,6 +9,7 @@ const props = defineProps<{
   description?: string
   desktop?: boolean
   faction?: string
+  glow?: boolean
   hero?: boolean
   imageUrl: string | undefined
   name?: string
@@ -38,7 +39,7 @@ const cardClasses = computed(() => {
 
 <template>
   <div class="big-card">
-    <div class="card-wrap">
+    <div class="card-wrap" :class="{ glow: props.glow }">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border" :class="cardBorderClasses">
         <div
@@ -71,7 +72,6 @@ const cardClasses = computed(() => {
 <style>
 .big-card {
   height: 300px;
-  overflow: hidden;
 }
 
 .big-card .card-wrap {

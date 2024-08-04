@@ -282,7 +282,7 @@
 }
 
 .slow-fade-enter-active {
-  transition: opacity 1s ease-in;
+  transition: opacity 1s ease-out;
 }
 
 .slow-fade-leave-active {
@@ -374,6 +374,32 @@
   animation: shine 0.5s linear 1;
 }
 
+.shine-infinite {
+  display: block;
+  background: #fff;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(rgba(255, 255, 255, 0)),
+    color-stop(50%, rgba(255, 255, 255, 0.8)),
+    to(rgba(255, 255, 255, 0))
+  );
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transform: skew(30deg);
+  animation: shine 3s infinite;
+}
+
+.glow {
+  animation: glow 2s infinite alternate;
+}
+
 @keyframes shine {
   0% {
     left: -50%;
@@ -399,5 +425,14 @@
   }
   100% {
     -webkit-box-shadow: 0 0 0 0 rgba(233, 255, 0, 0);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px 3px rgb(255, 255, 255, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px 10px rgb(255, 255, 255, 0.5);
   }
 }

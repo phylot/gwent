@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { type Card, type RoundTotal, type RowFlag } from '@/types'
 
 import { defaultRowFlags } from './../data/game-board'
@@ -7,7 +7,7 @@ import { defaultAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
 import SmallCard from '../components/SmallCard.vue'
 import CardCarousel from './../components/CardCarousel.vue'
-import CardModal from './../components/CardModal.vue'
+import CardCarouselModal from '../components/CardCarouselModal.vue'
 import StandardModal from './../components/StandardModal.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 
@@ -16,6 +16,7 @@ import OverlayScreen from './../components/OverlayScreen.vue'
 const props = defineProps<{
   cpuDifficulty: number
   desktop: boolean
+  disabled: boolean
   opponentCards: Card[]
   opponentLeaderCard: Card
   playerCards: Card[]
@@ -153,10 +154,20 @@ const recentSpecialCard = computed(() => {
   return card
 })
 
+// WATCHERS
+
+watch(
+  () => props.disabled,
+  (val) => {
+    boardDisabled.value = val
+  }
+)
+
 // EVENTS
 
 const emit = defineEmits<{
   (e: 'loading-change', val: boolean): void
+  (e: 'player-win'): void
   (e: 'save-awards', val: string[]): void
   (e: 'show-menu'): void
 }>()
@@ -1187,6 +1198,11 @@ function determineRoundWinner() {
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
     } else {
+      // Emit a player win to App.vue for card unlock purposes
+      if (isPlayerMatchWin) {
+        emit('player-win')
+      }
+
       // Determine 'Tactician' award
       let tacticianAward = isPlayerMatchWin
         ? playerAwards.value.tactician
@@ -1483,6 +1499,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :avatar="modalAvatar"
       :buttons="modalButtons"
       :desktop="props.desktop"
+      :disabled="props.disabled"
       ref="modal"
       :title="modalTitle"
     >
@@ -1548,9 +1565,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <div class="game-container">
       <div class="board-container">
-        <CardModal v-model="cardModal" class="quick-fade">
+        <CardCarouselModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
-            <v-icon v-if="cardRedrawActive" name="gi-card-exchange" class="icon" :scale="props.desktop ? 2.2 : 1.3" />
+            <v-icon
+              v-if="cardRedrawActive"
+              name="gi-card-exchange"
+              class="icon"
+              :scale="props.desktop ? 2.2 : 1.3"
+            />
             <h2>{{ cardModalTitle }}</h2>
           </template>
 
@@ -1568,8 +1590,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
             tabindex="2"
             type="button"
             @click="resolveCardModal(true)"
-            @keyup.enter="resolveCardModal(true)"
-            @keyup.space="resolveCardModal(true)"
           >
             {{ cardModalConfirmText }}
           </button>
@@ -1580,12 +1600,10 @@ function sortCardsHighToLow(a: Card, b: Card) {
             tabindex="2"
             type="button"
             @click="resolveCardModal(false)"
-            @keyup.enter="resolveCardModal(false)"
-            @keyup.space="resolveCardModal(false)"
           >
             {{ cardModalCancelText }}
           </button>
-        </CardModal>
+        </CardCarouselModal>
 
         <div class="opponent-board">
           <div
