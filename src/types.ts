@@ -1,13 +1,14 @@
 interface Award {
   active: boolean
-  count: number
+  count?: number
   description: string
   icon: string
   name: string
-  targetCount: number
+  targetCount?: number
 }
 
 interface Awards {
+  cardmaster: Award
   fieldmarshal: Award
   heavyweight: Award
   spymaster: Award
@@ -30,7 +31,7 @@ interface Card {
   imageUrl?: string
   musterName?: string
   name?: string
-  replaceId?: string,
+  replacedById?: string,
   type: string
   typeIcon?: string
   value?: number

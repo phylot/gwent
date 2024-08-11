@@ -5,7 +5,6 @@ import App from './App.vue'
 
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import {
-  BiIncognito,
   BiSnow3,
   FaChevronLeft,
   FaChevronRight,
@@ -20,6 +19,7 @@ import {
   GiCardExchange,
   GiCatapult,
   GiCrossbow,
+  GiCrown,
   GiCrownCoin,
   GiDaemonSkull,
   GiHeartPlus,
@@ -27,10 +27,11 @@ import {
   GiHood,
   GiMuscleUp,
   GiPocketBow,
-  GiRank3,
   GiRoundStar,
   GiSandsOfTime,
   GiScarecrow,
+  GiSpy,
+  GiStarMedal,
   GiSunflower,
   GiTwoShadows,
   HiChevronLeft,
@@ -48,7 +49,6 @@ import {
 import './assets/main.css'
 
 addIcons(
-  BiIncognito,
   BiSnow3,
   FaChevronLeft,
   FaChevronRight,
@@ -63,6 +63,7 @@ addIcons(
   GiCardExchange,
   GiCatapult,
   GiCrossbow,
+  GiCrown,
   GiCrownCoin,
   GiDaemonSkull,
   GiHeartPlus,
@@ -70,10 +71,11 @@ addIcons(
   GiHood,
   GiMuscleUp,
   GiPocketBow,
-  GiRank3,
   GiRoundStar,
   GiSandsOfTime,
   GiScarecrow,
+  GiSpy,
+  GiStarMedal,
   GiSunflower,
   GiTwoShadows,
   HiChevronLeft,

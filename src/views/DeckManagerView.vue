@@ -86,7 +86,7 @@ const totalUnitCards = computed((): number => {
 
   if (localCardCollection.value) {
     for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
-      if (card.value) {
+      if (card.value || card.value === 0) {
         total++
       }
     }

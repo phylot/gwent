@@ -331,6 +331,11 @@ async function determineCardUnlock() {
   playerWins++
   localStorage.setItem('playerWins', JSON.stringify(playerWins))
 
+  // Unlock 'Card Master' award
+  if (playerWins === playerAwards.value.cardmaster.targetCount) {
+    saveAwardsToStorage(['cardmaster'])
+  }
+
   // If there's an unlockable card match...
   if (unlockableCards[playerWins]) {
     let card = unlockableCards[playerWins]
@@ -350,7 +355,7 @@ async function determineCardUnlock() {
       let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
 
       // If there's a deck card with an 'id' that matches the unlocked card's 'replace_id', move the deck card to the collection
-      if (opponentDeckCard.id === card.replaceId) {
+      if (opponentDeckCard.replacedById === card.id) {
         // Move replaced card from opponent's deck to their collection, then add the unlocked card to opponent deck
         opponentCardCollection[card.faction].collection.push(opponentDeckCard)
         opponentCardCollection[card.faction].deck.splice(i, 1)

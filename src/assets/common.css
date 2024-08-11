@@ -175,6 +175,14 @@
   padding: 0 5px 0 10px;
 }
 
+.award.cardmaster {
+  background-color: #217f9d;
+}
+
+.award.cardmaster .icon {
+  background-color: #2B94B5;
+}
+
 .award.fieldmarshal {
   background-color: #357266;
 }
