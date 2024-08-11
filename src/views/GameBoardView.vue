@@ -8,6 +8,7 @@ import AlertBanner from './../components/AlertBanner.vue'
 import SmallCard from '../components/SmallCard.vue'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardCarouselModal from '../components/CardCarouselModal.vue'
+import CardPreview from '../components/CardPreview.vue'
 import StandardModal from './../components/StandardModal.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 
@@ -90,6 +91,11 @@ let modalTitle = ref('')
 
 // General Overlay Screen (currently used for board row highlights)
 let overlayScreenModel = ref(false)
+
+// Card Preview
+let cardPreview = ref(false)
+let previewCard = ref()
+let cardPreviewIsPlayer = ref(false)
 
 // COMPUTED DATA
 
@@ -407,8 +413,12 @@ function determineMove() {
   }
 }
 
-function playCard(card: Card, isHeal: boolean, callback?: Function) {
+async function playCard(card: Card, isHeal: boolean, callback?: Function) {
   boardDisabled.value = true
+
+  if (!isPlayerTurn.value) {
+    await showPreviewCard(card)
+  }
 
   // If no card array specified, assume card array is player or opponent hand
   let handArr = isHeal
@@ -969,7 +979,7 @@ function performThief() {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? opponentDeck : playerDeck
 
-    // Draw 2 cards
+    // Draw a random card from other player's deck
     hand.value.push(...dealRandomCards(deck.value, 1))
     resolve()
   })
@@ -1436,6 +1446,20 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
   }, 1400)
 }
 
+function showPreviewCard(card: Card, isPlayer?: boolean) {
+  return new Promise<void>((resolve) => {
+    previewCard.value = card
+    cardPreviewIsPlayer.value = !!isPlayer
+    cardPreview.value = true
+
+    setTimeout(() => {
+      cardPreview.value = false
+      previewCard.value = null
+      resolve()
+    }, 1300)
+  })
+}
+
 // METHODS - Helpers
 
 function doCardAppearAnimation(card: Card, callback?: Function) {
@@ -1565,6 +1589,13 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <div class="game-container">
       <div class="board-container">
+        <CardPreview
+          v-model="cardPreview"
+          :card="previewCard"
+          :desktop="props.desktop"
+          :player="cardPreviewIsPlayer"
+        ></CardPreview>
+
         <CardCarouselModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
             <v-icon

@@ -62,7 +62,7 @@ const cardClasses = computed(() => {
       </div>
     </div>
 
-    <div class="big-card-details">
+    <div v-if="props.name" class="big-card-details">
       <h3 v-html="props.name" class="title"></h3>
       <p v-if="props.description" v-html="props.description" class="description"></p>
     </div>
