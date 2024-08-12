@@ -968,9 +968,22 @@ function performSpy() {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? playerDeck : opponentDeck
 
-    // Draw 2 cards
-    hand.value.push(...dealRandomCards(deck.value, 2))
-    resolve()
+    if (isPlayerTurn.value) {
+      let randomCardsArr = dealRandomCards(deck.value, 2)
+
+      showPreviewCard(randomCardsArr[0], isPlayerTurn.value, true).then(() => {
+        hand.value.push(randomCardsArr[0])
+
+        showPreviewCard(randomCardsArr[1], isPlayerTurn.value, true).then(() => {
+          hand.value.push(randomCardsArr[1])
+          resolve()
+        })
+      })
+    }
+    else {
+      hand.value.push(...dealRandomCards(deck.value, 2))
+      resolve()
+    }
   })
 }
 
@@ -979,9 +992,18 @@ function performThief() {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? opponentDeck : playerDeck
 
-    // Draw a random card from other player's deck
-    hand.value.push(...dealRandomCards(deck.value, 1))
-    resolve()
+    if (isPlayerTurn.value) {
+      let randomCardArr = dealRandomCards(deck.value, 1)
+
+      showPreviewCard(randomCardArr[0], isPlayerTurn.value, true).then(() => {
+        hand.value.push(randomCardArr[0])
+        resolve()
+      })
+    }
+    else {
+      hand.value.push(...dealRandomCards(deck.value, 1))
+      resolve()
+    }
   })
 }
 
@@ -1446,7 +1468,7 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
   }, 1400)
 }
 
-function showPreviewCard(card: Card, isPlayer?: boolean) {
+function showPreviewCard(card: Card, isPlayer?: boolean, postDelay?: boolean) {
   return new Promise<void>((resolve) => {
     previewCard.value = card
     cardPreviewIsPlayer.value = !!isPlayer
@@ -1454,8 +1476,13 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
 
     setTimeout(() => {
       cardPreview.value = false
-      previewCard.value = null
-      resolve()
+
+      // Optional timeout to allow slide transition animation to complete
+      setTimeout(() => {
+        previewCard.value = null
+        resolve()
+      }, postDelay ? 700 : 0)
+
     }, 1300)
   })
 }
