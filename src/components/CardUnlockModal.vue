@@ -87,7 +87,7 @@ function hide() {
   align-items: center;
   gap: 40px;
   color: #ffffff;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.85);
 }
 
 .card-unlock-modal .heading {

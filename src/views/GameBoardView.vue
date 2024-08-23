@@ -964,23 +964,21 @@ function performScorch() {
 }
 
 function performSpy() {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>(async (resolve) => {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? playerDeck : opponentDeck
 
     if (isPlayerTurn.value) {
       let randomCardsArr = dealRandomCards(deck.value, 2)
 
-      showPreviewCard(randomCardsArr[0], isPlayerTurn.value, true).then(() => {
-        hand.value.push(randomCardsArr[0])
+      await showPreviewCard(randomCardsArr[0], isPlayerTurn.value, true)
+      hand.value.push(randomCardsArr[0])
 
-        showPreviewCard(randomCardsArr[1], isPlayerTurn.value, true).then(() => {
-          hand.value.push(randomCardsArr[1])
-          resolve()
-        })
-      })
-    }
-    else {
+      await showPreviewCard(randomCardsArr[1], isPlayerTurn.value, true)
+      hand.value.push(randomCardsArr[1])
+
+      resolve()
+    } else {
       hand.value.push(...dealRandomCards(deck.value, 2))
       resolve()
     }
@@ -988,19 +986,18 @@ function performSpy() {
 }
 
 function performThief() {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>(async (resolve) => {
     let hand = isPlayerTurn.value ? playerHand : opponentHand
     let deck = isPlayerTurn.value ? opponentDeck : playerDeck
 
     if (isPlayerTurn.value) {
       let randomCardArr = dealRandomCards(deck.value, 1)
 
-      showPreviewCard(randomCardArr[0], isPlayerTurn.value, true).then(() => {
-        hand.value.push(randomCardArr[0])
-        resolve()
-      })
-    }
-    else {
+      await showPreviewCard(randomCardArr[0], isPlayerTurn.value, true)
+      hand.value.push(randomCardArr[0])
+
+      resolve()
+    } else {
       hand.value.push(...dealRandomCards(deck.value, 1))
       resolve()
     }
@@ -1478,11 +1475,13 @@ function showPreviewCard(card: Card, isPlayer?: boolean, postDelay?: boolean) {
       cardPreview.value = false
 
       // Optional timeout to allow slide transition animation to complete
-      setTimeout(() => {
-        previewCard.value = null
-        resolve()
-      }, postDelay ? 700 : 0)
-
+      setTimeout(
+        () => {
+          previewCard.value = null
+          resolve()
+        },
+        postDelay ? 700 : 0
+      )
     }, 1300)
   })
 }

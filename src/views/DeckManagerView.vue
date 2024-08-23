@@ -54,6 +54,15 @@ const deckCards = computed((): ManageCardCollection => {
   return cards
 })
 
+const noDeckCards = computed((): boolean => {
+  return (
+    deckCards.value.close.length < 1 &&
+    deckCards.value.ranged.length < 1 &&
+    deckCards.value.siege.length < 1 &&
+    deckCards.value.special.length < 1
+  )
+})
+
 const collectionCards = computed((): ManageCardCollection => {
   let cards: ManageCardCollection = {
     close: [],
@@ -70,6 +79,15 @@ const collectionCards = computed((): ManageCardCollection => {
     )
   }
   return cards
+})
+
+const noCollectionCards = computed((): boolean => {
+  return (
+    collectionCards.value.close.length < 1 &&
+    collectionCards.value.ranged.length < 1 &&
+    collectionCards.value.siege.length < 1 &&
+    collectionCards.value.special.length < 1
+  )
 })
 
 const totalDeckCards = computed((): number => {
@@ -344,44 +362,49 @@ function capitaliseString(string: string) {
       <div class="deck-manager-deck">
         <h2 v-if="localCardCollection">Deck ({{ totalDeckCards }})</h2>
 
-        <template v-for="(cardArr, key) in deckCards" :key="key">
-          <template v-if="cardArr.length > 0">
-            <div class="deck-manager-type-heading">
-              <div class="type card-stat-badge">
-                <v-icon
-                  :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                  class="icon"
-                  :scale="desktop ? 1.2 : 0.9"
+        <div v-if="noDeckCards" class="no-cards">
+          <p>Cards added to your deck will appear here.</p>
+          </div>
+          <template v-else>
+          <template v-for="(cardArr, key) in deckCards" :key="key">
+            <template v-if="cardArr.length > 0">
+              <div class="deck-manager-type-heading">
+                <div class="type card-stat-badge">
+                  <v-icon
+                    :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
+                    class="icon"
+                    :scale="desktop ? 1.2 : 0.9"
+                  />
+                </div>
+                <h3>
+                  {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
+                </h3>
+              </div>
+
+              <div class="deck-manager-card-row">
+                <SmallCard
+                  v-for="(card, i) in cardArr"
+                  :ability-icon="card.abilityIcon"
+                  :active="card.active"
+                  :animation-name="card.animationName"
+                  :class="{ active: key === activeDeckRowKey && i === slideIndex }"
+                  :default-value="card.defaultValue"
+                  :desktop="props.desktop"
+                  :disabled="deckManagerDisabled"
+                  :faction="card.faction"
+                  :hero="card.hero"
+                  :image-url="card.imageUrl"
+                  :key="i"
+                  role="button"
+                  tabindex="0"
+                  :type-icon="card.typeIcon"
+                  :value="card.value"
+                  @smallcard-click="deckCardClick(card, key, i)"
+                  @smallcard-enter="deckCardClick(card, key, i)"
+                  @smallcard-space="deckCardClick(card, key, i)"
                 />
               </div>
-              <h3>
-                {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
-              </h3>
-            </div>
-
-            <div class="deck-manager-card-row">
-              <SmallCard
-                v-for="(card, i) in cardArr"
-                :ability-icon="card.abilityIcon"
-                :active="card.active"
-                :animation-name="card.animationName"
-                :class="{ active: key === activeDeckRowKey && i === slideIndex }"
-                :default-value="card.defaultValue"
-                :desktop="props.desktop"
-                :disabled="deckManagerDisabled"
-                :faction="card.faction"
-                :hero="card.hero"
-                :image-url="card.imageUrl"
-                :key="i"
-                role="button"
-                tabindex="0"
-                :type-icon="card.typeIcon"
-                :value="card.value"
-                @smallcard-click="deckCardClick(card, key, i)"
-                @smallcard-enter="deckCardClick(card, key, i)"
-                @smallcard-space="deckCardClick(card, key, i)"
-              />
-            </div>
+            </template>
           </template>
         </template>
       </div>
@@ -399,7 +422,9 @@ function capitaliseString(string: string) {
           <div
             class="avatar"
             :style="{
-              backgroundImage: `url(${ localLeaderCards[factionKeys[factionIndex]].selected.imageUrl })`
+              backgroundImage: `url(${
+                localLeaderCards[factionKeys[factionIndex]].selected.imageUrl
+              })`
             }"
           ></div>
         </div>
@@ -418,6 +443,9 @@ function capitaliseString(string: string) {
           Card Collection ({{ localCardCollection[factionKeys[factionIndex]].collection.length }})
         </h2>
 
+        <div v-if="noCollectionCards" class="no-cards">
+          <p>Unlocked cards will appear here.</p>
+        </div>
         <template v-for="(cardArr, key) in collectionCards" :key="key">
           <template v-if="cardArr.length > 0">
             <div class="deck-manager-type-heading">
@@ -541,6 +569,15 @@ function capitaliseString(string: string) {
 .deck-manager .deck-manager-collection h2 {
   padding: 5px 0;
   text-align: center;
+}
+
+.deck-manager .no-cards {
+  text-align: center;
+  color: #ffffff;
+}
+
+.deck-manager .no-cards p {
+  padding: 30px;
 }
 
 .deck-manager .deck-manager-type-heading {
