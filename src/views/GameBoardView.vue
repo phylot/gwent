@@ -5,12 +5,13 @@ import { type Card, type RoundTotal, type RowFlag } from '@/types'
 import { defaultRowFlags } from './../data/game-board'
 import { defaultAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
-import SmallCard from '../components/SmallCard.vue'
+import AwardBadge from './../components/AwardBadge.vue'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardCarouselModal from '../components/CardCarouselModal.vue'
 import CardPreview from '../components/CardPreview.vue'
-import StandardModal from './../components/StandardModal.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
+import StandardModal from './../components/StandardModal.vue'
+import SmallCard from '../components/SmallCard.vue'
 
 // PROPS
 
@@ -287,7 +288,7 @@ function startNewGame() {
 
   emit('loading-change', false)
 
-  displayAlertBanner(
+  showAlertBanner(
     isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
     undefined,
     'gi-crown-coin',
@@ -295,14 +296,9 @@ function startNewGame() {
       showCardRedrawModal(() => {
         cardRedrawActive.value = false
 
-        displayAlertBanner(
-          `Round ${roundNumber.value} Start`,
-          undefined,
-          'gi-sands-of-time',
-          () => {
-            startTurn()
-          }
-        )
+        showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
+          startTurn()
+        })
       })
     }
   )
@@ -351,19 +347,17 @@ function showCardRedrawModal(callback: Function) {
   })
 }
 
-function swapModalCard(callback: Function) {
-  doCardDisappearAnimation(activeCardRow.value[slideIndex.value], () => {
-    // Make deep copy of swapped card and reset it
-    let swappedCard = JSON.parse(JSON.stringify(activeCardRow.value[slideIndex.value]))
-    resetCards([swappedCard])
-    // Splice in new random card to player's hand
-    playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
-    // Push swapped card back to deck
-    playerDeck.value.push(swappedCard)
-    doCardAppearAnimation(activeCardRow.value[slideIndex.value], () => {
-      callback()
-    })
-  })
+async function swapModalCard(callback: Function) {
+  await doCardDisappearAnimation(activeCardRow.value[slideIndex.value])
+  // Make deep copy of swapped card and reset it
+  let swappedCard = JSON.parse(JSON.stringify(activeCardRow.value[slideIndex.value]))
+  resetCards([swappedCard])
+  // Splice in new random card to player's hand
+  playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
+  // Push swapped card back to deck
+  playerDeck.value.push(swappedCard)
+  await doCardAppearAnimation(activeCardRow.value[slideIndex.value])
+  callback()
 }
 
 // METHODS - Game Loop
@@ -372,7 +366,7 @@ function startTurn(skipTurnBanner?: boolean) {
   if (skipTurnBanner) {
     determineMove()
   } else {
-    displayAlertBanner(
+    showAlertBanner(
       isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
       isPlayerTurn.value ? playerLeader.value.imageUrl : opponentLeader.value.imageUrl,
       undefined,
@@ -465,32 +459,33 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
   // Record total cards played for 'Tactician' award
   awards.tactician.count++
 
-  doCardDisappearAnimation(card, () => {
-    closeCardModal()
-    // Insert card into relevant board array at specific index
-    if (boardArrIndex) {
-      boardArr.splice(boardArrIndex, 0, card)
-    }
-    // Push card to relevant board array
-    else {
-      boardArr.push(card)
-    }
+  if (isPlayerTurn.value) {
+    await doCardDisappearAnimation(card)
+  }
+  closeCardModal()
+  // Insert card into relevant board array at specific index
+  if (boardArrIndex) {
+    boardArr.splice(boardArrIndex, 0, card)
+  }
+  // Push card to relevant board array
+  else {
+    boardArr.push(card)
+  }
 
-    // Remove card from hand (or discard pile)
-    for (let i = 0; i < handArr.value.length; i++) {
-      if (handArr.value[i].id == card.id) {
-        handArr.value.splice(i, 1)
-      }
+  // Remove card from hand (or discard pile)
+  for (let i = 0; i < handArr.value.length; i++) {
+    if (handArr.value[i].id == card.id) {
+      handArr.value.splice(i, 1)
     }
+  }
 
-    doCardAppearAnimation(card, () => {
-      performAbility(card, boardArr, () => {
-        if (callback) {
-          callback()
-        }
-      })
-    })
-  })
+  await doCardAppearAnimation(card)
+
+  await performAbility(card, boardArr)
+
+  if (callback) {
+    callback()
+  }
 }
 
 function determineCpuCard(callback?: Function) {
@@ -634,53 +629,53 @@ function cpuShouldScorch() {
   return playerScorchCount > cpuScorchCount
 }
 
-async function performAbility(card: Card, rowArr: Card[], callback: Function) {
-  // Perform card ability
+async function performAbility(card: Card, rowArr: Card[]) {
+  return new Promise<void>(async (resolve) => {
+    // Perform card ability
 
-  if (card.ability === 'double') {
-    await performDouble()
-  }
+    if (card.ability === 'double') {
+      await performDouble()
+    }
 
-  if (card.ability === 'heal') {
-    await performHeal()
-  }
+    if (card.ability === 'heal') {
+      await performHeal()
+    }
 
-  if (card.ability === 'muster') {
-    await performMuster(card)
-  }
+    if (card.ability === 'muster') {
+      await performMuster(card)
+    }
 
-  if (
-    card.ability === 'close_scorch' ||
-    card.ability === 'ranged_scorch' ||
-    card.ability === 'siege_scorch'
-  ) {
-    await performRowScorch(card)
-  }
+    if (
+      card.ability === 'close_scorch' ||
+      card.ability === 'ranged_scorch' ||
+      card.ability === 'siege_scorch'
+    ) {
+      await performRowScorch(card)
+    }
 
-  if (card.ability === 'scorch') {
-    await performScorch()
-  }
+    if (card.ability === 'scorch') {
+      await performScorch()
+    }
 
-  if (card.ability === 'spy') {
-    await performSpy()
-  }
+    if (card.ability === 'spy') {
+      await performSpy()
+    }
 
-  if (card.ability === 'thief') {
-    await performThief()
-  }
+    if (card.ability === 'thief') {
+      await performThief()
+    }
 
-  await calculateRows()
+    await calculateRows()
 
-  // TODO: Decoy card
-  // • Add visual highlight to board rows containing eligible cards for swapping
-  // • Enable ONLY cards eligible for swapping
-  // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
+    // TODO: Decoy card
+    // • Add visual highlight to board rows containing eligible cards for swapping
+    // • Enable ONLY cards eligible for swapping
+    // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
-  if (callback) {
     setTimeout(() => {
-      callback()
+      resolve()
     }, 500)
-  }
+  })
 }
 
 function performDouble() {
@@ -971,10 +966,10 @@ function performSpy() {
     if (isPlayerTurn.value) {
       let randomCardsArr = dealRandomCards(deck.value, 2)
 
-      await showPreviewCard(randomCardsArr[0], isPlayerTurn.value, true)
+      await showPreviewCard(randomCardsArr[0], isPlayerTurn.value)
       hand.value.push(randomCardsArr[0])
 
-      await showPreviewCard(randomCardsArr[1], isPlayerTurn.value, true)
+      await showPreviewCard(randomCardsArr[1], isPlayerTurn.value)
       hand.value.push(randomCardsArr[1])
 
       resolve()
@@ -993,7 +988,7 @@ function performThief() {
     if (isPlayerTurn.value) {
       let randomCardArr = dealRandomCards(deck.value, 1)
 
-      await showPreviewCard(randomCardArr[0], isPlayerTurn.value, true)
+      await showPreviewCard(randomCardArr[0], isPlayerTurn.value)
       hand.value.push(randomCardArr[0])
 
       resolve()
@@ -1106,14 +1101,9 @@ function pass(isCpu?: boolean) {
     playerIsPassed.value = true
   }
 
-  displayAlertBanner(
-    isCpu ? 'Opponent has passed' : 'You have passed',
-    undefined,
-    'fa-flag',
-    () => {
-      finishTurn(true)
-    }
-  )
+  showAlertBanner(isCpu ? 'Opponent has passed' : 'You have passed', undefined, 'fa-flag', () => {
+    finishTurn(true)
+  })
 }
 
 function finishTurn(passedThisTurn?: boolean) {
@@ -1282,17 +1272,12 @@ function determineRoundWinner() {
       alertIcon = 'gi-broken-shield'
     }
 
-    displayAlertBanner(alertTitle, undefined, alertIcon, () => {
+    showAlertBanner(alertTitle, undefined, alertIcon, () => {
       // Otherwise, start next round
       setupRound(isDraw, isPlayerRoundWin, () => {
-        displayAlertBanner(
-          `Round ${roundNumber.value} Start`,
-          undefined,
-          'gi-sands-of-time',
-          () => {
-            startTurn()
-          }
-        )
+        showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
+          startTurn()
+        })
       })
     })
   }
@@ -1444,7 +1429,7 @@ function showPauseModal() {
   })
 }
 
-function displayAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
+function showAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
   alertBannerTitle.value = title || ''
   alertBannerAvatar.value = avatar || null
   alertBannerIcon.value = icon || null
@@ -1465,7 +1450,7 @@ function displayAlertBanner(title: string, avatar?: string, icon?: string, callb
   }, 1400)
 }
 
-function showPreviewCard(card: Card, isPlayer?: boolean, postDelay?: boolean) {
+function showPreviewCard(card: Card, isPlayer?: boolean) {
   return new Promise<void>((resolve) => {
     previewCard.value = card
     cardPreviewIsPlayer.value = !!isPlayer
@@ -1473,45 +1458,38 @@ function showPreviewCard(card: Card, isPlayer?: boolean, postDelay?: boolean) {
 
     setTimeout(() => {
       cardPreview.value = false
-
-      // Optional timeout to allow slide transition animation to complete
-      setTimeout(
-        () => {
-          previewCard.value = null
-          resolve()
-        },
-        postDelay ? 700 : 0
-      )
-    }, 1300)
+      previewCard.value = null
+      resolve()
+    }, 1200)
   })
 }
 
 // METHODS - Helpers
 
-function doCardAppearAnimation(card: Card, callback?: Function) {
-  card.animationName = 'white-fade-out'
-  setTimeout(() => {
-    card.animationName = 'shine'
+function doCardAppearAnimation(card: Card) {
+  return new Promise<void>((resolve) => {
+    card.animationName = 'white-fade-out'
     setTimeout(() => {
-      card.animationName = undefined
-      if (callback) {
-        callback()
-      }
-    }, 500)
-  }, 400)
+      card.animationName = 'shine'
+      setTimeout(() => {
+        card.animationName = undefined
+        resolve()
+      }, 500)
+    }, 400)
+  })
 }
 
-function doCardDisappearAnimation(card: Card, callback?: Function) {
-  card.animationName = 'shine'
-  setTimeout(() => {
-    card.animationName = 'white-fade-in'
+function doCardDisappearAnimation(card: Card) {
+  return new Promise<void>((resolve) => {
+    card.animationName = 'shine'
     setTimeout(() => {
-      card.animationName = undefined
-      if (callback) {
-        callback()
-      }
-    }, 400)
-  }, 500)
+      card.animationName = 'white-fade-in'
+      setTimeout(() => {
+        card.animationName = undefined
+        resolve()
+      }, 400)
+    }, 500)
+  })
 }
 
 function resetCards(arr: Card[]) {
@@ -1571,10 +1549,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
           {{ total.value }}
         </div>
         <template v-for="(award, key) in playerAwards" :key="key">
-          <div v-if="award.active" class="award reverse" :class="key">
-            <v-icon :name="award.icon" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
-            <div class="name">{{ award.name }}</div>
-          </div>
+          <AwardBadge
+            v-if="award.active"
+            :desktop="props.desktop"
+            :icon="award.icon"
+            :name="award.name"
+            reverse
+            :type="String(key)"
+          ></AwardBadge>
         </template>
       </div>
       <div v-if="playerRoundTotals.length > 0" class="match-stats opponent">
@@ -1595,10 +1577,13 @@ function sortCardsHighToLow(a: Card, b: Card) {
           {{ total.value }}
         </div>
         <template v-for="(award, key) in opponentAwards" :key="key">
-          <div v-if="award.active" class="award" :class="key">
-            <v-icon :name="award.icon" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
-            <div class="name">{{ award.name }}</div>
-          </div>
+          <AwardBadge
+            v-if="award.active"
+            :desktop="props.desktop"
+            :icon="award.icon"
+            :name="award.name"
+            :type="String(key)"
+          ></AwardBadge>
         </template>
       </div>
     </StandardModal>
@@ -1748,7 +1733,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             <div class="details">
               <div class="name">
                 <div class="title">
-                  <h2>{{ playerLeader.name }}</h2>
+                  <h2>Player</h2>
                 </div>
                 <div class="subtitle">
                   {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
@@ -1825,7 +1810,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             <div v-if="opponentLeader" class="details">
               <div class="name">
                 <div class="title">
-                  <h2>{{ opponentLeader.name }}</h2>
+                  <h2>Opponent</h2>
                 </div>
                 <div class="subtitle">
                   {{

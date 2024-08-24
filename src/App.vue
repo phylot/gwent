@@ -6,6 +6,7 @@ import { Howl } from 'howler'
 import DeckManagerView from './views/DeckManagerView.vue'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
+import AwardBadge from './components/AwardBadge.vue'
 import CardUnlockModal from './components/CardUnlockModal.vue'
 import StandardModal from './components/StandardModal.vue'
 
@@ -433,10 +434,12 @@ async function determineCardUnlock() {
       <div v-if="awardsCount > 0" class="awards-grid">
         <template v-for="(award, key) in playerAwards" :key="key">
           <div v-if="award.active" class="award-container">
-            <div class="award" :class="key">
-              <v-icon :name="award.icon" class="icon" fill="white" :scale="isDesktop ? 2 : 1.2" />
-              <div class="name">{{ award.name }}</div>
-            </div>
+            <AwardBadge
+              :desktop="isDesktop"
+              :icon="award.icon"
+              :name="award.name"
+              :type="String(key)"
+            ></AwardBadge>
             <p v-html="award.description" class="description"></p>
           </div>
         </template>

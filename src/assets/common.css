@@ -146,83 +146,6 @@
   background-size: cover;
 }
 
-.award {
-  display: flex;
-  align-items: center;
-  font-size: 0.7em;
-  font-weight: bold;
-  border-radius: 9999px;
-  background-color: black;
-}
-
-.award.reverse {
-  flex-direction: row-reverse;
-  text-align: right;
-}
-
-.award .icon {
-  padding: 3px;
-  border-radius: 50%;
-  background-color: black;
-}
-
-.award .name {
-  padding: 0 15px 0 5px;
-  text-wrap: nowrap;
-}
-
-.award.reverse .name {
-  padding: 0 5px 0 10px;
-}
-
-.award.cardmaster {
-  background-color: #217f9d;
-}
-
-.award.cardmaster .icon {
-  background-color: #2B94B5;
-}
-
-.award.fieldmarshal {
-  background-color: #357266;
-}
-
-.award.fieldmarshal .icon {
-  background-color: #408679;
-}
-
-.award.heavyweight {
-  background-color: #403f4c;
-}
-
-.award.heavyweight .icon {
-  background-color: #565263;
-}
-
-.award.spymaster {
-  background-color: #712f79;
-}
-
-.award.spymaster .icon {
-  background-color: #893b93;
-}
-
-.award.tactician {
-  background-color: #ad507f;
-}
-
-.award.tactician .icon {
-  background-color: #c36294;
-}
-
-.award.tyrant {
-  background-color: #c1292e;
-}
-
-.award.tyrant .icon {
-  background-color: #db3c42;
-}
-
 /* Desktop / Tablet Styles */
 
 @media (min-height: 880px) and (orientation: landscape),
@@ -240,22 +163,6 @@
   .btn:focus {
     outline: none;
     box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
-  }
-
-  .award {
-    font-size: 0.8em;
-  }
-
-  .award .icon {
-    padding: 5px;
-  }
-
-  .award .name {
-    padding: 0 20px 0 10px;
-  }
-
-  .award.reverse .name {
-    padding: 0 10px 0 20px;
   }
 }
 
