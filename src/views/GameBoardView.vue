@@ -1458,9 +1458,11 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
 
     setTimeout(() => {
       cardPreview.value = false
-      previewCard.value = null
-      resolve()
-    }, 1200)
+      setTimeout(() => {
+        previewCard.value = null
+        resolve()
+      }, 300) // Timeout completes 200ms earlier than 'PreviewCard' animation for overlap with board card fade in
+    }, 800)
   })
 }
 

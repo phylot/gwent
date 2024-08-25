@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { type Card } from './../types'
 import BigCard from './BigCard.vue'
 
@@ -9,31 +8,19 @@ const props = defineProps<{
   modelValue: boolean
   player?: boolean
 }>()
-
-let animate = ref(false)
-
-watch(
-  () => props.modelValue,
-  (val) => {
-    if (val) {
-      setTimeout(() => {
-        animate.value = true
-      }, 10)
-    } else {
-      animate.value = false
-    }
-  }
-)
 </script>
 
 <template>
-  <div :class="{ player: player }" class="card-preview">
+  <TransitionGroup
+    class="card-preview"
+    :class="{ player: player }"
+    :name="player ? 'card-preview-player' : 'card-preview-opponent'"
+    tag="div"
+  >
     <BigCard
       v-if="modelValue && card"
       :ability="card.ability"
       :ability-icon="card.abilityIcon"
-      :class="{ animate: animate }"
-      class="card-preview-card"
       :default-value="card.defaultValue"
       :desktop="props.desktop"
       :faction="card.faction"
@@ -42,7 +29,7 @@ watch(
       :type-icon="card.typeIcon"
       :value="card.value"
     ></BigCard>
-  </div>
+  </TransitionGroup>
 </template>
 
 <style>
@@ -63,29 +50,33 @@ watch(
   bottom: 30px;
 }
 
-.card-preview-card {
+.card-preview-player-enter-active,
+.card-preview-opponent-enter-active {
+  transition: all 0.8s cubic-bezier(0, 1, 0.62, 1);
+}
+
+.card-preview-player-leave-active,
+.card-preview-opponent-leave-active {
+  transition: all 0.5s cubic-bezier(0.45, 1, 0, 1);
+}
+
+.card-preview-player-enter-from {
+  transform: translateX(-80px);
   opacity: 0;
-  transform: translateX(100px);
 }
 
-.player .card-preview-card {
-  transform: translateX(-100px);
+.card-preview-player-leave-to {
+  transform: translateX(80px);
+  opacity: 0;
 }
 
-.card-preview-card.animate {
-  transform: translateX(-100px);
-  transition: all 1.2s cubic-bezier(0.27, 0.9, 0.76, 0.1);
-  animation: fadein-pause-out 1.2s linear forwards;
+.card-preview-opponent-enter-from {
+  transform: translateX(80px);
+  opacity: 0;
 }
 
-.player .card-preview-card.animate {
-  transform: translateX(100px);
-}
-
-@keyframes fadein-pause-out {
-  0% { opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
+.card-preview-opponent-leave-to {
+  transform: translateX(-80px);
+  opacity: 0;
 }
 </style>
