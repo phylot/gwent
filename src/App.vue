@@ -339,8 +339,10 @@ async function determineCardUnlock() {
 
   // If there's an unlockable card match...
   if (unlockableCards[playerWins]) {
+    // Disable GameBoardView
+    gameBoardDisabled.value = true
+
     let card = unlockableCards[playerWins]
-    let cardWasReplaced = false
 
     // Preload unlocked card
     let preloadedCard = await preloadCards([card])
@@ -351,26 +353,20 @@ async function determineCardUnlock() {
     // Copy card to player's collection
     playerCardCollection[card.faction].collection.push(card)
 
-    // Copy card to opponent deck or collection
+    // Determine if a card should be removed from the opponent's deck
     for (let i = 0; i < opponentCardCollection[card.faction].deck.length; i++) {
       let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
 
-      // If there's a deck card with an 'id' that matches the unlocked card's 'replace_id', move the deck card to the collection
+      // If there's a deck card with an 'id' that matches the unlocked card's 'replacedById', move the deck card to the collection
       if (opponentDeckCard.replacedById === card.id) {
-        // Move replaced card from opponent's deck to their collection, then add the unlocked card to opponent deck
+        // Move replaced card from opponent's deck to their collection
         opponentCardCollection[card.faction].collection.push(opponentDeckCard)
         opponentCardCollection[card.faction].deck.splice(i, 1)
-        opponentCardCollection[card.faction].deck.push(card)
-        cardWasReplaced = true
       }
     }
-    // If no card was found and replaced in opponent deck, add the unlocked card to opponent collection
-    if (!cardWasReplaced) {
-      opponentCardCollection[card.faction].collection.push(card)
-    }
 
-    // Disable GameBoardView
-    gameBoardDisabled.value = true
+    // Add the unlocked card to opponent's deck
+    opponentCardCollection[card.faction].deck.push(card)
 
     // Set global reactive unlocked card
     unlockedCard.value = card
@@ -384,7 +380,7 @@ async function determineCardUnlock() {
       })
     }, 1000)
 
-    // Save playerWins and player / opponent card collections to localStorage
+    // Save player / opponent card collections to localStorage
     saveCardsToStorage()
   }
 }
