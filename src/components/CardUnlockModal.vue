@@ -79,7 +79,7 @@ function hide() {
   left: 0;
   right: 0;
   height: 100%;
-  padding: 20px;
+  padding: 0 20px;
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
