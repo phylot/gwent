@@ -1,10 +1,10 @@
-# gwent
+# Sharpe's Gwent
 
-The classic game of Gwent, created in Vue 3.
+The classic game of Gwent, based on the TV series Sharpe, created in Vue 3.
 
 ## Live Demo
 
-[Demo (https://zingy-zabaione-63c1ca.netlify.app)](https://zingy-zabaione-63c1ca.netlify.app)
+[Demo (https://sharpesgwent.netlify.app)](https://sharpesgwent.netlify.app)
 
 ## Recommended IDE Setup
 

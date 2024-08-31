@@ -493,7 +493,7 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
 
   await doCardAppearAnimation(card)
 
-  await performAbility(card, boardArr)
+  await performAbility(card)
 
   if (callback) {
     callback()
@@ -641,7 +641,7 @@ function cpuShouldScorch() {
   return playerScorchCount > cpuScorchCount
 }
 
-async function performAbility(card: Card, rowArr: Card[]) {
+async function performAbility(card: Card) {
   return new Promise<void>(async (resolve) => {
     // Perform card ability
 
