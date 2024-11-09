@@ -6,6 +6,7 @@
   min-width: 320px;
   display: flex;
   justify-content: center;
+  overflow: scroll;
   background-color: #000000;
 }
 

@@ -11,6 +11,7 @@ const props = defineProps<{
   faction?: string
   glow?: boolean
   hero?: boolean
+  noDescription? : boolean
   imageUrl: string | undefined
   name?: string
   typeIcon?: string
@@ -38,7 +39,7 @@ const cardClasses = computed(() => {
 </script>
 
 <template>
-  <div class="big-card">
+  <div class="big-card" :class="{ 'no-description': props.noDescription }">
     <div class="card-wrap" :class="{ glow: props.glow }">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border" :class="cardBorderClasses">
@@ -62,8 +63,8 @@ const cardClasses = computed(() => {
       </div>
     </div>
 
-    <div v-if="props.name" class="big-card-details">
-      <h3 v-html="props.name" class="title"></h3>
+    <div v-if="!props.noDescription" class="big-card-details">
+      <h3 v-if="props.name" v-html="props.name" class="title"></h3>
       <p v-if="props.description" v-html="props.description" class="description"></p>
     </div>
   </div>
@@ -72,6 +73,10 @@ const cardClasses = computed(() => {
 <style>
 .big-card {
   height: 300px;
+}
+
+.big-card.no-description {
+  height: 200px;
 }
 
 .big-card .card-wrap {
@@ -149,6 +154,10 @@ const cardClasses = computed(() => {
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   .big-card {
     height: 490px;
+  }
+
+  .big-card.no-description {
+    height: 350px;
   }
 
   .big-card .card-wrap {

@@ -26,6 +26,7 @@ const props = defineProps<{
       :faction="card.faction"
       :hero="card.hero"
       :image-url="card.imageUrl"
+      no-description
       :type-icon="card.typeIcon"
       :value="card.value"
     ></BigCard>
@@ -47,7 +48,7 @@ const props = defineProps<{
 
 .card-preview.player {
   top: auto;
-  bottom: 30px;
+  bottom: 100px;
 }
 
 .card-preview-player-enter-active,
@@ -78,5 +79,15 @@ const props = defineProps<{
 .card-preview-opponent-leave-to {
   transform: translateX(-80px);
   opacity: 0;
+}
+
+/* Desktop / Tablet Styles */
+
+@media (min-height: 880px) and (orientation: landscape),
+(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .card-preview.player {
+    top: auto;
+    bottom: 140px;
+  }
 }
 </style>
