@@ -427,22 +427,18 @@ async function determineCardUnlock() {
     :title="`Awards (${awardsCount}/${Object.keys(playerAwards).length})`"
   >
     <div class="awards-gallery">
-      <div v-if="awardsCount > 0" class="awards-grid">
-        <template v-for="(award, key) in playerAwards" :key="key">
-          <div v-if="award.active" class="award-container">
-            <AwardBadge
-              :desktop="isDesktop"
-              :icon="award.icon"
-              :name="award.name"
-              :type="String(key)"
-            ></AwardBadge>
-            <p v-html="award.description" class="description"></p>
-          </div>
-        </template>
+      <div class="awards-grid">
+        <div v-for="(award, key) in playerAwards" class="award-container" :key="key">
+          <AwardBadge
+            :active="award.active"
+            :desktop="isDesktop"
+            :icon="award.icon"
+            :name="award.name"
+            :type="String(key)"
+          ></AwardBadge>
+          <p v-html="award.description" class="description"></p>
+        </div>
       </div>
-      <p v-else class="no-awards-text">
-        If the game deems you have done something noteworthy, it may reward you...
-      </p>
     </div>
   </StandardModal>
 

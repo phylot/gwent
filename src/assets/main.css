@@ -74,17 +74,15 @@ html {
 .awards-gallery {
   width: 100%;
   min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .awards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
-}
-
-.awards-gallery .no-awards-text {
-  text-align: center;
-  text-wrap: pretty;
 }
 
 .award-container {

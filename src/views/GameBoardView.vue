@@ -1581,6 +1581,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <template v-for="(award, key) in playerAwards" :key="key">
           <AwardBadge
             v-if="award.active"
+            active
             :desktop="props.desktop"
             :icon="award.icon"
             :name="award.name"
@@ -1609,6 +1610,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <template v-for="(award, key) in opponentAwards" :key="key">
           <AwardBadge
             v-if="award.active"
+            active
             :desktop="props.desktop"
             :icon="award.icon"
             :name="award.name"

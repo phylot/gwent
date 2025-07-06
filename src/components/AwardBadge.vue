@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  active: boolean
   desktop: boolean
   icon: string
   name: string
@@ -9,9 +10,9 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="award" :class="[{ desktop: desktop, reverse: reverse }, type]">
-    <v-icon :name="props.icon" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
-    <div class="name">{{ props.name }}</div>
+  <div class="award" :class="[{ desktop: desktop, reverse: reverse }, active ? type : null]">
+    <v-icon :name="active ? props.icon : 'gi-padlock'" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
+    <div class="name">{{ active ? props.name : '??????' }}</div>
   </div>
 </template>
 
@@ -22,7 +23,7 @@ const props = defineProps<{
   font-size: 0.7em;
   font-weight: bold;
   border-radius: 9999px;
-  background-color: black;
+  background-color: #353831;
 }
 
 .award.reverse {
@@ -33,7 +34,7 @@ const props = defineProps<{
 .award .icon {
   padding: 3px;
   border-radius: 50%;
-  background-color: black;
+  background-color: #424540;
 }
 
 .award .name {
@@ -62,11 +63,11 @@ const props = defineProps<{
 }
 
 .award.heavyweight {
-  background-color: #403f4c;
+  background-color: #BB4902;
 }
 
 .award.heavyweight .icon {
-  background-color: #565263;
+  background-color: #cc570e;
 }
 
 .award.spymaster {
