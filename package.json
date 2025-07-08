@@ -13,7 +13,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@types/howler": "^2.2.11",
+    "canvas-confetti": "^1.9.3",
     "howler": "^2.2.4",
     "oh-vue-icons": "^1.0.0-rc3",
     "pinia": "^2.0.35",

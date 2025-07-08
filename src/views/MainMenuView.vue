@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 const props = defineProps<{
   awardsCount: number
   disabled?: boolean
+  disableLogoClick: boolean
   showMenu: boolean
 }>()
 
@@ -18,6 +19,9 @@ let logoTimeout: ReturnType<typeof setTimeout>
 let playButtonTimeout: ReturnType<typeof setTimeout>
 let titleSequenceHasPlayed: boolean = false
 let animationIsFinished = ref(false)
+let logoClickCount = ref(0)
+let lastLogoClickTime: number = 0
+let logoClickTimeout: ReturnType<typeof setTimeout>
 
 // EVENTS
 
@@ -27,6 +31,7 @@ const emit = defineEmits<{
   (e: 'play'): void
   (e: 'skip'): void
   (e: 'title-sequence-end'): void
+  (e: 'unlock-all-cards'): void
 }>()
 
 // HOOKS
@@ -87,6 +92,33 @@ function showMainMenu() {
     mainMenuVisible.value = true
   }, 500)
 }
+
+function logoClick() {
+  if (!props.disableLogoClick) {
+    // Cancel the click timeout every click
+    clearTimeout(logoClickTimeout)
+
+    const currentClickTime = Date.now()
+
+    if (currentClickTime - lastLogoClickTime <= 1000) {
+      logoClickCount.value++
+    } else {
+      logoClickCount.value = 0
+    }
+    lastLogoClickTime = currentClickTime
+
+    if (logoClickCount.value > 19) {
+      logoClickCount.value = 0
+      emit('unlock-all-cards')
+    }
+
+    // Reset click timeout to 0 after 1 sec
+    logoClickTimeout = setTimeout(() => {
+      logoClickCount.value = 0
+    }, 1000)
+  }
+
+}
 </script>
 
 <template>
@@ -97,7 +129,14 @@ function showMainMenu() {
 
     <transition name="fade">
       <div v-if="logoVisible" class="logo-container">
-        <h1 class="logo">
+        <h1
+          class="logo"
+          :class="{
+            'shake-small': logoClickCount > 4 && logoClickCount < 11,
+            'shake-big': logoClickCount > 10 && logoClickCount < 20
+          }"
+          @click="logoClick"
+        >
           <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
         </h1>
 
@@ -122,7 +161,9 @@ function showMainMenu() {
         <button class="btn large primary" :disabled="disabled" type="button" @click="emit('play')">
           Play
         </button>
-        <button class="btn large" type="button" @click="emit('manage-deck', false)">Manage Deck</button>
+        <button class="btn large" type="button" @click="emit('manage-deck', false)">
+          Manage Deck
+        </button>
         <button class="btn large" :disabled="disabled" type="button" @click="emit('awards')">
           Awards ({{ awardsCount }})
         </button>
@@ -227,6 +268,8 @@ function showMainMenu() {
   flex-direction: column;
   align-items: center;
   text-shadow: 4px 4px #000000;
+  cursor: default;
+  user-select: none;
 }
 
 .main-menu .logo.menu-heading {
@@ -294,6 +337,7 @@ function showMainMenu() {
 .main-menu .menu-container .btn {
   width: 100%;
 }
+
 /* Desktop / Tablet Styles */
 
 @media (min-height: 880px) and (orientation: landscape),

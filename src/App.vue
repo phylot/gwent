@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
-import { type Card, type CardCollection } from '@/types'
+import confetti from "canvas-confetti";
 import { Howl } from 'howler'
+import { type Card, type CardCollection } from '@/types'
 import DeckManagerView from './views/DeckManagerView.vue'
 import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import AwardBadge from './components/AwardBadge.vue'
 import CardUnlockModal from './components/CardUnlockModal.vue'
 import StandardModal from './components/StandardModal.vue'
-
 import { defaultCards, defaultLeaderCards, unlockableCards } from './data/cards'
 import { defaultAwards } from './data/awards'
 
@@ -41,6 +41,8 @@ let awardsModal = ref()
 let playerWins: number = 0
 let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
+let allCardsUnlocked = ref(false)
+
 // COMPUTED DATA
 
 const awardsCount = computed((): number => {
@@ -335,6 +337,7 @@ async function determineCardUnlock() {
   // Unlock 'Card Master' award
   if (playerWins === playerAwards.value.cardmaster.targetCount) {
     saveAwardsToStorage(['cardmaster'])
+    allCardsUnlocked.value = true
   }
 
   // If there's an unlockable card match...
@@ -383,6 +386,83 @@ async function determineCardUnlock() {
     // Save player / opponent card collections to localStorage
     saveCardsToStorage()
   }
+}
+
+async function unlockAllCards() {
+  // Move all cards that have a 'replacedById' from player / opponent 'deck' to 'collection'
+  for (const factionKey in playerCardCollection) {
+    for (let i = 0; i < playerCardCollection[factionKey].deck.length; i++) {
+      const deckCard = playerCardCollection[factionKey].deck[i]
+
+      if (deckCard.replacedById) {
+        playerCardCollection[factionKey].collection.push(deckCard)
+        playerCardCollection[factionKey].deck.splice(i, 1)
+        i--
+      }
+    }
+  }
+
+  for (const factionKey in opponentCardCollection) {
+    for (let i = 0; i < opponentCardCollection[factionKey].deck.length; i++) {
+      const deckCard = opponentCardCollection[factionKey].deck[i]
+
+      if (deckCard.replacedById) {
+        opponentCardCollection[factionKey].collection.push(deckCard)
+        opponentCardCollection[factionKey].deck.splice(i, 1)
+        i--
+      }
+    }
+  }
+
+  // Copy unlockable cards to each player's collection or deck
+  for (const key in unlockableCards) {
+    // Only copy cards that haven't yet been unlocked
+    if (Number(key) > playerWins) {
+      let unlockedCard = unlockableCards[key]
+
+      // Preload unlocked card
+      let preloadedCard = await preloadCards([unlockedCard])
+      if (preloadedCard) {
+        unlockedCard = preloadedCard[0]
+      }
+
+      // If the unlocked card is usually replaced in the deck, move it straight to the card collection
+      if (unlockedCard.replacedById) {
+        playerCardCollection[unlockedCard.faction].collection.push(unlockedCard)
+        opponentCardCollection[unlockedCard.faction].collection.push(unlockedCard)
+      } else {
+        playerCardCollection[unlockedCard.faction].deck.push(unlockedCard)
+        opponentCardCollection[unlockedCard.faction].deck.push(unlockedCard)
+      }
+    }
+  }
+
+  // Get last property name of unlockable cards object (max player wins)
+  const objKeysArr = Object.getOwnPropertyNames(unlockableCards)
+  const playerWinsAmount = objKeysArr[objKeysArr.length - 1]
+
+  // Save player wins and modified card collections / decks to localStorage
+  localStorage.setItem('playerWins', JSON.stringify(playerWinsAmount))
+  saveCardsToStorage()
+
+  // Unlock 'Card Master' award
+  saveAwardsToStorage(['cardmaster'])
+
+  allCardsUnlocked.value = true
+
+  // Zelda unlock sound effect
+  const zeldaSound = new Howl({
+    src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
+    volume: 3,
+  })
+  zeldaSound.play()
+
+  // Trigger confetti
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
 }
 </script>
 
@@ -447,6 +527,7 @@ async function determineCardUnlock() {
       v-if="mainMenuIsActive"
       :awards-count="awardsCount"
       :disabled="mainMenuDisabled"
+      :disable-logo-click="allCardsUnlocked"
       :show-menu="titleSequenceHasPlayed"
       @loading-change="loadingChange"
       @awards="showAwards"
@@ -454,6 +535,7 @@ async function determineCardUnlock() {
       @play="play"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
+      @unlock-all-cards="unlockAllCards"
     ></MainMenuView>
   </transition>
 
