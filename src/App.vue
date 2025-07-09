@@ -169,6 +169,12 @@ function loadLocalStorage() {
       playerWins = JSON.parse(retrievedWins)
     }
 
+    // Read all cards unlocked flag from localStorage
+    let retrievedAllCardsBool: string | null = localStorage.getItem('allCardsUnlocked')
+    if (retrievedAllCardsBool) {
+      allCardsUnlocked.value = JSON.parse(retrievedAllCardsBool)
+    }
+
     resolve()
   })
 }
@@ -334,57 +340,65 @@ async function determineCardUnlock() {
   playerWins++
   localStorage.setItem('playerWins', JSON.stringify(playerWins))
 
-  // Unlock 'Card Master' award
-  if (playerWins === playerAwards.value.cardmaster.targetCount) {
-    saveAwardsToStorage(['cardmaster'])
-    allCardsUnlocked.value = true
-  }
+  if (!allCardsUnlocked.value) {
 
-  // If there's an unlockable card match...
-  if (unlockableCards[playerWins]) {
-    // Disable GameBoardView
-    gameBoardDisabled.value = true
+    // If there's an unlockable card match...
+    if (unlockableCards[playerWins]) {
+      // Disable GameBoardView
+      gameBoardDisabled.value = true
 
-    let card = unlockableCards[playerWins]
+      let card = unlockableCards[playerWins]
 
-    // Preload unlocked card
-    let preloadedCard = await preloadCards([card])
-    if (preloadedCard) {
-      card = preloadedCard[0]
-    }
-
-    // Copy card to player's collection
-    playerCardCollection[card.faction].collection.push(card)
-
-    // Determine if a card should be removed from the opponent's deck
-    for (let i = 0; i < opponentCardCollection[card.faction].deck.length; i++) {
-      let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
-
-      // If there's a deck card with an 'id' that matches the unlocked card's 'replacedById', move the deck card to the collection
-      if (opponentDeckCard.replacedById === card.id) {
-        // Move replaced card from opponent's deck to their collection
-        opponentCardCollection[card.faction].collection.push(opponentDeckCard)
-        opponentCardCollection[card.faction].deck.splice(i, 1)
+      // Preload unlocked card
+      let preloadedCard = await preloadCards([card])
+      if (preloadedCard) {
+        card = preloadedCard[0]
       }
-    }
 
-    // Add the unlocked card to opponent's deck
-    opponentCardCollection[card.faction].deck.push(card)
+      // Copy card to player's collection
+      playerCardCollection[card.faction].collection.push(card)
 
-    // Set global reactive unlocked card
-    unlockedCard.value = card
+      // Determine if a card should be removed from the opponent's deck
+      for (let i = 0; i < opponentCardCollection[card.faction].deck.length; i++) {
+        let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
 
-    setTimeout(() => {
-      cardUnlockModal.value.show().then((res: boolean) => {
-        if (res) {
-          showDeckManager(false)
+        // If there's a deck card with an 'id' that matches the unlocked card's 'replacedById', move the deck card to the collection
+        if (opponentDeckCard.replacedById === card.id) {
+          // Move replaced card from opponent's deck to their collection
+          opponentCardCollection[card.faction].collection.push(opponentDeckCard)
+          opponentCardCollection[card.faction].deck.splice(i, 1)
         }
-        gameBoardDisabled.value = false
-      })
-    }, 1000)
+      }
 
-    // Save player / opponent card collections to localStorage
-    saveCardsToStorage()
+      // Add the unlocked card to opponent's deck
+      opponentCardCollection[card.faction].deck.push(card)
+
+      // Set global reactive unlocked card
+      unlockedCard.value = card
+
+      setTimeout(() => {
+        cardUnlockModal.value.show().then((res: boolean) => {
+          if (res) {
+            showDeckManager(false)
+          }
+          gameBoardDisabled.value = false
+        })
+      }, 1000)
+
+      // Determine if all cards are now unlocked
+      const objKeysArr = Object.getOwnPropertyNames(unlockableCards)
+      const finalKey = objKeysArr[objKeysArr.length - 1]
+
+      if (playerWins === Number(finalKey)) {
+        allCardsUnlocked.value = true
+        localStorage.setItem('allCardsUnlocked', JSON.stringify(allCardsUnlocked.value))
+        // Unlock 'Card Master' award
+        saveAwardsToStorage(['cardmaster'])
+      }
+
+      // Save player / opponent card collections to localStorage
+      saveCardsToStorage()
+    }
   }
 }
 
@@ -437,23 +451,19 @@ async function unlockAllCards() {
     }
   }
 
-  // Get last property name of unlockable cards object (max player wins)
-  const objKeysArr = Object.getOwnPropertyNames(unlockableCards)
-  const playerWinsAmount = objKeysArr[objKeysArr.length - 1]
-
-  // Save player wins and modified card collections / decks to localStorage
-  localStorage.setItem('playerWins', JSON.stringify(playerWinsAmount))
   saveCardsToStorage()
 
   // Unlock 'Card Master' award
   saveAwardsToStorage(['cardmaster'])
 
+  // Flag all cards as unlocked
   allCardsUnlocked.value = true
+  localStorage.setItem('allCardsUnlocked', JSON.stringify(allCardsUnlocked.value))
 
   // Zelda unlock sound effect
   const zeldaSound = new Howl({
     src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
-    volume: 3,
+    volume: 4,
   })
   zeldaSound.play()
 
