@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 // import { RouterLink, RouterView } from 'vue-router'
-import confetti from "canvas-confetti";
+import confetti from 'canvas-confetti'
 import { Howl } from 'howler'
 import { type Card, type CardCollection } from '@/types'
 import DeckManagerView from './views/DeckManagerView.vue'
@@ -42,6 +42,7 @@ let playerWins: number = 0
 let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
+let zeldaSound: Howl
 
 // COMPUTED DATA
 
@@ -81,7 +82,7 @@ function onResize() {
 }
 
 async function preload() {
-  await preloadThemeSong()
+  await preloadSounds()
   await loadLocalStorage()
 
   // Preload card collections
@@ -121,6 +122,10 @@ async function preload() {
   showContinueBtn.value = true
 }
 
+function preloadSounds() {
+  return Promise.all([preloadThemeSong(), preloadZeldaSound()])
+}
+
 function preloadThemeSong() {
   return new Promise<void>((resolve) => {
     themeSong = new Howl({
@@ -130,7 +135,25 @@ function preloadThemeSong() {
       onload: () => {
         resolve()
       },
-      onloaderror: () => {
+      onloaderror: (error) => {
+        console.error(error)
+        resolve()
+      }
+    })
+  })
+}
+
+function preloadZeldaSound() {
+  return new Promise<void>((resolve) => {
+    zeldaSound = new Howl({
+      src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
+      volume: 4,
+      preload: true,
+      onload: () => {
+        resolve()
+      },
+      onloaderror: (error) => {
+        console.error(error)
         resolve()
       }
     })
@@ -341,7 +364,6 @@ async function determineCardUnlock() {
   localStorage.setItem('playerWins', JSON.stringify(playerWins))
 
   if (!allCardsUnlocked.value) {
-
     // If there's an unlockable card match...
     if (unlockableCards[playerWins]) {
       // Disable GameBoardView
@@ -461,10 +483,6 @@ async function unlockAllCards() {
   localStorage.setItem('allCardsUnlocked', JSON.stringify(allCardsUnlocked.value))
 
   // Zelda unlock sound effect
-  const zeldaSound = new Howl({
-    src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
-    volume: 4,
-  })
   zeldaSound.play()
 
   // Trigger confetti
@@ -472,7 +490,7 @@ async function unlockAllCards() {
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 }
-  });
+  })
 }
 </script>
 
