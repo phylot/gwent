@@ -33,7 +33,7 @@ const props = defineProps<{
 
 .award .icon {
   padding: 3px;
-  border-radius: 50%;
+  border-radius: 999px;
   background-color: #424540;
 }
 

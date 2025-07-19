@@ -256,6 +256,7 @@ function logoClick() {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
 }
 
 .main-menu .logo-container {
@@ -270,10 +271,6 @@ function logoClick() {
   text-shadow: 4px 4px #000000;
   cursor: default;
   user-select: none;
-}
-
-.main-menu .logo.menu-heading {
-  margin-bottom: 20px;
 }
 
 .main-menu .logo .lineOne {

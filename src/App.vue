@@ -117,6 +117,10 @@ async function preload() {
     opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
   }
 
+  // Preload faction flag images
+  await loadImage(new URL(`./assets/images/british-flag.png`, import.meta.url).href)
+  await loadImage(new URL(`./assets/images/french-flag.png`, import.meta.url).href)
+
   // Preload title screen background image
   await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
   showContinueBtn.value = true

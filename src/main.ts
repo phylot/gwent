@@ -6,8 +6,12 @@ import App from './App.vue'
 import { OhVueIcon, addIcons } from 'oh-vue-icons'
 import {
   BiSnow3,
+  FaChevronCircleLeft,
+  FaChevronCircleRight,
+  FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
+  FaChevronUp,
   FaDrum,
   FaLayerGroup,
   FaPeopleArrows,
@@ -43,6 +47,7 @@ import {
   LaCogSolid,
   LaSpinnerSolid,
   LaStarOfLifeSolid,
+  MdDraghandleRound,
   MdTouchappRound,
   FaFlag,
   RiFoggyLine,
@@ -52,8 +57,12 @@ import './assets/main.css'
 
 addIcons(
   BiSnow3,
+  FaChevronCircleLeft,
+  FaChevronCircleRight,
+  FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
+  FaChevronUp,
   FaDrum,
   FaLayerGroup,
   FaPeopleArrows,
@@ -89,6 +98,7 @@ addIcons(
   LaCogSolid,
   LaSpinnerSolid,
   LaStarOfLifeSolid,
+  MdDraghandleRound,
   MdTouchappRound,
   FaFlag,
   RiFoggyLine,

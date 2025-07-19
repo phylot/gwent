@@ -63,7 +63,7 @@ defineProps<{
   height: 60px;
   min-height: 60px;
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;

@@ -91,7 +91,6 @@ function changeSlide(back?: boolean) {
   width: 300px;
   align-items: center;
   justify-content: center;
-  margin-top: 10px;
 }
 
 .card-carousel .slides {
@@ -121,7 +120,7 @@ function changeSlide(back?: boolean) {
   justify-content: center;
   margin-top: -25px;
   border: 1px solid #ffffff;
-  border-radius: 50%;
+  border-radius: 999px;
   color: #fff;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -156,6 +155,19 @@ function changeSlide(back?: boolean) {
 .card-carousel .next-btn:focus:not(.disabled):not(:disabled) {
   outline: none;
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
+}
+
+/* Hover animation on supported devices only */
+@media (hover: hover) {
+  .card-carousel .prev-btn:hover,
+  .card-carousel .next-btn:hover {
+    transform: scale(1.2);
+  }
+
+  .card-carousel .prev-btn:active,
+  .card-carousel .next-btn:active {
+    transform: translate(0, 3px) scale(1.2);
+  }
 }
 
 .card-carousel .prev-btn .icon {

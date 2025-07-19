@@ -101,6 +101,7 @@ function hide() {
 .card-unlock-modal .btn-container {
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
 /* Desktop / Tablet Styles */

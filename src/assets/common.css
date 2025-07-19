@@ -1,7 +1,7 @@
 /* Common Shared Classes */
 
 .btn {
-  margin: 5px;
+  /*margin: 5px;*/
   padding: 10px;
   font-size: 0.8em;
   font-weight: bold;
@@ -38,16 +38,16 @@
 
 .btn.disabled {
   border: 1px solid #757575;
-  color: #757575;
-  background-color: #e0e0e0;
+  color: #666666;
+  background-color: #444444;
   cursor: not-allowed;
 }
 
-.btn:hover:not(:disabled):not(.disabled) {
+.btn:hover:not(:disabled) {
   background-color: #191919;
 }
 
-.btn.primary:not(:disabled):hover:not(.disabled) {
+.btn.primary:not(:disabled):hover {
   background-color: #e7e7e7;
 }
 
@@ -62,7 +62,7 @@
   justify-content: center;
   text-align: center;
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 999px;
 }
 
 .stat-badge.player {
@@ -92,7 +92,8 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 999px;
+  font-weight: bold;
   color: #000000;
   background-color: #ffffff;
 }
@@ -156,7 +157,6 @@
 
   .btn.large {
     min-width: 200px;
-    margin: 10px;
     padding: 20px 40px;
   }
 

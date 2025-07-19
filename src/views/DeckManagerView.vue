@@ -28,6 +28,7 @@ let resolveCardModal = ref()
 let deckManagerDisabled = ref(false)
 let deckContainer: HTMLElement | null = null
 let collectionContainer: HTMLElement | null = null
+let drawerActive = ref(false)
 
 interface ManageCardCollection {
   [key: string]: Card[]
@@ -158,8 +159,8 @@ onMounted(() => {
     localCardCollection.value[faction].deck.sort(sortCardsById)
   }
 
-  deckContainer = document.querySelector('.deck-manager-deck')
-  collectionContainer = document.querySelector('.deck-manager-collection')
+  deckContainer = document.querySelector('.deck-cards')
+  collectionContainer = document.querySelector('.collection-drawer-cards')
 })
 
 function changeFaction(index: number) {
@@ -339,156 +340,215 @@ function capitaliseString(string: string) {
         </button>
       </CardCarouselModal>
 
-      <div class="deck-manager-heading">
-        <button
-          :class="{ disabled: totalUnitCards < 22 }"
-          class="btn"
-          :disabled="deckManagerDisabled || totalUnitCards < 22"
-          @click="changeFaction(factionIndex - 1)"
-        >
-          Prev
-        </button>
-        <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
-        <button
-          :class="{ disabled: invalidUnitTotal }"
-          class="btn"
-          :disabled="deckManagerDisabled || invalidUnitTotal"
-          @click="changeFaction(factionIndex + 1)"
-        >
-          Next
-        </button>
-      </div>
+      <div class="deck-manager-header">
+        <div class="header-container">
+          <button
+            aria-label="Previous"
+            class="prev-btn"
+            :class="{ disabled: invalidUnitTotal }"
+            :disabled="deckManagerDisabled || invalidUnitTotal"
+            @click="changeFaction(factionIndex - 1)"
+          >
+            <v-icon class="icon" name="fa-chevron-circle-left" role="button" />
+          </button>
 
-      <div class="deck-manager-deck">
-        <h2 v-if="localCardCollection">Deck ({{ totalDeckCards }})</h2>
-
-        <div v-if="noDeckCards" class="no-cards">
-          <p>Cards added to your deck will appear here.</p>
+          <div class="heading">
+            <div
+              v-if="localCardCollection"
+              class="flag-icon"
+              :class="[factionKeys[factionIndex]]"
+            ></div>
+            <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
           </div>
-          <template v-else>
-          <template v-for="(cardArr, key) in deckCards" :key="key">
-            <template v-if="cardArr.length > 0">
-              <div class="deck-manager-type-heading">
-                <div class="type card-stat-badge">
-                  <v-icon
-                    :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                    class="icon"
-                    :scale="desktop ? 1.2 : 0.9"
-                  />
+
+          <button
+            aria-label="Next"
+            class="next-btn"
+            :class="{ disabled: invalidUnitTotal }"
+            :disabled="deckManagerDisabled || invalidUnitTotal"
+            @click="changeFaction(factionIndex + 1)"
+          >
+            <v-icon class="icon" name="fa-chevron-circle-right" role="button" />
+          </button>
+        </div>
+      </div>
+
+      <div class="deck-manager-main">
+        <div class="deck-manager-deck">
+          <div class="deck-manager-stats">
+            <div class="deck-heading">
+              <h2 class="deck-title">Deck</h2>
+              <div class="stat-badge">{{ totalDeckCards }}</div>
+            </div>
+
+            <div class="deck-stat" :class="{ error: invalidUnitTotal }">
+              <h3 class="deck-stat-title">Unit Cards</h3>
+              <div v-if="invalidUnitTotal" class="invalid-total">
+                <div class="total">{{ totalUnitCards }}</div>
+                /22
+              </div>
+              <div v-else class="stat-badge">{{ totalUnitCards }}</div>
+            </div>
+            <!--          <div v-if="localLeaderCards" class="deck-manager-leader">-->
+            <!--            <div-->
+            <!--              class="avatar"-->
+            <!--              :style="{-->
+            <!--                backgroundImage: `url(${-->
+            <!--                  localLeaderCards[factionKeys[factionIndex]].selected.imageUrl-->
+            <!--                })`-->
+            <!--              }"-->
+            <!--            ></div>-->
+            <!--          </div>-->
+            <div class="deck-stat">
+              <h3 class="deck-stat-title">Special Cards</h3>
+              <div class="stat-badge">{{ totalSpecialCards }}</div>
+            </div>
+            <div class="deck-stat">
+              <h3 class="deck-stat-title">Total Strength</h3>
+              <div class="stat-badge">{{ totalUnitStrength }}</div>
+            </div>
+          </div>
+
+          <div class="deck-cards">
+            <div v-if="noDeckCards" class="no-cards">
+              <p>Cards added to your deck will appear here.</p>
+            </div>
+            <template v-else>
+              <template v-for="(cardArr, key) in deckCards" :key="key">
+                <div v-if="cardArr.length > 0" class="combat-container">
+                  <div class="deck-manager-type-heading">
+                    <div class="type card-stat-badge">
+                      <v-icon
+                        class="icon"
+                        :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
+                        :scale="desktop ? 1.2 : 0.9"
+                      />
+                    </div>
+                    <h3>
+                      {{ capitaliseString(String(key)) }}
+                      {{ key === 'special' ? 'Cards' : 'Combat' }}
+                    </h3>
+                  </div>
+
+                  <div class="deck-manager-card-row">
+                    <SmallCard
+                      v-for="(card, i) in cardArr"
+                      :ability-icon="card.abilityIcon"
+                      :active="card.active"
+                      :animation-name="card.animationName"
+                      :class="{ active: key === activeDeckRowKey && i === slideIndex }"
+                      :default-value="card.defaultValue"
+                      :desktop="props.desktop"
+                      :disabled="deckManagerDisabled"
+                      :faction="card.faction"
+                      :hero="card.hero"
+                      :image-url="card.imageUrl"
+                      :key="i"
+                      role="button"
+                      tabindex="0"
+                      :type-icon="card.typeIcon"
+                      :value="card.value"
+                      @smallcard-click="deckCardClick(card, key, i)"
+                      @smallcard-enter="deckCardClick(card, key, i)"
+                      @smallcard-space="deckCardClick(card, key, i)"
+                    />
+                  </div>
                 </div>
-                <h3>
-                  {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
-                </h3>
-              </div>
-
-              <div class="deck-manager-card-row">
-                <SmallCard
-                  v-for="(card, i) in cardArr"
-                  :ability-icon="card.abilityIcon"
-                  :active="card.active"
-                  :animation-name="card.animationName"
-                  :class="{ active: key === activeDeckRowKey && i === slideIndex }"
-                  :default-value="card.defaultValue"
-                  :desktop="props.desktop"
-                  :disabled="deckManagerDisabled"
-                  :faction="card.faction"
-                  :hero="card.hero"
-                  :image-url="card.imageUrl"
-                  :key="i"
-                  role="button"
-                  tabindex="0"
-                  :type-icon="card.typeIcon"
-                  :value="card.value"
-                  @smallcard-click="deckCardClick(card, key, i)"
-                  @smallcard-enter="deckCardClick(card, key, i)"
-                  @smallcard-space="deckCardClick(card, key, i)"
-                />
-              </div>
+              </template>
             </template>
-          </template>
-        </template>
-      </div>
+          </div>
+        </div>
 
-      <div class="deck-manager-stats">
-        <div class="deck-manager-stat">
-          <h4>Deck Cards</h4>
-          {{ totalDeckCards }}
-        </div>
-        <div :class="{ error: invalidUnitTotal }" class="deck-manager-stat">
-          <h4>Unit Cards</h4>
-          {{ `${totalUnitCards}${invalidUnitTotal ? '/22' : ''}` }}
-        </div>
-        <div v-if="localLeaderCards" class="deck-manager-leader">
+        <div class="deck-manager-collection">
           <div
-            class="avatar"
-            :style="{
-              backgroundImage: `url(${
-                localLeaderCards[factionKeys[factionIndex]].selected.imageUrl
-              })`
-            }"
+            v-show="drawerActive && !desktop"
+            class="collection-drawer-screen"
+            :class="{ active: drawerActive && !desktop }"
+            @click="drawerActive = !drawerActive"
           ></div>
-        </div>
-        <div class="deck-manager-stat">
-          <h4>Special Cards</h4>
-          {{ totalSpecialCards }}
-        </div>
-        <div class="deck-manager-stat">
-          <h4>Total Strength</h4>
-          {{ totalUnitStrength }}
-        </div>
-      </div>
 
-      <div class="deck-manager-collection">
-        <h2 v-if="localCardCollection">
-          Card Collection ({{ localCardCollection[factionKeys[factionIndex]].collection.length }})
-        </h2>
+          <div class="collection-drawer" :class="{ active: drawerActive && !desktop }">
+            <div
+              :aria-label="desktop ? undefined : 'Toggle Drawer'"
+              class="collection-drawer-toolbar"
+              :role="desktop ? undefined : 'button'"
+              tabindex="0"
+              @click="drawerActive = !drawerActive"
+              @keydown.enter="drawerActive = !drawerActive"
+              @keydown.space="drawerActive = !drawerActive"
+            >
+              <div class="collection-heading">
+                <h2 class="collection-title">Collection</h2>
+                <div v-if="localCardCollection" class="stat-badge">
+                  {{ localCardCollection[factionKeys[factionIndex]].collection.length }}
+                </div>
+              </div>
 
-        <div v-if="noCollectionCards" class="no-cards">
-          <p>Unlocked cards will appear here.</p>
-        </div>
-        <template v-for="(cardArr, key) in collectionCards" :key="key">
-          <template v-if="cardArr.length > 0">
-            <div class="deck-manager-type-heading">
-              <div class="type card-stat-badge">
+              <div v-if="!desktop" class="arrow-btn">
                 <v-icon
-                  :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                  class="icon"
-                  :scale="desktop ? 1.2 : 0.9"
+                  class="arrow-icon"
+                  :name="drawerActive ? 'fa-chevron-down' : 'fa-chevron-up'"
+                  role="button"
+                  scale="1.5"
                 />
               </div>
-              <h3>
-                {{ capitaliseString(String(key)) }} {{ key === 'special' ? 'Cards' : 'Combat' }}
-              </h3>
+
+              <v-icon v-if="!desktop" class="drag-icon" name="md-draghandle-round" scale="1.5" />
             </div>
 
-            <div class="deck-manager-card-row">
-              <SmallCard
-                v-for="(card, i) in cardArr"
-                :ability-icon="card.abilityIcon"
-                :active="card.active"
-                :animation-name="card.animationName"
-                :class="{ active: key === activeCollectionRowKey && i === slideIndex }"
-                :default-value="card.defaultValue"
-                :desktop="props.desktop"
-                :disabled="deckManagerDisabled"
-                :faction="card.faction"
-                :hero="card.hero"
-                :image-url="card.imageUrl"
-                :key="i"
-                role="button"
-                tabindex="0"
-                :type-icon="card.typeIcon"
-                :value="card.value"
-                @smallcard-click="collectionCardClick(card, key, i)"
-                @smallcard-enter="collectionCardClick(card, key, i)"
-                @smallcard-space="collectionCardClick(card, key, i)"
-              />
+            <div class="collection-drawer-cards">
+              <div v-if="noCollectionCards" class="no-cards">
+                <p>Unlocked cards will appear here.</p>
+              </div>
+              <template v-for="(cardArr, key) in collectionCards" :key="key">
+                <template v-if="cardArr.length > 0">
+                  <div class="combat-container">
+                    <div class="deck-manager-type-heading">
+                      <div class="type card-stat-badge">
+                        <v-icon
+                          class="icon"
+                          :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
+                          :scale="desktop ? 1.2 : 0.9"
+                        />
+                      </div>
+                      <h3>
+                        {{ capitaliseString(String(key)) }}
+                        {{ key === 'special' ? 'Cards' : 'Combat' }}
+                      </h3>
+                    </div>
+
+                    <div class="deck-manager-card-row">
+                      <SmallCard
+                        v-for="(card, i) in cardArr"
+                        :ability-icon="card.abilityIcon"
+                        :active="card.active"
+                        :animation-name="card.animationName"
+                        :class="{ active: key === activeCollectionRowKey && i === slideIndex }"
+                        :default-value="card.defaultValue"
+                        :desktop="props.desktop"
+                        :disabled="deckManagerDisabled"
+                        :faction="card.faction"
+                        :hero="card.hero"
+                        :image-url="card.imageUrl"
+                        :key="i"
+                        role="button"
+                        tabindex="0"
+                        :type-icon="card.typeIcon"
+                        :value="card.value"
+                        @smallcard-click="collectionCardClick(card, key, i)"
+                        @smallcard-enter="collectionCardClick(card, key, i)"
+                        @smallcard-space="collectionCardClick(card, key, i)"
+                      />
+                    </div>
+                  </div>
+                </template>
+              </template>
             </div>
-          </template>
-        </template>
+          </div>
+        </div>
       </div>
 
-      <div class="btn-container">
+      <div class="deck-manager-footer">
         <template v-if="preMatch">
           <button
             :class="{ disabled: invalidUnitTotal }"
@@ -531,44 +591,273 @@ function capitaliseString(string: string) {
   justify-content: center;
   overflow: scroll;
   color: #ffffff;
+  user-select: none;
 }
 
 .deck-manager .deck-manager-container {
   position: relative;
-  width: 90%;
+  width: 100%;
   min-width: 320px;
-  margin: auto;
+  height: 100%;
+  max-height: 560px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  border-radius: 20px;
-  background-color: #242424;
+  gap: 10px;
 }
 
-.deck-manager .deck-manager-heading {
-  padding: 10px;
+.deck-manager .deck-manager-header {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.deck-manager .deck-manager-heading h1 {
-  width: 130px;
-  text-align: center;
+.deck-manager .deck-manager-header .header-container {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 420px;
 }
 
-.deck-manager .deck-manager-deck,
+.deck-manager .deck-manager-header .heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deck-manager .deck-manager-header .prev-btn,
+.deck-manager .deck-manager-header .next-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 999px;
+  color: #ffffff;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.deck-manager .deck-manager-header .prev-btn .icon,
+.deck-manager .deck-manager-header .next-btn .icon {
+  width: 40px;
+  height: 40px;
+}
+
+.deck-manager .deck-manager-header .prev-btn.disabled,
+.deck-manager .deck-manager-header .next-btn.disabled {
+  color: #444444;
+  cursor: not-allowed;
+}
+
+.deck-manager .deck-manager-header .prev-btn .icon,
+.deck-manager .deck-manager-header .next-btn .icon {
+  transition: color 100ms ease-out;
+}
+
+.deck-manager .deck-manager-header .prev-btn:hover:not(.disabled) .icon,
+.deck-manager .deck-manager-header .next-btn:hover:not(.disabled) .icon {
+  color: #e7e7e7;
+}
+
+.deck-manager .deck-manager-header .flag-icon {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #ffffff;
+  border-radius: 999px;
+  background-position: center;
+  background-size: cover;
+}
+
+.deck-manager .deck-manager-header .flag-icon.british {
+  background-image: url('./../assets/images/british-flag.png');
+}
+
+.deck-manager .deck-manager-header .flag-icon.french {
+  background-image: url('./../assets/images/french-flag.png');
+}
+
+.deck-manager .deck-manager-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 0;
+  overflow: hidden;
+  border-radius: 0 0 10px 10px;
+}
+
+.deck-manager .stat-badge {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.deck-manager .deck-manager-deck {
+  min-height: 0;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deck-manager .deck-manager-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.deck-manager .deck-heading {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 5px;
+}
+
+.deck-manager .deck-stat-title {
+  max-width: 46px;
+  text-align: right;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.deck-manager .deck-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deck-manager .deck-stat.error {
+  color: #ff2525;
+}
+
+.deck-manager .invalid-total {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deck-manager .invalid-total .total {
+  font-size: 22px;
+  line-height: 22px;
+  font-weight: 900;
+}
+
+.deck-manager .deck-cards {
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.deck-manager .combat-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
 .deck-manager .deck-manager-collection {
-  height: 160px;
-  padding: 10px 0 10px 10px;
-  overflow-y: scroll;
-  border-top: 1px solid #353535;
-  background: linear-gradient(#242424, #000000);
+  flex: 0 0 45px;
+  box-shadow: 0 -10px 10px 0 rgba(0, 0, 0, 0.25);
 }
 
-.deck-manager .deck-manager-deck h2,
-.deck-manager .deck-manager-collection h2 {
-  padding: 5px 0;
-  text-align: center;
+.deck-manager .collection-drawer-screen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #000000;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+
+.deck-manager .collection-drawer-screen.active {
+  opacity: 0.5;
+}
+
+.deck-manager .collection-drawer {
+  position: absolute;
+  bottom: -305px;
+  left: 0;
+  right: 0;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px 10px 0 0;
+  background-color: #007661;
+  box-shadow: 0 -10px 10px 0 rgba(0, 0, 0, 0.25);
+  transition: bottom 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+}
+
+.deck-manager .collection-drawer.active {
+  bottom: 0;
+}
+
+.deck-manager .collection-drawer-toolbar {
+  padding: 0 10px;
+  display: flex;
+  flex: 0 0 45px;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+}
+
+.deck-manager .collection-drawer-toolbar .collection-heading {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 1;
+}
+
+.deck-manager .collection-drawer-toolbar .arrow-btn {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background-color: #007661;
+  transform: translate(-50%, 0);
+}
+
+.deck-manager .collection-drawer-toolbar .arrow-btn .arrow-icon {
+  color: #003d32;
+}
+
+.deck-manager .collection-drawer-toolbar .drag-icon {
+  color: #003d32;
+}
+
+.deck-manager .collection-drawer-cards {
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
 }
 
 .deck-manager .no-cards {
@@ -581,7 +870,6 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-type-heading {
-  padding: 5px 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -594,26 +882,12 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-card-row {
-  margin: 10px 0;
   display: flex;
   flex-wrap: wrap;
-}
-
-.deck-manager .deck-manager-stats {
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 10px;
-  font-weight: bold;
-  background-color: #000000;
 }
 
-.deck-manager .deck-manager-stat {
-  text-align: center;
-}
-
-.deck-manager .deck-manager-leader {
+/*.deck-manager .deck-manager-leader {
   position: relative;
   height: 100%;
   width: 60px;
@@ -628,47 +902,49 @@ function capitaliseString(string: string) {
   height: 60px;
   border: 5px solid #000000;
   box-sizing: border-box;
-  border-radius: 50%;
+  border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
-}
+}*/
 
-.deck-manager .deck-manager-stat.error {
-  color: #ff2525;
-}
-
-.deck-manager .deck-manager-deck::-webkit-scrollbar,
-.deck-manager .deck-manager-collection::-webkit-scrollbar {
+.deck-manager .deck-cards::-webkit-scrollbar,
+.deck-manager .collection-drawer-cards::-webkit-scrollbar {
   -webkit-appearance: none;
-  width: 7px;
+  width: 5px;
 }
 
-.deck-manager .deck-manager-deck::-webkit-scrollbar-thumb,
-.deck-manager .deck-manager-collection::-webkit-scrollbar-thumb {
+.deck-manager .deck-cards::-webkit-scrollbar-thumb,
+.deck-manager .collection-drawer-cards::-webkit-scrollbar-thumb {
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.5);
   -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
-.deck-manager .deck-manager-deck .small-card,
-.deck-manager .deck-manager-collection .small-card {
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.deck-manager .btn-container {
-  padding: 10px;
+.deck-manager .deck-manager-footer {
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
   align-items: center;
+  gap: 10px;
 }
 
 .deck-manager .card-modal .card-modal-header .card-stat-badge {
   width: 25px;
   height: 25px;
   position: unset;
+}
+
+/* Narrow Mobile Screen Styles */
+
+@media (max-width: 359px) and (orientation: portrait) {
+  .deck-manager .deck-manager-deck {
+    padding: 0;
+  }
+
+  .deck-manager .deck-manager-stats {
+    gap: 8px;
+  }
 }
 
 /* Desktop Styles */
@@ -684,23 +960,114 @@ function capitaliseString(string: string) {
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .deck-manager .deck-manager-heading h1 {
-    width: 250px;
+  .deck-manager .deck-manager-container {
+    max-height: 880px;
+    gap: 20px;
+  }
+
+  .deck-manager .deck-manager-header .header-container {
+    max-width: 500px;
+  }
+
+  .deck-manager .deck-manager-header .heading {
+    gap: 15px;
+  }
+
+  .deck-manager .deck-manager-header .flag-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .deck-manager .deck-manager-header .prev-btn,
+  .deck-manager .deck-manager-header .next-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .deck-manager .deck-manager-header .prev-btn .icon,
+  .deck-manager .deck-manager-header .next-btn .icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .deck-manager .deck-manager-main {
+    padding: 0 20px;
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .deck-manager .stat-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .deck-manager .deck-manager-stats {
+    gap: 20px;
+  }
+
+  .deck-manager .deck-heading {
+    gap: 8px;
+  }
+
+  .deck-manager .deck-stat {
+    flex-direction: column-reverse;
+    gap: 7px;
+  }
+
+  .deck-manager .deck-stat-title {
+    max-width: none;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .deck-manager .invalid-total {
+    font-size: 18px;
+  }
+
+  .deck-manager .invalid-total .total {
+    font-size: 30px;
   }
 
   .deck-manager .deck-manager-deck,
   .deck-manager .deck-manager-collection {
-    height: 285px;
+    padding: 0;
+    flex: 1;
   }
 
-  .deck-manager .deck-manager-deck h2,
-  .deck-manager .deck-manager-collection h2 {
-    padding: 10px 0;
-    text-align: center;
+  .deck-manager .deck-manager-deck {
+    gap: 20px;
+  }
+
+  .deck-manager .deck-cards {
+    padding-bottom: 0;
+    border-radius: 10px;
+  }
+
+  .deck-manager .collection-drawer {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    height: 100%;
+    border-radius: 10px;
+  }
+
+  .deck-manager .collection-drawer-toolbar {
+    padding: 15px 20px;
+    flex-basis: auto;
+    cursor: default;
+  }
+
+  .deck-manager .collection-drawer-toolbar .collection-heading {
+    gap: 8px;
+  }
+
+  .deck-manager .collection-drawer-cards {
+    padding: 0 20px 20px;
   }
 
   .deck-manager .deck-manager-type-heading {
-    padding: 10px 0;
     gap: 12px;
   }
 
@@ -709,12 +1076,7 @@ function capitaliseString(string: string) {
     height: 30px;
   }
 
-  .deck-manager .deck-manager-stats {
-    height: 80px;
-    gap: 40px;
-  }
-
-  .deck-manager .deck-manager-leader {
+  /*.deck-manager .deck-manager-leader {
     width: 100px;
   }
 
@@ -723,11 +1085,15 @@ function capitaliseString(string: string) {
     width: 100px;
     height: 100px;
     border: 8px solid #000000;
-  }
+  }*/
 
   .deck-manager .card-modal .card-modal-header .card-stat-badge {
     width: 40px;
     height: 40px;
+  }
+
+  .deck-manager .deck-manager-footer {
+    gap: 20px;
   }
 }
 </style>

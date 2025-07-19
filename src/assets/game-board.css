@@ -55,7 +55,6 @@
   align-items: center;
   width: 30px;
   height: 100%;
-  margin: 0;
 }
 
 .game-details .pass-btn span {
@@ -105,7 +104,7 @@
   width: 30px;
   height: 30px;
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -275,19 +274,6 @@
 .player-hand {
   justify-content: center;
   background-color: #bfbfbf;
-}
-
-/* Hover animation on supported devices only */
-@media (hover: hover) {
-  .prev-btn:hover,
-  .next-btn:hover {
-    transform: scale(1.2);
-  }
-
-  .prev-btn:active,
-  .next-btn:active {
-    transform: translate(0, 3px) scale(1.2);
-  }
 }
 
 /* Post-match Stats */

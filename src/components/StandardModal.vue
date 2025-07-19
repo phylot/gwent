@@ -123,7 +123,7 @@ function hide() {
 
 .modal .heading .avatar {
   border: 2px solid #000000;
-  border-radius: 50%;
+  border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -139,6 +139,7 @@ function hide() {
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
+  gap: 20px;
 }
 
 /* Desktop / Tablet Styles */

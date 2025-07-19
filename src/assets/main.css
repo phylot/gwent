@@ -23,15 +23,17 @@ html {
     url('./images/br-rifle.jpg'), url('./images/br-rossendale.jpg'), url('./images/br-schooner.jpg'),
     url('./images/br-sergent.jpg'), url('./images/br-sharpe.jpg'),
     url('./images/br-shipoftheline.jpg'), url('./images/br-simmerson.png'),
-    url('./images/br-victory.jpg'), url('./images/br-wellington.jpg'), url('./images/fr-brand.jpg'),
-    url('./images/fr-brig.jpg'), url('./images/fr-cannon.jpg'), url('./images/fr-cavalry.jpg'),
-    url('./images/fr-dubreton.jpg'), url('./images/fr-drummer.jpg'), url('./images/fr-ducos.png'),
-    url('./images/fr-gaston.png'), url('./images/fr-general-calvet.png'),
-    url('./images/fr-infantry.jpg'), url('./images/fr-legros.png'), url('./images/fr-leroux.png'),
-    url('./images/fr-loup.jpg'), url('./images/fr-maquerre.png'), url('./images/fr-napoleon.jpg'),
+    url('./images/br-victory.jpg'), url('./images/br-wellington.jpg'),
+    url('./images/british-flag.png'), url('./images/fr-brand.jpg'), url('./images/fr-brig.jpg'),
+    url('./images/fr-cannon.jpg'), url('./images/fr-cavalry.jpg'), url('./images/fr-dubreton.jpg'),
+    url('./images/fr-drummer.jpg'), url('./images/fr-ducos.png'), url('./images/fr-gaston.png'),
+    url('./images/fr-general-calvet.png'), url('./images/fr-infantry.jpg'),
+    url('./images/fr-legros.png'), url('./images/fr-leroux.png'), url('./images/fr-loup.jpg'),
+    url('./images/fr-maquerre.png'), url('./images/fr-napoleon.jpg'),
     url('./images/fr-oldguard.jpg'), url('./images/fr-p-leroux.png'), url('./images/fr-sergent.jpg'),
-    url('./images/fr-voltigeur.jpg'), url('./images/main-menu-bg.jpg'), url('./images/rain.png'),
-    url('./images/scorch-flame.jpg'), url('./images/scorch.png');
+    url('./images/fr-voltigeur.jpg'), url('./images/french-flag.png'),
+    url('./images/main-menu-bg.jpg'), url('./images/rain.png'), url('./images/scorch-flame.jpg'),
+    url('./images/scorch.png');
   background-size: 0;
   background-color: #000000;
 }
