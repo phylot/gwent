@@ -196,6 +196,8 @@ function logoClick() {
   color: #ffffff;
   background-repeat: no-repeat;
   background-image: url('./../assets/images/main-menu-bg.jpg');
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .main-menu.animate {
@@ -270,7 +272,6 @@ function logoClick() {
   align-items: center;
   text-shadow: 4px 4px #000000;
   cursor: default;
-  user-select: none;
 }
 
 .main-menu .logo .lineOne {

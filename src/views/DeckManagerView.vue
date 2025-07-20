@@ -484,16 +484,12 @@ function capitaliseString(string: string) {
                 </div>
               </div>
 
-              <div v-if="!desktop" class="arrow-btn">
-                <v-icon
-                  class="arrow-icon"
-                  :name="drawerActive ? 'fa-chevron-down' : 'fa-chevron-up'"
-                  role="button"
-                  scale="1.5"
-                />
-              </div>
-
-              <v-icon v-if="!desktop" class="drag-icon" name="md-draghandle-round" scale="1.5" />
+              <v-icon
+                v-if="!desktop"
+                class="arrow-icon"
+                :name="drawerActive ? 'fa-chevron-down' : 'fa-chevron-up'"
+                role="button"
+              />
             </div>
 
             <div class="collection-drawer-cards">
@@ -591,6 +587,7 @@ function capitaliseString(string: string) {
   justify-content: center;
   overflow: scroll;
   color: #ffffff;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -806,6 +803,7 @@ function capitaliseString(string: string) {
   background-color: #007661;
   box-shadow: 0 -10px 10px 0 rgba(0, 0, 0, 0.25);
   transition: bottom 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .deck-manager .collection-drawer.active {
@@ -827,29 +825,11 @@ function capitaliseString(string: string) {
   display: flex;
   align-items: center;
   gap: 5px;
-  z-index: 1;
 }
 
-.deck-manager .collection-drawer-toolbar .arrow-btn {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background-color: #007661;
-  transform: translate(-50%, 0);
-}
-
-.deck-manager .collection-drawer-toolbar .arrow-btn .arrow-icon {
-  color: #003d32;
-}
-
-.deck-manager .collection-drawer-toolbar .drag-icon {
-  color: #003d32;
+.deck-manager .collection-drawer-toolbar .arrow-icon {
+  width: 30px;
+  height: 30px;
 }
 
 .deck-manager .collection-drawer-cards {
@@ -1022,6 +1002,7 @@ function capitaliseString(string: string) {
   }
 
   .deck-manager .invalid-total {
+    height: 30px;
     font-size: 18px;
   }
 

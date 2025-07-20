@@ -59,6 +59,8 @@ html {
   font-weight: bold;
   color: #ffffff;
   background-color: #000000;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .loader .icon {

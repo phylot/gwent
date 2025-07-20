@@ -139,8 +139,8 @@ function preloadThemeSong() {
       onload: () => {
         resolve()
       },
-      onloaderror: (error) => {
-        console.error(error)
+      onloaderror: (err) => {
+        console.error(err)
         resolve()
       }
     })
@@ -156,8 +156,8 @@ function preloadZeldaSound() {
       onload: () => {
         resolve()
       },
-      onloaderror: (error) => {
-        console.error(error)
+      onloaderror: (err) => {
+        console.error(err)
         resolve()
       }
     })
@@ -231,7 +231,7 @@ function loadImage(imageUrl: string) {
       resolve()
     }
     img.onerror = function (err) {
-      console.log('loadImage ERROR: ', err)
+      console.error(err)
       resolve()
     }
     img.src = imageUrl
@@ -367,6 +367,13 @@ async function determineCardUnlock() {
   playerWins++
   localStorage.setItem('playerWins', JSON.stringify(playerWins))
 
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+    zIndex: 9500
+  })
+
   if (!allCardsUnlocked.value) {
     // If there's an unlockable card match...
     if (unlockableCards[playerWins]) {
@@ -489,7 +496,6 @@ async function unlockAllCards() {
   // Zelda unlock sound effect
   zeldaSound.play()
 
-  // Trigger confetti
   confetti({
     particleCount: 100,
     spread: 70,

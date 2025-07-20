@@ -29,8 +29,10 @@ const props = defineProps<{
 
 const playerLeader = ref()
 const playerLeaderDefault = ref()
+const playerFlagUrl = ref()
 const opponentLeader = ref()
 const opponentLeaderDefault = ref()
+const opponentFlagUrl = ref()
 let playerDeck = ref<Card[]>([])
 let playerDeckDefault = ref()
 let opponentDeck = ref<Card[]>([])
@@ -207,6 +209,9 @@ async function setupGame(callback: Function) {
   playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
   opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
 
+  playerFlagUrl.value = new URL(`../assets/images/${playerLeaderDefault.value.faction}-flag.png`, import.meta.url).href
+  opponentFlagUrl.value = new URL(`../assets/images/${opponentLeaderDefault.value.faction}-flag.png`, import.meta.url).href
+
   await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
   if (callback) {
@@ -380,7 +385,7 @@ function startTurn(skipTurnBanner?: boolean) {
   } else {
     showAlertBanner(
       isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
-      isPlayerTurn.value ? playerLeader.value.imageUrl : opponentLeader.value.imageUrl,
+      isPlayerTurn.value ? playerFlagUrl.value : opponentFlagUrl.value,
       undefined,
       () => {
         determineMove()
@@ -1248,8 +1253,8 @@ function determineRoundWinner() {
       }
 
       modalAvatar.value = isPlayerMatchWin
-        ? playerLeader.value.imageUrl
-        : opponentLeader.value.imageUrl
+        ? playerFlagUrl.value
+        : opponentFlagUrl.value
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
 
@@ -1755,10 +1760,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 name="fa-flag"
                 :scale="props.desktop ? 1.8 : 1.2"
               />
+              <!-- TODO: Pass 'playerFlagUrl' -->
               <div
                 class="avatar"
                 :class="{ active: isPlayerTurn }"
-                :style="{ backgroundImage: `url(${playerLeader.imageUrl})` }"
+                :style="{ backgroundImage: `url(${playerFlagUrl})` }"
               ></div>
               <div class="stat-badge player">{{ playerTotal }}</div>
             </div>
@@ -1829,7 +1835,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 v-if="opponentLeader"
                 class="avatar"
                 :class="{ active: !isPlayerTurn }"
-                :style="{ backgroundImage: `url(${opponentLeader.imageUrl})` }"
+                :style="{ backgroundImage: `url(${opponentFlagUrl})` }"
               ></div>
               <div class="stat-badge opponent">{{ opponentTotal }}</div>
             </div>

@@ -84,7 +84,10 @@ function hide() {
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  -webkit-user-select: none;
+  user-select: none;
 }
+
 .modal {
   position: absolute;
   left: 50%;
@@ -114,15 +117,15 @@ function hide() {
 
 .modal .heading .avatar,
 .modal .heading .icon {
-  width: 50px;
-  min-width: 50px;
-  height: 50px;
-  min-height: 50px;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
   margin-right: 10px;
 }
 
 .modal .heading .avatar {
-  border: 2px solid #000000;
+  border: 1px solid #ffffff;
   border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
