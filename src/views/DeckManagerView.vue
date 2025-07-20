@@ -664,7 +664,7 @@ function capitaliseString(string: string) {
 .deck-manager .deck-manager-header .flag-icon {
   width: 26px;
   height: 26px;
-  border: 1px solid #ffffff;
+  border: 2px solid #ffffff;
   border-radius: 999px;
   background-position: center;
   background-size: cover;
@@ -697,7 +697,7 @@ function capitaliseString(string: string) {
   border: none;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 800;
   color: #000000;
   background-color: #ffffff;
 }

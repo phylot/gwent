@@ -62,11 +62,12 @@ defineProps<{
   min-width: 60px;
   height: 60px;
   min-height: 60px;
-  border: 2px solid #000000;
+  border: 2px solid #ffffff;
   border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
+  box-shadow: 0 0 0 2px #000000;
 }
 
 .alert-banner .icon {

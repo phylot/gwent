@@ -125,7 +125,7 @@ function hide() {
 }
 
 .modal .heading .avatar {
-  border: 1px solid #ffffff;
+  border: 2px solid #ffffff;
   border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;

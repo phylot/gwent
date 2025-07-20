@@ -1746,6 +1746,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <div v-if="playerLeader" class="player-details">
             <div class="total">
               <v-icon
+                v-if="isPlayerTurn"
+                animation="float"
+                class="icon turn-icon"
+                fill="#357bff"
+                name="fa-map-marker"
+                :scale="props.desktop ? 1.8 : 1.2"
+              />
+              <v-icon
                 v-if="playerHasRound"
                 class="icon round-icon"
                 fill="gold"
@@ -1760,7 +1768,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 name="fa-flag"
                 :scale="props.desktop ? 1.8 : 1.2"
               />
-              <!-- TODO: Pass 'playerFlagUrl' -->
               <div
                 class="avatar"
                 :class="{ active: isPlayerTurn }"
@@ -1816,6 +1823,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
           <div class="opponent-details">
             <div class="total">
+              <v-icon
+                v-if="!isPlayerTurn"
+                animation="float"
+                class="icon turn-icon"
+                fill="#357bff"
+                name="fa-map-marker"
+                :scale="props.desktop ? 1.8 : 1.2"
+              />
               <v-icon
                 v-if="opponentHasRound"
                 class="icon round-icon"

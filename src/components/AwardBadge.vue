@@ -67,7 +67,7 @@ const props = defineProps<{
 }
 
 .award.heavyweight .icon {
-  background-color: #cc570e;
+  background-color: #d55a0e;
 }
 
 .award.spymaster {

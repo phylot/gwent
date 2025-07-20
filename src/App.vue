@@ -43,6 +43,7 @@ let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
 let zeldaSound: Howl
+let gwentSong: Howl
 
 // COMPUTED DATA
 
@@ -127,10 +128,11 @@ async function preload() {
 }
 
 function preloadSounds() {
-  return Promise.all([preloadThemeSong(), preloadZeldaSound()])
+  return Promise.all([preloadThemeSong(), preloadZeldaSound(), preloadGameMusic()])
 }
 
-function preloadThemeSong() {
+async function preloadThemeSong() {
+
   return new Promise<void>((resolve) => {
     themeSong = new Howl({
       src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
@@ -152,6 +154,24 @@ function preloadZeldaSound() {
     zeldaSound = new Howl({
       src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
       volume: 4,
+      preload: true,
+      onload: () => {
+        resolve()
+      },
+      onloaderror: (err) => {
+        console.error(err)
+        resolve()
+      }
+    })
+  })
+}
+
+// TODO: Expand into music player
+function preloadGameMusic() {
+  return new Promise<void>((resolve) => {
+    gwentSong = new Howl({
+      src: [new URL(`./assets/audio/astoryyouwontbelieve.mp3`, import.meta.url).href],
+      volume: 1,
       preload: true,
       onload: () => {
         resolve()
@@ -243,6 +263,8 @@ function showMainMenu() {
   showContinueBtn.value = false
   gameIsActive.value = false
 
+  gwentSong.fade(gwentSong.volume(), 0, 2000)
+
   clearTimeout(themeSongFadeTimeout)
   themeSong.stop()
   themeSong.volume(1)
@@ -268,6 +290,7 @@ function showDeckManager(preMatch: boolean) {
   deckManagerIsPreMatch.value = preMatch
   clearTimeout(themeSongFadeTimeout)
   themeSong.fade(themeSong.volume(), 0, 4000)
+  gwentSong.fade(gwentSong.volume(), 0, 4000)
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
@@ -318,8 +341,19 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
   let opponentFaction: string = deckSelection.faction === 'british' ? 'french' : 'british'
   loading.value = true
   deckManagerIsActive.value = false
-
   playerCardCollection = deckSelection.collection
+
+  gwentSong.stop()
+  gwentSong.volume(1)
+  gwentSong.play()
+  gwentSong.on('end', () => {
+    if (gameIsActive.value) {
+      gwentSong.stop()
+      gwentSong.volume(1)
+      gwentSong.play()
+    }
+  })
+
   saveCardsToStorage(() => {
     // Set decks and leaders based on player's faction choice
     selectedPlayerDeck = playerCardCollection[deckSelection.faction].deck
@@ -493,14 +527,14 @@ async function unlockAllCards() {
   allCardsUnlocked.value = true
   localStorage.setItem('allCardsUnlocked', JSON.stringify(allCardsUnlocked.value))
 
-  // Zelda unlock sound effect
-  zeldaSound.play()
-
   confetti({
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 }
   })
+
+  // Zelda unlock sound effect
+  zeldaSound.play()
 }
 </script>
 
