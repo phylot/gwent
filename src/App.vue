@@ -25,9 +25,7 @@ let deckManagerIsPreMatch = ref(false)
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
-let themeSong: Howl
 let titleSequenceHasPlayed = ref(false)
-let themeSongFadeTimeout: ReturnType<typeof setTimeout>
 let playerCardCollection = JSON.parse(JSON.stringify(defaultCards))
 let playerLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
 let opponentCardCollection = JSON.parse(JSON.stringify(defaultCards))
@@ -42,8 +40,24 @@ let playerWins: number = 0
 let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
-let zeldaSound: Howl
+let themeSong: Howl
+let themeSongFadeTimeout: ReturnType<typeof setTimeout>
 let gwentSong: Howl
+let coinSound: Howl
+let roundStartSound: Howl
+let turnSound: Howl
+let selectCardSound: Howl
+let swapCardSound: Howl
+let drawCardSound: Howl
+let playCardSound: Howl
+let placeCardSound: Howl
+let roundWinSound: Howl
+let roundLoseSound: Howl
+let roundDrawSound: Howl
+let matchWinSound: Howl
+let matchLoseSound: Howl
+let matchDrawSound: Howl
+let zeldaSound: Howl
 
 // COMPUTED DATA
 
@@ -128,60 +142,289 @@ async function preload() {
 }
 
 function preloadSounds() {
-  return Promise.all([preloadThemeSong(), preloadZeldaSound(), preloadGameMusic()])
+  return Promise.all([
+    preloadThemeSong(),
+    preloadGameMusic(),
+    preloadCoinSound(),
+    preloadRoundStartSound(),
+    preloadTurnSound(),
+    preloadSelectCardSound(),
+    preloadSwapCardSound(),
+    preloadDrawCardSound(),
+    preloadPlayCardSound(),
+    preloadPlaceCardSound(),
+    preloadRoundWinCardSound(),
+    preloadRoundLoseSound(),
+    preloadRoundDrawSound(),
+    preloadMatchWinSound(),
+    preloadMatchLoseSound(),
+    preloadMatchDrawSound(),
+    preloadZeldaSound()
+  ])
 }
 
-async function preloadThemeSong() {
-
-  return new Promise<void>((resolve) => {
-    themeSong = new Howl({
-      src: [new URL(`./assets/audio/sharpe-theme.ogg`, import.meta.url).href],
-      volume: 1,
-      preload: true,
-      onload: () => {
-        resolve()
-      },
-      onloaderror: (err) => {
-        console.error(err)
-        resolve()
-      }
-    })
+function createHowl(fileName: string, volume: number) {
+  return new Howl({
+    src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
+    volume: volume,
+    preload: true,
+    onloaderror: (err) => {
+      console.error(err)
+    }
   })
 }
 
-function preloadZeldaSound() {
+function preloadThemeSong() {
   return new Promise<void>((resolve) => {
-    zeldaSound = new Howl({
-      src: [new URL(`./assets/audio/zelda-secret.mp3`, import.meta.url).href],
-      volume: 4,
-      preload: true,
-      onload: () => {
-        resolve()
-      },
-      onloaderror: (err) => {
-        console.error(err)
-        resolve()
-      }
-    })
+    try {
+      themeSong = createHowl('sharpe-theme.ogg', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
   })
 }
 
 // TODO: Expand into music player
 function preloadGameMusic() {
   return new Promise<void>((resolve) => {
-    gwentSong = new Howl({
-      src: [new URL(`./assets/audio/astoryyouwontbelieve.mp3`, import.meta.url).href],
-      volume: 1,
-      preload: true,
-      onload: () => {
-        resolve()
-      },
-      onloaderror: (err) => {
-        console.error(err)
-        resolve()
-      }
-    })
+    try {
+      gwentSong = createHowl('astoryyouwontbelieve.mp3', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
   })
+}
+
+function preloadCoinSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      coinSound = createHowl('coin.wav', 5)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadRoundStartSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      roundStartSound = createHowl('round-start.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadTurnSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      turnSound = createHowl('turn.wav', 2)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadSelectCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      selectCardSound = createHowl('select-card.mp3', 0.2)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadSwapCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      swapCardSound = createHowl('swap-card.wav', 2)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadDrawCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      drawCardSound = createHowl('draw-card.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadPlayCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      playCardSound = createHowl('play-card.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadPlaceCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      placeCardSound = createHowl('place-card.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadRoundWinCardSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      roundWinSound = createHowl('round-win.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadRoundLoseSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      roundLoseSound = createHowl('round-lose.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadRoundDrawSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      roundDrawSound = createHowl('round-draw.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadMatchWinSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      matchWinSound = createHowl('match-win.mp3', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadMatchLoseSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      matchLoseSound = createHowl('match-lose.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadMatchDrawSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      matchDrawSound = createHowl('match-draw.wav', 1)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function preloadZeldaSound() {
+  return new Promise<void>((resolve) => {
+    try {
+      zeldaSound = createHowl('zelda-secret.mp3', 4)
+      resolve()
+    } catch (err) {
+      console.error(err)
+      resolve()
+    }
+  })
+}
+
+function playSound(name: string) {
+  switch (name) {
+    case "coin":
+      coinSound.play()
+      break;
+    case "roundstart":
+      roundStartSound.play()
+      break;
+    case "turn":
+      turnSound.play()
+      break;
+    case "selectcard":
+      selectCardSound.play()
+      break;
+    case "swapcard":
+      swapCardSound.play()
+      break;
+    case "drawcard":
+      drawCardSound.play()
+      break;
+    case "playcard":
+      playCardSound.play()
+      break;
+    case "placecard":
+      placeCardSound.play()
+      break;
+    case "roundwin":
+      roundWinSound.play()
+      break;
+    case "roundlose":
+      roundLoseSound.play()
+      break;
+    case "rounddraw":
+      roundDrawSound.play()
+      break;
+    case "matchwin":
+      matchWinSound.play()
+      break;
+    case "matchlose":
+      matchLoseSound.play()
+      break;
+    case "matchdraw":
+      matchDrawSound.play()
+      break;
+
+  }
 }
 
 function loadLocalStorage() {
@@ -636,6 +879,7 @@ async function unlockAllCards() {
       :player-leader-card="selectedPlayerLeader"
       @loading-change="loadingChange"
       @player-win="determineCardUnlock"
+      @play-sound="playSound"
       @save-awards="saveAwardsToStorage"
       @show-menu="showMainMenu"
     ></GameBoardView>

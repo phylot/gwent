@@ -182,6 +182,7 @@ watch(
 const emit = defineEmits<{
   (e: 'loading-change', val: boolean): void
   (e: 'player-win'): void
+  (e: 'play-sound', val: string): void
   (e: 'save-awards', val: string[]): void
   (e: 'show-menu'): void
 }>()
@@ -209,8 +210,14 @@ async function setupGame(callback: Function) {
   playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
   opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
 
-  playerFlagUrl.value = new URL(`../assets/images/${playerLeaderDefault.value.faction}-flag.png`, import.meta.url).href
-  opponentFlagUrl.value = new URL(`../assets/images/${opponentLeaderDefault.value.faction}-flag.png`, import.meta.url).href
+  playerFlagUrl.value = new URL(
+    `../assets/images/${playerLeaderDefault.value.faction}-flag.png`,
+    import.meta.url
+  ).href
+  opponentFlagUrl.value = new URL(
+    `../assets/images/${opponentLeaderDefault.value.faction}-flag.png`,
+    import.meta.url
+  ).href
 
   await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
 
@@ -297,6 +304,7 @@ function startNewGame() {
   playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
   emit('loading-change', false)
+  emit('play-sound', 'coin')
 
   showAlertBanner(
     isPlayerTurn.value ? 'You go first' : 'Opponent goes first',
@@ -305,10 +313,13 @@ function startNewGame() {
     () => {
       showCardRedrawModal(() => {
         cardRedrawActive.value = false
+        emit('play-sound', 'roundstart')
 
-        showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
-          startTurn()
-        })
+        setTimeout(() => {
+          showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
+            startTurn()
+          })
+        }, 400)
       })
     }
   )
@@ -337,7 +348,6 @@ function showCardRedrawModal(callback: Function) {
       if (ok) {
         swapModalCard(() => {
           boardDisabled.value = false
-
           showCardModal(
             'Redraw',
             'Done',
@@ -365,7 +375,11 @@ function showCardRedrawModal(callback: Function) {
 }
 
 async function swapModalCard(callback: Function) {
+  setTimeout(() => {
+    emit('play-sound', 'swapcard')
+  }, 200)
   await doCardDisappearAnimation(activeCardRow.value[slideIndex.value])
+
   // Make deep copy of swapped card and reset it
   let swappedCard = JSON.parse(JSON.stringify(activeCardRow.value[slideIndex.value]))
   resetCards([swappedCard])
@@ -373,6 +387,8 @@ async function swapModalCard(callback: Function) {
   playerHand.value.splice(slideIndex.value, 1, dealRandomCards(playerDeck.value, 1)[0])
   // Push swapped card back to deck
   playerDeck.value.push(swappedCard)
+
+  emit('play-sound', 'drawcard')
   await doCardAppearAnimation(activeCardRow.value[slideIndex.value])
   callback()
 }
@@ -383,14 +399,18 @@ function startTurn(skipTurnBanner?: boolean) {
   if (skipTurnBanner) {
     determineMove()
   } else {
-    showAlertBanner(
-      isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
-      isPlayerTurn.value ? playerFlagUrl.value : opponentFlagUrl.value,
-      undefined,
-      () => {
-        determineMove()
-      }
-    )
+    emit('play-sound', 'turn')
+
+    setTimeout(() => {
+      showAlertBanner(
+        isPlayerTurn.value ? 'Your turn!' : "Opponent's turn",
+        isPlayerTurn.value ? playerFlagUrl.value : opponentFlagUrl.value,
+        undefined,
+        () => {
+          determineMove()
+        }
+      )
+    }, 200)
   }
 }
 
@@ -429,6 +449,8 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
 
   if (!isPlayerTurn.value) {
     await showPreviewCard(card)
+  } else {
+    emit('play-sound', 'playcard')
   }
 
   // If no card array specified, assume card array is player or opponent hand
@@ -480,6 +502,8 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
     await doCardDisappearAnimation(card)
   }
   closeCardModal()
+  emit('play-sound', 'placecard')
+
   // Insert card into relevant board array at specific index
   if (boardArrIndex) {
     boardArr.splice(boardArrIndex, 0, card)
@@ -1235,10 +1259,13 @@ function determineRoundWinner() {
 
     if (isMatchDraw) {
       modalTitle.value = 'Match Drawn'
+      emit('play-sound', 'matchdraw')
     } else {
-      // Emit a player win to App.vue for card unlock purposes
       if (isPlayerMatchWin) {
-        emit('player-win')
+        emit('player-win') // Emit a player win to App.vue for card unlock purposes
+        emit('play-sound', 'matchwin')
+      } else {
+        emit('play-sound', 'matchlose')
       }
 
       // Determine 'Tactician' award
@@ -1252,9 +1279,7 @@ function determineRoundWinner() {
         }
       }
 
-      modalAvatar.value = isPlayerMatchWin
-        ? playerFlagUrl.value
-        : opponentFlagUrl.value
+      modalAvatar.value = isPlayerMatchWin ? playerFlagUrl.value : opponentFlagUrl.value
       modalTitle.value = isPlayerMatchWin ? 'You Win!!!' : 'Opponent Wins'
     }
 
@@ -1262,7 +1287,6 @@ function determineRoundWinner() {
     emit('save-awards', unlockedAwards)
 
     modalButtons.value = ['Play Again', 'Main Menu']
-
     modal.value.show().then((i: number) => {
       if (i === 1) {
         startNewGame()
@@ -1281,22 +1305,29 @@ function determineRoundWinner() {
       playerHasRound.value = true
       opponentHasRound.value = true
       alertTitle = 'Round Drawn'
+      emit('play-sound', 'rounddraw')
     } else if (isPlayerRoundWin) {
       playerHasRound.value = true
       alertTitle = 'You won the round!'
       alertIcon = 'gi-round-star'
+      emit('play-sound', 'roundwin')
     } else {
       opponentHasRound.value = true
       alertTitle = 'Your opponent won the round'
       alertIcon = 'gi-broken-shield'
+      emit('play-sound', 'roundlose')
     }
 
     showAlertBanner(alertTitle, undefined, alertIcon, () => {
       // Otherwise, start next round
       setupRound(isDraw, isPlayerRoundWin, () => {
-        showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
-          startTurn()
-        })
+        emit('play-sound', 'roundstart')
+
+        setTimeout(() => {
+          showAlertBanner(`Round ${roundNumber.value} Start`, undefined, 'gi-sands-of-time', () => {
+            startTurn()
+          })
+        }, 400)
       })
     })
   }
@@ -1359,6 +1390,8 @@ function rowClick(rowIndex: number) {
 }
 
 async function handCardClick(index: number) {
+  emit("play-sound", "selectcard")
+
   // If redrawing cards before the game
   if (cardRedrawActive.value) {
     slideIndex.value = index
@@ -1488,6 +1521,7 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
     previewCard.value = card
     cardPreviewIsPlayer.value = !!isPlayer
     cardPreview.value = true
+    emit('play-sound', 'drawcard')
 
     setTimeout(() => {
       cardPreview.value = false
