@@ -29,6 +29,7 @@ const emit = defineEmits<{
   (e: 'awards'): void
   (e: 'manage-deck', preMatch: boolean): void
   (e: 'play'): void
+  (e: 'play-sound', val: string): void
   (e: 'skip'): void
   (e: 'title-sequence-end'): void
   (e: 'unlock-all-cards'): void
@@ -84,6 +85,11 @@ function skip() {
   titleSequenceHasPlayed = true
   emit('title-sequence-end')
   emit('skip')
+}
+
+function playButtonClick() {
+  emit("play-sound", "double")
+  showMainMenu()
 }
 
 function showMainMenu() {
@@ -145,7 +151,7 @@ function logoClick() {
             v-if="playButtonVisible"
             class="btn large primary play-btn"
             type="button"
-            @click="showMainMenu"
+            @click="playButtonClick"
           >
             PLAY
           </button>

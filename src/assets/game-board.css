@@ -96,6 +96,7 @@
   left: 5px;
   filter: drop-shadow(1px 0 0 #e8f0ff) drop-shadow(-1px 0 0 #e8f0ff) drop-shadow(0 1px 0 #e8f0ff)
     drop-shadow(0 -1px 0 #e8f0ff);
+  z-index: 1000;
 }
 
 .game-details .total .round-icon {

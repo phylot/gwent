@@ -57,6 +57,10 @@ let roundDrawSound: Howl
 let matchWinSound: Howl
 let matchLoseSound: Howl
 let matchDrawSound: Howl
+let doubleSound: Howl
+let heroSound: Howl
+let scorchSound: Howl
+let statIncreaseSound: Howl
 let zeldaSound: Howl
 
 // COMPUTED DATA
@@ -141,289 +145,121 @@ async function preload() {
   showContinueBtn.value = true
 }
 
-function preloadSounds() {
-  return Promise.all([
-    preloadThemeSong(),
-    preloadGameMusic(),
-    preloadCoinSound(),
-    preloadRoundStartSound(),
-    preloadTurnSound(),
-    preloadSelectCardSound(),
-    preloadSwapCardSound(),
-    preloadDrawCardSound(),
-    preloadPlayCardSound(),
-    preloadPlaceCardSound(),
-    preloadRoundWinCardSound(),
-    preloadRoundLoseSound(),
-    preloadRoundDrawSound(),
-    preloadMatchWinSound(),
-    preloadMatchLoseSound(),
-    preloadMatchDrawSound(),
-    preloadZeldaSound()
-  ])
+async function preloadSounds() {
+  themeSong = await createHowl('sharpe-theme.ogg', 1)
+  coinSound = await createHowl('coin.wav', 5)
+  roundStartSound = await createHowl('round-start.wav', 1)
+  turnSound = await createHowl('turn.wav', 2)
+  selectCardSound = await createHowl('select-card.mp3', 0.2)
+  swapCardSound = await createHowl('swap-card.wav', 2)
+  drawCardSound = await createHowl('draw-card.wav', 1)
+  playCardSound = await createHowl('play-card.wav', 1)
+  placeCardSound = await createHowl('place-card.wav', 1)
+  roundWinSound = await createHowl('round-win.wav', 1)
+  roundLoseSound = await createHowl('round-lose.wav', 1)
+  roundDrawSound = await createHowl('round-draw.wav', 1)
+  matchWinSound = await createHowl('match-win.mp3', 1)
+  matchLoseSound = await createHowl('match-lose.wav', 1)
+  matchDrawSound = await createHowl('match-draw.wav', 1)
+  doubleSound = await createHowl('double.wav', 1.5)
+  heroSound = await createHowl('hero.mp3', 1)
+  scorchSound = await createHowl('scorch.wav', 1)
+  statIncreaseSound = await createHowl('stat-increase.mp3', 1)
+  zeldaSound = await createHowl('zelda-secret.mp3', 4)
+  await preloadGameMusic()
 }
 
 function createHowl(fileName: string, volume: number) {
-  return new Howl({
-    src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
-    volume: volume,
-    preload: true,
-    onloaderror: (err) => {
-      console.error(err)
-    }
-  })
-}
-
-function preloadThemeSong() {
-  return new Promise<void>((resolve) => {
-    try {
-      themeSong = createHowl('sharpe-theme.ogg', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
+  return new Promise<Howl>((resolve) => {
+    const newSound = new Howl({
+      src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
+      volume: volume,
+      preload: true,
+      onload: () => {
+        resolve(newSound)
+      },
+      onloaderror: (err) => {
+        console.error(err)
+        resolve(newSound)
+      }
+    })
   })
 }
 
 // TODO: Expand into music player
 function preloadGameMusic() {
   return new Promise<void>((resolve) => {
-    try {
-      gwentSong = createHowl('astoryyouwontbelieve.mp3', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadCoinSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      coinSound = createHowl('coin.wav', 5)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadRoundStartSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      roundStartSound = createHowl('round-start.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadTurnSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      turnSound = createHowl('turn.wav', 2)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadSelectCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      selectCardSound = createHowl('select-card.mp3', 0.2)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadSwapCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      swapCardSound = createHowl('swap-card.wav', 2)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadDrawCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      drawCardSound = createHowl('draw-card.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadPlayCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      playCardSound = createHowl('play-card.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadPlaceCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      placeCardSound = createHowl('place-card.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadRoundWinCardSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      roundWinSound = createHowl('round-win.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadRoundLoseSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      roundLoseSound = createHowl('round-lose.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadRoundDrawSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      roundDrawSound = createHowl('round-draw.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadMatchWinSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      matchWinSound = createHowl('match-win.mp3', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadMatchLoseSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      matchLoseSound = createHowl('match-lose.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadMatchDrawSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      matchDrawSound = createHowl('match-draw.wav', 1)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
-  })
-}
-
-function preloadZeldaSound() {
-  return new Promise<void>((resolve) => {
-    try {
-      zeldaSound = createHowl('zelda-secret.mp3', 4)
-      resolve()
-    } catch (err) {
-      console.error(err)
-      resolve()
-    }
+    gwentSong = new Howl({
+      src: [new URL(`./assets/audio/astoryyouwontbelieve.mp3`, import.meta.url).href],
+      loop: true,
+      volume: 1,
+      onload: function () {
+        resolve()
+      },
+      onloaderror: function (err) {
+        console.error(err)
+        resolve()
+      }
+    })
   })
 }
 
 function playSound(name: string) {
   switch (name) {
-    case "coin":
+    case 'coin':
       coinSound.play()
-      break;
-    case "roundstart":
+      break
+    case 'roundstart':
       roundStartSound.play()
-      break;
-    case "turn":
+      break
+    case 'turn':
       turnSound.play()
-      break;
-    case "selectcard":
+      break
+    case 'selectcard':
       selectCardSound.play()
-      break;
-    case "swapcard":
+      break
+    case 'swapcard':
       swapCardSound.play()
-      break;
-    case "drawcard":
+      break
+    case 'drawcard':
       drawCardSound.play()
-      break;
-    case "playcard":
+      break
+    case 'playcard':
       playCardSound.play()
-      break;
-    case "placecard":
+      break
+    case 'placecard':
       placeCardSound.play()
-      break;
-    case "roundwin":
+      break
+    case 'roundwin':
       roundWinSound.play()
-      break;
-    case "roundlose":
+      break
+    case 'roundlose':
       roundLoseSound.play()
-      break;
-    case "rounddraw":
+      break
+    case 'rounddraw':
       roundDrawSound.play()
-      break;
-    case "matchwin":
+      break
+    case 'matchwin':
       matchWinSound.play()
-      break;
-    case "matchlose":
+      break
+    case 'matchlose':
       matchLoseSound.play()
-      break;
-    case "matchdraw":
+      break
+    case 'matchdraw':
       matchDrawSound.play()
-      break;
-
+      break
+    case 'double':
+      doubleSound.play()
+      break
+    case 'hero':
+      heroSound.play()
+      break
+    case 'scorch':
+      scorchSound.play()
+      break
+    case 'statincrease':
+      statIncreaseSound.play()
+      break
   }
 }
 
@@ -571,6 +407,7 @@ function showAwards() {
 }
 
 function play() {
+  doubleSound.play()
   clearTimeout(themeSongFadeTimeout)
   mainMenuIsActive.value = false
 
@@ -589,13 +426,6 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
   gwentSong.stop()
   gwentSong.volume(1)
   gwentSong.play()
-  gwentSong.on('end', () => {
-    if (gameIsActive.value) {
-      gwentSong.stop()
-      gwentSong.volume(1)
-      gwentSong.play()
-    }
-  })
 
   saveCardsToStorage(() => {
     // Set decks and leaders based on player's faction choice
@@ -848,6 +678,7 @@ async function unlockAllCards() {
       @awards="showAwards"
       @manage-deck="showDeckManager"
       @play="play"
+      @play-sound="playSound"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
       @unlock-all-cards="unlockAllCards"

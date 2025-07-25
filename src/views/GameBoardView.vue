@@ -91,6 +91,7 @@ let alertBannerTitle = ref('')
 let modal = ref()
 let modalAvatar = ref()
 let modalButtons = ref()
+let modalPersistent = ref()
 let modalTitle = ref('')
 
 // General Overlay Screen (currently used for board row highlights)
@@ -298,6 +299,7 @@ function startNewGame() {
 
   modalAvatar.value = null
   modalButtons.value = null
+  modalPersistent.value = false
   modalTitle.value = ''
 
   // Decide lead player / first turn
@@ -337,6 +339,8 @@ function dealRandomCards(arr: Card[], amount: number) {
 }
 
 function showCardRedrawModal(callback: Function) {
+  emit('play-sound', 'playcard')
+
   cardRedrawActive.value = true
   playerHandIsActive.value = true
   activeCardRow.value = playerHand.value
@@ -375,9 +379,7 @@ function showCardRedrawModal(callback: Function) {
 }
 
 async function swapModalCard(callback: Function) {
-  setTimeout(() => {
-    emit('play-sound', 'swapcard')
-  }, 200)
+  emit('play-sound', 'swapcard')
   await doCardDisappearAnimation(activeCardRow.value[slideIndex.value])
 
   // Make deep copy of swapped card and reset it
@@ -521,6 +523,10 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
   }
 
   await doCardAppearAnimation(card)
+
+  if (card.hero) {
+    emit('play-sound', 'hero')
+  }
 
   await performAbility(card)
 
@@ -743,6 +749,8 @@ function performDouble() {
         }
         setTimeout(() => {
           playerRowFlags.value[rowIndex].double = true
+          emit('play-sound', 'double')
+
           setTimeout(() => {
             playerRowFlags.value[rowIndex].highlight = false
             overlayScreenModel.value = false
@@ -784,6 +792,7 @@ function performCpuDouble(callback?: Function) {
     }
   }
   opponentRowFlags.value[rowIndex].double = true
+  emit('play-sound', 'double')
 
   if (callback) {
     callback()
@@ -903,6 +912,8 @@ function performRowScorch(card: Card) {
       }
 
       if (scorchCardFound) {
+        emit('play-sound', 'scorch')
+
         setTimeout(() => {
           // Move scorched cards from board to discard pile
           let discardPile = isPlayerTurn.value ? opponentDiscardPile : playerDiscardPile
@@ -967,6 +978,8 @@ function performScorch() {
     }
 
     if (scorchCardFound) {
+      emit('play-sound', 'scorch')
+
       setTimeout(() => {
         // For each player
         for (let i = 0; i < 2; i++) {
@@ -1017,6 +1030,7 @@ function performSpy() {
 
       resolve()
     } else {
+      emit('play-sound', 'drawcard')
       hand.value.push(...dealRandomCards(deck.value, 2))
       resolve()
     }
@@ -1287,6 +1301,7 @@ function determineRoundWinner() {
     emit('save-awards', unlockedAwards)
 
     modalButtons.value = ['Play Again', 'Main Menu']
+    modalPersistent.value = true
     modal.value.show().then((i: number) => {
       if (i === 1) {
         startNewGame()
@@ -1390,7 +1405,7 @@ function rowClick(rowIndex: number) {
 }
 
 async function handCardClick(index: number) {
-  emit("play-sound", "selectcard")
+  emit('play-sound', 'selectcard')
 
   // If redrawing cards before the game
   if (cardRedrawActive.value) {
@@ -1426,6 +1441,8 @@ async function handCardClick(index: number) {
 function playerBoardCardClick(index: number, rowIndex: number) {
   let title = 'Player Close Combat'
   let icon = 'gi-broadsword'
+
+  emit('play-sound', 'selectcard')
   if (rowIndex > 0) {
     title = rowIndex === 1 ? 'Player Ranged Combat' : 'Player Siege Combat'
     icon = rowIndex === 1 ? 'gi-crossbow' : 'gi-catapult'
@@ -1440,6 +1457,8 @@ function playerBoardCardClick(index: number, rowIndex: number) {
 function opponentBoardCardClick(index: number, rowIndex: number) {
   let title = 'Opponent Close Combat'
   let icon = 'gi-broadsword'
+
+  emit('play-sound', 'selectcard')
   if (rowIndex > 0) {
     title = rowIndex === 1 ? 'Opponent Ranged Combat' : 'Opponent Siege Combat'
     icon = rowIndex === 1 ? 'gi-crossbow' : 'gi-catapult'
@@ -1485,6 +1504,7 @@ function showPauseModal() {
   boardDisabled.value = true
   modalAvatar.value = null
   modalButtons.value = ['Resume', 'Quit']
+  modalPersistent.value = false
   modalTitle.value = 'Paused'
 
   modal.value.show().then((i: number) => {
@@ -1550,14 +1570,11 @@ function doCardAppearAnimation(card: Card) {
 
 function doCardDisappearAnimation(card: Card) {
   return new Promise<void>((resolve) => {
-    card.animationName = 'shine'
+    card.animationName = 'white-fade-in'
     setTimeout(() => {
-      card.animationName = 'white-fade-in'
-      setTimeout(() => {
-        card.animationName = undefined
-        resolve()
-      }, 400)
-    }, 500)
+      card.animationName = undefined
+      resolve()
+    }, 400)
   })
 }
 
@@ -1597,6 +1614,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :buttons="modalButtons"
       :desktop="props.desktop"
       :disabled="props.disabled"
+      :persistent="modalPersistent"
       ref="modal"
       :title="modalTitle"
     >
@@ -1694,6 +1712,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :cards="activeCardRow"
             :desktop="props.desktop"
             :disabled="boardDisabled"
+            @btn-click="emit('play-sound', 'selectcard')"
           ></CardCarousel>
 
           <button
@@ -1786,6 +1805,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 fill="#357bff"
                 name="fa-map-marker"
                 :scale="props.desktop ? 1.8 : 1.2"
+                speed="fast"
               />
               <v-icon
                 v-if="playerHasRound"
@@ -1864,6 +1884,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 fill="#357bff"
                 name="fa-map-marker"
                 :scale="props.desktop ? 1.8 : 1.2"
+                speed="fast"
               />
               <v-icon
                 v-if="opponentHasRound"

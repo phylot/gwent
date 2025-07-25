@@ -14,6 +14,7 @@ const props = defineProps<{
   icon?: string
   modelValue?: boolean
   noPrimary?: boolean
+  persistent?: boolean
   title: string
 }>()
 
@@ -42,7 +43,12 @@ function hide() {
 
 <template>
   <transition name="fast-fade">
-    <div v-if="localModelValue" class="standard-modal" role="dialog">
+    <div
+      v-if="localModelValue"
+      class="standard-modal"
+      role="dialog"
+      @click.self="persistent ? null : resolvePromise(0) + hide()"
+    >
       <div class="modal">
         <div v-if="props.title" class="heading">
           <div

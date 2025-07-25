@@ -21,6 +21,7 @@ watch(
 )
 
 const emit = defineEmits<{
+  (e: 'btn-click'): void
   (e: 'update:model-value', val: number): void
 }>()
 
@@ -34,6 +35,7 @@ function changeSlide(back?: boolean) {
     newIndex = props.cards.length - 1
   }
   emit('update:model-value', newIndex)
+  emit('btn-click')
 }
 </script>
 
@@ -182,7 +184,6 @@ function changeSlide(back?: boolean) {
 
 @media (min-height: 880px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-
   .card-carousel {
     width: 460px;
   }
