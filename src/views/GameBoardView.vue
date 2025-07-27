@@ -878,12 +878,15 @@ function performMuster(card: Card) {
         i--
       }
     }
+    if (cardsFound) {
+      emit('play-sound', 'muster')
+    }
     // If cards found, allow time for animations
     setTimeout(
       () => {
         resolve()
       },
-      cardsFound ? 1000 : 0
+      cardsFound ? 1500 : 0
     )
   })
 }

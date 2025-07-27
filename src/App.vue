@@ -40,7 +40,7 @@ let playerWins: number = 0
 let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
-let themeSong: Howl
+let themeSongSound: Howl
 let themeSongFadeTimeout: ReturnType<typeof setTimeout>
 let gwentSong: Howl
 let coinSound: Howl
@@ -59,6 +59,7 @@ let matchLoseSound: Howl
 let matchDrawSound: Howl
 let doubleSound: Howl
 let heroSound: Howl
+let musterSound: Howl
 let scorchSound: Howl
 let statIncreaseSound: Howl
 let zeldaSound: Howl
@@ -146,31 +147,82 @@ async function preload() {
 }
 
 async function preloadSounds() {
-  themeSong = await createHowl('sharpe-theme.ogg', 1)
-  coinSound = await createHowl('coin.wav', 5)
-  roundStartSound = await createHowl('round-start.wav', 1)
-  turnSound = await createHowl('turn.wav', 2)
-  selectCardSound = await createHowl('select-card.mp3', 0.2)
-  swapCardSound = await createHowl('swap-card.wav', 2)
-  drawCardSound = await createHowl('draw-card.wav', 1)
-  playCardSound = await createHowl('play-card.wav', 1)
-  placeCardSound = await createHowl('place-card.wav', 1)
-  roundWinSound = await createHowl('round-win.wav', 1)
-  roundLoseSound = await createHowl('round-lose.wav', 1)
-  roundDrawSound = await createHowl('round-draw.wav', 1)
-  matchWinSound = await createHowl('match-win.mp3', 1)
-  matchLoseSound = await createHowl('match-lose.wav', 1)
-  matchDrawSound = await createHowl('match-draw.wav', 1)
-  doubleSound = await createHowl('double.wav', 1.5)
-  heroSound = await createHowl('hero.mp3', 1)
-  scorchSound = await createHowl('scorch.wav', 1)
-  statIncreaseSound = await createHowl('stat-increase.mp3', 1)
-  zeldaSound = await createHowl('zelda-secret.mp3', 4)
-  await preloadGameMusic()
+  try {
+    const [
+      themeSong,
+      coin,
+      roundStart,
+      turn,
+      selectCard,
+      swapCard,
+      drawCard,
+      playCard,
+      placeCard,
+      roundWin,
+      roundLose,
+      roundDraw,
+      matchWin,
+      matchLose,
+      matchDraw,
+      double,
+      hero,
+      muster,
+      scorch,
+      statIncrease,
+      zelda
+    ] = await Promise.all([
+      createHowl('sharpe-theme.ogg', 1),
+      createHowl('coin.wav', 5),
+      createHowl('round-start.wav', 1),
+      createHowl('turn.wav', 2.5),
+      createHowl('select-card.mp3', 0.2),
+      createHowl('swap-card.wav', 2),
+      createHowl('draw-card.wav', 1),
+      createHowl('play-card.wav', 1),
+      createHowl('place-card.wav', 1),
+      createHowl('round-win.wav', 1),
+      createHowl('round-lose.wav', 1),
+      createHowl('round-draw.wav', 1),
+      createHowl('match-win.mp3', 1),
+      createHowl('match-lose.wav', 1),
+      createHowl('match-draw.wav', 1),
+      createHowl('double.wav', 1.5),
+      createHowl('hero.mp3', 1),
+      createHowl('muster.wav', 2),
+      createHowl('scorch.wav', 1),
+      createHowl('stat-increase.mp3', 1),
+      createHowl('zelda-secret.mp3', 4),
+      preloadGameMusic()
+    ])
+
+    themeSongSound = themeSong
+    coinSound = coin
+    roundStartSound = roundStart
+    turnSound = turn
+    selectCardSound = selectCard
+    swapCardSound = swapCard
+    drawCardSound = drawCard
+    playCardSound = playCard
+    placeCardSound = placeCard
+    roundWinSound = roundWin
+    roundLoseSound = roundLose
+    roundDrawSound = roundDraw
+    matchWinSound = matchWin
+    matchLoseSound = matchLose
+    matchDrawSound = matchDraw
+    doubleSound = double
+    heroSound = hero
+    musterSound = muster
+    scorchSound = scorch
+    statIncreaseSound = statIncrease
+    zeldaSound = zelda
+  } catch (err) {
+    console.error('Error preloading sounds:', err)
+  }
 }
 
 function createHowl(fileName: string, volume: number) {
-  return new Promise<Howl>((resolve) => {
+  return new Promise<Howl>((resolve, reject) => {
     const newSound = new Howl({
       src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
       volume: volume,
@@ -179,8 +231,8 @@ function createHowl(fileName: string, volume: number) {
         resolve(newSound)
       },
       onloaderror: (err) => {
-        console.error(err)
-        resolve(newSound)
+        console.error('Failed to load sound:', fileName, err);
+        reject(err)
       }
     })
   })
@@ -254,12 +306,17 @@ function playSound(name: string) {
     case 'hero':
       heroSound.play()
       break
+    case 'muster':
+      musterSound.play()
+      break
     case 'scorch':
       scorchSound.play()
       break
     case 'statincrease':
       statIncreaseSound.play()
       break
+    default:
+      console.error("Unknown sound: ", name)
   }
 }
 
@@ -345,9 +402,9 @@ function showMainMenu() {
   gwentSong.fade(gwentSong.volume(), 0, 2000)
 
   clearTimeout(themeSongFadeTimeout)
-  themeSong.stop()
-  themeSong.volume(1)
-  themeSong.play()
+  themeSongSound.stop()
+  themeSongSound.volume(1)
+  themeSongSound.play()
 
   setTimeout(
     () => {
@@ -355,7 +412,7 @@ function showMainMenu() {
 
       themeSongFadeTimeout = setTimeout(() => {
         if (!gameIsActive.value) {
-          themeSong.fade(themeSong.volume(), 0, 12000)
+          themeSongSound.fade(themeSongSound.volume(), 0, 12000)
         }
       }, 48000)
     },
@@ -368,7 +425,7 @@ function showDeckManager(preMatch: boolean) {
   gameIsActive.value = false
   deckManagerIsPreMatch.value = preMatch
   clearTimeout(themeSongFadeTimeout)
-  themeSong.fade(themeSong.volume(), 0, 4000)
+  themeSongSound.fade(themeSongSound.volume(), 0, 4000)
   gwentSong.fade(gwentSong.volume(), 0, 4000)
 
   // Timeout to allow main menu to fade out
@@ -389,7 +446,7 @@ function cancelDeckManager() {
 function deckManagerSave(collection: CardCollection) {
   playerCardCollection = collection
   deckManagerIsActive.value = false
-  themeSong.fade(themeSong.volume(), 0, 1200)
+  themeSongSound.fade(themeSongSound.volume(), 0, 1200)
 
   saveCardsToStorage(() => {
     // Timeout to allow theme song to fade out
@@ -443,9 +500,9 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
 }
 
 function skip() {
-  themeSong.stop()
-  themeSong.seek(18)
-  themeSong.play()
+  themeSongSound.stop()
+  themeSongSound.seek(18)
+  themeSongSound.play()
 }
 
 function saveCardsToStorage(callback?: Function) {
