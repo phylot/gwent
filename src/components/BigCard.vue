@@ -11,15 +11,15 @@ const props = defineProps<{
   faction?: string
   glow?: boolean
   hero?: boolean
-  noDescription? : boolean
   imageUrl: string | undefined
   name?: string
+  noDescription?: boolean
   typeIcon?: string
   value?: number
 }>()
 
 const animationClass = computed(() => {
-  return props.animationName ? props.animationName : null
+  return props.animationName ?? null
 })
 
 const cardBorderClasses = computed(() => {

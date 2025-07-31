@@ -32,9 +32,11 @@ interface Card {
   musterName?: string
   name?: string
   replacedById?: string,
+  shake?: boolean
   type: string
   typeIcon?: string
   value?: number
+  valueIncreased?: boolean
 }
 
 interface CardCollection {

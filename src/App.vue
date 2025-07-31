@@ -190,7 +190,7 @@ async function preloadSounds() {
       createHowl('hero.mp3', 1),
       createHowl('muster.wav', 2),
       createHowl('scorch.wav', 1),
-      createHowl('stat-increase.mp3', 1),
+      createHowl('stat-increase.wav', 0.5),
       createHowl('zelda-secret.mp3', 4),
       preloadGameMusic()
     ])
@@ -217,7 +217,7 @@ async function preloadSounds() {
     statIncreaseSound = statIncrease
     zeldaSound = zelda
   } catch (err) {
-    console.error('Error preloading sounds:', err)
+    console.error('Error preloading sounds: ', err)
   }
 }
 
@@ -231,7 +231,7 @@ function createHowl(fileName: string, volume: number) {
         resolve(newSound)
       },
       onloaderror: (err) => {
-        console.error('Failed to load sound:', fileName, err);
+        console.error('Failed to load sound: ', fileName, err)
         reject(err)
       }
     })
@@ -249,7 +249,7 @@ function preloadGameMusic() {
         resolve()
       },
       onloaderror: function (err) {
-        console.error(err)
+        console.error('Failed to load game music: ', err)
         resolve()
       }
     })
@@ -316,7 +316,7 @@ function playSound(name: string) {
       statIncreaseSound.play()
       break
     default:
-      console.error("Unknown sound: ", name)
+      console.error('Unknown sound: ', name)
   }
 }
 
@@ -387,7 +387,7 @@ function loadImage(imageUrl: string) {
       resolve()
     }
     img.onerror = function (err) {
-      console.error(err)
+      console.error('Failed to load image: ', imageUrl, err)
       resolve()
     }
     img.src = imageUrl

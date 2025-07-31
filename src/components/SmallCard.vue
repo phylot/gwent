@@ -12,23 +12,27 @@ const props = defineProps<{
   hero?: boolean
   imageUrl?: string | undefined
   overlap?: boolean
+  shake?: boolean
   typeIcon?: string
   value?: number
+  valueIncreased?: boolean
 }>()
 
 const animationClass = computed(() => {
-  return props.animationName ? props.animationName : null
+  return props.animationName ?? null
 })
 
-const cardClasses = computed(() => {
+const smallCardClasses = computed(() => {
   return {
     active: props.active,
     disabled: props.disabled,
-    overlap: props.overlap
+    overlap: props.overlap,
+    shake: props.shake,
+    'value-increased': props.valueIncreased
   }
 })
 
-const cardWrapClasses = computed(() => {
+const cardClasses = computed(() => {
   return {
     decreased: props.value && props.defaultValue && props.value < props.defaultValue,
     hero: props.hero,
@@ -40,7 +44,7 @@ const cardWrapClasses = computed(() => {
 <template>
   <div
     class="small-card"
-    :class="cardClasses"
+    :class="smallCardClasses"
     @click="disabled ? null : $emit('smallcard-click', $event)"
     @keyup.enter="disabled ? null : $emit('smallcard-enter', $event)"
     @keyup.space="disabled ? null : $emit('smallcard-space', $event)"
@@ -49,7 +53,7 @@ const cardWrapClasses = computed(() => {
       <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
-        :class="cardWrapClasses"
+        :class="cardClasses"
         :style="{
           backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
           backgroundColor: props.imageUrl ? '#000000' : '#a4a4a4'
@@ -130,6 +134,14 @@ const cardWrapClasses = computed(() => {
 
 .small-card .card-stat-badge.type {
   bottom: 2px;
+}
+
+.small-card.value-increased .card-stat-badge.value {
+  animation: 0.2s scale-pulse 5;
+}
+
+.small-card.shake {
+  animation: 0.1s small-shake 3;
 }
 
 .small-card .placeholder {

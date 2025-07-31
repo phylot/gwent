@@ -255,7 +255,7 @@ function loadImage(imageUrl: string, callback: Function) {
     }
   }
   img.onerror = function (err) {
-    console.log('loadImage ERROR: ', err)
+    console.error('loadImage ERROR: ', err)
   }
   img.src = imageUrl
 }
@@ -719,9 +719,7 @@ async function performAbility(card: Card) {
     // • Enable ONLY cards eligible for swapping
     // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
-    setTimeout(() => {
-      resolve()
-    }, 500)
+    resolve()
   })
 }
 
@@ -1060,29 +1058,75 @@ function performThief() {
 }
 
 async function calculateRows() {
+  let statsIncreased = false
+
   for (let i = 0; i < 2; i++) {
     let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
     let rowFlags = i < 1 ? playerRowFlags.value : opponentRowFlags.value
 
     for (let j = 0; j < boardCardArrays.length; j++) {
-      await calculateRow(boardCardArrays[j], rowFlags[j])
+      const statHasIncreased = await calculateRow(boardCardArrays[j], rowFlags[j])
+      if (statHasIncreased) {
+        statsIncreased = true
+      }
     }
   }
+
+  if (statsIncreased) {
+    emit('play-sound', 'statincrease')
+  }
+
+  await new Promise<void>((resolve) => {
+    setTimeout(
+      () => {
+        // Reset value increased flag for all board cards
+        for (let i = 0; i < 2; i++) {
+          let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+          for (let j = 0; j < boardCardArrays.length; j++) {
+            for (let k = 0; k < boardCardArrays[j].length; k++) {
+              if (boardCardArrays[j][k].valueIncreased) {
+                boardCardArrays[j][k].valueIncreased = false
+              }
+            }
+          }
+        }
+        resolve()
+      },
+      statsIncreased ? 1000 : 500
+    )
+  })
 }
 
 async function calculateRow(rowArr: Card[], rowFlag: RowFlag) {
-  // Reset card values to default before recalculating row
-  for (const card of rowArr) {
-    card.value = card.defaultValue
-  }
-  // TODO: Weather card first
-  await calculateBond(rowArr)
-  await calculateBoost(rowArr)
-  await calculateDouble(rowArr, rowFlag)
+  try {
+    let statHasIncreased = false
 
-  return new Promise<void>((resolve) => {
-    resolve()
-  })
+    // Record the initial state of the row array
+    const initialRowArr = JSON.parse(JSON.stringify(rowArr))
+
+    // Reset each card's before recalculating row
+    for (const card of rowArr) {
+      card.value = card.defaultValue
+    }
+
+    // TODO: Weather cards first
+    await calculateBond(rowArr)
+    await calculateBoost(rowArr)
+    await calculateDouble(rowArr, rowFlag)
+
+    // Compare new value of each card to its initial value, and apply value increase flag if necessary
+    for (let i = 0; i < rowArr.length; i++) {
+      if ((rowArr[i].value ?? 0) > (initialRowArr[i]?.value ?? 0)) {
+        rowArr[i].valueIncreased = true
+        statHasIncreased = true
+      }
+    }
+
+    return statHasIncreased
+  } catch (err) {
+    console.error('Error calculating row: ', err)
+  }
 }
 
 function calculateBond(rowArr: Card[]) {
@@ -1563,8 +1607,10 @@ function doCardAppearAnimation(card: Card) {
     card.animationName = 'white-fade-out'
     setTimeout(() => {
       card.animationName = 'shine'
+      card.shake = true
       setTimeout(() => {
         card.animationName = undefined
+        card.shake = false
         resolve()
       }, 500)
     }, 400)
@@ -1777,9 +1823,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :key="j"
                 overlap
                 role="button"
+                :shake="card.shake"
                 tabindex="4"
                 :type-icon="card.typeIcon"
                 :value="card.value"
+                :value-increased="card.valueIncreased"
                 @smallcard-click="opponentBoardCardClick(j, i)"
                 @smallcard-enter="opponentBoardCardClick(j, i)"
                 @smallcard-space="opponentBoardCardClick(j, i)"
@@ -1873,6 +1921,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :faction="recentSpecialCard.faction"
             :hero="recentSpecialCard.hero"
             :image-url="recentSpecialCard.imageUrl"
+            :shake="recentSpecialCard.shake"
             tabindex="5"
             :type-icon="recentSpecialCard.typeIcon"
           />
@@ -1998,9 +2047,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :key="j"
                 overlap
                 role="button"
+                :shake="card.shake"
                 tabindex="3"
                 :type-icon="card.typeIcon"
                 :value="card.value"
+                :value-increased="card.valueIncreased"
                 @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
                 @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
                 @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
