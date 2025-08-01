@@ -9,6 +9,7 @@ html,
 body {
   width: 100%;
   height: 100%;
+  background-color: #000000;
 }
 
 /* Make all image assets immediately available in DOM (prevents additional image network call on card render) */
@@ -35,7 +36,6 @@ html {
     url('./images/main-menu-bg.jpg'), url('./images/rain.png'), url('./images/scorch-flame.jpg'),
     url('./images/scorch.png');
   background-size: 0;
-  background-color: #000000;
 }
 
 #app {

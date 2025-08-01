@@ -187,7 +187,7 @@ async function preloadSounds() {
       createHowl('match-lose.wav', 1),
       createHowl('match-draw.wav', 1),
       createHowl('double.wav', 1.5),
-      createHowl('hero.mp3', 1),
+      createHowl('hero.wav', 1),
       createHowl('muster.wav', 2),
       createHowl('scorch.wav', 1),
       createHowl('stat-increase.wav', 0.5),
@@ -216,8 +216,8 @@ async function preloadSounds() {
     scorchSound = scorch
     statIncreaseSound = statIncrease
     zeldaSound = zelda
-  } catch (err) {
-    console.error('Error preloading sounds: ', err)
+  } catch {
+    console.error('Error preloading sounds')
   }
 }
 
@@ -230,9 +230,9 @@ function createHowl(fileName: string, volume: number) {
       onload: () => {
         resolve(newSound)
       },
-      onloaderror: (err) => {
-        console.error('Failed to load sound: ', fileName, err)
-        reject(err)
+      onloaderror: () => {
+        console.error('Failed to load sound: ', fileName)
+        reject()
       }
     })
   })
@@ -245,11 +245,11 @@ function preloadGameMusic() {
       src: [new URL(`./assets/audio/astoryyouwontbelieve.mp3`, import.meta.url).href],
       loop: true,
       volume: 1,
-      onload: function () {
+      onload: () => {
         resolve()
       },
-      onloaderror: function (err) {
-        console.error('Failed to load game music: ', err)
+      onloaderror: () => {
+        console.error('Failed to load game music')
         resolve()
       }
     })
@@ -383,10 +383,10 @@ async function preloadCards(cards: Card[]) {
 function loadImage(imageUrl: string) {
   return new Promise<void>((resolve) => {
     let img = new Image()
-    img.onload = function () {
+    img.onload = () => {
       resolve()
     }
-    img.onerror = function (err) {
+    img.onerror = (err) => {
       console.error('Failed to load image: ', imageUrl, err)
       resolve()
     }

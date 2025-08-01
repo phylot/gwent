@@ -249,12 +249,12 @@ function preloadImages(fileNames: string[]) {
 
 function loadImage(imageUrl: string, callback: Function) {
   let img = new Image()
-  img.onload = function () {
+  img.onload = () => {
     if (callback) {
       callback()
     }
   }
-  img.onerror = function (err) {
+  img.onerror = (err) => {
     console.error('loadImage ERROR: ', err)
   }
   img.src = imageUrl
