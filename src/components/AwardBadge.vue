@@ -23,7 +23,7 @@ const props = defineProps<{
   font-size: 0.7em;
   font-weight: bold;
   border-radius: 9999px;
-  background-color: #353831;
+  background-color: #3f3f3f;
 }
 
 .award.reverse {
@@ -34,7 +34,7 @@ const props = defineProps<{
 .award .icon {
   padding: 3px;
   border-radius: 999px;
-  background-color: #424540;
+  background-color: #535353;
 }
 
 .award .name {

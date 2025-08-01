@@ -867,10 +867,35 @@ function performMuster(card: Card) {
 
     for (let i = 0; i < deck.length; i++) {
       let deckCard = deck[i]
+      let boardArrIndex = 0
+
       // Find deck cards of the same muster name as played card, move them to the relevant board row, and remove found cards from deck
       if (deckCard.musterName === card.musterName) {
         cardsFound = true
-        boardCards.value[abilityIndexes[deckCard.type]].push(deckCard)
+
+        // Find any existing 'bond' cards of the same bond type in the relevant board row
+        if (deckCard.ability === 'bond') {
+          let bondNameFound = false
+          for (let i = 0; i < boardCards.value[abilityIndexes[deckCard.type]].length; i++) {
+            if (boardCards.value[abilityIndexes[deckCard.type]][i].bondName === deckCard.bondName) {
+              bondNameFound = true
+            } else {
+              if (bondNameFound) {
+                boardArrIndex = i
+                break
+              }
+            }
+          }
+        }
+
+        // If existing bond cards found, place deck card into board row array next to any existing 'bond' cards of the same bond type
+        if (boardArrIndex) {
+          boardCards.value[abilityIndexes[deckCard.type]].splice(boardArrIndex, 0, deckCard)
+        }
+        // Otherwise, add deck card to the end of the board row array
+        else {
+          boardCards.value[abilityIndexes[deckCard.type]].push(deckCard)
+        }
         deck.splice(i, 1)
         doCardAppearAnimation(deckCard)
         i--
