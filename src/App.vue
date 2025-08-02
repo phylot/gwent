@@ -15,7 +15,7 @@ import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
 
-let cpuDifficulty = 0.3
+let cpuDifficulty = 0.2
 let gameIsActive = ref(false)
 let gameBoardDisabled = ref(false)
 let mainMenuIsActive = ref(false)

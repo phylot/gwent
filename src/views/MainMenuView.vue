@@ -333,7 +333,7 @@ function logoClick() {
 }
 
 .main-menu .menu-container {
-  padding: 30px 40px;
+  padding: 30px 40px 40px;
   border-radius: 20px;
   background-color: rgba(0, 0, 0, 0.8);
 }

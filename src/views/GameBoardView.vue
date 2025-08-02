@@ -536,13 +536,13 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
 }
 
 function determineCpuCard(callback?: Function) {
+  const cpuIsWinning = opponentTotal.value > playerTotal.value
+  let useRandomCard = !playerIsPassed.value && getChanceOutcome(props.cpuDifficulty)
   let card = null
-  let cpuIsWinning = opponentTotal.value > playerTotal.value
 
   // If the player hasn't passed and the CPU isn't winning
   if (!(playerIsPassed.value && cpuIsWinning)) {
-    // Play a random card "by mistake" based on difficulty setting, but if the player has passed, play a spy or lowest value card
-    if (getChanceOutcome(props.cpuDifficulty) && !playerIsPassed.value) {
+    if (useRandomCard) {
       // Select a random card...
       let handCopy = JSON.parse(JSON.stringify(opponentHand.value))
 
@@ -560,10 +560,14 @@ function determineCpuCard(callback?: Function) {
           card = randomCard
           break
         }
+        // Remove ineligible card from hand until an eligible card is chosen
         handCopy.splice(randomIndex, 1)
         i--
       }
-    } else {
+    }
+
+    // If it's decided not to use a random card, use structured decision logic instead
+    if (!useRandomCard) {
       // Find any spy cards
       let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
       if (spyCards.length > 0) {
@@ -724,6 +728,8 @@ async function performAbility(card: Card) {
 }
 
 function performDouble() {
+  let viableRowFound = false
+
   return new Promise<void>((resolve) => {
     // If it's the player's turn, enable 'Row Select' mode
     if (isPlayerTurn.value) {
@@ -731,31 +737,36 @@ function performDouble() {
       // Highlight each applicable player row
       for (let i = 0; i < playerRowFlags.value.length; i++) {
         if (!playerRowFlags.value[i].double) {
+          viableRowFound = true
           playerRowFlags.value[i].rowSelect = true
         }
       }
 
       // TODO: Disable player hand, or trap focus on rows (can be accessed by keyboard)
 
-      return new Promise<number>((resolveClick) => {
-        resolveRowClick.value = resolveClick
-      }).then((rowIndex) => {
-        playerRowFlags.value[rowIndex].highlight = true
-        // Disable row select for all rows
-        for (const rowFlag of playerRowFlags.value) {
-          rowFlag.rowSelect = false
-        }
-        setTimeout(() => {
-          playerRowFlags.value[rowIndex].double = true
-          emit('play-sound', 'double')
-
+      if (viableRowFound) {
+        return new Promise<number>((resolveClick) => {
+          resolveRowClick.value = resolveClick
+        }).then((rowIndex) => {
+          playerRowFlags.value[rowIndex].highlight = true
+          // Disable row select for all rows
+          for (const rowFlag of playerRowFlags.value) {
+            rowFlag.rowSelect = false
+          }
           setTimeout(() => {
-            playerRowFlags.value[rowIndex].highlight = false
-            overlayScreenModel.value = false
-            resolve()
+            playerRowFlags.value[rowIndex].double = true
+            emit('play-sound', 'double')
+
+            setTimeout(() => {
+              playerRowFlags.value[rowIndex].highlight = false
+              overlayScreenModel.value = false
+              resolve()
+            }, 500)
           }, 500)
-        }, 500)
-      })
+        })
+      } else {
+        resolve()
+      }
     }
     // Is CPU turn
     else {
@@ -769,28 +780,29 @@ function performDouble() {
 }
 
 function performCpuDouble(callback?: Function) {
-  let rowIndex = 0
+  let rowIndex = null
   let highestRowTotal = 0
 
   // Work out which row has the highest value (excluding hero cards)
   for (let i = 0; i < opponentRowFlags.value.length; i++) {
     if (!opponentRowFlags.value[i].double) {
       let rowTotal = 0
-      if (opponentBoardCards.value[i].length > 0) {
-        for (const card of opponentBoardCards.value[i]) {
-          if (card.value && !card.hero) {
-            rowTotal += card.value
-          }
+      for (const card of opponentBoardCards.value[i]) {
+        if (card.value && !card.hero) {
+          rowTotal += card.value
         }
-        if (rowTotal > highestRowTotal) {
-          highestRowTotal = rowTotal
-          rowIndex = i
-        }
+      }
+      if (rowTotal >= highestRowTotal) {
+        highestRowTotal = rowTotal
+        rowIndex = i
       }
     }
   }
-  opponentRowFlags.value[rowIndex].double = true
-  emit('play-sound', 'double')
+
+  if (rowIndex !== null) {
+    opponentRowFlags.value[rowIndex].double = true
+    emit('play-sound', 'double')
+  }
 
   if (callback) {
     callback()
@@ -840,9 +852,9 @@ function performHeal() {
 }
 
 function determineCpuHealCard(arr: Card[], callback?: Function) {
-  let card = null
-  // Find any spy cards
-  let spyCards = arr.filter((card) => card.ability === 'spy')
+  let card
+  let spyCards = arr.filter((card) => card.ability === 'spy') // Find any spy cards
+
   if (spyCards.length > 0) {
     // Find the lowest value spy card
     spyCards.sort(sortCardsLowToHigh)
