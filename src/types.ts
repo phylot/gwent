@@ -21,6 +21,7 @@ interface Card {
   abilityIcon?: string
   active: boolean
   animationName?: string
+  appearAnimation?: boolean
   bondName?: string
   defaultValue?: number
   description?: string
@@ -32,7 +33,6 @@ interface Card {
   musterName?: string
   name?: string
   replacedById?: string,
-  shake?: boolean
   type: string
   typeIcon?: string
   value?: number

@@ -88,7 +88,7 @@ function skip() {
 }
 
 function playButtonClick() {
-  emit("play-sound", "double")
+  emit('play-sound', 'double')
   showMainMenu()
 }
 
@@ -123,7 +123,6 @@ function logoClick() {
       logoClickCount.value = 0
     }, 1000)
   }
-
 }
 </script>
 
@@ -164,13 +163,18 @@ function logoClick() {
         <h1 class="logo menu-heading">
           <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
         </h1>
-        <button class="btn large primary" :disabled="disabled" type="button" @click="emit('play')">
+        <button
+          class="btn large primary"
+          :disabled="props.disabled"
+          type="button"
+          @click="emit('play')"
+        >
           Play
         </button>
         <button class="btn large" type="button" @click="emit('manage-deck', false)">
           Manage Deck
         </button>
-        <button class="btn large" :disabled="disabled" type="button" @click="emit('awards')">
+        <button class="btn large" :disabled="props.disabled" type="button" @click="emit('awards')">
           Awards ({{ awardsCount }})
         </button>
       </div>
@@ -180,7 +184,7 @@ function logoClick() {
       <button
         v-if="skipButtonVisible"
         class="btn large skip-btn"
-        :disabled="disabled"
+        :disabled="props.disabled"
         type="button"
         @click="skip"
       >

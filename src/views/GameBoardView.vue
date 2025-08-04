@@ -391,7 +391,7 @@ async function swapModalCard(callback: Function) {
   playerDeck.value.push(swappedCard)
 
   emit('play-sound', 'drawcard')
-  await doCardAppearAnimation(activeCardRow.value[slideIndex.value])
+  await doSwapAppearAnimation(activeCardRow.value[slideIndex.value])
   callback()
 }
 
@@ -1641,16 +1641,11 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
 
 function doCardAppearAnimation(card: Card) {
   return new Promise<void>((resolve) => {
-    card.animationName = 'white-fade-out'
+    card.appearAnimation = true
     setTimeout(() => {
-      card.animationName = 'shine'
-      card.shake = true
-      setTimeout(() => {
-        card.animationName = undefined
-        card.shake = false
-        resolve()
-      }, 500)
-    }, 400)
+      card.appearAnimation = false
+      resolve()
+    }, 500)
   })
 }
 
@@ -1660,6 +1655,19 @@ function doCardDisappearAnimation(card: Card) {
     setTimeout(() => {
       card.animationName = undefined
       resolve()
+    }, 400)
+  })
+}
+
+function doSwapAppearAnimation(card: Card) {
+  return new Promise<void>((resolve) => {
+    card.animationName = 'white-fade-out'
+    setTimeout(() => {
+      card.animationName = 'shine'
+      setTimeout(() => {
+        card.animationName = undefined
+        resolve()
+      }, 500)
     }, 400)
   })
 }
@@ -1851,6 +1859,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
+                :appear-animation="card.appearAnimation"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -1860,7 +1869,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :key="j"
                 overlap
                 role="button"
-                :shake="card.shake"
                 tabindex="4"
                 :type-icon="card.typeIcon"
                 :value="card.value"
@@ -1953,12 +1961,12 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :ability-icon="recentSpecialCard.abilityIcon"
             :active="recentSpecialCard.active"
             :animation-name="recentSpecialCard.animationName"
+            :appear-animation="recentSpecialCard.appearAnimation"
             :desktop="props.desktop"
             :disabled="boardDisabled"
             :faction="recentSpecialCard.faction"
             :hero="recentSpecialCard.hero"
             :image-url="recentSpecialCard.imageUrl"
-            :shake="recentSpecialCard.shake"
             tabindex="5"
             :type-icon="recentSpecialCard.typeIcon"
           />
@@ -2075,6 +2083,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :ability-icon="card.abilityIcon"
                 :active="card.active"
                 :animation-name="card.animationName"
+                :appear-animation="card.appearAnimation"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -2084,7 +2093,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :key="j"
                 overlap
                 role="button"
-                :shake="card.shake"
                 tabindex="3"
                 :type-icon="card.typeIcon"
                 :value="card.value"

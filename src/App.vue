@@ -501,7 +501,7 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
 
 function skip() {
   themeSongSound.stop()
-  themeSongSound.seek(18)
+  themeSongSound.seek(17.9)
   themeSongSound.play()
 }
 

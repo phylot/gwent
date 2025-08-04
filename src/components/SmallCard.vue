@@ -3,8 +3,9 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   abilityIcon?: string
-  animationName?: string
   active?: boolean
+  animationName?: string
+  appearAnimation?: boolean
   defaultValue?: number
   desktop?: boolean
   disabled?: boolean
@@ -12,7 +13,6 @@ const props = defineProps<{
   hero?: boolean
   imageUrl?: string | undefined
   overlap?: boolean
-  shake?: boolean
   typeIcon?: string
   value?: number
   valueIncreased?: boolean
@@ -25,9 +25,9 @@ const animationClass = computed(() => {
 const smallCardClasses = computed(() => {
   return {
     active: props.active,
+    'appear-animation': props.appearAnimation,
     disabled: props.disabled,
     overlap: props.overlap,
-    shake: props.shake,
     'value-increased': props.valueIncreased
   }
 })
@@ -140,8 +140,21 @@ const cardClasses = computed(() => {
   animation: 0.2s scale-pulse 5;
 }
 
-.small-card.shake {
-  animation: 0.1s small-shake 3;
+.small-card.appear-animation {
+  animation-name: fade-in, reduce-scale, small-shake;
+  animation-delay: 0s, 0s, 0.3s;
+  animation-duration: 0.2s, 0.2s, 0.1s;
+  animation-iteration-count: 1, 1, 3;
+  z-index: 5000;
+}
+
+@keyframes reduce-scale {
+  from {
+    scale: 5;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .small-card .placeholder {
