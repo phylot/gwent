@@ -915,6 +915,7 @@ function performMuster(card: Card) {
     }
     if (cardsFound) {
       emit('play-sound', 'muster')
+      emit('play-sound', 'placecard')
     }
     // If cards found, allow time for animations
     setTimeout(
