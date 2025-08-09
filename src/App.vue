@@ -171,7 +171,7 @@ async function preloadSounds() {
       statIncrease,
       zelda
     ] = await Promise.all([
-      createHowl('sharpe-theme.ogg', 1),
+      createHowl('sharpe-theme.mp3', 1),
       createHowl('coin.wav', 5),
       createHowl('round-start.wav', 1),
       createHowl('turn.wav', 2.5),
