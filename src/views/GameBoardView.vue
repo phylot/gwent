@@ -1089,6 +1089,7 @@ function performThief() {
 
       resolve()
     } else {
+      emit('play-sound', 'drawcard')
       hand.value.push(...dealRandomCards(deck.value, 1))
       resolve()
     }

@@ -202,7 +202,7 @@ function logoClick() {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: scroll;
+  overflow: auto;
   color: #ffffff;
   background-repeat: no-repeat;
   background-image: url('./../assets/images/main-menu-bg.jpg');

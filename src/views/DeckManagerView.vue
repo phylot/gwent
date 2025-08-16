@@ -585,7 +585,7 @@ function capitaliseString(string: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: scroll;
+  overflow: auto;
   color: #ffffff;
   -webkit-user-select: none;
   user-select: none;
