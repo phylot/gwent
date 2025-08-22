@@ -1846,11 +1846,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
             @click="rowFlag.rowSelect ? rowClick(i) : null"
           >
             <div class="row-stats">
-              <div class="stat-badge opponent">{{ rowTotals.opponent[i] }}</div>
-              <div v-if="rowFlag.double" class="ability card-stat-badge">
+              <div class="board-score-badge opponent">{{ rowTotals.opponent[i] }}</div>
+              <div v-if="rowFlag.double" class="ability-badge">
                 <v-icon class="icon" :name="rowFlag.doubleIcon" :scale="props.desktop ? 1 : 0.8" />
               </div>
-              <div v-if="rowFlag.weather" class="ability card-stat-badge">
+              <div v-if="rowFlag.weather" class="ability-badge">
                 <v-icon class="icon" :name="rowFlag.weatherIcon" :scale="props.desktop ? 1 : 0.8" />
               </div>
             </div>
@@ -1925,7 +1925,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :class="{ active: isPlayerTurn }"
                 :style="{ backgroundImage: `url(${playerFlagUrl})` }"
               ></div>
-              <div class="stat-badge player">{{ playerTotal }}</div>
+              <div class="board-score-badge player">{{ playerTotal }}</div>
             </div>
             <div class="details">
               <div class="name">
@@ -2006,7 +2006,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :class="{ active: !isPlayerTurn }"
                 :style="{ backgroundImage: `url(${opponentFlagUrl})` }"
               ></div>
-              <div class="stat-badge opponent">{{ opponentTotal }}</div>
+              <div class="board-score-badge opponent">{{ opponentTotal }}</div>
             </div>
             <div v-if="opponentLeader" class="details">
               <div class="name">
@@ -2070,11 +2070,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
             />
 
             <div class="row-stats">
-              <div class="stat-badge player">{{ rowTotals.player[i] }}</div>
-              <div v-if="rowFlag.double" class="ability card-stat-badge">
-                <v-icon class="icon" :name="rowFlag.doubleIcon" :scale="props.desktop ? 1 : 0.8" />
+              <div class="board-score-badge player">{{ rowTotals.player[i] }}</div>
+              <div v-if="rowFlag.double" class="ability-badge">
+                <v-icon class="icon" :name="rowFlag.doubleIcon" :scale="props.desktop ? 1 : 0.7" />
               </div>
-              <div v-if="rowFlag.weather" class="ability card-stat-badge">
+              <div v-if="rowFlag.weather" class="ability-badge">
                 <v-icon class="icon" :name="rowFlag.weatherIcon" :scale="props.desktop ? 1 : 0.8" />
               </div>
             </div>

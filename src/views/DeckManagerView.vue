@@ -303,7 +303,7 @@ function capitaliseString(string: string) {
     <div class="deck-manager-container">
       <CardCarouselModal v-model="cardModal" class="quick-fade">
         <template v-slot:header>
-          <div class="type card-stat-badge">
+          <div class="combat-type-badge">
             <v-icon
               :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
               class="icon"
@@ -378,7 +378,7 @@ function capitaliseString(string: string) {
           <div class="deck-manager-stats">
             <div class="deck-heading">
               <h2 class="deck-title">Deck</h2>
-              <div class="stat-badge">{{ totalDeckCards }}</div>
+              <div class="deck-manager-stat-badge">{{ totalDeckCards }}</div>
             </div>
 
             <div class="deck-stat" :class="{ error: invalidUnitTotal }">
@@ -387,7 +387,7 @@ function capitaliseString(string: string) {
                 <div class="total">{{ totalUnitCards }}</div>
                 /22
               </div>
-              <div v-else class="stat-badge">{{ totalUnitCards }}</div>
+              <div v-else class="deck-manager-stat-badge">{{ totalUnitCards }}</div>
             </div>
             <!--          <div v-if="localLeaderCards" class="deck-manager-leader">-->
             <!--            <div-->
@@ -401,11 +401,11 @@ function capitaliseString(string: string) {
             <!--          </div>-->
             <div class="deck-stat">
               <h3 class="deck-stat-title">Special Cards</h3>
-              <div class="stat-badge">{{ totalSpecialCards }}</div>
+              <div class="deck-manager-stat-badge">{{ totalSpecialCards }}</div>
             </div>
             <div class="deck-stat">
               <h3 class="deck-stat-title">Total Strength</h3>
-              <div class="stat-badge">{{ totalUnitStrength }}</div>
+              <div class="deck-manager-stat-badge">{{ totalUnitStrength }}</div>
             </div>
           </div>
 
@@ -417,7 +417,7 @@ function capitaliseString(string: string) {
               <template v-for="(cardArr, key) in deckCards" :key="key">
                 <div v-if="cardArr.length > 0" class="combat-container">
                   <div class="deck-manager-type-heading">
-                    <div class="type card-stat-badge">
+                    <div class="combat-type-badge">
                       <v-icon
                         class="icon"
                         :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
@@ -479,7 +479,7 @@ function capitaliseString(string: string) {
             >
               <div class="collection-heading">
                 <h2 class="collection-title">Collection</h2>
-                <div v-if="localCardCollection" class="stat-badge">
+                <div v-if="localCardCollection" class="deck-manager-stat-badge">
                   {{ localCardCollection[factionKeys[factionIndex]].collection.length }}
                 </div>
               </div>
@@ -500,7 +500,7 @@ function capitaliseString(string: string) {
                 <template v-if="cardArr.length > 0">
                   <div class="combat-container">
                     <div class="deck-manager-type-heading">
-                      <div class="type card-stat-badge">
+                      <div class="combat-type-badge">
                         <v-icon
                           class="icon"
                           :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
@@ -687,7 +687,7 @@ function capitaliseString(string: string) {
   border-radius: 0 0 10px 10px;
 }
 
-.deck-manager .stat-badge {
+.deck-manager .deck-manager-stat-badge {
   width: 25px;
   height: 25px;
   display: flex;
@@ -849,16 +849,25 @@ function capitaliseString(string: string) {
   padding: 30px;
 }
 
+.deck-manager .combat-type-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #775022;
+  border-radius: 999px;
+  color: #000000;
+  background-color: #c9883a;
+}
+
 .deck-manager .deck-manager-type-heading {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.deck-manager .deck-manager-type-heading .card-stat-badge {
+.deck-manager .deck-manager-type-heading .combat-type-badge {
   width: 22px;
   height: 22px;
-  position: unset;
 }
 
 .deck-manager .deck-manager-card-row {
@@ -909,10 +918,9 @@ function capitaliseString(string: string) {
   gap: 10px;
 }
 
-.deck-manager .card-modal .card-modal-header .card-stat-badge {
+.deck-manager .card-modal .card-modal-header .combat-type-badge {
   width: 25px;
   height: 25px;
-  position: unset;
 }
 
 /* Narrow Mobile Screen Styles */
@@ -976,7 +984,7 @@ function capitaliseString(string: string) {
     gap: 20px;
   }
 
-  .deck-manager .stat-badge {
+  .deck-manager .deck-manager-stat-badge {
     width: 30px;
     height: 30px;
     font-size: 14px;
@@ -1052,7 +1060,7 @@ function capitaliseString(string: string) {
     gap: 12px;
   }
 
-  .deck-manager .deck-manager-type-heading .card-stat-badge {
+  .deck-manager .deck-manager-type-heading .combat-type-badge {
     width: 30px;
     height: 30px;
   }
@@ -1068,7 +1076,7 @@ function capitaliseString(string: string) {
     border: 8px solid #000000;
   }*/
 
-  .deck-manager .card-modal .card-modal-header .card-stat-badge {
+  .deck-manager .card-modal .card-modal-header .combat-type-badge {
     width: 40px;
     height: 40px;
   }

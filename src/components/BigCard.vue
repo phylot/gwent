@@ -49,13 +49,13 @@ const cardClasses = computed(() => {
           :style="{ backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none' }"
         >
           <template v-if="props.imageUrl">
-            <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
+            <div v-if="defaultValue || defaultValue === 0" class="card-value-badge">
               {{ value }}
             </div>
-            <div v-if="abilityIcon" class="ability card-stat-badge">
+            <div v-if="abilityIcon" class="card-ability-badge">
               <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 2 : 1.2" />
             </div>
-            <div v-if="typeIcon" class="type card-stat-badge">
+            <div v-if="typeIcon" class="combat-type-badge">
               <v-icon :name="typeIcon" class="icon" :scale="desktop ? 2 : 1.2" />
             </div>
           </template>
@@ -80,11 +80,13 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card-wrap {
+  position: relative;
   width: 150px;
   height: 200px;
   margin: 0 auto;
   box-sizing: content-box;
   border-radius: 8px;
+  overflow: hidden;
 }
 
 .big-card .card-border {
@@ -110,28 +112,83 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card {
+  position: relative;
   width: 100%;
   height: 100%;
   border-radius: 1px;
   border: 1px solid #000000;
+  box-sizing: border-box;
+  background-position: center;
+  background-size: cover;
+  background-color: #000000;
+  overflow: hidden;
+}
+
+.big-card .card-value-badge {
+  width: 30px;
+  height: 30px;
+  margin: 2px 0 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+  background-color: #ffffff;
+}
+
+.big-card .card.increased .card-value-badge,
+.big-card .card.decreased .card-value-badge {
+  border-color: #ffffff;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.big-card .card.increased .card-value-badge {
+  background-color: #24871a;
+}
+
+.big-card .card.decreased .card-value-badge {
+  background-color: #e51715;
+}
+
+.big-card .card.hero .card-value-badge {
+  border-style: dotted;
+  border-color: #f9a825;
+  color: #f9a825;
   background-color: #000000;
 }
 
-.big-card .card-stat-badge {
+.big-card .card-ability-badge {
   width: 30px;
   height: 30px;
+  margin: 2px 0 0 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
   font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #000000;
 }
 
-.big-card .card-stat-badge.value,
-.big-card .card-stat-badge.ability {
-  margin-top: 2px;
-  margin-left: 2px;
-}
-
-.big-card .card-stat-badge.type {
+.big-card .combat-type-badge {
+  position: absolute;
+  width: 30px;
+  height: 30px;
   bottom: 4px;
   right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #775022;
+  border-radius: 999px;
+  color: #000000;
+  background-color: #c9883a;
 }
 
 .big-card .big-card-details {
@@ -176,21 +233,19 @@ const cardClasses = computed(() => {
     border-radius: 2px;
   }
 
-  .big-card .card-stat-badge {
+  .big-card .card-value-badge,
+  .big-card .card-ability-badge {
     width: 50px;
     height: 50px;
+    margin: 5px 0 0 5px;
     font-size: 30px;
   }
 
-  .big-card .card-stat-badge.value,
-  .big-card .card-stat-badge.ability {
-    margin-top: 5px;
-    margin-left: 5px;
-  }
-
-  .big-card .card-stat-badge.type {
+  .big-card .combat-type-badge {
     bottom: 10px;
     right: 5px;
+    width: 50px;
+    height: 50px;
   }
 
   .big-card .big-card-details {

@@ -60,13 +60,13 @@ const cardClasses = computed(() => {
         }"
       >
         <template v-if="props.imageUrl">
-          <div v-if="defaultValue || defaultValue === 0" class="value card-stat-badge">
+          <div v-if="defaultValue || defaultValue === 0" class="card-value-badge">
             {{ value }}
           </div>
-          <div v-if="abilityIcon" class="ability card-stat-badge">
+          <div v-if="abilityIcon" class="card-ability-badge">
             <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 1 : 0.8" />
           </div>
-          <div v-if="typeIcon" class="type card-stat-badge">
+          <div v-if="typeIcon" class="combat-type-badge">
             <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.8" />
           </div>
         </template>
@@ -113,31 +113,94 @@ const cardClasses = computed(() => {
 }
 
 .small-card .card-wrap {
+  position: relative;
   width: 50px;
   height: 100%;
   box-sizing: content-box;
   border-radius: 4px;
+  overflow: hidden;
 }
 
 .small-card .card {
+  position: relative;
+  width: 100%;
   height: 100%;
-  box-sizing: border-box;
   border-radius: 4px;
   border: 1px solid #000000;
+  box-sizing: border-box;
+  background-position: center;
+  background-size: cover;
+  background-color: #000000;
+  overflow: hidden;
 }
 
-.small-card .card-stat-badge {
+.small-card .card-value-badge {
   width: 18px;
   height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000000;
+  border-radius: 999px;
   font-size: 12px;
+  font-weight: bold;
+  color: #000000;
+  background-color: #ffffff;
 }
 
-.small-card .card-stat-badge.type {
-  bottom: 2px;
+.small-card .card.increased .card-value-badge,
+.small-card .card.decreased .card-value-badge {
+  border-color: #ffffff;
+  font-weight: bold;
+  color: #ffffff;
 }
 
-.small-card.value-increased .card-stat-badge.value {
+.small-card .card.increased .card-value-badge {
+  background-color: #24871a;
+}
+
+.small-card .card.decreased .card-value-badge {
+  background-color: #e51715;
+}
+
+.small-card .card.hero .card-value-badge {
+  border-style: dotted;
+  border-color: #f9a825;
+  color: #f9a825;
+  background-color: #000000;
+}
+
+.small-card .card-ability-badge {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #000000;
+}
+
+.small-card.value-increased .card-value-badge {
   animation: 0.2s scale-pulse 5;
+}
+
+.small-card .combat-type-badge {
+  position: absolute;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #775022;
+  border-radius: 999px;
+  color: #000000;
+  background-color: #c9883a;
 }
 
 .small-card.appear-animation {
@@ -170,7 +233,7 @@ const cardClasses = computed(() => {
   border: 1px solid #60656b;
 }
 
-.placeholder .icon {
+.small-card .placeholder .icon {
   color: #60656b;
 }
 
@@ -186,13 +249,16 @@ const cardClasses = computed(() => {
     width: 90px;
   }
 
-  .small-card .card-stat-badge {
+  .small-card .card-value-badge,
+  .small-card .card-ability-badge {
     width: 26px;
     height: 26px;
     font-size: 16px;
   }
 
-  .small-card .card-stat-badge.type {
+  .small-card .combat-type-badge {
+    width: 26px;
+    height: 26px;
     bottom: 3px;
   }
 }

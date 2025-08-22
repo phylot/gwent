@@ -56,97 +56,6 @@
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
 }
 
-.stat-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  border: 2px solid #000000;
-  border-radius: 999px;
-}
-
-.stat-badge.player {
-  background-color: lemonchiffon;
-}
-
-.stat-badge.opponent {
-  background-color: lightskyblue;
-}
-
-.card-wrap {
-  position: relative;
-  overflow: hidden;
-  box-sizing: content-box;
-}
-
-.card {
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-  background-position: center;
-  background-size: cover;
-}
-
-.card-stat-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #000000;
-  border-radius: 999px;
-  font-weight: bold;
-  color: #000000;
-  background-color: #ffffff;
-}
-
-.card-stat-badge.ability {
-  border-color: #ffffff;
-  color: #ffffff;
-  background-color: #000000;
-}
-
-.card-stat-badge.type {
-  position: absolute;
-  right: 0;
-  border-color: #775022;
-  background-color: #c9883a;
-}
-
-.card.increased .card-stat-badge.value,
-.card.decreased .card-stat-badge.value {
-  border-color: #ffffff;
-  font-weight: bold;
-  color: #ffffff;
-}
-
-.card.increased .card-stat-badge.value {
-  background-color: #24871a;
-}
-
-.card.decreased .card-stat-badge.value {
-  background-color: #e51715;
-}
-
-.card.hero .card-stat-badge.value {
-  border-style: dotted;
-  border-color: #f9a825;
-  color: #f9a825;
-  background-color: #000000;
-}
-
-.animation-overlay {
-  z-index: 100;
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  background-position: center;
-  background-size: cover;
-}
-
 /* Desktop / Tablet Styles */
 
 @media (min-height: 880px) and (orientation: landscape),
@@ -167,6 +76,20 @@
 }
 
 /* Animations */
+
+.animation-overlay {
+  z-index: 100;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
+}
 
 /* For 'transition' element */
 
