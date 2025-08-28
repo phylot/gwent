@@ -28,7 +28,8 @@ const smallCardClasses = computed(() => {
     'appear-animation': props.appearAnimation,
     disabled: props.disabled,
     overlap: props.overlap,
-    'value-increased': props.valueIncreased
+    'value-increased': props.valueIncreased,
+    placeholder: !props.imageUrl
   }
 })
 
@@ -56,7 +57,7 @@ const cardClasses = computed(() => {
         :class="cardClasses"
         :style="{
           backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
-          backgroundColor: props.imageUrl ? '#000000' : '#a4a4a4'
+          backgroundColor: props.imageUrl ? '#000000' : 'transparent'
         }"
       >
         <template v-if="props.imageUrl">
@@ -70,7 +71,7 @@ const cardClasses = computed(() => {
             <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.8" />
           </div>
         </template>
-        <div v-else class="placeholder">
+        <div v-else class="placeholder-content">
           <v-icon name="gi-sunflower" class="icon" :scale="desktop ? 2 : 1.2" />
         </div>
       </div>
@@ -143,6 +144,7 @@ const cardClasses = computed(() => {
   border: 2px solid #000000;
   border-radius: 999px;
   font-size: 12px;
+  line-height: 12px;
   font-weight: bold;
   color: #000000;
   background-color: #ffffff;
@@ -220,7 +222,11 @@ const cardClasses = computed(() => {
   }
 }
 
-.small-card .placeholder {
+.small-card.placeholder .card {
+  border: 1px solid #7c4a1a;
+}
+
+.small-card.placeholder .placeholder-content {
   position: absolute;
   top: 5px;
   bottom: 5px;
@@ -230,11 +236,11 @@ const cardClasses = computed(() => {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: 1px solid #60656b;
+  border: 1px solid #7c4a1a;
 }
 
-.small-card .placeholder .icon {
-  color: #60656b;
+.small-card.placeholder .placeholder-content .icon {
+  color: #7c4a1a;
 }
 
 /* Desktop / Tablet Styles */
@@ -254,6 +260,7 @@ const cardClasses = computed(() => {
     width: 26px;
     height: 26px;
     font-size: 16px;
+    line-height: 16px;
   }
 
   .small-card .combat-type-badge {

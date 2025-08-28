@@ -1410,7 +1410,7 @@ function determineRoundWinner() {
     } else if (isPlayerRoundWin) {
       playerHasRound.value = true
       alertTitle = 'You won the round!'
-      alertIcon = 'gi-round-star'
+      alertIcon = 'oi-star-fill'
       emit('play-sound', 'roundwin')
     } else {
       opponentHasRound.value = true
@@ -1724,9 +1724,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
         >
           <v-icon
             v-if="total.isWin"
-            class="icon"
-            fill="gold"
-            name="gi-round-star"
+            class="round-icon"
+            name="oi-star-fill"
             :scale="props.desktop ? 1.5 : 1"
           />
           {{ total.value }}
@@ -1753,9 +1752,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
         >
           <v-icon
             v-if="total.isWin"
-            class="icon"
-            fill="gold"
-            name="gi-round-star"
+            class="round-icon"
+            name="oi-star-fill"
             :scale="props.desktop ? 1.5 : 1"
           />
           {{ total.value }}
@@ -1845,115 +1843,140 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :key="`opponent-row-${i}`"
             @click="rowFlag.rowSelect ? rowClick(i) : null"
           >
-            <div class="row-stats">
-              <div class="board-score-badge opponent">{{ rowTotals.opponent[i] }}</div>
-              <div v-if="rowFlag.double" class="ability-badge">
-                <v-icon class="icon" :name="rowFlag.doubleIcon" :scale="props.desktop ? 1 : 0.8" />
+            <div class="card-row-wrap">
+              <div class="row-stats">
+                <div class="board-score-badge opponent">{{ rowTotals.opponent[i] }}</div>
+                <div v-if="rowFlag.double" class="ability-badge">
+                  <v-icon
+                    class="icon"
+                    :name="rowFlag.doubleIcon"
+                    :scale="props.desktop ? 1 : 0.8"
+                  />
+                </div>
+                <div v-if="rowFlag.weather" class="ability-badge">
+                  <v-icon
+                    class="icon"
+                    :name="rowFlag.weatherIcon"
+                    :scale="props.desktop ? 1 : 0.8"
+                  />
+                </div>
               </div>
-              <div v-if="rowFlag.weather" class="ability-badge">
-                <v-icon class="icon" :name="rowFlag.weatherIcon" :scale="props.desktop ? 1 : 0.8" />
-              </div>
-            </div>
 
-            <div class="card-container">
-              <SmallCard
-                v-for="(card, j) in opponentBoardCards[i]"
-                :ability-icon="card.abilityIcon"
-                :active="card.active"
-                :animation-name="card.animationName"
-                :appear-animation="card.appearAnimation"
-                :default-value="card.defaultValue"
-                :desktop="props.desktop"
-                :disabled="boardDisabled"
-                :faction="card.faction"
-                :hero="card.hero"
-                :image-url="card.imageUrl"
-                :key="j"
-                overlap
-                role="button"
-                tabindex="4"
-                :type-icon="card.typeIcon"
-                :value="card.value"
-                :value-increased="card.valueIncreased"
-                @smallcard-click="opponentBoardCardClick(j, i)"
-                @smallcard-enter="opponentBoardCardClick(j, i)"
-                @smallcard-space="opponentBoardCardClick(j, i)"
-              />
+              <div class="card-container">
+                <SmallCard
+                  v-for="(card, j) in opponentBoardCards[i]"
+                  :ability-icon="card.abilityIcon"
+                  :active="card.active"
+                  :animation-name="card.animationName"
+                  :appear-animation="card.appearAnimation"
+                  :default-value="card.defaultValue"
+                  :desktop="props.desktop"
+                  :disabled="boardDisabled"
+                  :faction="card.faction"
+                  :hero="card.hero"
+                  :image-url="card.imageUrl"
+                  :key="j"
+                  overlap
+                  role="button"
+                  tabindex="4"
+                  :type-icon="card.typeIcon"
+                  :value="card.value"
+                  :value-increased="card.valueIncreased"
+                  @smallcard-click="opponentBoardCardClick(j, i)"
+                  @smallcard-enter="opponentBoardCardClick(j, i)"
+                  @smallcard-space="opponentBoardCardClick(j, i)"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         <div class="game-details">
-          <button
-            class="btn pass-btn"
-            :class="{ disabled: boardDisabled || cardRedrawActive }"
-            :disabled="boardDisabled || cardRedrawActive"
-            title="Pass"
-            type="button"
-            @click="pass()"
-          >
-            <span>Pass</span>
-          </button>
-          <div v-if="playerLeader" class="player-details">
-            <div class="total">
-              <v-icon
-                v-if="isPlayerTurn"
-                animation="float"
-                class="icon turn-icon"
-                fill="#357bff"
-                name="fa-map-marker"
-                :scale="props.desktop ? 1.8 : 1.2"
-                speed="fast"
-              />
-              <v-icon
-                v-if="playerHasRound"
-                class="icon round-icon"
-                fill="gold"
-                name="gi-round-star"
-                :scale="props.desktop ? 1.8 : 1.2"
-              />
+          <div class="pass-btn-wrap">
+            <button
+              class="btn pass-btn"
+              :class="{ disabled: boardDisabled || cardRedrawActive }"
+              :disabled="boardDisabled || cardRedrawActive"
+              title="Pass"
+              type="button"
+              @click="pass()"
+            >
+              <span class="pass-btn-text">Pass</span>
+            </button>
+          </div>
+
+          <div class="player-details">
+            <div class="avatar">
               <v-icon
                 v-if="playerIsPassed"
                 animation="float"
                 class="icon pass-icon"
                 fill="white"
                 name="fa-flag"
-                :scale="props.desktop ? 1.8 : 1.2"
+                :scale="props.desktop ? 3 : 2"
               />
               <div
-                class="avatar"
+                v-if="playerLeader"
+                class="flag"
                 :class="{ active: isPlayerTurn }"
+                :title="
+                  playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1)
+                "
                 :style="{ backgroundImage: `url(${playerFlagUrl})` }"
-              ></div>
-              <div class="board-score-badge player">{{ playerTotal }}</div>
-            </div>
-            <div class="details">
-              <div class="name">
-                <div class="title">
-                  <h2>Player</h2>
-                </div>
-                <div class="subtitle">
-                  {{ playerLeader.faction.charAt(0).toUpperCase() + playerLeader.faction.slice(1) }}
+              >
+                <v-icon
+                  v-if="isPlayerTurn"
+                  animation="float"
+                  class="icon turn-icon"
+                  fill="#357bff"
+                  name="fa-map-marker"
+                  :scale="props.desktop ? 1.8 : 1.2"
+                  speed="fast"
+                />
+              </div>
+
+              <div class="avatar-details">
+                <h2 class="title">Player</h2>
+                <div class="round-counter">
+                  <v-icon
+                    v-if="playerHasRound"
+                    class="icon round-icon"
+                    name="oi-star-fill"
+                    :scale="props.desktop ? 1.4 : 0.8"
+                  />
+                  <v-icon
+                    v-else
+                    class="icon round-icon-placeholder"
+                    name="oi-star"
+                    :scale="props.desktop ? 1.4 : 0.8"
+                  />
+                  <v-icon
+                    class="icon round-icon-placeholder"
+                    name="oi-star"
+                    :scale="props.desktop ? 1.4 : 0.8"
+                  />
                 </div>
               </div>
-              <div class="stats">
-                <div class="hand-total" :title="`Player Hand (${playerHandCount})`">
-                  <v-icon class="icon" name="fa-layer-group" :scale="props.desktop ? 2 : 1" />
-                  {{ playerHandCount }}
-                </div>
-                <div
-                  :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
-                  class="discard-pile"
-                  :class="{ disabled: discardPileBtnDisabled }"
-                  role="button"
-                  :title="`Player Discard Pile (${playerDiscardPile.length})`"
-                  @click="discardPileBtnDisabled ? null : discardPileClick(true)"
-                  @keyup.enter="discardPileBtnDisabled ? null : discardPileClick(true)"
-                  @keyup.space="discardPileBtnDisabled ? null : discardPileClick(true)"
-                >
-                  <v-icon class="icon" name="io-skull" :scale="props.desktop ? 2 : 1" />
-                  {{ playerDiscardPile.length }}
-                </div>
+            </div>
+            <div class="stats">
+              <div class="board-score-badge player">{{ playerTotal }}</div>
+
+              <div class="hand-total" :title="`Player Hand (${playerHandCount})`">
+                <v-icon class="icon" name="oi-stack" :scale="props.desktop ? 2 : 1" />
+                {{ playerHandCount }}
+              </div>
+              <div
+                :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
+                class="discard-pile"
+                :class="{ disabled: discardPileBtnDisabled }"
+                role="button"
+                :title="`Player Discard Pile (${playerDiscardPile.length})`"
+                @click="discardPileBtnDisabled ? null : discardPileClick(true)"
+                @keyup.enter="discardPileBtnDisabled ? null : discardPileClick(true)"
+                @keyup.space="discardPileBtnDisabled ? null : discardPileClick(true)"
+              >
+                <v-icon class="icon" name="fa-skull-crossbones" :scale="props.desktop ? 1.7 : 1" />
+                <div class="discard-count">{{ playerDiscardPile.length }}</div>
               </div>
             </div>
           </div>
@@ -1975,74 +1998,81 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <SmallCard v-else :desktop="props.desktop" disabled tabindex="5" />
 
           <div class="opponent-details">
-            <div class="total">
-              <v-icon
-                v-if="!isPlayerTurn"
-                animation="float"
-                class="icon turn-icon"
-                fill="#357bff"
-                name="fa-map-marker"
-                :scale="props.desktop ? 1.8 : 1.2"
-                speed="fast"
-              />
-              <v-icon
-                v-if="opponentHasRound"
-                class="icon round-icon"
-                fill="gold"
-                name="gi-round-star"
-                :scale="props.desktop ? 1.8 : 1.2"
-              />
+            <div class="avatar">
               <v-icon
                 v-if="opponentIsPassed"
                 animation="float"
                 class="icon pass-icon"
                 fill="white"
                 name="fa-flag"
-                :scale="props.desktop ? 1.8 : 1.2"
+                :scale="props.desktop ? 3 : 2"
               />
               <div
                 v-if="opponentLeader"
-                class="avatar"
+                class="flag"
                 :class="{ active: !isPlayerTurn }"
                 :style="{ backgroundImage: `url(${opponentFlagUrl})` }"
-              ></div>
-              <div class="board-score-badge opponent">{{ opponentTotal }}</div>
-            </div>
-            <div v-if="opponentLeader" class="details">
-              <div class="name">
-                <div class="title">
-                  <h2>Opponent</h2>
-                </div>
-                <div class="subtitle">
-                  {{
-                    opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)
-                  }}
+                :title="
+                  opponentLeader.faction.charAt(0).toUpperCase() + opponentLeader.faction.slice(1)
+                "
+              >
+                <v-icon
+                  v-if="!isPlayerTurn"
+                  animation="float"
+                  class="icon turn-icon"
+                  fill="#357bff"
+                  name="fa-map-marker"
+                  :scale="props.desktop ? 1.8 : 1.2"
+                  speed="fast"
+                />
+              </div>
+
+              <div class="avatar-details">
+                <h2 class="title">Opponent</h2>
+                <div class="round-counter">
+                  <v-icon
+                    v-if="opponentHasRound"
+                    class="icon round-icon"
+                    name="oi-star-fill"
+                    :scale="props.desktop ? 1.5 : 0.8"
+                  />
+                  <v-icon
+                    v-else
+                    class="icon round-icon-placeholder"
+                    name="oi-star"
+                    :scale="props.desktop ? 1.5 : 0.8"
+                  />
+                  <v-icon
+                    class="icon round-icon-placeholder"
+                    name="oi-star"
+                    :scale="props.desktop ? 1.5 : 0.8"
+                  />
                 </div>
               </div>
-              <div class="stats">
-                <div class="hand-total" :title="`Opponent Hand (${opponentHandCount})`">
-                  <v-icon class="icon" name="fa-layer-group" :scale="props.desktop ? 2 : 1" />
-                  {{ opponentHandCount }}
-                </div>
-                <div
-                  :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                  class="discard-pile"
-                  :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
-                  role="button"
-                  :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                  @click="
-                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                  "
-                  @keyup.enter="
-                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                  "
-                  @keyup.space="
-                    boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                  "
-                >
-                  <v-icon class="icon" name="io-skull" :scale="props.desktop ? 2 : 1" />
-                  {{ opponentDiscardPile.length }}
-                </div>
+            </div>
+            <div class="stats">
+              <div class="board-score-badge opponent">{{ opponentTotal }}</div>
+
+              <div class="hand-total" :title="`Opponent Hand (${opponentHandCount})`">
+                <v-icon class="icon" name="oi-stack" :scale="props.desktop ? 2 : 1" />
+                {{ opponentHandCount }}
+              </div>
+              <div
+                :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                class="discard-pile"
+                :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
+                role="button"
+                :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                @click="boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()"
+                @keyup.enter="
+                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                "
+                @keyup.space="
+                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
+                "
+              >
+                <v-icon class="icon" name="fa-skull-crossbones" :scale="props.desktop ? 1.7 : 1" />
+                <div class="discard-count">{{ opponentDiscardPile.length }}</div>
               </div>
             </div>
           </div>
@@ -2069,40 +2099,50 @@ function sortCardsHighToLow(a: Card, b: Card) {
               :scale="props.desktop ? 3.8 : 2.5"
             />
 
-            <div class="row-stats">
-              <div class="board-score-badge player">{{ rowTotals.player[i] }}</div>
-              <div v-if="rowFlag.double" class="ability-badge">
-                <v-icon class="icon" :name="rowFlag.doubleIcon" :scale="props.desktop ? 1 : 0.7" />
+            <div class="card-row-wrap">
+              <div class="row-stats">
+                <div class="board-score-badge player">{{ rowTotals.player[i] }}</div>
+                <div v-if="rowFlag.double" class="ability-badge">
+                  <v-icon
+                    class="icon"
+                    :name="rowFlag.doubleIcon"
+                    :scale="props.desktop ? 1 : 0.7"
+                  />
+                </div>
+                <div v-if="rowFlag.weather" class="ability-badge">
+                  <v-icon
+                    class="icon"
+                    :name="rowFlag.weatherIcon"
+                    :scale="props.desktop ? 1 : 0.8"
+                  />
+                </div>
               </div>
-              <div v-if="rowFlag.weather" class="ability-badge">
-                <v-icon class="icon" :name="rowFlag.weatherIcon" :scale="props.desktop ? 1 : 0.8" />
-              </div>
-            </div>
 
-            <div class="card-container">
-              <SmallCard
-                v-for="(card, j) in playerBoardCards[i]"
-                :ability-icon="card.abilityIcon"
-                :active="card.active"
-                :animation-name="card.animationName"
-                :appear-animation="card.appearAnimation"
-                :default-value="card.defaultValue"
-                :desktop="props.desktop"
-                :disabled="boardDisabled"
-                :faction="card.faction"
-                :hero="card.hero"
-                :image-url="card.imageUrl"
-                :key="j"
-                overlap
-                role="button"
-                tabindex="3"
-                :type-icon="card.typeIcon"
-                :value="card.value"
-                :value-increased="card.valueIncreased"
-                @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
-                @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
-                @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
-              />
+              <div class="card-container">
+                <SmallCard
+                  v-for="(card, j) in playerBoardCards[i]"
+                  :ability-icon="card.abilityIcon"
+                  :active="card.active"
+                  :animation-name="card.animationName"
+                  :appear-animation="card.appearAnimation"
+                  :default-value="card.defaultValue"
+                  :desktop="props.desktop"
+                  :disabled="boardDisabled"
+                  :faction="card.faction"
+                  :hero="card.hero"
+                  :image-url="card.imageUrl"
+                  :key="j"
+                  overlap
+                  role="button"
+                  tabindex="3"
+                  :type-icon="card.typeIcon"
+                  :value="card.value"
+                  :value-increased="card.valueIncreased"
+                  @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
+                  @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
+                  @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
+                />
+              </div>
             </div>
           </div>
 

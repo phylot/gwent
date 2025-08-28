@@ -19,7 +19,7 @@ defineProps<{
         <v-icon
           v-if="icon"
           class="icon"
-          :fill="icon === 'gi-round-star' ? 'gold' : null"
+          :fill="icon === 'oi-star-fill' ? '#d89803' : null"
           :name="icon"
         />
       </div>

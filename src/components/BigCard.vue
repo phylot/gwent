@@ -134,6 +134,7 @@ const cardClasses = computed(() => {
   border: 2px solid #000000;
   border-radius: 999px;
   font-size: 18px;
+  line-height: 18px;
   font-weight: bold;
   color: #000000;
   background-color: #ffffff;
@@ -239,6 +240,7 @@ const cardClasses = computed(() => {
     height: 50px;
     margin: 5px 0 0 5px;
     font-size: 30px;
+    line-height: 30px;
   }
 
   .big-card .combat-type-badge {

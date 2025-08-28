@@ -2,12 +2,13 @@
 
 .game-board {
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   min-width: 320px;
   display: flex;
   justify-content: center;
   overflow: auto;
-  background-color: #000000;
+  background-color: #1e1e1e;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -19,7 +20,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #727272;
 }
 
 .board-container {
@@ -33,22 +33,27 @@
   display: flex;
   flex-direction: column-reverse;
   justify-content: end;
-  background: radial-gradient(#f0e4e4, #737373);
 }
 
 .player-board {
   flex: 1 1;
-  background: radial-gradient(#f0e4e4, #737373);
 }
 
 .game-board .board-score-badge {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   text-align: center;
-  font-weight: bold;
-  border: 2px solid #000000;
   border-radius: 999px;
+  border: 2px solid #e4e4e4;
+  background: #d0aa64;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.25) inset;
+  color: #000;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0px 1px 0 #fff,
+    1px 0px 0 #fff, 0px -1px 0 #fff, -1px 0px 0 #fff;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
 }
 
 .game-board .board-score-badge.player {
@@ -66,132 +71,150 @@
   justify-content: center;
   align-items: center;
   height: 70px;
-  background: radial-gradient(#dfdfdf, #bfbfbf);
+  border-top: 2px solid #68401b;
+  color: #ffffff;
+  background: radial-gradient(
+      462.19% 90.25% at 50% 50%,
+      rgba(142, 80, 21, 0.4) 0%,
+      rgba(0, 0, 0, 0) 100%
+    ),
+    rgba(68, 32, 20, 0.75);
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25) inset, 0 -20px 20px 0 rgba(0, 0, 0, 0.1) inset;
 }
 
-.game-details .pass-btn {
+.game-details .pass-btn-wrap {
+  width: 32px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-details .pass-btn-wrap .pass-btn {
+  width: 24px;
+  height: 62px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
-  height: 100%;
+  font-size: 10px;
+  font-weight: 700;
+  background: none;
 }
 
-.game-details .pass-btn span {
+.game-details .pass-btn-wrap .pass-btn .pass-btn-text {
   transform: rotate(-90deg);
 }
 
 .game-details .small-card {
   flex-shrink: 0;
-  margin: 0 5px;
+  margin: 0 10px;
 }
 
 .player-details,
 .opponent-details {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  display: flex;
-}
-
-.player-details {
-  flex-direction: row-reverse;
-}
-
-.game-details .total {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  position: relative;
-}
-
-.game-details .total .icon {
-  position: absolute;
-}
-
-.game-details .total .turn-icon {
-  top: -27px;
-  left: 5px;
-  filter: drop-shadow(1px 0 0 #e8f0ff) drop-shadow(-1px 0 0 #e8f0ff) drop-shadow(0 1px 0 #e8f0ff)
-    drop-shadow(0 -1px 0 #e8f0ff);
-  z-index: 1000;
-}
-
-.game-details .total .round-icon {
-  filter: drop-shadow(1px 0 0 #494000) drop-shadow(-1px 0 0 #494000) drop-shadow(0 1px 0 #494000)
-  drop-shadow(0 -1px 0 #494000);
-}
-
-.game-details .total .pass-icon {
-  filter: drop-shadow(1px 0 0 #404040FF) drop-shadow(-1px 0 0 #404040FF) drop-shadow(0 1px 0 #404040FF)
-  drop-shadow(0 -1px 0 #404040FF);
-}
-
-.game-details .player-details .total .round-icon,
-.game-details .opponent-details .total .pass-icon {
-  top: -5px;
-  left: -5px;
-}
-
-.game-details .player-details .total .pass-icon,
-.game-details .opponent-details .total .round-icon {
-  top: -5px;
-  right: -5px;
+  flex: 1;
+  gap: 4px;
 }
 
 .game-details .avatar {
-  width: 30px;
-  height: 30px;
-  border: 2px solid #ffffff;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.game-details .player-details .avatar {
+  flex-direction: row-reverse;
+  justify-content: end;
+}
+
+.game-details .avatar .avatar-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-details .player-details .avatar .avatar-details {
+  justify-content: end;
+}
+
+.game-details .avatar .title {
+  font-size: 10px;
+  line-height: normal;
+  font-weight: 700;
+}
+
+.game-details .player-details .avatar .title {
+  text-align: right;
+}
+
+.game-details .avatar .round-counter {
+  display: flex;
+}
+
+.game-details .player-details .avatar .round-counter {
+  flex-direction: row-reverse;
+  justify-content: right;
+}
+
+.game-details .round-icon {
+  color: #d89803;
+}
+
+.game-details .round-icon-placeholder {
+  color: #735607;
+}
+
+.game-details .pass-icon {
+  position: absolute;
+  top: -20px;
+  z-index: 1000;
+  filter: drop-shadow(2px 0 0 #111111) drop-shadow(-2px 0 0 #111111) drop-shadow(0 2px 0 #111111)
+    drop-shadow(0 -2px 0 #111111);
+}
+
+.game-details .player-details .pass-icon {
+  right: -12px;
+}
+
+.game-details .opponent-details .pass-icon {
+  left: -12px;
+}
+
+.game-details .flag {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ffffff;
   border-radius: 999px;
+  box-sizing: border-box;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
-  box-shadow: 0 0 0 2px #000000;
 }
 
-.game-details .player-details .avatar.active,
-.game-details .opponent-details .avatar.active {
-  border: 2px solid #ffffff;
+.game-details .player-details .flag.active,
+.game-details .opponent-details .flag.active {
   box-shadow: 0 0 0 3px #357bff;
 }
 
-.game-details .board-score-badge {
-  width: 30px;
-  height: 30px;
-  font-size: 15px;
-}
-
-.game-details .details {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
-}
-
-.game-details .name,
-.game-details .stats {
-  display: flex;
-  height: 30px;
-  padding: 0 5px;
-}
-
-.game-details .name {
-  flex-direction: column;
-  justify-content: center;
-  font-size: 10px;
-}
-
-.game-details .name .title {
-  font-weight: bold;
-}
-
-.game-details .player-details .name {
-  text-align: end;
+.game-details .turn-icon {
+  position: absolute;
+  top: -27px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  filter: drop-shadow(1px 0 0 #e8f0ff) drop-shadow(-1px 0 0 #e8f0ff) drop-shadow(0 1px 0 #e8f0ff)
+  drop-shadow(0 -1px 0 #e8f0ff);
+  z-index: 1000;
 }
 
 .game-details .stats {
+  display: flex;
   align-items: center;
+  gap: 6px;
 }
 
 .game-details .player-details .stats {
@@ -199,8 +222,15 @@
   justify-content: end;
 }
 
-.game-details .stats .hand-total,
-.game-details .stats .discard-pile {
+.game-details .board-score-badge {
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 14px;
+}
+
+.game-details .stats .hand-total {
   display: flex;
   align-items: center;
   width: 35px;
@@ -210,6 +240,15 @@
 }
 
 .game-details .stats .discard-pile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 43px;
+  height: 25px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #ffffff;
+  border-radius: 999px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -217,6 +256,17 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.game-details .stats .discard-pile .discard-count {
+  width: 14px;
+  text-align: center;
+}
+
+.game-details .stats .discard-pile.disabled {
+  color: #666666;
+  border-color: #666666;
+  cursor: not-allowed;
 }
 
 .game-details .player-details .stats .hand-total,
@@ -230,15 +280,25 @@
   display: flex;
   position: relative;
   height: 70px;
-  box-sizing: border-box;
 }
 
-.opponent-board .card-row {
-  border-bottom: 1px solid #5c6166;
+.card-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 32px;
+  right: 0;
+  background-size: 54px;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.player-board .card-row {
-  border-top: 1px solid #5c6166;
+.card-row-wrap {
+  width: 100%;
+  display: flex;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.25) inset, 0 -15px 15px 0 rgba(0, 0, 0, 0.25) inset;
+  z-index: 1;
 }
 
 .card-row.highlight {
@@ -250,10 +310,20 @@
 .card-row.row-select {
   z-index: 3000;
   position: relative;
-  border: 1px solid chartreuse;
   animation: pulse 1s infinite;
   cursor: pointer;
-  background-color: #b2afaf;
+}
+
+.card-row.row-select .card-row-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 2px solid chartreuse;
+  box-sizing: border-box;
+  z-index: 1;
 }
 
 .icon.row-select {
@@ -269,23 +339,23 @@
 }
 
 .row-stats {
-  flex: 0 30px;
+  width: 30px;
+  padding: 2px 0 0;
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
+  flex-shrink: 0;
+  gap: 2px;
+  border-right: 2px solid #935c26;
 }
 
 .row-stats .board-score-badge {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
   font-size: 13px;
-  border: 2px solid #000000;
-  border-radius: 999px;
+  line-height: 13px;
 }
 
 .row-stats .ability-badge {
@@ -301,30 +371,128 @@
 }
 
 .card-container {
+  position: relative;
   width: 100%;
   min-width: 0;
   display: flex;
   justify-content: center;
-  background-position: center;
-  background-size: 30px;
-  background-repeat: no-repeat;
 }
 
-.card-row.card-row1 .card-container {
-  background-image: url('./images/broadsword.svg');
+.card-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  mask-position: center;
+  mask-size: 26px;
+  mask-repeat: no-repeat;
 }
 
-.card-row.card-row2 .card-container {
-  background-image: url('./images/crossbow.svg');
+.player-board .card-row.card-row1 {
+  border-top: 2px solid #70441a;
+  background: linear-gradient(#70441a, #78481a);
 }
 
-.card-row.card-row3 .card-container {
-  background-image: url('./images/catapult.svg');
+.player-board .card-row.card-row1::before {
+  background-image: radial-gradient(circle, #7a491c 0%, #7a491c 60%, transparent 60%);
+}
+
+.player-board .card-row.card-row1 .card-container::before {
+  background-color: #68381a;
+  mask-image: url('./images/broadsword.svg');
+}
+
+.player-board .card-row.card-row2 {
+  border-top: 2px solid #78481a;
+  background: linear-gradient(#78481a, #7f4c1a);
+}
+
+.player-board .card-row.card-row2::before {
+  background-image: radial-gradient(circle, #814c1a 0%, #814c1a 60%, transparent 60%);
+}
+
+.player-board .card-row.card-row2 .card-container::before {
+  background-color: #6e3a1b;
+  mask-image: url('/src/assets/images/crossbow.svg');
+}
+
+.player-board .card-row.card-row3 {
+  border-top: 2px solid #7f4c1a;
+  background: linear-gradient(#7f4c1a, #864f1a);
+}
+
+.player-board .card-row.card-row3::before {
+  background-image: radial-gradient(circle, #89501b 0%, #89501b 60%, transparent 60%);
+}
+
+.player-board .card-row.card-row3 .card-container::before {
+  background-color: #77401f;
+  mask-image: url('./images/catapult.svg');
+}
+
+.opponent-board .card-row.card-row1 {
+  border-top: 2px solid #623d1b;
+  background: linear-gradient(#623d1b, #68401b);
+}
+
+.opponent-board .card-row.card-row1::before {
+  background-image: radial-gradient(circle, #69411c 0%, #69411c 60%, transparent 60%);
+}
+
+.opponent-board .card-row.card-row1 .card-container::before {
+  background-color: #5c3117;
+  mask-image: url('./images/broadsword.svg');
+}
+
+.opponent-board .card-row.card-row2 {
+  border-top: 2px solid #59381a;
+  background: linear-gradient(#59381a, #613c1b);
+}
+
+.opponent-board .card-row.card-row2::before {
+  background-image: radial-gradient(circle, #623d1b 0%, #623d1b 60%, transparent 60%);
+}
+
+.opponent-board .card-row.card-row2 .card-container::before {
+  background-color: #582e14;
+  mask-image: url('/src/assets/images/crossbow.svg');
+}
+
+.opponent-board .card-row.card-row3 {
+  border-top: 2px solid #38271a;
+  background: linear-gradient(#38271a, #5a391b);
+}
+
+.opponent-board .card-row.card-row3::before {
+  background-image: radial-gradient(circle, #55371c 0%, #55371c 60%, transparent 60%);
+}
+
+.opponent-board .card-row.card-row3 .card-container::before {
+  background-color: #4e2913;
+  mask-image: url('./images/catapult.svg');
 }
 
 .player-hand {
+  min-height: 70px;
   justify-content: center;
-  background-color: #bfbfbf;
+  border: 2px solid #c68a19;
+  border-radius: 4px;
+  box-shadow: 0 -20px 30px 0 rgba(0, 0, 0, 0.25) inset;
+
+  --hand-bg-size: 11px;
+  --hand-bg-color-1: #492b10;
+  --hand-bg-color-2: #442014;
+  --hand-bg-gradient: #0000 83%, var(--hand-bg-color-1) 85% 99%, #0000 101%;
+  background: radial-gradient(27% 29% at right, var(--hand-bg-gradient))
+      calc(var(--hand-bg-size) / 2) var(--hand-bg-size),
+    radial-gradient(27% 29% at left, var(--hand-bg-gradient)) calc(var(--hand-bg-size) / -2)
+      var(--hand-bg-size),
+    radial-gradient(29% 27% at top, var(--hand-bg-gradient)) 0 calc(var(--hand-bg-size) / 2),
+    radial-gradient(29% 27% at bottom, var(--hand-bg-gradient)) 0 calc(var(--hand-bg-size) / -2)
+      var(--hand-bg-color-2);
+  background-size: calc(2 * var(--hand-bg-size)) calc(2 * var(--hand-bg-size));
 }
 
 /* Post-match Stats */
@@ -356,16 +524,17 @@
   font-weight: bold;
 }
 
-.match-stats .round-total .icon {
+.match-stats .round-total .round-icon {
   position: absolute;
   top: -2px;
+  color: #d89803;
 }
 
-.match-stats.player .round-total .icon {
+.match-stats.player .round-total .round-icon {
   left: -25px;
 }
 
-.match-stats.opponent .round-total .icon {
+.match-stats.opponent .round-total .round-icon {
   right: -25px;
 }
 
@@ -376,7 +545,7 @@
 /* Card Modal */
 
 .game-board .card-modal {
-  bottom: 70px;
+  bottom: 74px;
 }
 
 /* Pause Menu Button */
@@ -388,6 +557,18 @@
   right: 5px;
   border: none;
   background-color: rgb(0, 0, 0, 0.5);
+}
+
+/* Narrow Mobile Screen Styles */
+
+@media (max-width: 359px) and (orientation: portrait) {
+  .game-details .stats {
+    gap: 2px;
+  }
+
+  .game-details .small-card {
+    margin: 5px;
+  }
 }
 
 /* Desktop Styles */
@@ -405,9 +586,19 @@
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   /* Board Layout (Desktop / Tablet) */
 
+  .game-board .board-score-badge {
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0px 2px 0 #fff,
+      2px 0px 0 #fff, 0px -2px 0 #fff, -2px 0px 0 #fff;
+  }
+
   .game-details,
   .card-row {
     height: 110px;
+  }
+
+  .card-row::before {
+    left: 57px;
+    background-size: 90px;
   }
 
   .icon.row-select {
@@ -416,18 +607,20 @@
     left: 80px;
   }
 
-  .card-container {
-    background-size: 50px;
+  .card-container::before {
+    mask-size: 40px;
   }
 
   .row-stats {
-    flex: 0 55px;
+    width: 55px;
+    padding: 4px 0 0;
   }
 
   .row-stats .board-score-badge {
     width: 35px;
     height: 35px;
     font-size: 20px;
+    line-height: 20px;
   }
 
   .row-stats .ability-badge {
@@ -439,81 +632,84 @@
 
   /* Central Game Stats (Desktop / Tablet) */
 
-  .game-details .pass-btn {
-    width: 55px;
+  .game-details .pass-btn-wrap {
+    width: 57px;
   }
 
-  .player-details {
-    padding-right: 20px;
-    gap: 5px;
-  }
-
-  .opponent-details {
-    padding-left: 20px;
-    gap: 5px;
-  }
-
-  .game-details .total .turn-icon {
-    top: -45px;
-    left: 9px;
-  }
-
-  .game-details .player-details .total .round-icon,
-  .game-details .opponent-details .total .pass-icon {
-    top: -8px;
-    left: -8px;
-  }
-
-  .game-details .player-details .total .pass-icon,
-  .game-details .opponent-details .total .round-icon {
-    top: -8px;
-    right: -8px;
-  }
-
-  .game-details .avatar {
-    width: 50px;
-    height: 50px;
-  }
-
-  .game-details .player-details .avatar.active,
-  .game-details .opponent-details .avatar.active {
-    box-shadow: 0 0 0 7px #357bff;
-  }
-
-  .game-details .board-score-badge {
-    width: 50px;
-    height: 50px;
-    margin-top: -8px;
-    font-size: 24px;
-  }
-
-  .game-details .name,
-  .game-details .stats {
-    height: 50px;
-    padding: 0 10px;
-  }
-
-  .game-details .name {
+  .game-details .pass-btn-wrap .pass-btn {
+    width: 42px;
+    height: 94px;
+    border-width: 2px;
     font-size: 16px;
   }
 
-  .game-details .stats .hand-total,
-  .game-details .stats .discard-pile {
+  .player-details,
+  .opponent-details {
+    gap: 5px;
+  }
+
+  .game-details .avatar {
+    gap: 10px;
+  }
+
+  .game-details .avatar .title {
+    font-size: 17px;
+  }
+
+  .game-details .turn-icon {
+    top: -45px;
+  }
+
+  .game-details .pass-icon {
+    top: -30px;
+    filter: drop-shadow(3px 0 0 #111111) drop-shadow(-3px 0 0 #111111) drop-shadow(0 3px 0 #111111)
+      drop-shadow(0 -3px 0 #111111);
+  }
+
+  .game-details .opponent-details .pass-icon {
+    left: -17px;
+  }
+
+  .game-details .player-details .pass-icon {
+    right: -17px;
+  }
+
+  .game-details .flag {
+    width: 45px;
+    height: 45px;
+  }
+
+  .game-details .player-details .flag.active,
+  .game-details .opponent-details .flag.active {
+    box-shadow: 0 0 0 5px #357bff;
+  }
+
+  .game-details .stats {
+    gap: 10px;
+  }
+
+  .game-details .board-score-badge {
+    width: 45px;
+    height: 45px;
+    font-size: 24px;
+    line-height: 24px;
+  }
+
+  .game-details .stats .hand-total {
     height: 40px;
-    width: 70px;
+    width: 65px;
     font-size: 20px;
   }
 
-  .game-details .stats .discard-pile.disabled {
-    cursor: not-allowed;
+  .game-details .stats .discard-pile {
+    height: 40px;
+    width: 75px;
+    font-size: 20px;
+    border-width: 2px;
   }
 
-  .game-details .player-details .stats .icon {
-    margin-left: 2px;
-  }
-
-  .game-details .opponent-details .stats .icon {
-    margin-right: 2px;
+  .game-details .stats .discard-pile .discard-count {
+    width: 25px;
   }
 
   /* Post-match Stats (Desktop / Tablet) */
@@ -530,21 +726,9 @@
     height: 30px;
   }
 
-  .match-stats .round-total .icon {
-    top: -4px;
-  }
-
-  .match-stats.player .round-total .icon {
-    left: -40px;
-  }
-
-  .match-stats.opponent .round-total .icon {
-    right: -40px;
-  }
-
   /* Card Modal (Desktop / Tablet) */
 
   .game-board .card-modal {
-    bottom: 110px;
+    bottom: 114px;
   }
 }
