@@ -14,15 +14,15 @@ body {
 
 /* Make all image assets immediately available in DOM (prevents additional image network call on card render) */
 html {
-  background-image: url('./images/br-anne-camoynes.png'), url('./images/br-berry.jpg'),
+  background-image: url('./images/br-camoynes.png'), url('./images/br-berry.png'),
     url('./images/br-cannon.jpg'), url('./images/br-cavalry.jpg'), url('./images/br-drummer.jpg'),
-    url('./images/br-footguard.jpg'), url('./images/br-fredrickson.jpg'),
-    url('./images/br-frigate.jpg'), url('./images/br-hagman.jpg'), url('./images/br-hakeswill.jpg'),
-    url('./images/br-harper.jpg'), url('./images/br-harris.jpg'), url('./images/br-hogan.jpg'),
+    url('./images/br-footguard.jpg'), url('./images/br-fredrickson.png'),
+    url('./images/br-frigate.jpg'), url('./images/br-hagman.png'), url('./images/br-hakeswill.png'),
+    url('./images/br-harper.png'), url('./images/br-harris.png'), url('./images/br-hogan.jpg'),
     url('./images/br-infantry.jpg'), url('./images/br-leroy.png'), url('./images/br-moreno.jpg'),
     url('./images/br-nairn.jpg'), url('./images/br-price.jpg'), url('./images/br-pyecroft.jpg'),
     url('./images/br-rifle.jpg'), url('./images/br-rossendale.jpg'), url('./images/br-schooner.jpg'),
-    url('./images/br-sergent.jpg'), url('./images/br-sharpe.jpg'),
+    url('./images/br-sergent.jpg'), url('./images/br-sharpe.png'),
     url('./images/br-shipoftheline.jpg'), url('./images/br-simmerson.png'),
     url('./images/br-victory.jpg'), url('./images/br-wellington.jpg'),
     url('./images/british-flag.png'), url('./images/fr-brand.jpg'), url('./images/fr-brig.jpg'),

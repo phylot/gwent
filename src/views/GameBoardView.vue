@@ -7,11 +7,11 @@ import { defaultAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
 import AwardBadge from './../components/AwardBadge.vue'
 import CardCarousel from './../components/CardCarousel.vue'
-import CardCarouselModal from '../components/CardCarouselModal.vue'
-import CardPreview from '../components/CardPreview.vue'
+import CardModal from './../components/CardModal.vue'
+import CardPreview from './../components/CardPreview.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 import StandardModal from './../components/StandardModal.vue'
-import SmallCard from '../components/SmallCard.vue'
+import SmallCard from './../components/SmallCard.vue'
 
 // PROPS
 
@@ -1790,14 +1790,15 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :player="cardPreviewIsPlayer"
         ></CardPreview>
 
-        <CardCarouselModal v-model="cardModal" class="quick-fade">
+        <CardModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
-            <v-icon
-              v-if="cardModalIcon"
-              class="icon"
-              :name="cardModalIcon"
-              :scale="props.desktop ? 2.2 : 1.3"
-            />
+            <div class="combat-type-badge">
+              <v-icon
+                :name="cardModalIcon"
+                class="icon"
+                :scale="desktop ? 1.5 : 0.8"
+              />
+            </div>
             <h2>{{ cardModalTitle }}</h2>
           </template>
 
@@ -1829,7 +1830,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           >
             {{ cardModalCancelText }}
           </button>
-        </CardCarouselModal>
+        </CardModal>
 
         <div class="opponent-board">
           <div

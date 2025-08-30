@@ -169,7 +169,7 @@
 .game-details .pass-icon {
   position: absolute;
   top: -20px;
-  z-index: 1000;
+  z-index: 1500;
   filter: drop-shadow(2px 0 0 #111111) drop-shadow(-2px 0 0 #111111) drop-shadow(0 2px 0 #111111)
     drop-shadow(0 -2px 0 #111111);
 }
@@ -207,7 +207,7 @@
   margin-inline: auto;
   width: fit-content;
   filter: drop-shadow(1px 0 0 #e8f0ff) drop-shadow(-1px 0 0 #e8f0ff) drop-shadow(0 1px 0 #e8f0ff)
-  drop-shadow(0 -1px 0 #e8f0ff);
+    drop-shadow(0 -1px 0 #e8f0ff);
   z-index: 1000;
 }
 
@@ -475,12 +475,12 @@
 }
 
 .player-hand {
+  z-index: 4000;
   min-height: 70px;
   justify-content: center;
   border: 2px solid #c68a19;
   border-radius: 4px;
   box-shadow: 0 -20px 30px 0 rgba(0, 0, 0, 0.25) inset;
-
   --hand-bg-size: 11px;
   --hand-bg-color-1: #492b10;
   --hand-bg-color-2: #442014;
@@ -526,7 +526,7 @@
 
 .match-stats .round-total .round-icon {
   position: absolute;
-  top: -2px;
+  top: -1px;
   color: #d89803;
 }
 
@@ -546,6 +546,18 @@
 
 .game-board .card-modal {
   bottom: 74px;
+}
+
+.game-board .card-modal .card-modal-header .combat-type-badge {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #775022;
+  border-radius: 999px;
+  color: #000000;
+  background-color: #c9883a;
 }
 
 /* Pause Menu Button */
@@ -649,7 +661,7 @@
   }
 
   .game-details .avatar {
-    gap: 10px;
+    gap: 12px;
   }
 
   .game-details .avatar .title {
@@ -685,7 +697,7 @@
   }
 
   .game-details .stats {
-    gap: 10px;
+    gap: 12px;
   }
 
   .game-details .board-score-badge {
@@ -726,9 +738,26 @@
     height: 30px;
   }
 
+  .match-stats .round-total .round-icon {
+    top: -3px;
+  }
+
+  .match-stats.player .round-total .round-icon {
+    left: -37px;
+  }
+
+  .match-stats.opponent .round-total .round-icon {
+    right: -37px;
+  }
+
   /* Card Modal (Desktop / Tablet) */
 
   .game-board .card-modal {
     bottom: 114px;
+  }
+
+  .game-board .card-modal .card-modal-header .combat-type-badge {
+    width: 40px;
+    height: 40px;
   }
 }

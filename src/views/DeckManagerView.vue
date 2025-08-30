@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { type Card, type CardCollection } from '@/types'
 import CardCarousel from './../components/CardCarousel.vue'
-import CardCarouselModal from '../components/CardCarouselModal.vue'
+import CardModal from '../components/CardModal.vue'
 import SmallCard from '../components/SmallCard.vue'
 
 const props = defineProps<{
@@ -301,12 +301,12 @@ function capitaliseString(string: string) {
 <template>
   <div class="deck-manager">
     <div class="deck-manager-container">
-      <CardCarouselModal v-model="cardModal" class="quick-fade">
+      <CardModal v-model="cardModal" class="quick-fade">
         <template v-slot:header>
           <div class="combat-type-badge">
             <v-icon
-              :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
               class="icon"
+              :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
               :scale="desktop ? 1.5 : 0.8"
             />
           </div>
@@ -338,7 +338,7 @@ function capitaliseString(string: string) {
         >
           Close
         </button>
-      </CardCarouselModal>
+      </CardModal>
 
       <div class="deck-manager-header">
         <div class="header-container">
