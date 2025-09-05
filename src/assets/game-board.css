@@ -73,13 +73,19 @@
   height: 70px;
   border-top: 2px solid #68401b;
   color: #ffffff;
-  background: radial-gradient(
-      462.19% 90.25% at 50% 50%,
-      rgba(142, 80, 21, 0.4) 0%,
-      rgba(0, 0, 0, 0) 100%
-    ),
-    rgba(68, 32, 20, 0.75);
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25) inset, 0 -20px 20px 0 rgba(0, 0, 0, 0.1) inset;
+  --details-bg-size: 11px;
+  --details-bg-color-1: #492b10;
+  --details-bg-color-2: #442014;
+  --details-bg-gradient: #0000 83%, var(--details-bg-color-1) 85% 99%, #0000 101%;
+  background: radial-gradient(27% 29% at right, var(--details-bg-gradient))
+  calc(var(--details-bg-size) / 2) var(--details-bg-size),
+  radial-gradient(27% 29% at left, var(--details-bg-gradient)) calc(var(--details-bg-size) / -2)
+  var(--details-bg-size),
+  radial-gradient(29% 27% at top, var(--details-bg-gradient)) 0 calc(var(--details-bg-size) / 2),
+  radial-gradient(29% 27% at bottom, var(--details-bg-gradient)) 0 calc(var(--details-bg-size) / -2)
+  var(--details-bg-color-2);
+  background-size: calc(2 * var(--details-bg-size)) calc(2 * var(--details-bg-size));
 }
 
 .game-details .pass-btn-wrap {
@@ -297,18 +303,25 @@
 .card-row-wrap {
   width: 100%;
   display: flex;
+}
+
+.card-row-wrap::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.25) inset, 0 -15px 15px 0 rgba(0, 0, 0, 0.25) inset;
-  z-index: 1;
 }
 
 .card-row.highlight {
-  z-index: 3000;
+  z-index: 5000;
   position: relative;
-  background-color: #b2afaf;
 }
 
 .card-row.row-select {
-  z-index: 3000;
+  z-index: 5000;
   position: relative;
   animation: pulse 1s infinite;
   cursor: pointer;
@@ -481,18 +494,12 @@
   border: 2px solid #c68a19;
   border-radius: 4px;
   box-shadow: 0 -20px 30px 0 rgba(0, 0, 0, 0.25) inset;
-  --hand-bg-size: 11px;
-  --hand-bg-color-1: #492b10;
-  --hand-bg-color-2: #442014;
-  --hand-bg-gradient: #0000 83%, var(--hand-bg-color-1) 85% 99%, #0000 101%;
-  background: radial-gradient(27% 29% at right, var(--hand-bg-gradient))
-      calc(var(--hand-bg-size) / 2) var(--hand-bg-size),
-    radial-gradient(27% 29% at left, var(--hand-bg-gradient)) calc(var(--hand-bg-size) / -2)
-      var(--hand-bg-size),
-    radial-gradient(29% 27% at top, var(--hand-bg-gradient)) 0 calc(var(--hand-bg-size) / 2),
-    radial-gradient(29% 27% at bottom, var(--hand-bg-gradient)) 0 calc(var(--hand-bg-size) / -2)
-      var(--hand-bg-color-2);
-  background-size: calc(2 * var(--hand-bg-size)) calc(2 * var(--hand-bg-size));
+  background: radial-gradient(
+      462.19% 90.25% at 50% 50%,
+      rgba(142, 80, 21, 0.4) 0%,
+      rgba(0, 0, 0, 0) 100%
+    ),
+    rgba(68, 32, 20, 0.75);
 }
 
 /* Post-match Stats */
@@ -548,16 +555,28 @@
   bottom: 74px;
 }
 
+.game-board .card-modal .card-modal-header .card-modal-header-icon {
+  width: 30px;
+  height: 30px;
+}
+
 .game-board .card-modal .card-modal-header .combat-type-badge {
-  width: 25px;
-  height: 25px;
+  width: 32px;
+  height: 32px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #775022;
+  border: 1px solid #92631e;
   border-radius: 999px;
+  box-sizing: border-box;
   color: #000000;
-  background-color: #c9883a;
+  background: radial-gradient(50% 50% at 50% 50%, #f3c135 0%, #dd8511 100%);
+}
+
+.game-board .card-modal .card-modal-header .combat-type-badge .icon {
+  width: 22px;
+  height: 22px;
 }
 
 /* Pause Menu Button */
@@ -756,8 +775,19 @@
     bottom: 114px;
   }
 
+  .game-board .card-modal .card-modal-header .card-modal-header-icon {
+    width: 48px;
+    height: 48px;
+  }
+
   .game-board .card-modal .card-modal-header .combat-type-badge {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+
+  .game-board .card-modal .card-modal-header .combat-type-badge .icon {
+    width: 34px;
+    height: 34px;
   }
 }

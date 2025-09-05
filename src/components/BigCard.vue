@@ -53,10 +53,10 @@ const cardClasses = computed(() => {
               {{ value }}
             </div>
             <div v-if="abilityIcon" class="card-ability-badge">
-              <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 2 : 1.2" />
+              <v-icon :name="abilityIcon" class="icon" />
             </div>
             <div v-if="typeIcon" class="combat-type-badge">
-              <v-icon :name="typeIcon" class="icon" :scale="desktop ? 2 : 1.2" />
+              <v-icon :name="typeIcon" class="icon" />
             </div>
           </template>
         </div>
@@ -100,21 +100,26 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card-border.british {
-  background: linear-gradient(#e0452b, #bc1708);
+  background: linear-gradient(#c41a0a, #560b04);
 }
 
 .big-card .card-border.french {
-  background: linear-gradient(#1d7eca, #0a66ae);
+  background: linear-gradient(#1d7eca, #032d4f);
 }
 
 .big-card .card-border.hero {
-  background: linear-gradient(#d98c0e, #a86c0b);
+  background: linear-gradient(#d98c0e, #533503);
 }
 
 .big-card .card {
   position: relative;
   width: 100%;
   height: 100%;
+  padding: 5px 5px 8px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   border-radius: 1px;
   border: 1px solid #000000;
   box-sizing: border-box;
@@ -125,71 +130,77 @@ const cardClasses = computed(() => {
 }
 
 .big-card .card-value-badge {
-  width: 30px;
-  height: 30px;
-  margin: 2px 0 0 2px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   border-radius: 999px;
+  box-sizing: border-box;
   font-size: 18px;
   line-height: 18px;
-  font-weight: bold;
+  font-weight: 600;
   color: #000000;
   background-color: #ffffff;
-}
-
-.big-card .card.increased .card-value-badge,
-.big-card .card.decreased .card-value-badge {
-  border-color: #ffffff;
-  font-weight: bold;
-  color: #ffffff;
+  box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.25) inset;
 }
 
 .big-card .card.increased .card-value-badge {
-  background-color: #24871a;
+  color: #ffffff;
+  border-color: #1fb854;
+  background-color: #1a9f48;
 }
 
 .big-card .card.decreased .card-value-badge {
-  background-color: #e51715;
+  color: #ffffff;
+  border-color: #d92121;
+  background-color: #9f1a1a;
 }
 
 .big-card .card.hero .card-value-badge {
-  border-style: dotted;
-  border-color: #f9a825;
+  border-color: #be7500;
   color: #f9a825;
-  background-color: #000000;
+  background: linear-gradient(180deg, #000 0%, #404040 100%);
+  box-shadow: none;
 }
 
 .big-card .card-ability-badge {
-  width: 30px;
-  height: 30px;
-  margin: 2px 0 0 2px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ffffff;
+  border: 1px solid #e4e4e4;
   border-radius: 999px;
-  font-size: 18px;
-  font-weight: bold;
+  box-sizing: border-box;
   color: #ffffff;
-  background-color: #000000;
+  background: linear-gradient(180deg, #000 0%, #404040 100%);
+}
+
+.big-card .card-ability-badge .icon {
+  width: 22px;
+  height: 22px;
 }
 
 .big-card .combat-type-badge {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  bottom: 4px;
-  right: 2px;
+  width: 32px;
+  height: 32px;
+  margin-top: auto;
   display: flex;
+  align-self: end;
   align-items: center;
   justify-content: center;
-  border: 2px solid #775022;
+  border: 1px solid #92631e;
   border-radius: 999px;
+  box-sizing: border-box;
   color: #000000;
-  background-color: #c9883a;
+  background: radial-gradient(50% 50% at 50% 50%, #f3c135 0%, #dd8511 100%);
+}
+
+.big-card .combat-type-badge .icon {
+  width: 22px;
+  height: 22px;
 }
 
 .big-card .big-card-details {
@@ -230,24 +241,41 @@ const cardClasses = computed(() => {
   }
 
   .big-card .card {
+    padding: 8px 8px 12px 8px;
+    gap: 5px;
     border: 2px solid #000000;
     border-radius: 2px;
   }
 
-  .big-card .card-value-badge,
+  .big-card .card-value-badge {
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+    font-size: 30px;
+    line-height: 30px;
+    box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.25) inset;
+  }
+
   .big-card .card-ability-badge {
     width: 50px;
     height: 50px;
-    margin: 5px 0 0 5px;
-    font-size: 30px;
-    line-height: 30px;
+    border-width: 2px;
+  }
+
+  .big-card .card-ability-badge .icon {
+    width: 34px;
+    height: 34px;
   }
 
   .big-card .combat-type-badge {
-    bottom: 10px;
-    right: 5px;
     width: 50px;
     height: 50px;
+    border-width: 2px;
+  }
+
+  .big-card .combat-type-badge .icon {
+    width: 34px;
+    height: 34px;
   }
 
   .big-card .big-card-details {

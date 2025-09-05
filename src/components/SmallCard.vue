@@ -55,24 +55,21 @@ const cardClasses = computed(() => {
       <div
         class="card"
         :class="cardClasses"
-        :style="{
-          backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none',
-          backgroundColor: props.imageUrl ? '#000000' : 'transparent'
-        }"
+        :style="{ backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'radial-gradient(#56291a, #442014)' }"
       >
         <template v-if="props.imageUrl">
           <div v-if="defaultValue || defaultValue === 0" class="card-value-badge">
             {{ value }}
           </div>
           <div v-if="abilityIcon" class="card-ability-badge">
-            <v-icon :name="abilityIcon" class="icon" :scale="desktop ? 1 : 0.8" />
+            <v-icon :name="abilityIcon" class="icon" />
           </div>
           <div v-if="typeIcon" class="combat-type-badge">
-            <v-icon :name="typeIcon" class="icon" :scale="desktop ? 1 : 0.8" />
+            <v-icon :name="typeIcon" class="icon" />
           </div>
         </template>
         <div v-else class="placeholder-content">
-          <v-icon name="gi-sunflower" class="icon" :scale="desktop ? 2 : 1.2" />
+          <v-icon name="gi-sunflower" class="icon" />
         </div>
       </div>
     </div>
@@ -126,6 +123,11 @@ const cardClasses = computed(() => {
   position: relative;
   width: 100%;
   height: 100%;
+  padding: 1px 1px 3px 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   border-radius: 4px;
   border: 1px solid #000000;
   box-sizing: border-box;
@@ -136,54 +138,57 @@ const cardClasses = computed(() => {
 }
 
 .small-card .card-value-badge {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #000000;
+  border: 1px solid #191919;
   border-radius: 999px;
+  box-sizing: border-box;
   font-size: 12px;
   line-height: 12px;
-  font-weight: bold;
+  font-weight: 600;
   color: #000000;
   background-color: #ffffff;
-}
-
-.small-card .card.increased .card-value-badge,
-.small-card .card.decreased .card-value-badge {
-  border-color: #ffffff;
-  font-weight: bold;
-  color: #ffffff;
+  box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.25) inset;
 }
 
 .small-card .card.increased .card-value-badge {
-  background-color: #24871a;
+  color: #ffffff;
+  border-color: #1fb854;
+  background-color: #1a9f48;
 }
 
 .small-card .card.decreased .card-value-badge {
-  background-color: #e51715;
+  color: #ffffff;
+  border-color: #d92121;
+  background-color: #9f1a1a;
 }
 
 .small-card .card.hero .card-value-badge {
-  border-style: dotted;
-  border-color: #f9a825;
+  border-color: #be7500;
   color: #f9a825;
-  background-color: #000000;
+  background: linear-gradient(180deg, #000 0%, #404040 100%);
+  box-shadow: none;
 }
 
 .small-card .card-ability-badge {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ffffff;
+  border: 1px solid #e4e4e4;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: bold;
+  box-sizing: border-box;
   color: #ffffff;
-  background-color: #000000;
+  background: linear-gradient(180deg, #000 0%, #404040 100%);
+}
+
+.small-card .card-ability-badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .small-card.value-increased .card-value-badge {
@@ -191,18 +196,23 @@ const cardClasses = computed(() => {
 }
 
 .small-card .combat-type-badge {
-  position: absolute;
-  right: 0;
-  width: 18px;
-  height: 18px;
-  bottom: 2px;
+  width: 20px;
+  height: 20px;
+  margin-top: auto;
   display: flex;
+  align-self: end;
   align-items: center;
   justify-content: center;
-  border: 2px solid #775022;
+  border: 1px solid #92631e;
   border-radius: 999px;
+  box-sizing: border-box;
   color: #000000;
-  background-color: #c9883a;
+  background: radial-gradient(50% 50% at 50% 50%, #f3c135 0%, #dd8511 100%);
+}
+
+.small-card .combat-type-badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .small-card.appear-animation {
@@ -210,7 +220,7 @@ const cardClasses = computed(() => {
   animation-delay: 0s, 0s, 0.3s;
   animation-duration: 0.2s, 0.2s, 0.1s;
   animation-iteration-count: 1, 1, 3;
-  z-index: 5000;
+  z-index: 6000;
 }
 
 @keyframes reduce-scale {
@@ -240,6 +250,8 @@ const cardClasses = computed(() => {
 }
 
 .small-card.placeholder .placeholder-content .icon {
+  width: 23px;
+  height: 23px;
   color: #7c4a1a;
 }
 
@@ -252,21 +264,45 @@ const cardClasses = computed(() => {
   }
 
   .small-card .card-wrap {
-    width: 90px;
+    width: 84px;
   }
 
-  .small-card .card-value-badge,
-  .small-card .card-ability-badge {
-    width: 26px;
-    height: 26px;
+  .small-card .card {
+    padding: 2px 2px 5px 2px;
+    gap: 3px;
+  }
+
+  .small-card .card-value-badge {
+    width: 28px;
+    height: 28px;
     font-size: 16px;
     line-height: 16px;
+    box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
+  }
+
+  .small-card .card-ability-badge {
+    width: 28px;
+    height: 28px;
+  }
+
+  .small-card .card-ability-badge .icon {
+    width: 20px;
+    height: 20px;
   }
 
   .small-card .combat-type-badge {
-    width: 26px;
-    height: 26px;
-    bottom: 3px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .small-card .combat-type-badge .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .small-card.placeholder .placeholder-content .icon {
+    width: 39px;
+    height: 39px;
   }
 }
 </style>

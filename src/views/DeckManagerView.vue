@@ -307,7 +307,6 @@ function capitaliseString(string: string) {
             <v-icon
               class="icon"
               :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
-              :scale="desktop ? 1.5 : 0.8"
             />
           </div>
           <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
@@ -421,7 +420,6 @@ function capitaliseString(string: string) {
                       <v-icon
                         class="icon"
                         :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                        :scale="desktop ? 1.2 : 0.9"
                       />
                     </div>
                     <h3>
@@ -504,7 +502,6 @@ function capitaliseString(string: string) {
                         <v-icon
                           class="icon"
                           :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                          :scale="desktop ? 1.2 : 0.9"
                         />
                       </div>
                       <h3>
@@ -849,16 +846,6 @@ function capitaliseString(string: string) {
   padding: 30px;
 }
 
-.deck-manager .combat-type-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #775022;
-  border-radius: 999px;
-  color: #000000;
-  background-color: #c9883a;
-}
-
 .deck-manager .deck-manager-type-heading {
   display: flex;
   align-items: center;
@@ -866,8 +853,23 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-type-heading .combat-type-badge {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
+  margin-top: auto;
+  display: flex;
+  align-self: end;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #92631e;
+  border-radius: 999px;
+  box-sizing: border-box;
+  color: #000000;
+  background: radial-gradient(50% 50% at 50% 50%, #f3c135 0%, #dd8511 100%);
+}
+
+.deck-manager .deck-manager-type-heading .combat-type-badge .icon {
+  width: 14px;
+  height: 14px;
 }
 
 .deck-manager .deck-manager-card-row {
@@ -919,8 +921,23 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .card-modal .card-modal-header .combat-type-badge {
-  width: 25px;
-  height: 25px;
+  width: 32px;
+  height: 32px;
+  margin-top: auto;
+  display: flex;
+  align-self: end;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #92631e;
+  border-radius: 999px;
+  box-sizing: border-box;
+  color: #000000;
+  background: radial-gradient(50% 50% at 50% 50%, #f3c135 0%, #dd8511 100%);
+}
+
+.deck-manager .card-modal .card-modal-header .combat-type-badge .icon {
+  width: 22px;
+  height: 22px;
 }
 
 /* Narrow Mobile Screen Styles */
@@ -1061,8 +1078,13 @@ function capitaliseString(string: string) {
   }
 
   .deck-manager .deck-manager-type-heading .combat-type-badge {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .deck-manager .deck-manager-type-heading .combat-type-badge .icon {
+    width: 20px;
+    height: 20px;
   }
 
   /*.deck-manager .deck-manager-leader {
@@ -1077,8 +1099,14 @@ function capitaliseString(string: string) {
   }*/
 
   .deck-manager .card-modal .card-modal-header .combat-type-badge {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
+    border-width: 2px;
+  }
+
+  .deck-manager .card-modal .card-modal-header .combat-type-badge .icon {
+    width: 34px;
+    height: 34px;
   }
 
   .deck-manager .deck-manager-footer {

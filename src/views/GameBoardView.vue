@@ -60,6 +60,7 @@ let cardModalIcon = ref()
 let resolveCardModal = ref()
 let boardDisabled = ref(true)
 let resolveRowClick = ref()
+let discardPileActive = ref(false)
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -1557,11 +1558,13 @@ function opponentBoardCardClick(index: number, rowIndex: number) {
 }
 
 function discardPileClick(isPlayer?: boolean) {
+  discardPileActive.value = true;
   let title = isPlayer ? 'Player Discard Pile' : 'Opponent Discard Pile'
   activeCardRow.value = isPlayer ? playerDiscardPile.value : opponentDiscardPile.value
   slideIndex.value = 0
   showCardModal(undefined, 'Close', title, 'io-skull').then(() => {
     closeCardModal()
+    discardPileActive.value = false;
   })
 }
 
@@ -1577,7 +1580,6 @@ function showCardModal(confirmText?: string, cancelText?: string, title?: string
 }
 
 function closeCardModal() {
-  // activeCardRow.value[slideIndex.value].active = false
   playerHandIsActive.value = false
   cardModal.value = false
   cardModalConfirmText.value = null
@@ -1792,7 +1794,12 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
         <CardModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
-            <div class="combat-type-badge">
+            <v-icon
+              v-if="cardRedrawActive || playerHandIsActive || discardPileActive"
+              :name="cardModalIcon"
+              class="card-modal-header-icon"
+            />
+            <div v-else class="combat-type-badge">
               <v-icon
                 :name="cardModalIcon"
                 class="icon"
