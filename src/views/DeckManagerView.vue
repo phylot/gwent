@@ -687,13 +687,11 @@ function capitaliseString(string: string) {
 .deck-manager .deck-manager-stat-badge {
   width: 25px;
   height: 25px;
-  display: flex;
-  flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
   border: none;
   border-radius: 999px;
+  text-align: center;
   font-size: 12px;
+  line-height: 25px;
   font-weight: 800;
   color: #000000;
   background-color: #ffffff;
@@ -1004,6 +1002,7 @@ function capitaliseString(string: string) {
   .deck-manager .deck-manager-stat-badge {
     width: 30px;
     height: 30px;
+    line-height: 30px;
     font-size: 14px;
   }
 

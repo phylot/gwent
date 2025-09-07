@@ -100,6 +100,7 @@ const cardClasses = computed(() => {
 }
 
 .small-card.active {
+  z-index: 1;
   border-color: chartreuse;
   animation: pulse 1.1s infinite;
 }
@@ -141,13 +142,12 @@ const cardClasses = computed(() => {
   width: 20px;
   height: 20px;
   display: flex;
-  align-items: center;
   justify-content: center;
   border: 1px solid #191919;
   border-radius: 999px;
   box-sizing: border-box;
   font-size: 12px;
-  line-height: 12px;
+  line-height: 18px;
   font-weight: 600;
   color: #000000;
   background-color: #ffffff;
@@ -217,7 +217,7 @@ const cardClasses = computed(() => {
 
 .small-card.appear-animation {
   animation-name: fade-in, reduce-scale, small-shake;
-  animation-delay: 0s, 0s, 0.3s;
+  animation-delay: 0s, 0s, 0.25s;
   animation-duration: 0.2s, 0.2s, 0.1s;
   animation-iteration-count: 1, 1, 3;
   z-index: 6000;
@@ -225,7 +225,7 @@ const cardClasses = computed(() => {
 
 @keyframes reduce-scale {
   from {
-    scale: 5;
+    scale: 3;
   }
   to {
     opacity: 1;
@@ -276,7 +276,7 @@ const cardClasses = computed(() => {
     width: 28px;
     height: 28px;
     font-size: 16px;
-    line-height: 16px;
+    line-height: 26px;
     box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
   }
 

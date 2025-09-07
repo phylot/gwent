@@ -1562,7 +1562,7 @@ function discardPileClick(isPlayer?: boolean) {
   let title = isPlayer ? 'Player Discard Pile' : 'Opponent Discard Pile'
   activeCardRow.value = isPlayer ? playerDiscardPile.value : opponentDiscardPile.value
   slideIndex.value = 0
-  showCardModal(undefined, 'Close', title, 'io-skull').then(() => {
+  showCardModal(undefined, 'Close', title, 'fa-skull-crossbones').then(() => {
     closeCardModal()
     discardPileActive.value = false;
   })

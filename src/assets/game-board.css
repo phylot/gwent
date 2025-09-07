@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   overflow: auto;
-  background-color: #1e1e1e;
+  background-color: #1a1a1a;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -42,15 +42,14 @@
 .game-board .board-score-badge {
   display: flex;
   justify-content: center;
-  align-items: center;
-  text-align: center;
-  border-radius: 999px;
+  box-sizing: border-box;
   border: 2px solid #e4e4e4;
+  border-radius: 999px;
   background: #d0aa64;
   box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.25) inset;
   color: #000;
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0px 1px 0 #fff,
-    1px 0px 0 #fff, 0px -1px 0 #fff, -1px 0px 0 #fff;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff,
+    1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
   font-style: normal;
   font-weight: 900;
   line-height: normal;
@@ -231,9 +230,8 @@
 .game-details .board-score-badge {
   width: 28px;
   height: 28px;
-  box-sizing: border-box;
   font-size: 14px;
-  line-height: 14px;
+  line-height: 24px;
 }
 
 .game-details .stats .hand-total {
@@ -335,6 +333,7 @@
   left: 0;
   right: 0;
   border: 2px solid chartreuse;
+  border-radius: 4px;
   box-sizing: border-box;
   z-index: 1;
 }
@@ -366,9 +365,8 @@
 .row-stats .board-score-badge {
   width: 26px;
   height: 26px;
-  box-sizing: border-box;
   font-size: 13px;
-  line-height: 13px;
+  line-height: 22px;
 }
 
 .row-stats .ability-badge {
@@ -618,8 +616,8 @@
   /* Board Layout (Desktop / Tablet) */
 
   .game-board .board-score-badge {
-    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0px 2px 0 #fff,
-      2px 0px 0 #fff, 0px -2px 0 #fff, -2px 0px 0 #fff;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 2px 0 #fff,
+      2px 0 0 #fff, 0 -2px 0 #fff, -2px 0 0 #fff;
   }
 
   .game-details,
@@ -651,7 +649,7 @@
     width: 35px;
     height: 35px;
     font-size: 20px;
-    line-height: 20px;
+    line-height: 31px;
   }
 
   .row-stats .ability-badge {
@@ -723,7 +721,7 @@
     width: 45px;
     height: 45px;
     font-size: 24px;
-    line-height: 24px;
+    line-height: 41px;
   }
 
   .game-details .stats .hand-total {
