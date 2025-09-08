@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { type Card, type CardCollection } from '@/types'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from '../components/CardModal.vue'
@@ -143,11 +143,32 @@ const invalidUnitTotal = computed((): boolean => {
   return totalUnitCards.value < 22
 })
 
+const collectionContainsNew = computed((): boolean => {
+  let newFound = false
+  if (localCardCollection.value) {
+    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]]
+      .collection) {
+      if (card.isNew) {
+        newFound = true
+        break
+      }
+    }
+  }
+  return newFound
+})
+
 const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'faction-selected', val: FactionAndCollection): void
   (e: 'save', val: CardCollection): void
 }>()
+
+watch(slideIndex, () => {
+  // Remove the 'isNew' flag from any viewed card
+  if (activeCardRow.value.length > 0) {
+    activeCardRow.value[slideIndex.value].isNew = false
+  }
+})
 
 onMounted(() => {
   localCardCollection.value = JSON.parse(JSON.stringify(props.cardCollection))
@@ -202,6 +223,11 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   slideIndex.value = index
   activeCardRow.value = collectionCards.value[key]
   activeCollectionRowKey.value = key
+
+  // Remove the 'isNew' flag from viewed card
+  if (activeCardRow.value.length > 0) {
+    activeCardRow.value[slideIndex.value].isNew = false
+  }
 
   showCardModal(
     'Add',
@@ -304,10 +330,7 @@ function capitaliseString(string: string) {
       <CardModal v-model="cardModal" class="quick-fade">
         <template v-slot:header>
           <div class="combat-type-badge">
-            <v-icon
-              class="icon"
-              :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'"
-            />
+            <v-icon class="icon" :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'" />
           </div>
           <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
         </template>
@@ -417,10 +440,7 @@ function capitaliseString(string: string) {
                 <div v-if="cardArr.length > 0" class="combat-container">
                   <div class="deck-manager-type-heading">
                     <div class="combat-type-badge">
-                      <v-icon
-                        class="icon"
-                        :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
-                      />
+                      <v-icon class="icon" :name="cardArr[0].typeIcon || 'la-star-of-life-solid'" />
                     </div>
                     <h3>
                       {{ capitaliseString(String(key)) }}
@@ -480,6 +500,9 @@ function capitaliseString(string: string) {
                 <div v-if="localCardCollection" class="deck-manager-stat-badge">
                   {{ localCardCollection[factionKeys[factionIndex]].collection.length }}
                 </div>
+                <div v-if="collectionContainsNew" class="new-pill">
+                  <div class="new-pill-content">NEW</div>
+                </div>
               </div>
 
               <v-icon
@@ -523,6 +546,7 @@ function capitaliseString(string: string) {
                         :faction="card.faction"
                         :hero="card.hero"
                         :image-url="card.imageUrl"
+                        :is-new="card.isNew"
                         :key="i"
                         role="button"
                         tabindex="0"
@@ -687,11 +711,12 @@ function capitaliseString(string: string) {
 .deck-manager .deck-manager-stat-badge {
   width: 25px;
   height: 25px;
-  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  text-align: center;
   font-size: 12px;
-  line-height: 25px;
+  line-height: 1;
   font-weight: 800;
   color: #000000;
   background-color: #ffffff;
@@ -820,6 +845,25 @@ function capitaliseString(string: string) {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.deck-manager .collection-drawer-toolbar .new-pill {
+  padding: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  border-radius: 999px;
+  background-image: linear-gradient(to right, #f44bd5 0%, #c8d1ff 100%);
+}
+
+.deck-manager .collection-drawer-toolbar .new-pill .new-pill-content {
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 999px;
+  background-color: #000000;
 }
 
 .deck-manager .collection-drawer-toolbar .arrow-icon {
@@ -1002,7 +1046,6 @@ function capitaliseString(string: string) {
   .deck-manager .deck-manager-stat-badge {
     width: 30px;
     height: 30px;
-    line-height: 30px;
     font-size: 14px;
   }
 
@@ -1066,6 +1109,16 @@ function capitaliseString(string: string) {
 
   .deck-manager .collection-drawer-toolbar .collection-heading {
     gap: 8px;
+  }
+
+  .deck-manager .collection-drawer-toolbar .new-pill {
+    padding: 3px;
+    font-size: 12px;
+  }
+
+  .deck-manager .collection-drawer-toolbar .new-pill .new-pill-content {
+    padding: 4px 7px;
+    font-size: 12px;
   }
 
   .deck-manager .collection-drawer-cards {

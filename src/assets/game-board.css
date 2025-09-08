@@ -41,18 +41,19 @@
 
 .game-board .board-score-badge {
   display: flex;
+  align-items: center;
   justify-content: center;
+  line-height: 1;
+  font-style: normal;
+  font-weight: 900;
+  color: #000;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff,
+  1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
   box-sizing: border-box;
   border: 2px solid #e4e4e4;
   border-radius: 999px;
   background: #d0aa64;
   box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.25) inset;
-  color: #000;
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff,
-    1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-  font-style: normal;
-  font-weight: 900;
-  line-height: normal;
 }
 
 .game-board .board-score-badge.player {
@@ -231,7 +232,6 @@
   width: 28px;
   height: 28px;
   font-size: 14px;
-  line-height: 24px;
 }
 
 .game-details .stats .hand-total {
@@ -366,7 +366,6 @@
   width: 26px;
   height: 26px;
   font-size: 13px;
-  line-height: 22px;
 }
 
 .row-stats .ability-badge {
@@ -649,7 +648,6 @@
     width: 35px;
     height: 35px;
     font-size: 20px;
-    line-height: 31px;
   }
 
   .row-stats .ability-badge {
@@ -721,7 +719,6 @@
     width: 45px;
     height: 45px;
     font-size: 24px;
-    line-height: 41px;
   }
 
   .game-details .stats .hand-total {

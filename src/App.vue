@@ -550,6 +550,7 @@ async function determineCardUnlock() {
       let preloadedCard = await preloadCards([card])
       if (preloadedCard) {
         card = preloadedCard[0]
+        card.isNew = true
       }
 
       // Copy card to player's collection

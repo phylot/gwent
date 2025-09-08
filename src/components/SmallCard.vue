@@ -12,6 +12,7 @@ const props = defineProps<{
   faction?: string
   hero?: boolean
   imageUrl?: string | undefined
+  isNew?: boolean
   overlap?: boolean
   typeIcon?: string
   value?: number
@@ -55,7 +56,11 @@ const cardClasses = computed(() => {
       <div
         class="card"
         :class="cardClasses"
-        :style="{ backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'radial-gradient(#56291a, #442014)' }"
+        :style="{
+          backgroundImage: props.imageUrl
+            ? `url(${props.imageUrl})`
+            : 'radial-gradient(#56291a, #442014)'
+        }"
       >
         <template v-if="props.imageUrl">
           <div v-if="defaultValue || defaultValue === 0" class="card-value-badge">
@@ -73,11 +78,14 @@ const cardClasses = computed(() => {
         </div>
       </div>
     </div>
+
+    <div v-if="isNew" class="new-pill"><div class="new-pill-content">NEW</div></div>
   </div>
 </template>
 
 <style>
 .small-card {
+  position: relative;
   height: 70px;
   box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0);
@@ -142,12 +150,13 @@ const cardClasses = computed(() => {
   width: 20px;
   height: 20px;
   display: flex;
+  align-items: center;
   justify-content: center;
   border: 1px solid #191919;
   border-radius: 999px;
   box-sizing: border-box;
   font-size: 12px;
-  line-height: 18px;
+  line-height: 1;
   font-weight: 600;
   color: #000000;
   background-color: #ffffff;
@@ -215,6 +224,28 @@ const cardClasses = computed(() => {
   height: 14px;
 }
 
+.small-card .new-pill {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  padding: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  background-image: linear-gradient(to right, #f44bd5 0%, #c8d1ff 100%);
+  border-radius: 999px;
+}
+
+.small-card .new-pill .new-pill-content {
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 999px;
+  background-color: #000000;
+}
+
 .small-card.appear-animation {
   animation-name: fade-in, reduce-scale, small-shake;
   animation-delay: 0s, 0s, 0.25s;
@@ -276,7 +307,6 @@ const cardClasses = computed(() => {
     width: 28px;
     height: 28px;
     font-size: 16px;
-    line-height: 26px;
     box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
   }
 
@@ -298,6 +328,16 @@ const cardClasses = computed(() => {
   .small-card .combat-type-badge .icon {
     width: 20px;
     height: 20px;
+  }
+
+  .small-card .new-pill {
+    padding: 3px;
+    font-size: 12px;
+  }
+
+  .small-card .new-pill .new-pill-content {
+    padding: 4px 7px;
+    font-size: 12px;
   }
 
   .small-card.placeholder .placeholder-content .icon {

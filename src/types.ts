@@ -30,6 +30,7 @@ interface Card {
   id: string
   image: string
   imageUrl?: string
+  isNew?: boolean
   musterName?: string
   name?: string
   replacedById?: string,
