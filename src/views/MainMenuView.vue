@@ -72,24 +72,28 @@ function viewClick() {
 }
 
 function skip() {
-  clearTimeout(beanTimeout1)
-  clearTimeout(beanTimeout2)
-  clearTimeout(logoTimeout)
-  clearTimeout(playButtonTimeout)
+  if (skipButtonVisible.value) {
+    clearTimeout(beanTimeout1)
+    clearTimeout(beanTimeout2)
+    clearTimeout(logoTimeout)
+    clearTimeout(playButtonTimeout)
 
-  animationIsFinished.value = true
-  beanVisible.value = false
-  skipButtonVisible.value = false
-  logoVisible.value = true
-  playButtonVisible.value = true
-  titleSequenceHasPlayed = true
-  emit('title-sequence-end')
-  emit('skip')
+    animationIsFinished.value = true
+    beanVisible.value = false
+    skipButtonVisible.value = false
+    logoVisible.value = true
+    playButtonVisible.value = true
+    titleSequenceHasPlayed = true
+    emit('title-sequence-end')
+    emit('skip')
+  }
 }
 
 function playButtonClick() {
-  emit('play-sound', 'double')
-  showMainMenu()
+  if (logoVisible.value) {
+    emit('play-sound', 'double')
+    showMainMenu()
+  }
 }
 
 function showMainMenu() {
@@ -129,7 +133,7 @@ function logoClick() {
 <template>
   <div class="main-menu" :class="{ animate: !animationIsFinished }" @click="viewClick">
     <transition :name="animationIsFinished ? 'none' : 'fade'">
-      <h1 v-if="beanVisible" class="bean">SEAN BEAN</h1>
+      <h1 v-if="beanVisible" class="bean">Sean Bean</h1>
     </transition>
 
     <transition name="fade">
@@ -142,17 +146,18 @@ function logoClick() {
           }"
           @click="logoClick"
         >
-          <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
+          <span class="lineOne">Sharpe's</span><span class="lineTwo">Gwent</span>
         </h1>
 
         <transition name="fade">
           <button
             v-if="playButtonVisible"
             class="btn large play-btn primary"
+            :disabled="disabled"
             type="button"
             @click="playButtonClick"
           >
-            PLAY
+            Play
           </button>
         </transition>
       </div>
@@ -161,7 +166,7 @@ function logoClick() {
     <transition name="fade">
       <div v-if="mainMenuVisible" class="menu-container">
         <h1 class="logo menu-heading">
-          <span class="lineOne">Sharpe's</span><span class="lineTwo">GWENT</span>
+          <span class="lineOne">Sharpe's</span><span class="lineTwo">Gwent</span>
         </h1>
         <button
           class="btn large primary"
@@ -302,6 +307,7 @@ function logoClick() {
   font-family: 'UniversalSerif';
   font-size: 44px;
   font-weight: 100;
+  text-transform: uppercase;
   letter-spacing: 20px;
   text-indent: -3px;
   line-height: 50px;
@@ -323,6 +329,7 @@ function logoClick() {
   font-family: 'UniversalSerif';
   font-size: 32px;
   font-weight: 100;
+  text-transform: uppercase;
   letter-spacing: 4px;
   text-shadow: 2px 2px #000000;
 }
