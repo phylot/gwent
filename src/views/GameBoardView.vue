@@ -10,8 +10,8 @@ import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from './../components/CardModal.vue'
 import CardPreview from './../components/CardPreview.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
-import StandardModal from './../components/StandardModal.vue'
 import SmallCard from './../components/SmallCard.vue'
+import StandardModal from './../components/StandardModal.vue'
 
 // PROPS
 
@@ -39,7 +39,10 @@ let opponentDeck = ref<Card[]>([])
 let opponentDeckDefault = ref()
 let playerHand = ref<Card[]>([])
 let opponentHand = ref<Card[]>([])
+let playerHandIsActive = ref(false)
+let playerHandDisabled = ref(true)
 let cardRedrawActive = ref(false)
+let healActive = ref(false)
 let playerBoardCards = ref<Card[][]>([[], [], []])
 let opponentBoardCards = ref<Card[][]>([[], [], []])
 let playerRowFlags = ref()
@@ -48,9 +51,11 @@ let opponentRowFlags = ref()
 let opponentRowFlagsDefault = ref()
 let playerDiscardPile = ref<Card[]>([])
 let opponentDiscardPile = ref<Card[]>([])
+let discardPileActive = ref(false)
 let specialDiscardPile = ref<Card[]>([])
-let playerHandIsActive = ref(false)
 let activeCardRow = ref<Card[]>([])
+let resolveRowClick = ref()
+let boardDisabled = ref(true)
 let slideIndex = ref(0)
 let cardModal = ref(false)
 let cardModalConfirmText = ref()
@@ -58,9 +63,7 @@ let cardModalCancelText = ref()
 let cardModalTitle = ref()
 let cardModalIcon = ref()
 let resolveCardModal = ref()
-let boardDisabled = ref(true)
-let resolveRowClick = ref()
-let discardPileActive = ref(false)
+let cardModalDisabled = ref(true)
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -166,8 +169,12 @@ const recentSpecialCard = computed(() => {
   return card
 })
 
-const discardPileBtnDisabled = computed(() => {
+const playerDiscardPileDisabled = computed(() => {
   return boardDisabled.value || playerDiscardPile.value.length < 1
+})
+
+const opponentDiscardPileDisabled = computed(() => {
+  return boardDisabled.value || opponentDiscardPile.value.length < 1
 })
 
 // WATCHERS
@@ -175,7 +182,7 @@ const discardPileBtnDisabled = computed(() => {
 watch(
   () => props.disabled,
   (val) => {
-    boardDisabled.value = val
+    setAllDisabled(val)
   }
 )
 
@@ -262,7 +269,7 @@ function loadImage(imageUrl: string, callback: Function) {
 }
 
 function startNewGame() {
-  boardDisabled.value = true
+  setAllDisabled(true)
   emit('loading-change', true)
 
   // Set leader cards and decks to their default state
@@ -345,21 +352,25 @@ function showCardRedrawModal(callback: Function) {
   cardRedrawActive.value = true
   playerHandIsActive.value = true
   activeCardRow.value = playerHand.value
-  boardDisabled.value = false
+  cardModalDisabled.value = false
+  playerHandDisabled.value = false
 
   showCardModal('Redraw', 'Done', 'Choose card to redraw (1 of 2)', 'gi-card-exchange').then(
     (ok) => {
-      boardDisabled.value = true
+      cardModalDisabled.value = true
+      playerHandDisabled.value = true
       if (ok) {
         swapModalCard(() => {
-          boardDisabled.value = false
+          cardModalDisabled.value = false
+          playerHandDisabled.value = false
           showCardModal(
             'Redraw',
             'Done',
             'Choose card to redraw (2 of 2)',
             'gi-card-exchange'
           ).then((ok) => {
-            boardDisabled.value = true
+            cardModalDisabled.value = true
+            playerHandDisabled.value = true
             if (ok) {
               swapModalCard(() => {
                 closeCardModal()
@@ -372,6 +383,8 @@ function showCardRedrawModal(callback: Function) {
           })
         })
       } else {
+        cardModalDisabled.value = true
+        playerHandDisabled.value = true
         closeCardModal()
         callback()
       }
@@ -426,7 +439,7 @@ function determineMove() {
     pass(!isPlayerTurn.value)
   } else {
     if (isPlayerTurn.value) {
-      boardDisabled.value = false
+      setAllDisabled(false)
     } else {
       // CPU logic
       determineCpuCard((card: Card) => {
@@ -448,7 +461,7 @@ function determineMove() {
 }
 
 async function playCard(card: Card, isHeal: boolean, callback?: Function) {
-  boardDisabled.value = true
+  setAllDisabled(true)
 
   if (!isPlayerTurn.value) {
     await showPreviewCard(card)
@@ -818,22 +831,27 @@ function performHeal() {
 
     if (validHealCards.length > 0) {
       if (isPlayerTurn.value) {
+        healActive.value = true
         activeCardRow.value = validHealCards
         slideIndex.value = 0
-        boardDisabled.value = false
+        cardModalDisabled.value = false
 
         showCardModal('Play Card', 'Cancel', 'Choose card to revive', 'gi-heart-plus').then(
           (ok) => {
+            cardModalDisabled.value = true
+
             if (ok) {
               let healedCardId = activeCardRow.value[slideIndex.value].id
               let healedCard = playerDiscardPile.value.find((o) => o.id === healedCardId) as Card
 
               playCard(healedCard, true, () => {
+                healActive.value = false
                 resolve()
               })
             } else {
               // Player cancels heal, turn continues
               closeCardModal()
+              healActive.value = false
               resolve()
             }
           }
@@ -1241,7 +1259,7 @@ function pass(isCpu?: boolean) {
   if (isCpu) {
     opponentIsPassed.value = true
   } else {
-    boardDisabled.value = true
+    setAllDisabled(true)
     playerIsPassed.value = true
   }
 
@@ -1501,6 +1519,7 @@ async function handCardClick(index: number) {
     // If the clicked hand card is already active, close the card carousel
     if (playerHandIsActive.value && index === slideIndex.value) {
       closeCardModal()
+      boardDisabled.value = false
     } else {
       playerHandIsActive.value = true
       activeCardRow.value = playerHand.value
@@ -1519,57 +1538,46 @@ async function handCardClick(index: number) {
           })
         } else {
           closeCardModal()
+          boardDisabled.value = false
         }
       })
     }
   }
 }
 
-function playerBoardCardClick(index: number, rowIndex: number) {
-  let title = 'Player Close Combat'
+function boardCardClick(index: number, rowIndex: number, isPlayer?: boolean) {
+  const playerName = isPlayer ? "Player" : "Opponent"
+  let title = `${playerName} Close Combat`
   let icon = 'gi-broadsword'
 
   emit('play-sound', 'selectcard')
   if (rowIndex > 0) {
-    title = rowIndex === 1 ? 'Player Ranged Combat' : 'Player Siege Combat'
+    title = rowIndex === 1 ? `${playerName} Ranged Combat` : `${playerName} Siege Combat`
     icon = rowIndex === 1 ? 'gi-crossbow' : 'gi-catapult'
   }
-  activeCardRow.value = playerBoardCards.value[rowIndex]
+  activeCardRow.value = isPlayer ? playerBoardCards.value[rowIndex] : opponentBoardCards.value[rowIndex]
   slideIndex.value = index
   showCardModal(undefined, 'Close', title, icon).then(() => {
     closeCardModal()
-  })
-}
-
-function opponentBoardCardClick(index: number, rowIndex: number) {
-  let title = 'Opponent Close Combat'
-  let icon = 'gi-broadsword'
-
-  emit('play-sound', 'selectcard')
-  if (rowIndex > 0) {
-    title = rowIndex === 1 ? 'Opponent Ranged Combat' : 'Opponent Siege Combat'
-    icon = rowIndex === 1 ? 'gi-crossbow' : 'gi-catapult'
-  }
-  activeCardRow.value = opponentBoardCards.value[rowIndex]
-  slideIndex.value = index
-  showCardModal(undefined, 'Close', title, icon).then(() => {
-    closeCardModal()
+    boardDisabled.value = false
   })
 }
 
 function discardPileClick(isPlayer?: boolean) {
-  discardPileActive.value = true;
+  discardPileActive.value = true
   let title = isPlayer ? 'Player Discard Pile' : 'Opponent Discard Pile'
   activeCardRow.value = isPlayer ? playerDiscardPile.value : opponentDiscardPile.value
   slideIndex.value = 0
   showCardModal(undefined, 'Close', title, 'fa-skull-crossbones').then(() => {
     closeCardModal()
-    discardPileActive.value = false;
+    discardPileActive.value = false
+    boardDisabled.value = false
   })
 }
 
 function showCardModal(confirmText?: string, cancelText?: string, title?: string, icon?: string) {
   return new Promise((resolve) => {
+    boardDisabled.value = true
     cardModalConfirmText.value = confirmText
     cardModalCancelText.value = cancelText
     cardModalTitle.value = title
@@ -1589,14 +1597,14 @@ function closeCardModal() {
 }
 
 function showPauseModal() {
-  boardDisabled.value = true
+  setAllDisabled(true)
   modalAvatar.value = null
   modalButtons.value = ['Resume', 'Quit']
   modalPersistent.value = false
   modalTitle.value = 'Paused'
 
   modal.value.show().then((i: number) => {
-    boardDisabled.value = false
+    setAllDisabled(false)
     if (i === 2) {
       emit('show-menu')
     }
@@ -1682,6 +1690,12 @@ function resetCards(arr: Card[]) {
     card.animationName = undefined
     card.value = card.defaultValue
   }
+}
+
+function setAllDisabled(bool: boolean) {
+  boardDisabled.value = bool
+  playerHandDisabled.value = bool
+  cardModalDisabled.value = bool
 }
 
 function getRowTotal(arr: Card[]) {
@@ -1795,16 +1809,12 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <CardModal v-model="cardModal" class="quick-fade">
           <template v-if="cardModalTitle" v-slot:header>
             <v-icon
-              v-if="cardRedrawActive || playerHandIsActive || discardPileActive"
+              v-if="cardRedrawActive || healActive || playerHandIsActive || discardPileActive"
               :name="cardModalIcon"
               class="card-modal-header-icon"
             />
             <div v-else class="combat-type-badge">
-              <v-icon
-                :name="cardModalIcon"
-                class="icon"
-                :scale="desktop ? 1.5 : 0.8"
-              />
+              <v-icon :name="cardModalIcon" class="icon" :scale="desktop ? 1.5 : 0.8" />
             </div>
             <h2>{{ cardModalTitle }}</h2>
           </template>
@@ -1813,14 +1823,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
             v-model="slideIndex"
             :cards="activeCardRow"
             :desktop="props.desktop"
-            :disabled="boardDisabled"
+            :disabled="cardModalDisabled"
             @btn-click="emit('play-sound', 'selectcard')"
           ></CardCarousel>
 
           <button
             v-if="cardModalConfirmText"
             class="btn large primary"
-            :disabled="boardDisabled"
+            :disabled="cardModalDisabled"
             tabindex="2"
             type="button"
             @click="resolveCardModal(true)"
@@ -1830,7 +1840,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <button
             v-if="cardModalCancelText"
             class="btn large"
-            :disabled="boardDisabled"
+            :disabled="cardModalDisabled"
             tabindex="2"
             type="button"
             @click="resolveCardModal(false)"
@@ -1884,15 +1894,16 @@ function sortCardsHighToLow(a: Card, b: Card) {
                   :hero="card.hero"
                   :image-url="card.imageUrl"
                   :key="j"
+                  :name="card.name"
                   overlap
                   role="button"
-                  tabindex="4"
+                  :tabindex="boardDisabled ? '-1' : '4'"
                   :type-icon="card.typeIcon"
                   :value="card.value"
                   :value-increased="card.valueIncreased"
-                  @smallcard-click="opponentBoardCardClick(j, i)"
-                  @smallcard-enter="opponentBoardCardClick(j, i)"
-                  @smallcard-space="opponentBoardCardClick(j, i)"
+                  @card-click="boardCardClick(j, i)"
+                  @card-enter="boardCardClick(j, i)"
+                  @card-space="boardCardClick(j, i)"
                 />
               </div>
             </div>
@@ -1903,8 +1914,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
           <div class="pass-btn-wrap">
             <button
               class="btn pass-btn"
-              :class="{ disabled: boardDisabled || cardRedrawActive }"
-              :disabled="boardDisabled || cardRedrawActive"
+              :class="{ disabled: boardDisabled }"
+              :disabled="boardDisabled"
+              :tabindex="boardDisabled ? '-1' : '7'"
               title="Pass"
               type="button"
               @click="pass()"
@@ -1973,19 +1985,20 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 <v-icon class="icon" name="oi-stack" :scale="props.desktop ? 2 : 1" />
                 {{ playerHandCount }}
               </div>
-              <div
+              <button
                 :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
-                class="discard-pile"
-                :class="{ disabled: discardPileBtnDisabled }"
+                class="discard-pile-btn"
+                :class="{ disabled: playerDiscardPileDisabled }"
                 role="button"
+                :tabindex="boardDisabled ? '-1' : '6'"
                 :title="`Player Discard Pile (${playerDiscardPile.length})`"
-                @click="discardPileBtnDisabled ? null : discardPileClick(true)"
-                @keyup.enter="discardPileBtnDisabled ? null : discardPileClick(true)"
-                @keyup.space="discardPileBtnDisabled ? null : discardPileClick(true)"
+                @click="playerDiscardPileDisabled ? null : discardPileClick(true)"
+                @keyup.enter="playerDiscardPileDisabled ? null : discardPileClick(true)"
+                @keyup.space="playerDiscardPileDisabled ? null : discardPileClick(true)"
               >
                 <v-icon class="icon" name="fa-skull-crossbones" :scale="props.desktop ? 1.7 : 1" />
                 <div class="discard-count">{{ playerDiscardPile.length }}</div>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -2000,10 +2013,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :faction="recentSpecialCard.faction"
             :hero="recentSpecialCard.hero"
             :image-url="recentSpecialCard.imageUrl"
-            tabindex="5"
+            :name="recentSpecialCard.name"
+            :tabindex="boardDisabled ? '-1' : '5'"
             :type-icon="recentSpecialCard.typeIcon"
           />
-          <SmallCard v-else :desktop="props.desktop" disabled tabindex="5" />
+          <SmallCard v-else :desktop="props.desktop" disabled />
 
           <div class="opponent-details">
             <div class="avatar">
@@ -2067,17 +2081,14 @@ function sortCardsHighToLow(a: Card, b: Card) {
               </div>
               <div
                 :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                class="discard-pile"
-                :class="{ disabled: boardDisabled || opponentDiscardPile.length < 1 }"
+                class="discard-pile-btn"
+                :class="{ disabled: opponentDiscardPileDisabled }"
                 role="button"
+                :tabindex="boardDisabled ? '-1' : '6'"
                 :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
-                @click="boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()"
-                @keyup.enter="
-                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                "
-                @keyup.space="
-                  boardDisabled || opponentDiscardPile.length < 1 ? null : discardPileClick()
-                "
+                @click="opponentDiscardPileDisabled ? null : discardPileClick()"
+                @keyup.enter="opponentDiscardPileDisabled ? null : discardPileClick()"
+                @keyup.space="opponentDiscardPileDisabled ? null : discardPileClick()"
               >
                 <v-icon class="icon" name="fa-skull-crossbones" :scale="props.desktop ? 1.7 : 1" />
                 <div class="discard-count">{{ opponentDiscardPile.length }}</div>
@@ -2141,14 +2152,15 @@ function sortCardsHighToLow(a: Card, b: Card) {
                   :image-url="card.imageUrl"
                   :key="j"
                   overlap
+                  :name="card.name"
                   role="button"
-                  tabindex="3"
+                  :tabindex="boardDisabled ? '-1' : '3'"
                   :type-icon="card.typeIcon"
                   :value="card.value"
                   :value-increased="card.valueIncreased"
-                  @smallcard-click="boardDisabled ? null : playerBoardCardClick(j, i)"
-                  @smallcard-enter="boardDisabled ? null : playerBoardCardClick(j, i)"
-                  @smallcard-space="boardDisabled ? null : playerBoardCardClick(j, i)"
+                  @card-click="boardCardClick(j, i, true)"
+                  @card-enter="boardCardClick(j, i, true)"
+                  @card-space="boardCardClick(j, i, true)"
                 />
               </div>
             </div>
@@ -2162,19 +2174,20 @@ function sortCardsHighToLow(a: Card, b: Card) {
               :class="{ active: playerHandIsActive && i === slideIndex }"
               :default-value="card.defaultValue"
               :desktop="props.desktop"
-              :disabled="boardDisabled"
+              :disabled="playerHandDisabled"
               :faction="card.faction"
               :hero="card.hero"
               :image-url="card.imageUrl"
               :key="i"
+              :name="card.name"
               overlap
               role="button"
-              tabindex="1"
+              :tabindex="playerHandDisabled ? '-1' : '1'"
               :type-icon="card.typeIcon"
               :value="card.value"
-              @smallcard-click="handCardClick(i)"
-              @smallcard-enter="handCardClick(i)"
-              @smallcard-space="handCardClick(i)"
+              @card-click="handCardClick(i)"
+              @card-enter="handCardClick(i)"
+              @card-space="handCardClick(i)"
             />
           </div>
         </div>
@@ -2183,8 +2196,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
     <button
       class="pause-menu-btn btn"
-      :class="{ disabled: boardDisabled }"
-      :disabled="boardDisabled"
+      :class="{ disabled: boardDisabled && playerHandDisabled && cardModalDisabled }"
+      :disabled="boardDisabled && playerHandDisabled && cardModalDisabled"
       @click="showPauseModal"
     >
       <v-icon class="icon" fill="white" name="la-cog-solid" :scale="props.desktop ? 1.8 : 1.2" />

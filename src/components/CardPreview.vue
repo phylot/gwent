@@ -26,6 +26,7 @@ const props = defineProps<{
       :faction="card.faction"
       :hero="card.hero"
       :image-url="card.imageUrl"
+      :name="card.name"
       no-description
       :type-icon="card.typeIcon"
       :value="card.value"

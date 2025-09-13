@@ -13,6 +13,7 @@ const props = defineProps<{
   hero?: boolean
   imageUrl?: string | undefined
   isNew?: boolean
+  name?: string
   overlap?: boolean
   typeIcon?: string
   value?: number
@@ -45,11 +46,12 @@ const cardClasses = computed(() => {
 
 <template>
   <div
+    :aria-label="name ?? ''"
     class="small-card"
     :class="smallCardClasses"
-    @click="disabled ? null : $emit('smallcard-click', $event)"
-    @keyup.enter="disabled ? null : $emit('smallcard-enter', $event)"
-    @keyup.space="disabled ? null : $emit('smallcard-space', $event)"
+    @click="disabled ? null : $emit('card-click', $event)"
+    @keyup.enter="disabled ? null : $emit('card-enter', $event)"
+    @keyup.space="disabled ? null : $emit('card-space', $event)"
   >
     <div class="card-wrap">
       <div class="animation-overlay" :class="animationClass"></div>

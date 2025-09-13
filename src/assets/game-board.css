@@ -244,7 +244,7 @@
   font-weight: bold;
 }
 
-.game-details .stats .discard-pile {
+.game-details .stats .discard-pile-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,8 +252,10 @@
   height: 25px;
   font-size: 12px;
   font-weight: bold;
+  color: #ffffff;
   border: 1px solid #ffffff;
   border-radius: 999px;
+  background: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -263,19 +265,19 @@
   user-select: none;
 }
 
-.game-details .stats .discard-pile .discard-count {
+.game-details .stats .discard-pile-btn .discard-count {
   width: 14px;
   text-align: center;
 }
 
-.game-details .stats .discard-pile.disabled {
+.game-details .stats .discard-pile-btn.disabled {
   color: #666666;
   border-color: #666666;
   cursor: not-allowed;
 }
 
 .game-details .player-details .stats .hand-total,
-.game-details .player-details .stats .discard-pile {
+.game-details .player-details .stats .discard-pile-btn {
   flex-direction: row-reverse;
 }
 
@@ -728,14 +730,14 @@
     font-size: 20px;
   }
 
-  .game-details .stats .discard-pile {
+  .game-details .stats .discard-pile-btn {
     height: 40px;
     width: 75px;
     font-size: 20px;
     border-width: 2px;
   }
 
-  .game-details .stats .discard-pile .discard-count {
+  .game-details .stats .discard-pile-btn .discard-count {
     width: 25px;
   }
 

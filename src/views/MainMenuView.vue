@@ -148,7 +148,7 @@ function logoClick() {
         <transition name="fade">
           <button
             v-if="playButtonVisible"
-            class="btn large primary play-btn"
+            class="btn large play-btn primary"
             type="button"
             @click="playButtonClick"
           >

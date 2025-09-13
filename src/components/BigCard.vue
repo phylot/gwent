@@ -39,7 +39,7 @@ const cardClasses = computed(() => {
 </script>
 
 <template>
-  <div class="big-card" :class="{ 'no-description': props.noDescription }">
+  <div :aria-label="name ?? ''" class="big-card" :class="{ 'no-description': props.noDescription }">
     <div class="card-wrap" :class="{ glow: props.glow }">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border" :class="cardBorderClasses">

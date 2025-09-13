@@ -19,16 +19,16 @@ let factionIndex = ref(0)
 let activeCardRow = ref<Card[]>([])
 let activeDeckRowKey = ref()
 let activeCollectionRowKey = ref()
+let deckContainer: HTMLElement | null = null
+let collectionContainer: HTMLElement | null = null
+let drawerActive = ref(false)
+let disabled = ref(false)
 let slideIndex = ref(0)
 let cardModal = ref(false)
 let cardModalTitle = ref()
 let cardModalConfirmText = ref()
 let cardModalDisabled = ref(true)
 let resolveCardModal = ref()
-let deckManagerDisabled = ref(false)
-let deckContainer: HTMLElement | null = null
-let collectionContainer: HTMLElement | null = null
-let drawerActive = ref(false)
 
 interface ManageCardCollection {
   [key: string]: Card[]
@@ -244,7 +244,7 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
 }
 
 function showCardModal(confirmText?: string, titleText?: string) {
-  deckManagerDisabled.value = true
+  disabled.value = true
 
   return new Promise((resolve) => {
     cardModalConfirmText.value = confirmText
@@ -260,7 +260,7 @@ function closeCardModal() {
   activeDeckRowKey.value = null
   activeCollectionRowKey.value = null
   cardModal.value = false
-  deckManagerDisabled.value = false
+  disabled.value = false
 }
 
 function moveCardToDeck(card: Card, callback: Function) {
@@ -368,7 +368,7 @@ function capitaliseString(string: string) {
             aria-label="Previous"
             class="prev-btn"
             :class="{ disabled: invalidUnitTotal }"
-            :disabled="deckManagerDisabled || invalidUnitTotal"
+            :disabled="disabled || invalidUnitTotal"
             @click="changeFaction(factionIndex - 1)"
           >
             <v-icon class="icon" name="fa-chevron-circle-left" role="button" />
@@ -387,7 +387,7 @@ function capitaliseString(string: string) {
             aria-label="Next"
             class="next-btn"
             :class="{ disabled: invalidUnitTotal }"
-            :disabled="deckManagerDisabled || invalidUnitTotal"
+            :disabled="disabled || invalidUnitTotal"
             @click="changeFaction(factionIndex + 1)"
           >
             <v-icon class="icon" name="fa-chevron-circle-right" role="button" />
@@ -457,18 +457,19 @@ function capitaliseString(string: string) {
                       :class="{ active: key === activeDeckRowKey && i === slideIndex }"
                       :default-value="card.defaultValue"
                       :desktop="props.desktop"
-                      :disabled="deckManagerDisabled"
+                      :disabled="disabled"
                       :faction="card.faction"
                       :hero="card.hero"
                       :image-url="card.imageUrl"
                       :key="i"
+                      :name="card.name"
                       role="button"
-                      tabindex="0"
+                      :tabindex="disabled ? '-1' : '0'"
                       :type-icon="card.typeIcon"
                       :value="card.value"
-                      @smallcard-click="deckCardClick(card, key, i)"
-                      @smallcard-enter="deckCardClick(card, key, i)"
-                      @smallcard-space="deckCardClick(card, key, i)"
+                      @card-click="deckCardClick(card, key, i)"
+                      @card-enter="deckCardClick(card, key, i)"
+                      @card-space="deckCardClick(card, key, i)"
                     />
                   </div>
                 </div>
@@ -490,7 +491,7 @@ function capitaliseString(string: string) {
               :aria-label="desktop ? undefined : 'Toggle Drawer'"
               class="collection-drawer-toolbar"
               :role="desktop ? undefined : 'button'"
-              tabindex="0"
+              :tabindex="disabled ? '-1' : '0'"
               @click="drawerActive = !drawerActive"
               @keydown.enter="drawerActive = !drawerActive"
               @keydown.space="drawerActive = !drawerActive"
@@ -542,19 +543,20 @@ function capitaliseString(string: string) {
                         :class="{ active: key === activeCollectionRowKey && i === slideIndex }"
                         :default-value="card.defaultValue"
                         :desktop="props.desktop"
-                        :disabled="deckManagerDisabled"
+                        :disabled="disabled"
                         :faction="card.faction"
                         :hero="card.hero"
                         :image-url="card.imageUrl"
                         :is-new="card.isNew"
                         :key="i"
+                        :name="card.name"
                         role="button"
                         tabindex="0"
                         :type-icon="card.typeIcon"
                         :value="card.value"
-                        @smallcard-click="collectionCardClick(card, key, i)"
-                        @smallcard-enter="collectionCardClick(card, key, i)"
-                        @smallcard-space="collectionCardClick(card, key, i)"
+                        @card-click="collectionCardClick(card, key, i)"
+                        @card-enter="collectionCardClick(card, key, i)"
+                        @card-space="collectionCardClick(card, key, i)"
                       />
                     </div>
                   </div>
@@ -570,12 +572,12 @@ function capitaliseString(string: string) {
           <button
             :class="{ disabled: invalidUnitTotal }"
             class="btn primary large"
-            :disabled="deckManagerDisabled || invalidUnitTotal"
+            :disabled="disabled || invalidUnitTotal"
             @click="factionSelected"
           >
             Select
           </button>
-          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
+          <button class="btn large" :disabled="disabled" @click="emit('cancel')">
             Back
           </button>
         </template>
@@ -584,12 +586,12 @@ function capitaliseString(string: string) {
           <button
             :class="{ disabled: invalidUnitTotal }"
             class="btn primary large"
-            :disabled="deckManagerDisabled || invalidUnitTotal"
+            :disabled="disabled || invalidUnitTotal"
             @click="save"
           >
             Save
           </button>
-          <button class="btn large" :disabled="deckManagerDisabled" @click="emit('cancel')">
+          <button class="btn large" :disabled="disabled" @click="emit('cancel')">
             Cancel
           </button>
         </template>
