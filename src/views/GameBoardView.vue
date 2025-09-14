@@ -1546,7 +1546,7 @@ async function handCardClick(index: number) {
 }
 
 function boardCardClick(index: number, rowIndex: number, isPlayer?: boolean) {
-  const playerName = isPlayer ? "Player" : "Opponent"
+  const playerName = isPlayer ? 'Player' : 'Opponent'
   let title = `${playerName} Close Combat`
   let icon = 'gi-broadsword'
 
@@ -1555,7 +1555,9 @@ function boardCardClick(index: number, rowIndex: number, isPlayer?: boolean) {
     title = rowIndex === 1 ? `${playerName} Ranged Combat` : `${playerName} Siege Combat`
     icon = rowIndex === 1 ? 'gi-crossbow' : 'gi-catapult'
   }
-  activeCardRow.value = isPlayer ? playerBoardCards.value[rowIndex] : opponentBoardCards.value[rowIndex]
+  activeCardRow.value = isPlayer
+    ? playerBoardCards.value[rowIndex]
+    : opponentBoardCards.value[rowIndex]
   slideIndex.value = index
   showCardModal(undefined, 'Close', title, icon).then(() => {
     closeCardModal()
@@ -1806,7 +1808,11 @@ function sortCardsHighToLow(a: Card, b: Card) {
           :player="cardPreviewIsPlayer"
         ></CardPreview>
 
-        <CardModal v-model="cardModal" class="quick-fade">
+        <CardModal
+          v-model="cardModal"
+          class="quick-fade"
+          :class="{ 'cover-player-hand': healActive }"
+        >
           <template v-if="cardModalTitle" v-slot:header>
             <v-icon
               v-if="cardRedrawActive || healActive || playerHandIsActive || discardPileActive"
@@ -2079,7 +2085,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 <v-icon class="icon" name="oi-stack" :scale="props.desktop ? 2 : 1" />
                 {{ opponentHandCount }}
               </div>
-              <div
+              <button
                 :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
                 class="discard-pile-btn"
                 :class="{ disabled: opponentDiscardPileDisabled }"
@@ -2092,7 +2098,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
               >
                 <v-icon class="icon" name="fa-skull-crossbones" :scale="props.desktop ? 1.7 : 1" />
                 <div class="discard-count">{{ opponentDiscardPile.length }}</div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -2166,7 +2172,10 @@ function sortCardsHighToLow(a: Card, b: Card) {
             </div>
           </div>
 
-          <div class="card-row player-hand">
+          <div
+            class="card-row player-hand"
+            :class="{ active: playerHandIsActive || cardRedrawActive }"
+          >
             <SmallCard
               v-for="(card, i) in playerHand"
               :ability-icon="card.abilityIcon"

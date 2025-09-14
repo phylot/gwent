@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center;
   overflow: auto;
-  background-color: #1a1a1a;
+  background-image: radial-gradient(circle, #27130e 70%, #000000 100%);
   -webkit-user-select: none;
   user-select: none;
 }
@@ -26,6 +26,7 @@
   position: relative;
   width: 100%;
   margin: auto;
+  box-shadow: 0 0 200px 0 #000000;
 }
 
 .opponent-board {
@@ -245,11 +246,11 @@
 }
 
 .game-details .stats .discard-pile-btn {
+  width: 45px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 43px;
-  height: 25px;
   font-size: 12px;
   font-weight: bold;
   color: #ffffff;
@@ -263,6 +264,15 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.game-details .stats .discard-pile-btn:hover {
+  background-color: #ffffff10;
+}
+
+.game-details .stats .discard-pile-btn .icon {
+  width: 18px;
+  height: 18px;
 }
 
 .game-details .stats .discard-pile-btn .discard-count {
@@ -474,7 +484,7 @@
 }
 
 .opponent-board .card-row.card-row3 {
-  border-top: 2px solid #38271a;
+  border-top: 2px solid #4c3524;
   background: linear-gradient(#38271a, #5a391b);
 }
 
@@ -488,7 +498,6 @@
 }
 
 .player-hand {
-  z-index: 4000;
   min-height: 70px;
   justify-content: center;
   border: 2px solid #c68a19;
@@ -500,6 +509,10 @@
       rgba(0, 0, 0, 0) 100%
     ),
     rgba(68, 32, 20, 0.75);
+}
+
+.player-hand.active {
+  z-index: 4000;
 }
 
 /* Post-match Stats */
@@ -553,6 +566,10 @@
 
 .game-board .card-modal {
   bottom: 74px;
+}
+
+.game-board .card-modal.cover-player-hand {
+  bottom: 0;
 }
 
 .game-board .card-modal .card-modal-header .card-modal-header-icon {
@@ -673,6 +690,10 @@
     font-size: 16px;
   }
 
+  .game-details .pass-btn-wrap .pass-btn:hover {
+    background-color: #ffffff10;
+  }
+
   .player-details,
   .opponent-details {
     gap: 5px;
@@ -732,9 +753,14 @@
 
   .game-details .stats .discard-pile-btn {
     height: 40px;
-    width: 75px;
+    width: 76px;
     font-size: 20px;
     border-width: 2px;
+  }
+
+  .game-details .stats .discard-pile-btn .icon {
+    width: 26px;
+    height: 26px;
   }
 
   .game-details .stats .discard-pile-btn .discard-count {
