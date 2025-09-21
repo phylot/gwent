@@ -5,15 +5,16 @@
   height: 100vh;
   height: 100dvh;
   min-width: 320px;
+  min-height: 580px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  overflow: auto;
   background-image: radial-gradient(circle, #27130e 70%, #000000 100%);
   -webkit-user-select: none;
   user-select: none;
 }
 
-.game-container {
+.game-board .game-container {
   position: relative;
   width: 100%;
   height: 100%;
@@ -22,22 +23,16 @@
   align-items: center;
 }
 
-.board-container {
+.game-board .board-container {
   position: relative;
   width: 100%;
-  margin: auto;
-  box-shadow: 0 0 200px 0 #000000;
-}
-
-.opponent-board {
-  flex: 1 1;
+  height: 100%;
+  max-height: 760px;
   display: flex;
-  flex-direction: column-reverse;
-  justify-content: end;
-}
-
-.player-board {
-  flex: 1 1;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  box-shadow: 0 0 200px 0 #000000;
 }
 
 .game-board .board-score-badge {
@@ -49,7 +44,7 @@
   font-weight: 900;
   color: #000;
   text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 0 1px 0 #fff,
-  1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+    1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
   box-sizing: border-box;
   border: 2px solid #e4e4e4;
   border-radius: 999px;
@@ -67,11 +62,13 @@
 
 /* Central Game Stats */
 
-.game-details {
+.game-board .game-details {
+  order: 4;
+  min-height: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 70px;
+  flex: 1;
   border-top: 2px solid #68401b;
   color: #ffffff;
   box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25) inset, 0 -20px 20px 0 rgba(0, 0, 0, 0.1) inset;
@@ -80,16 +77,16 @@
   --details-bg-color-2: #442014;
   --details-bg-gradient: #0000 83%, var(--details-bg-color-1) 85% 99%, #0000 101%;
   background: radial-gradient(27% 29% at right, var(--details-bg-gradient))
-  calc(var(--details-bg-size) / 2) var(--details-bg-size),
-  radial-gradient(27% 29% at left, var(--details-bg-gradient)) calc(var(--details-bg-size) / -2)
-  var(--details-bg-size),
-  radial-gradient(29% 27% at top, var(--details-bg-gradient)) 0 calc(var(--details-bg-size) / 2),
-  radial-gradient(29% 27% at bottom, var(--details-bg-gradient)) 0 calc(var(--details-bg-size) / -2)
-  var(--details-bg-color-2);
+      calc(var(--details-bg-size) / 2) var(--details-bg-size),
+    radial-gradient(27% 29% at left, var(--details-bg-gradient)) calc(var(--details-bg-size) / -2)
+      var(--details-bg-size),
+    radial-gradient(29% 27% at top, var(--details-bg-gradient)) 0 calc(var(--details-bg-size) / 2),
+    radial-gradient(29% 27% at bottom, var(--details-bg-gradient)) 0
+      calc(var(--details-bg-size) / -2) var(--details-bg-color-2);
   background-size: calc(2 * var(--details-bg-size)) calc(2 * var(--details-bg-size));
 }
 
-.game-details .pass-btn-wrap {
+.game-board .game-details .pass-btn-wrap {
   width: 32px;
   height: 100%;
   display: flex;
@@ -97,7 +94,7 @@
   align-items: center;
 }
 
-.game-details .pass-btn-wrap .pass-btn {
+.game-board .game-details .pass-btn-wrap .pass-btn {
   width: 24px;
   height: 62px;
   display: inline-flex;
@@ -109,88 +106,94 @@
   background: none;
 }
 
-.game-details .pass-btn-wrap .pass-btn .pass-btn-text {
+.game-board .game-details .pass-btn-wrap .pass-btn .pass-btn-text {
   transform: rotate(-90deg);
 }
 
-.game-details .small-card {
+.game-board .game-details .small-card {
   flex-shrink: 0;
   margin: 0 10px;
 }
 
-.player-details,
-.opponent-details {
+.game-board .player-details,
+.game-board .opponent-details {
   display: flex;
   flex-direction: column;
   flex: 1;
   gap: 4px;
 }
 
-.game-details .avatar {
+.game-board .game-details .avatar {
   position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.game-details .player-details .avatar {
+.game-board .game-details .player-details .avatar {
   flex-direction: row-reverse;
   justify-content: end;
 }
 
-.game-details .avatar .avatar-details {
+.game-board .game-details .avatar .avatar-details {
   display: flex;
   flex-direction: column;
 }
 
-.game-details .player-details .avatar .avatar-details {
+.game-board .game-details .player-details .avatar .avatar-details {
   justify-content: end;
 }
 
-.game-details .avatar .title {
+.game-board .game-details .avatar .title {
   font-size: 10px;
   line-height: normal;
   font-weight: 700;
 }
 
-.game-details .player-details .avatar .title {
+.game-board .game-details .player-details .avatar .title {
   text-align: right;
 }
 
-.game-details .avatar .round-counter {
+.game-board .game-details .avatar .round-counter {
   display: flex;
 }
 
-.game-details .player-details .avatar .round-counter {
+.game-board .game-details .player-details .avatar .round-counter {
   flex-direction: row-reverse;
   justify-content: right;
 }
 
-.game-details .round-icon {
+.game-board .game-details .round-icon {
+  width: 16px;
+  height: 16px;
   color: #d89803;
 }
 
-.game-details .round-icon-placeholder {
+.game-board .game-details .round-icon-placeholder {
+  width: 16px;
+  height: 16px;
   color: #735607;
 }
 
-.game-details .pass-icon {
+.game-board .game-details .pass-icon {
   position: absolute;
   top: -20px;
+  width: 40px;
+  height: 40px;
   z-index: 1500;
   filter: drop-shadow(2px 0 0 #111111) drop-shadow(-2px 0 0 #111111) drop-shadow(0 2px 0 #111111)
     drop-shadow(0 -2px 0 #111111);
 }
 
-.game-details .player-details .pass-icon {
+.game-board .game-details .player-details .pass-icon {
   right: -12px;
 }
 
-.game-details .opponent-details .pass-icon {
+.game-board .game-details .opponent-details .pass-icon {
   left: -12px;
 }
 
-.game-details .flag {
+.game-board .game-details .flag {
   position: relative;
   width: 28px;
   height: 28px;
@@ -202,41 +205,43 @@
   background-size: cover;
 }
 
-.game-details .player-details .flag.active,
-.game-details .opponent-details .flag.active {
+.game-board .game-details .player-details .flag.active,
+.game-board .game-details .opponent-details .flag.active {
   box-shadow: 0 0 0 3px #357bff;
 }
 
-.game-details .turn-icon {
+.game-board .game-details .turn-icon {
   position: absolute;
   top: -27px;
   left: 0;
   right: 0;
+  width: 23px;
+  height: 23px;
   margin-inline: auto;
-  width: fit-content;
+  fill: #357bff;
   filter: drop-shadow(1px 0 0 #e8f0ff) drop-shadow(-1px 0 0 #e8f0ff) drop-shadow(0 1px 0 #e8f0ff)
     drop-shadow(0 -1px 0 #e8f0ff);
   z-index: 1000;
 }
 
-.game-details .stats {
+.game-board .game-details .stats {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.game-details .player-details .stats {
+.game-board .game-details .player-details .stats {
   flex-direction: row-reverse;
   justify-content: end;
 }
 
-.game-details .board-score-badge {
+.game-board .game-details .board-score-badge {
   width: 28px;
   height: 28px;
   font-size: 14px;
 }
 
-.game-details .stats .hand-total {
+.game-board .game-details .stats .hand-total {
   display: flex;
   align-items: center;
   width: 35px;
@@ -245,13 +250,19 @@
   font-weight: bold;
 }
 
-.game-details .stats .discard-pile-btn {
+.game-board .game-details .stats .hand-count-icon {
+  width: 19px;
+  height: 19px;
+}
+
+.game-board .game-details .stats .discard-pile-btn {
   width: 45px;
   height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
+  line-height: 1;
   font-weight: bold;
   color: #ffffff;
   border: 1px solid #ffffff;
@@ -266,40 +277,41 @@
   user-select: none;
 }
 
-.game-details .stats .discard-pile-btn:hover {
+.game-board .game-details .stats .discard-pile-btn:hover {
   background-color: #ffffff10;
 }
 
-.game-details .stats .discard-pile-btn .icon {
+.game-board .game-details .stats .discard-pile-btn .discard-icon {
   width: 18px;
   height: 18px;
 }
 
-.game-details .stats .discard-pile-btn .discard-count {
+.game-board .game-details .stats .discard-pile-btn .discard-count {
   width: 14px;
   text-align: center;
 }
 
-.game-details .stats .discard-pile-btn.disabled {
+.game-board .game-details .stats .discard-pile-btn.disabled {
   color: #666666;
   border-color: #666666;
   cursor: not-allowed;
 }
 
-.game-details .player-details .stats .hand-total,
-.game-details .player-details .stats .discard-pile-btn {
+.game-board .game-details .player-details .stats .hand-total,
+.game-board .game-details .player-details .stats .discard-pile-btn {
   flex-direction: row-reverse;
 }
 
 /* Card Rows */
 
-.card-row {
-  display: flex;
+.game-board .card-row {
   position: relative;
-  height: 70px;
+  min-height: 70px;
+  display: flex;
+  flex: 1;
 }
 
-.card-row::before {
+.game-board .card-row::before {
   content: '';
   position: absolute;
   top: 0;
@@ -311,12 +323,12 @@
   background-repeat: no-repeat;
 }
 
-.card-row-wrap {
+.game-board .card-row-wrap {
   width: 100%;
   display: flex;
 }
 
-.card-row-wrap::before {
+.game-board .card-row-wrap::before {
   content: '';
   position: absolute;
   top: 0;
@@ -326,19 +338,19 @@
   box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.25) inset, 0 -15px 15px 0 rgba(0, 0, 0, 0.25) inset;
 }
 
-.card-row.highlight {
+.game-board .card-row.highlight {
   z-index: 5000;
   position: relative;
 }
 
-.card-row.row-select {
+.game-board .card-row.row-select {
   z-index: 5000;
   position: relative;
   animation: pulse 1s infinite;
   cursor: pointer;
 }
 
-.card-row.row-select .card-row-wrap::before {
+.game-board .card-row.row-select .card-row-wrap::before {
   content: '';
   position: absolute;
   top: 0;
@@ -351,19 +363,24 @@
   z-index: 1;
 }
 
-.icon.row-select {
+.game-board .row-select-icon {
   z-index: 3100;
   position: absolute;
-  top: 10px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
   left: 40px;
+  width: 50px;
+  height: 50px;
+  fill: chartreuse;
 }
 
-.icon.row-select,
-.card-row.row-select .small-card {
+.game-board .icon.row-select,
+.game-board .card-row.row-select .small-card {
   cursor: pointer;
 }
 
-.row-stats {
+.game-board .row-stats {
   width: 30px;
   padding: 2px 0 0;
   display: flex;
@@ -375,13 +392,13 @@
   border-right: 2px solid #935c26;
 }
 
-.row-stats .board-score-badge {
+.game-board .row-stats .board-score-badge {
   width: 26px;
   height: 26px;
   font-size: 13px;
 }
 
-.row-stats .ability-badge {
+.game-board .row-stats .ability-badge {
   width: 18px;
   height: 18px;
   display: flex;
@@ -393,15 +410,21 @@
   background-color: #73451a;
 }
 
-.card-container {
+.game-board .row-stats .ability-badge .ability-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.game-board .card-container {
   position: relative;
   width: 100%;
   min-width: 0;
   display: flex;
+  align-items: center;
   justify-content: center;
 }
 
-.card-container::before {
+.game-board .card-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -413,91 +436,98 @@
   mask-repeat: no-repeat;
 }
 
-.player-board .card-row.card-row1 {
+.game-board .card-row.player-row.card-row1 {
+  order: 5;
   border-top: 2px solid #70441a;
   background: linear-gradient(#70441a, #78481a);
 }
 
-.player-board .card-row.card-row1::before {
-  background-image: radial-gradient(circle, #7a491c 0%, #7a491c 60%, transparent 60%);
+.game-board .card-row.player-row.card-row1::before {
+  background-image: radial-gradient(circle, #7a491c 0%, #7a491c 50%, transparent 50%);
 }
 
-.player-board .card-row.card-row1 .card-container::before {
+.game-board .card-row.player-row.card-row1 .card-container::before {
   background-color: #68381a;
   mask-image: url('./images/broadsword.svg');
 }
 
-.player-board .card-row.card-row2 {
+.game-board .card-row.player-row.card-row2 {
+  order: 6;
   border-top: 2px solid #78481a;
   background: linear-gradient(#78481a, #7f4c1a);
 }
 
-.player-board .card-row.card-row2::before {
-  background-image: radial-gradient(circle, #814c1a 0%, #814c1a 60%, transparent 60%);
+.game-board .card-row.player-row.card-row2::before {
+  background-image: radial-gradient(circle, #814c1a 0%, #814c1a 50%, transparent 50%);
 }
 
-.player-board .card-row.card-row2 .card-container::before {
+.game-board .card-row.player-row.card-row2 .card-container::before {
   background-color: #6e3a1b;
   mask-image: url('/src/assets/images/crossbow.svg');
 }
 
-.player-board .card-row.card-row3 {
+.game-board .card-row.player-row.card-row3 {
+  order: 7;
   border-top: 2px solid #7f4c1a;
   background: linear-gradient(#7f4c1a, #864f1a);
 }
 
-.player-board .card-row.card-row3::before {
-  background-image: radial-gradient(circle, #89501b 0%, #89501b 60%, transparent 60%);
+.game-board .card-row.player-row.card-row3::before {
+  background-image: radial-gradient(circle, #89501b 0%, #89501b 50%, transparent 50%);
 }
 
-.player-board .card-row.card-row3 .card-container::before {
+.game-board .card-row.player-row.card-row3 .card-container::before {
   background-color: #77401f;
   mask-image: url('./images/catapult.svg');
 }
 
-.opponent-board .card-row.card-row1 {
+.game-board .card-row.opponent-row.card-row1 {
+  order: 3;
   border-top: 2px solid #623d1b;
   background: linear-gradient(#623d1b, #68401b);
 }
 
-.opponent-board .card-row.card-row1::before {
-  background-image: radial-gradient(circle, #69411c 0%, #69411c 60%, transparent 60%);
+.game-board .card-row.opponent-row.card-row1::before {
+  background-image: radial-gradient(circle, #69411c 0%, #69411c 50%, transparent 50%);
 }
 
-.opponent-board .card-row.card-row1 .card-container::before {
+.game-board .card-row.opponent-row.card-row1 .card-container::before {
   background-color: #5c3117;
   mask-image: url('./images/broadsword.svg');
 }
 
-.opponent-board .card-row.card-row2 {
+.game-board .card-row.opponent-row.card-row2 {
+  order: 2;
   border-top: 2px solid #59381a;
   background: linear-gradient(#59381a, #613c1b);
 }
 
-.opponent-board .card-row.card-row2::before {
-  background-image: radial-gradient(circle, #623d1b 0%, #623d1b 60%, transparent 60%);
+.game-board .card-row.opponent-row.card-row2::before {
+  background-image: radial-gradient(circle, #623d1b 0%, #623d1b 50%, transparent 50%);
 }
 
-.opponent-board .card-row.card-row2 .card-container::before {
+.game-board .card-row.opponent-row.card-row2 .card-container::before {
   background-color: #582e14;
   mask-image: url('/src/assets/images/crossbow.svg');
 }
 
-.opponent-board .card-row.card-row3 {
+.game-board .card-row.opponent-row.card-row3 {
+  order: 1;
   border-top: 2px solid #4c3524;
   background: linear-gradient(#38271a, #5a391b);
 }
 
-.opponent-board .card-row.card-row3::before {
-  background-image: radial-gradient(circle, #55371c 0%, #55371c 60%, transparent 60%);
+.game-board .card-row.opponent-row.card-row3::before {
+  background-image: radial-gradient(circle, #55371c 0%, #55371c 50%, transparent 50%);
 }
 
-.opponent-board .card-row.card-row3 .card-container::before {
+.game-board .card-row.opponent-row.card-row3 .card-container::before {
   background-color: #4e2913;
   mask-image: url('./images/catapult.svg');
 }
 
-.player-hand {
+.game-board .player-hand {
+  order: 8;
   min-height: 70px;
   justify-content: center;
   border: 2px solid #c68a19;
@@ -511,54 +541,60 @@
     rgba(68, 32, 20, 0.75);
 }
 
-.player-hand.active {
+.game-board .player-hand.card-row {
+  flex: 0;
+}
+
+.game-board .player-hand.active {
   z-index: 4000;
 }
 
 /* Post-match Stats */
 
-.match-stats {
+.game-board .match-stats {
   flex-grow: 1;
   flex-basis: 0;
   display: flex;
   flex-direction: column;
 }
 
-.match-stats.player {
+.game-board .match-stats.player {
   align-items: end;
   padding-right: 15px;
   border-right: 1px solid #ffffff;
 }
 
-.match-stats.opponent {
+.game-board .match-stats.opponent {
   align-items: start;
   padding-left: 15px;
 }
 
-.match-stats .round-total {
+.game-board .match-stats .round-total {
   position: relative;
   height: 20px;
 }
 
-.match-stats .round-total.win {
+.game-board .match-stats .round-total.win {
   font-weight: bold;
 }
 
-.match-stats .round-total .round-icon {
+.game-board .match-stats .round-total .round-icon {
   position: absolute;
   top: -1px;
+  width: 19px;
+  height: 19px;
   color: #d89803;
 }
 
-.match-stats.player .round-total .round-icon {
+.game-board .match-stats.player .round-total .round-icon {
   left: -25px;
 }
 
-.match-stats.opponent .round-total .round-icon {
+.game-board .match-stats.opponent .round-total .round-icon {
   right: -25px;
 }
 
-.match-stats .award {
+.game-board .match-stats .award {
   margin-top: 10px;
 }
 
@@ -598,7 +634,7 @@
 
 /* Pause Menu Button */
 
-.btn.pause-menu-btn {
+.game-board .btn.pause-menu-btn {
   z-index: 7000;
   position: absolute;
   top: 5px;
@@ -607,22 +643,27 @@
   background-color: rgb(0, 0, 0, 0.5);
 }
 
+.game-board .btn.pause-menu-btn .icon {
+  width: 23px;
+  height: 23px;
+}
+
 /* Narrow Mobile Screen Styles */
 
 @media (max-width: 359px) and (orientation: portrait) {
-  .game-details .stats {
+  .game-board .game-details .stats {
     gap: 2px;
   }
 
-  .game-details .small-card {
-    margin: 5px;
+  .game-board .game-details .small-card {
+    margin: 0 5px;
   }
 }
 
 /* Desktop Styles */
 
-@media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
-  .game-container {
+@media (min-width: 1200px) and (min-height: 900px) and (orientation: landscape) {
+  .game-board .game-container {
     width: 80%;
     max-width: 1600px;
   }
@@ -630,7 +671,7 @@
 
 /* Desktop / Tablet Styles */
 
-@media (min-height: 880px) and (orientation: landscape),
+@media (min-height: 900px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   /* Board Layout (Desktop / Tablet) */
 
@@ -639,157 +680,192 @@
       2px 0 0 #fff, 0 -2px 0 #fff, -2px 0 0 #fff;
   }
 
-  .game-details,
-  .card-row {
-    height: 110px;
+  .game-board .board-container {
+    max-height: 1100px;
   }
 
-  .card-row::before {
+  .game-board .game-details,
+  .game-board .card-row {
+    min-height: 110px;
+    max-height: none;
+  }
+
+  .game-board .card-row::before {
     left: 57px;
     background-size: 90px;
   }
 
-  .icon.row-select {
-    position: absolute;
-    top: 20px;
-    left: 80px;
+  .game-board .row-select-icon {
+    left: 70px;
+    width: 70px;
+    height: 70px;
   }
 
-  .card-container::before {
+  .game-board .card-container::before {
     mask-size: 40px;
   }
 
-  .row-stats {
+  .game-board .row-stats {
     width: 55px;
     padding: 4px 0 0;
   }
 
-  .row-stats .board-score-badge {
+  .game-board .row-stats .board-score-badge {
     width: 35px;
     height: 35px;
     font-size: 20px;
   }
 
-  .row-stats .ability-badge {
-    width: 26px;
-    height: 26px;
+  .game-board .row-stats .ability-badge {
+    width: 28px;
+    height: 28px;
     margin-top: 3px;
     font-size: 16px;
   }
 
+  .game-board .row-stats .ability-badge .ability-icon {
+    width: 22px;
+    height: 22px;
+  }
+
   /* Central Game Stats (Desktop / Tablet) */
 
-  .game-details .pass-btn-wrap {
+  .game-board .game-details .pass-btn-wrap {
     width: 57px;
   }
 
-  .game-details .pass-btn-wrap .pass-btn {
+  .game-board .game-details .pass-btn-wrap .pass-btn {
     width: 42px;
     height: 94px;
     border-width: 2px;
     font-size: 16px;
   }
 
-  .game-details .pass-btn-wrap .pass-btn:hover {
+  .game-board .game-details .pass-btn-wrap .pass-btn:hover {
     background-color: #ffffff10;
   }
 
-  .player-details,
-  .opponent-details {
+  .game-board .game-details .small-card {
+    margin: 0 30px;
+  }
+
+  .game-board .player-details,
+  .game-board .opponent-details {
     gap: 5px;
   }
 
-  .game-details .avatar {
+  .game-board .game-details .avatar {
     gap: 12px;
   }
 
-  .game-details .avatar .title {
+  .game-board .game-details .avatar .title {
     font-size: 17px;
   }
 
-  .game-details .turn-icon {
-    top: -45px;
+  .game-board .game-details .round-icon {
+    width: 29px;
+    height: 29px;
   }
 
-  .game-details .pass-icon {
+  .game-board .game-details .round-icon-placeholder {
+    width: 29px;
+    height: 29px;
+  }
+
+  .game-board .game-details .turn-icon {
+    top: -45px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .game-board .game-details .pass-icon {
     top: -30px;
+    width: 60px;
+    height: 60px;
     filter: drop-shadow(3px 0 0 #111111) drop-shadow(-3px 0 0 #111111) drop-shadow(0 3px 0 #111111)
       drop-shadow(0 -3px 0 #111111);
   }
 
-  .game-details .opponent-details .pass-icon {
+  .game-board .game-details .opponent-details .pass-icon {
     left: -17px;
   }
 
-  .game-details .player-details .pass-icon {
+  .game-board .game-details .player-details .pass-icon {
     right: -17px;
   }
 
-  .game-details .flag {
+  .game-board .game-details .flag {
     width: 45px;
     height: 45px;
   }
 
-  .game-details .player-details .flag.active,
-  .game-details .opponent-details .flag.active {
+  .game-board .game-details .player-details .flag.active,
+  .game-board .game-details .opponent-details .flag.active {
     box-shadow: 0 0 0 5px #357bff;
   }
 
-  .game-details .stats {
+  .game-board .game-details .stats {
     gap: 12px;
   }
 
-  .game-details .board-score-badge {
+  .game-board .game-details .board-score-badge {
     width: 45px;
     height: 45px;
     font-size: 24px;
   }
 
-  .game-details .stats .hand-total {
+  .game-board .game-details .stats .hand-total {
     height: 40px;
     width: 65px;
     font-size: 20px;
   }
 
-  .game-details .stats .discard-pile-btn {
+  .game-board .game-details .stats .hand-count-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .game-board .game-details .stats .discard-pile-btn {
     height: 40px;
     width: 76px;
     font-size: 20px;
     border-width: 2px;
   }
 
-  .game-details .stats .discard-pile-btn .icon {
+  .game-board .game-details .stats .discard-pile-btn .discard-icon {
     width: 26px;
     height: 26px;
   }
 
-  .game-details .stats .discard-pile-btn .discard-count {
+  .game-board .game-details .stats .discard-pile-btn .discard-count {
     width: 25px;
   }
 
   /* Post-match Stats (Desktop / Tablet) */
 
-  .match-stats.player {
+  .game-board .match-stats.player {
     padding-right: 20px;
   }
 
-  .match-stats.opponent {
+  .game-board .match-stats.opponent {
     padding-left: 20px;
   }
 
-  .match-stats .round-total {
+  .game-board .match-stats .round-total {
     height: 30px;
   }
 
-  .match-stats .round-total .round-icon {
+  .game-board .match-stats .round-total .round-icon {
     top: -3px;
+    width: 29px;
+    height: 29px;
   }
 
-  .match-stats.player .round-total .round-icon {
+  .game-board .match-stats.player .round-total .round-icon {
     left: -37px;
   }
 
-  .match-stats.opponent .round-total .round-icon {
+  .game-board .match-stats.opponent .round-total .round-icon {
     right: -37px;
   }
 
@@ -813,5 +889,10 @@
   .game-board .card-modal .card-modal-header .combat-type-badge .icon {
     width: 34px;
     height: 34px;
+  }
+
+  .game-board .btn.pause-menu-btn .icon {
+    width: 35px;
+    height: 35px;
   }
 }

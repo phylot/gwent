@@ -106,7 +106,7 @@ function hide() {
 
 /* Desktop / Tablet Styles */
 
-@media (min-height: 880px) and (orientation: landscape),
+@media (min-height: 900px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   .card-unlock-modal .big-card {
     max-width: 420px;

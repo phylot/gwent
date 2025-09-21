@@ -50,7 +50,7 @@ defineProps<{
   background: rgb(0, 0, 0, 0.7);
 }
 
-@media (min-height: 880px) and (orientation: landscape),
+@media (min-height: 900px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   .card-modal .card-modal-content {
     gap: 10px;

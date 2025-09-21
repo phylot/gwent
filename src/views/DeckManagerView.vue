@@ -603,7 +603,8 @@ function capitaliseString(string: string) {
 <style>
 .deck-manager {
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   min-width: 320px;
   display: flex;
   align-items: center;
@@ -619,14 +620,14 @@ function capitaliseString(string: string) {
   width: 100%;
   min-width: 320px;
   height: 100%;
-  max-height: 560px;
-  margin: 0 auto;
+  max-height: 1200px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .deck-manager .deck-manager-header {
+  padding-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -705,7 +706,7 @@ function capitaliseString(string: string) {
   position: relative;
   display: flex;
   flex-direction: column;
-  flex: 1 0 0;
+  flex: 1 1;
   overflow: hidden;
   border-radius: 0 0 10px 10px;
 }
@@ -729,6 +730,7 @@ function capitaliseString(string: string) {
   padding: 0 10px;
   display: flex;
   flex-direction: column;
+  flex: 1 1;
   gap: 10px;
 }
 
@@ -815,21 +817,21 @@ function capitaliseString(string: string) {
 
 .deck-manager .collection-drawer {
   position: absolute;
-  bottom: -305px;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 350px;
+  height: 45px;
   display: flex;
   flex-direction: column;
   border-radius: 10px 10px 0 0;
   background-color: #007661;
   box-shadow: 0 -10px 10px 0 rgba(0, 0, 0, 0.25);
-  transition: bottom 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+  transition: height 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
   -webkit-tap-highlight-color: transparent;
 }
 
 .deck-manager .collection-drawer.active {
-  bottom: 0;
+  height: 80%;
 }
 
 .deck-manager .collection-drawer-toolbar {
@@ -957,6 +959,7 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-footer {
+  padding-bottom: 10px;
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
@@ -998,7 +1001,7 @@ function capitaliseString(string: string) {
 
 /* Desktop Styles */
 
-@media (min-width: 1200px) and (min-height: 880px) and (orientation: landscape) {
+@media (min-width: 1200px) and (min-height: 900px) and (orientation: landscape) {
   .deck-manager-container {
     width: 80%;
     max-width: 1600px;
@@ -1007,11 +1010,15 @@ function capitaliseString(string: string) {
 
 /* Desktop / Tablet Styles */
 
-@media (min-height: 880px) and (orientation: landscape),
+@media (min-height: 900px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
   .deck-manager .deck-manager-container {
-    max-height: 880px;
+    height: 100%;
     gap: 20px;
+  }
+
+  .deck-manager .deck-manager-header {
+    padding-top: 40px;
   }
 
   .deck-manager .deck-manager-header .header-container {
@@ -1164,6 +1171,7 @@ function capitaliseString(string: string) {
   }
 
   .deck-manager .deck-manager-footer {
+    padding-bottom: 40px;
     gap: 20px;
   }
 }
