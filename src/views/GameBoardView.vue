@@ -1917,7 +1917,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 v-if="playerIsPassed"
                 animation="float"
                 class="icon pass-icon"
-                fill="white"
                 name="fa-flag"
               />
               <div
@@ -1994,7 +1993,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 v-if="opponentIsPassed"
                 animation="float"
                 class="icon pass-icon"
-                fill="white"
                 name="fa-flag"
               />
               <div
@@ -2143,7 +2141,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :disabled="boardDisabled && playerHandDisabled && cardModalDisabled"
       @click="showPauseModal"
     >
-      <v-icon class="icon" fill="white" name="la-cog-solid" />
+      <v-icon class="icon" name="la-cog-solid" />
     </button>
   </div>
 </template>

@@ -71,7 +71,7 @@ function changeSlide(back?: boolean) {
       tabindex="2"
       @click="disabled ? null : changeSlide(true)"
     >
-      <v-icon name="hi-chevron-left" class="icon" :scale="props.desktop ? 1.5 : 1" />
+      <v-icon class="icon" name="hi-chevron-left" />
     </button>
     <button
       class="next-btn"
@@ -81,7 +81,7 @@ function changeSlide(back?: boolean) {
       tabindex="2"
       @click="disabled ? null : changeSlide()"
     >
-      <v-icon name="hi-chevron-right" class="icon" :scale="props.desktop ? 1.5 : 1" />
+      <v-icon class="icon" name="hi-chevron-right" />
     </button>
   </div>
 </template>
@@ -140,6 +140,20 @@ function changeSlide(back?: boolean) {
   right: 0;
 }
 
+.card-carousel .prev-btn .icon,
+.card-carousel .next-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.card-carousel .prev-btn .icon {
+  margin-left: -2px;
+}
+
+.card-carousel .next-btn .icon {
+  margin-right: -2px;
+}
+
 .card-carousel .prev-btn.disabled,
 .card-carousel .prev-btn:disabled,
 .card-carousel .next-btn.disabled,
@@ -172,14 +186,6 @@ function changeSlide(back?: boolean) {
   }
 }
 
-.card-carousel .prev-btn .icon {
-  margin-left: -2px;
-}
-
-.card-carousel .next-btn .icon {
-  margin-right: -2px;
-}
-
 /* Desktop / Tablet Styles */
 
 @media (min-height: 900px) and (orientation: landscape),
@@ -200,6 +206,12 @@ function changeSlide(back?: boolean) {
   .next-btn:focus:not(.disabled):not(:disabled) {
     outline: none;
     box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+
+  .card-carousel .prev-btn .icon,
+  .card-carousel .next-btn .icon {
+    width: 30px;
+    height: 30px;
   }
 }
 </style>

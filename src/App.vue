@@ -678,7 +678,6 @@ async function unlockAllCards() {
             animation="pulse"
             class="icon"
             name="fa-regular-save"
-            :scale="isDesktop ? 1.8 : 1.4"
             speed="fast"
           />WARNING: Your progress is saved to this device
         </div>
@@ -690,7 +689,6 @@ async function unlockAllCards() {
           animation="spin"
           class="icon"
           name="la-spinner-solid"
-          :scale="isDesktop ? 1.8 : 1.4"
         />Loading</template
       >
     </div>

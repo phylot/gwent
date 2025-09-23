@@ -181,6 +181,7 @@
   width: 40px;
   height: 40px;
   z-index: 1500;
+  fill: #ffffff;
   filter: drop-shadow(2px 0 0 #111111) drop-shadow(-2px 0 0 #111111) drop-shadow(0 2px 0 #111111)
     drop-shadow(0 -2px 0 #111111);
 }
@@ -643,9 +644,14 @@
   background-color: rgb(0, 0, 0, 0.5);
 }
 
+.game-board .btn.pause-menu-btn:hover:not(.disabled) {
+  background-color: rgb(50, 50, 50, 0.5);
+}
+
 .game-board .btn.pause-menu-btn .icon {
   width: 23px;
   height: 23px;
+  fill: #ffffff;
 }
 
 /* Narrow Mobile Screen Styles */

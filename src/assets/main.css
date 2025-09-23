@@ -14,6 +14,7 @@ body {
 
 /* Make all image assets immediately available in DOM (prevents additional image network call on card render) */
 html {
+  overscroll-behavior-y: contain;
   background-image: url('./images/br-camoynes.png'), url('./images/br-berry.png'),
     url('./images/br-cannon.png'), url('./images/br-cavalry.png'), url('./images/br-drummer.png'),
     url('./images/br-footguard.png'), url('./images/br-fredrickson.png'),
@@ -64,6 +65,8 @@ html {
 }
 
 .loader .icon {
+  width: 28px;
+  height: 28px;
   margin: 10px;
 }
 
@@ -107,6 +110,12 @@ html {
 
 @media (min-height: 900px) and (orientation: landscape),
   (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+  .loader .icon {
+    width: 35px;
+    height: 35px;
+    margin: 10px;
+  }
+
   .awards-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }

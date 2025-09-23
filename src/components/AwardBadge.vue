@@ -11,7 +11,7 @@ const props = defineProps<{
 
 <template>
   <div class="award" :class="[{ desktop: desktop, reverse: reverse }, active ? type : null]">
-    <v-icon :name="active ? props.icon : 'gi-padlock'" class="icon" fill="white" :scale="props.desktop ? 2 : 1.2" />
+    <v-icon class="icon award-icon" :name="active ? props.icon : 'gi-padlock'" />
     <div class="name">{{ active ? props.name : '??????' }}</div>
   </div>
 </template>
@@ -31,9 +31,12 @@ const props = defineProps<{
   text-align: right;
 }
 
-.award .icon {
+.award .award-icon {
+  width: 23px;
+  height: 23px;
   padding: 3px;
   border-radius: 999px;
+  fill: #ffffff;
   background-color: #535353;
 }
 
@@ -50,7 +53,7 @@ const props = defineProps<{
   background-color: #217f9d;
 }
 
-.award.cardmaster .icon {
+.award.cardmaster .award-icon {
   background-color: #2b94b5;
 }
 
@@ -58,15 +61,15 @@ const props = defineProps<{
   background-color: #357266;
 }
 
-.award.fieldmarshal .icon {
+.award.fieldmarshal .award-icon {
   background-color: #408679;
 }
 
 .award.heavyweight {
-  background-color: #BB4902;
+  background-color: #bb4902;
 }
 
-.award.heavyweight .icon {
+.award.heavyweight .award-icon {
   background-color: #d55a0e;
 }
 
@@ -74,7 +77,7 @@ const props = defineProps<{
   background-color: #712f79;
 }
 
-.award.spymaster .icon {
+.award.spymaster .award-icon {
   background-color: #893b93;
 }
 
@@ -82,7 +85,7 @@ const props = defineProps<{
   background-color: #ad507f;
 }
 
-.award.tactician .icon {
+.award.tactician .award-icon {
   background-color: #c36294;
 }
 
@@ -90,7 +93,7 @@ const props = defineProps<{
   background-color: #c1292e;
 }
 
-.award.tyrant .icon {
+.award.tyrant .award-icon {
   background-color: #db3c42;
 }
 
@@ -98,7 +101,9 @@ const props = defineProps<{
   font-size: 0.8em;
 }
 
-.award.desktop .icon {
+.award.desktop .award-icon {
+  width: 38px;
+  height: 38px;
   padding: 5px;
 }
 

@@ -69,14 +69,14 @@ const cardClasses = computed(() => {
             {{ value }}
           </div>
           <div v-if="abilityIcon" class="card-ability-badge">
-            <v-icon :name="abilityIcon" class="icon" />
+            <v-icon class="icon" :name="abilityIcon" />
           </div>
           <div v-if="typeIcon" class="combat-type-badge">
-            <v-icon :name="typeIcon" class="icon" />
+            <v-icon class="icon" :name="typeIcon" />
           </div>
         </template>
         <div v-else class="placeholder-content">
-          <v-icon name="gi-sunflower" class="icon" />
+          <v-icon class="icon" name="gi-sunflower" />
         </div>
       </div>
     </div>
