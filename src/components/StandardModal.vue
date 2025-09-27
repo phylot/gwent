@@ -46,19 +46,20 @@ function hide() {
     <div
       v-if="localModelValue"
       class="standard-modal"
+      :class="{ desktop: props.desktop }"
       role="dialog"
-      @click.self="persistent ? null : resolvePromise(0) + hide()"
+      @click.self="props.persistent ? null : resolvePromise(0) + hide()"
     >
       <div class="modal">
         <div v-if="props.title" class="heading">
           <div
-            v-if="avatar"
+            v-if="props.avatar"
             class="avatar"
             :style="{ backgroundImage: `url(${props.avatar})` }"
           ></div>
-          <v-icon v-if="icon" class="icon" :name="icon" />
+          <v-icon v-if="props.icon" class="icon" :name="props.icon" />
 
-          <h1>{{ props.title }}</h1>
+          <h1 class="title">{{ props.title }}</h1>
         </div>
 
         <div class="body">
@@ -67,9 +68,9 @@ function hide() {
 
         <div v-if="props.buttons" class="btn-container">
           <button
-            v-for="(button, i) in buttons"
-            class="btn large"
-            :class="{ primary: i === 0 && !props.noPrimary }"
+            v-for="(button, i) in props.buttons"
+            class="btn"
+            :class="{ large: props.desktop, primary: i === 0 && !props.noPrimary }"
             :disabled="props.disabled"
             :key="i"
             @click="resolvePromise(i + 1) + hide()"
@@ -95,7 +96,7 @@ function hide() {
   user-select: none;
 }
 
-.modal {
+.standard-modal .modal {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -113,17 +114,17 @@ function hide() {
   background-color: rgba(0, 0, 0, 0.9);
 }
 
-.modal .heading {
+.standard-modal .modal .heading {
   display: flex;
   align-items: center;
 }
 
-.modal h2 {
-  margin-bottom: 10px;
+.standard-modal .modal .heading .title {
+  font-size: 22px;
 }
 
-.modal .heading .avatar,
-.modal .heading .icon {
+.standard-modal .modal .heading .avatar,
+.standard-modal .modal .heading .icon {
   width: 40px;
   min-width: 40px;
   height: 40px;
@@ -131,7 +132,7 @@ function hide() {
   margin-right: 10px;
 }
 
-.modal .heading .avatar {
+.standard-modal .modal .heading .avatar {
   border: 2px solid #ffffff;
   border-radius: 999px;
   background-repeat: no-repeat;
@@ -139,48 +140,47 @@ function hide() {
   background-size: cover;
 }
 
-.modal .body {
+.standard-modal .modal .body {
   display: flex;
   width: 100%;
   padding: 20px 0;
 }
 
-.modal .btn-container {
+.standard-modal .modal .btn-container {
   display: flex;
   flex-direction: row-reverse;
   justify-content: center;
   gap: 20px;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  /* General Modal (Desktop / Tablet) */
+.standard-modal.desktop .modal {
+  max-width: 600px;
+  padding: 20px 30px;
+}
 
-  .modal {
-    max-width: 600px;
-    padding: 20px 30px;
-  }
+.standard-modal.desktop .modal .heading {
+  padding: 10px 0;
+}
 
-  .modal .heading {
-    padding: 10px 0;
-  }
+.standard-modal.desktop .modal .heading .title {
+  font-size: 40px;
+}
 
-  .modal .heading .avatar {
-    width: 70px;
-    min-width: 70px;
-    height: 70px;
-    min-height: 70px;
-    margin-right: 20px;
-  }
+.standard-modal.desktop .modal .heading .avatar {
+  width: 70px;
+  min-width: 70px;
+  height: 70px;
+  min-height: 70px;
+  margin-right: 20px;
+}
 
-  .modal h2 {
-    margin-bottom: 20px;
-  }
+.standard-modal.desktop .modal h2 {
+  margin-bottom: 20px;
+}
 
-  .modal .btn-container {
-    padding: 10px 0;
-  }
+.standard-modal.desktop .modal .btn-container {
+  padding: 10px 0;
 }
 </style>

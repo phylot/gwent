@@ -325,14 +325,14 @@ function capitaliseString(string: string) {
 </script>
 
 <template>
-  <div class="deck-manager">
+  <div class="deck-manager" :class="{ desktop: props.desktop }">
     <div class="deck-manager-container">
-      <CardModal v-model="cardModal" class="quick-fade">
+      <CardModal v-model="cardModal" class="quick-fade" :desktop="props.desktop">
         <template v-slot:header>
           <div class="combat-type-badge">
             <v-icon class="icon" :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'" />
           </div>
-          <h2 v-if="cardModalTitle">{{ cardModalTitle }}</h2>
+          <h2 v-if="cardModalTitle" class="card-modal-header-title">{{ cardModalTitle }}</h2>
         </template>
 
         <CardCarousel
@@ -343,7 +343,8 @@ function capitaliseString(string: string) {
         ></CardCarousel>
 
         <button
-          class="btn large primary"
+          class="btn primary"
+          :class="{ large: props.desktop }"
           :disabled="cardModalDisabled"
           tabindex="2"
           type="button"
@@ -352,7 +353,8 @@ function capitaliseString(string: string) {
           {{ cardModalConfirmText }}
         </button>
         <button
-          class="btn large"
+          class="btn"
+          :class="{ large: props.desktop }"
           :disabled="cardModalDisabled"
           tabindex="2"
           type="button"
@@ -380,7 +382,7 @@ function capitaliseString(string: string) {
               class="flag-icon"
               :class="[factionKeys[factionIndex]]"
             ></div>
-            <h1>{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
+            <h1 class="faction-title">{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
           </div>
 
           <button
@@ -442,7 +444,7 @@ function capitaliseString(string: string) {
                     <div class="combat-type-badge">
                       <v-icon class="icon" :name="cardArr[0].typeIcon || 'la-star-of-life-solid'" />
                     </div>
-                    <h3>
+                    <h3 class="combat-type-title">
                       {{ capitaliseString(String(key)) }}
                       {{ key === 'special' ? 'Cards' : 'Combat' }}
                     </h3>
@@ -480,17 +482,17 @@ function capitaliseString(string: string) {
 
         <div class="deck-manager-collection">
           <div
-            v-show="drawerActive && !desktop"
+            v-show="drawerActive && !props.desktop"
             class="collection-drawer-screen"
-            :class="{ active: drawerActive && !desktop }"
+            :class="{ active: drawerActive && !props.desktop }"
             @click="drawerActive = !drawerActive"
           ></div>
 
-          <div class="collection-drawer" :class="{ active: drawerActive && !desktop }">
+          <div class="collection-drawer" :class="{ active: drawerActive && !props.desktop }">
             <div
-              :aria-label="desktop ? undefined : 'Toggle Drawer'"
+              :aria-label="props.desktop ? undefined : 'Toggle Drawer'"
               class="collection-drawer-toolbar"
-              :role="desktop ? undefined : 'button'"
+              :role="props.desktop ? undefined : 'button'"
               :tabindex="disabled ? '-1' : '0'"
               @click="drawerActive = !drawerActive"
               @keydown.enter="drawerActive = !drawerActive"
@@ -507,7 +509,7 @@ function capitaliseString(string: string) {
               </div>
 
               <v-icon
-                v-if="!desktop"
+                v-if="!props.desktop"
                 class="arrow-icon"
                 :name="drawerActive ? 'fa-chevron-down' : 'fa-chevron-up'"
                 role="button"
@@ -528,7 +530,7 @@ function capitaliseString(string: string) {
                           :name="cardArr[0].typeIcon || 'la-star-of-life-solid'"
                         />
                       </div>
-                      <h3>
+                      <h3 class="combat-type-title">
                         {{ capitaliseString(String(key)) }}
                         {{ key === 'special' ? 'Cards' : 'Combat' }}
                       </h3>
@@ -570,28 +572,38 @@ function capitaliseString(string: string) {
       <div class="deck-manager-footer">
         <template v-if="preMatch">
           <button
-            :class="{ disabled: invalidUnitTotal }"
-            class="btn primary large"
+            class="btn primary"
+            :class="{ disabled: invalidUnitTotal, large: props.desktop }"
             :disabled="disabled || invalidUnitTotal"
             @click="factionSelected"
           >
             Select
           </button>
-          <button class="btn large" :disabled="disabled" @click="emit('cancel')">
+          <button
+            class="btn"
+            :class="{ large: props.desktop }"
+            :disabled="disabled"
+            @click="emit('cancel')"
+          >
             Back
           </button>
         </template>
 
         <template v-else>
           <button
-            :class="{ disabled: invalidUnitTotal }"
-            class="btn primary large"
+            class="btn primary"
+            :class="{ disabled: invalidUnitTotal, large: props.desktop }"
             :disabled="disabled || invalidUnitTotal"
             @click="save"
           >
             Save
           </button>
-          <button class="btn large" :disabled="disabled" @click="emit('cancel')">
+          <button
+            class="btn"
+            :class="{ large: props.desktop }"
+            :disabled="disabled"
+            @click="emit('cancel')"
+          >
             Cancel
           </button>
         </template>
@@ -619,6 +631,7 @@ function capitaliseString(string: string) {
   position: relative;
   width: 100%;
   min-width: 320px;
+  max-width: 1600px;
   height: 100%;
   max-height: 1200px;
   display: flex;
@@ -645,6 +658,10 @@ function capitaliseString(string: string) {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.deck-manager .deck-manager-header .faction-title {
+  font-size: 23px;
 }
 
 .deck-manager .deck-manager-header .prev-btn,
@@ -746,6 +763,10 @@ function capitaliseString(string: string) {
   flex: 1;
   align-items: center;
   gap: 5px;
+}
+
+.deck-manager .deck-title {
+  font-size: 15px;
 }
 
 .deck-manager .deck-stat-title {
@@ -851,6 +872,10 @@ function capitaliseString(string: string) {
   gap: 5px;
 }
 
+.deck-manager .collection-drawer-toolbar .collection-title {
+  font-size: 15px;
+}
+
 .deck-manager .collection-drawer-toolbar .new-pill {
   padding: 2px;
   font-size: 10px;
@@ -918,6 +943,10 @@ function capitaliseString(string: string) {
   height: 14px;
 }
 
+.deck-manager .deck-manager-type-heading .combat-type-title {
+  font-size: 12px;
+}
+
 .deck-manager .deck-manager-card-row {
   display: flex;
   flex-wrap: wrap;
@@ -967,6 +996,8 @@ function capitaliseString(string: string) {
   gap: 10px;
 }
 
+/* Card Modal */
+
 .deck-manager .card-modal .card-modal-header .combat-type-badge {
   width: 32px;
   height: 32px;
@@ -987,6 +1018,10 @@ function capitaliseString(string: string) {
   height: 22px;
 }
 
+.deck-manager .card-modal .card-modal-header .card-modal-header-title {
+  font-size: 15px;
+}
+
 /* Narrow Mobile Screen Styles */
 
 @media (max-width: 359px) and (orientation: portrait) {
@@ -1001,178 +1036,187 @@ function capitaliseString(string: string) {
 
 /* Desktop Styles */
 
-@media (min-width: 1200px) and (min-height: 900px) and (orientation: landscape) {
-  .deck-manager-container {
-    width: 80%;
-    max-width: 1600px;
-  }
+.deck-manager.desktop .deck-manager-container {
+  gap: 20px;
 }
 
-/* Desktop / Tablet Styles */
+.deck-manager.desktop .deck-manager-header {
+  padding-top: 40px;
+}
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .deck-manager .deck-manager-container {
-    height: 100%;
-    gap: 20px;
-  }
+.deck-manager.desktop .deck-manager-header .header-container {
+  max-width: 500px;
+}
 
-  .deck-manager .deck-manager-header {
-    padding-top: 40px;
-  }
+.deck-manager.desktop .deck-manager-header .heading {
+  gap: 15px;
+}
 
-  .deck-manager .deck-manager-header .header-container {
-    max-width: 500px;
-  }
+.deck-manager.desktop .deck-manager-header .faction-title {
+  font-size: 40px;
+}
 
-  .deck-manager .deck-manager-header .heading {
-    gap: 15px;
-  }
+.deck-manager.desktop .deck-manager-header .flag-icon {
+  width: 36px;
+  height: 36px;
+}
 
-  .deck-manager .deck-manager-header .flag-icon {
-    width: 36px;
-    height: 36px;
-  }
+.deck-manager.desktop .deck-manager-header .prev-btn,
+.deck-manager.desktop .deck-manager-header .next-btn {
+  width: 50px;
+  height: 50px;
+}
 
-  .deck-manager .deck-manager-header .prev-btn,
-  .deck-manager .deck-manager-header .next-btn {
-    width: 50px;
-    height: 50px;
-  }
+.deck-manager.desktop .deck-manager-header .prev-btn .icon,
+.deck-manager.desktop .deck-manager-header .next-btn .icon {
+  width: 50px;
+  height: 50px;
+}
 
-  .deck-manager .deck-manager-header .prev-btn .icon,
-  .deck-manager .deck-manager-header .next-btn .icon {
-    width: 50px;
-    height: 50px;
-  }
+.deck-manager.desktop .deck-manager-main {
+  padding: 0 20px;
+  flex-direction: row;
+  gap: 20px;
+}
 
-  .deck-manager .deck-manager-main {
-    padding: 0 20px;
-    flex-direction: row;
-    gap: 20px;
-  }
+.deck-manager.desktop .deck-manager-stat-badge {
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+}
 
-  .deck-manager .deck-manager-stat-badge {
-    width: 30px;
-    height: 30px;
-    font-size: 14px;
-  }
+.deck-manager.desktop .deck-manager-stats {
+  gap: 20px;
+}
 
-  .deck-manager .deck-manager-stats {
-    gap: 20px;
-  }
+.deck-manager.desktop .deck-heading {
+  gap: 8px;
+}
 
-  .deck-manager .deck-heading {
-    gap: 8px;
-  }
+.deck-manager.desktop .deck-title {
+  font-size: 22px;
+}
 
-  .deck-manager .deck-stat {
-    flex-direction: column-reverse;
-    gap: 7px;
-  }
+.deck-manager.desktop .deck-stat {
+  flex-direction: column-reverse;
+  gap: 7px;
+}
 
-  .deck-manager .deck-stat-title {
-    max-width: none;
-    text-align: center;
-    font-size: 13px;
-  }
+.deck-manager.desktop .deck-stat-title {
+  max-width: none;
+  text-align: center;
+  font-size: 13px;
+}
 
-  .deck-manager .invalid-total {
-    height: 30px;
-    font-size: 18px;
-  }
+.deck-manager.desktop .invalid-total {
+  height: 30px;
+  font-size: 18px;
+}
 
-  .deck-manager .invalid-total .total {
-    font-size: 30px;
-  }
+.deck-manager.desktop .invalid-total .total {
+  font-size: 30px;
+}
 
-  .deck-manager .deck-manager-deck,
-  .deck-manager .deck-manager-collection {
-    padding: 0;
-    flex: 1;
-  }
+.deck-manager.desktop .deck-manager-deck,
+.deck-manager.desktop .deck-manager-collection {
+  padding: 0;
+  flex: 1;
+}
 
-  .deck-manager .deck-manager-deck {
-    gap: 20px;
-  }
+.deck-manager.desktop .deck-manager-deck {
+  gap: 20px;
+}
 
-  .deck-manager .deck-cards {
-    padding-bottom: 0;
-    border-radius: 10px;
-  }
+.deck-manager.desktop .deck-cards {
+  padding-bottom: 0;
+  border-radius: 10px;
+}
 
-  .deck-manager .collection-drawer {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
-    height: 100%;
-    border-radius: 10px;
-  }
+.deck-manager.desktop .collection-drawer {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  height: 100%;
+  border-radius: 10px;
+}
 
-  .deck-manager .collection-drawer-toolbar {
-    padding: 15px 20px;
-    flex-basis: auto;
-    cursor: default;
-  }
+.deck-manager.desktop .collection-drawer-toolbar {
+  padding: 15px 20px;
+  flex-basis: auto;
+  cursor: default;
+}
 
-  .deck-manager .collection-drawer-toolbar .collection-heading {
-    gap: 8px;
-  }
+.deck-manager.desktop .collection-drawer-toolbar .collection-heading {
+  gap: 8px;
+}
 
-  .deck-manager .collection-drawer-toolbar .new-pill {
-    padding: 3px;
-    font-size: 12px;
-  }
+.deck-manager.desktop .collection-drawer-toolbar .collection-title {
+  font-size: 22px;
+}
 
-  .deck-manager .collection-drawer-toolbar .new-pill .new-pill-content {
-    padding: 4px 7px;
-    font-size: 12px;
-  }
+.deck-manager.desktop .collection-drawer-toolbar .new-pill {
+  padding: 3px;
+  font-size: 12px;
+}
 
-  .deck-manager .collection-drawer-cards {
-    padding: 0 20px 20px;
-  }
+.deck-manager.desktop .collection-drawer-toolbar .new-pill .new-pill-content {
+  padding: 4px 7px;
+  font-size: 12px;
+}
 
-  .deck-manager .deck-manager-type-heading {
-    gap: 12px;
-  }
+.deck-manager.desktop .collection-drawer-cards {
+  padding: 0 20px 20px;
+}
 
-  .deck-manager .deck-manager-type-heading .combat-type-badge {
-    width: 28px;
-    height: 28px;
-  }
+.deck-manager.desktop .deck-manager-type-heading {
+  gap: 12px;
+}
 
-  .deck-manager .deck-manager-type-heading .combat-type-badge .icon {
-    width: 20px;
-    height: 20px;
-  }
+.deck-manager.desktop .deck-manager-type-heading .combat-type-title {
+  font-size: 18px;
+}
 
-  /*.deck-manager .deck-manager-leader {
+.deck-manager.desktop .deck-manager-type-heading .combat-type-badge {
+  width: 28px;
+  height: 28px;
+}
+
+.deck-manager.desktop .deck-manager-type-heading .combat-type-badge .icon {
+  width: 20px;
+  height: 20px;
+}
+
+/*.deck-manager.desktop .deck-manager-leader {
     width: 100px;
   }
 
-  .deck-manager .deck-manager-leader .avatar {
+  .deck-manager.desktop .deck-manager-leader .avatar {
     top: -10px;
     width: 100px;
     height: 100px;
     border: 8px solid #000000;
   }*/
 
-  .deck-manager .card-modal .card-modal-header .combat-type-badge {
-    width: 50px;
-    height: 50px;
-    border-width: 2px;
-  }
+/* Card Modal (Desktop) */
 
-  .deck-manager .card-modal .card-modal-header .combat-type-badge .icon {
-    width: 34px;
-    height: 34px;
-  }
+.deck-manager.desktop .card-modal .card-modal-header .combat-type-badge {
+  width: 50px;
+  height: 50px;
+  border-width: 2px;
+}
 
-  .deck-manager .deck-manager-footer {
-    padding-bottom: 40px;
-    gap: 20px;
-  }
+.deck-manager.desktop .card-modal .card-modal-header .combat-type-badge .icon {
+  width: 34px;
+  height: 34px;
+}
+
+.deck-manager.desktop .card-modal .card-modal-header .card-modal-header-title {
+  font-size: 22px;
+}
+
+.deck-manager.desktop .deck-manager-footer {
+  padding-bottom: 40px;
+  gap: 20px;
 }
 </style>

@@ -40,7 +40,7 @@ function changeSlide(back?: boolean) {
 </script>
 
 <template>
-  <div class="card-carousel">
+  <div class="card-carousel" :class="{ desktop: props.desktop }">
     <div class="slides">
       <BigCard
         v-for="(card, i) in localCards"
@@ -65,21 +65,21 @@ function changeSlide(back?: boolean) {
     </div>
     <button
       class="prev-btn"
-      :class="{ disabled: disabled }"
-      :disabled="disabled"
+      :class="{ disabled: props.disabled }"
+      :disabled="props.disabled"
       role="button"
       tabindex="2"
-      @click="disabled ? null : changeSlide(true)"
+      @click="props.disabled ? null : changeSlide(true)"
     >
       <v-icon class="icon" name="hi-chevron-left" />
     </button>
     <button
       class="next-btn"
-      :class="{ disabled: disabled }"
-      :disabled="disabled"
+      :class="{ disabled: props.disabled }"
+      :disabled="props.disabled"
       role="button"
       tabindex="2"
-      @click="disabled ? null : changeSlide()"
+      @click="props.disabled ? null : changeSlide()"
     >
       <v-icon class="icon" name="hi-chevron-right" />
     </button>
@@ -186,32 +186,29 @@ function changeSlide(back?: boolean) {
   }
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .card-carousel {
-    width: 460px;
-  }
+.card-carousel.desktop {
+  width: 460px;
+}
 
-  .card-carousel .prev-btn,
-  .card-carousel .next-btn {
-    width: 70px;
-    height: 70px;
-    line-height: 70px;
-    margin-top: -35px;
-  }
+.card-carousel.desktop .prev-btn,
+.card-carousel.desktop .next-btn {
+  width: 70px;
+  height: 70px;
+  line-height: 70px;
+  margin-top: -35px;
+}
 
-  .prev-btn:focus:not(.disabled):not(:disabled),
-  .next-btn:focus:not(.disabled):not(:disabled) {
-    outline: none;
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
-  }
+.card-carousel.desktop .prev-btn:focus:not(.disabled):not(:disabled),
+.card-carousel.desktop .next-btn:focus:not(.disabled):not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
+}
 
-  .card-carousel .prev-btn .icon,
-  .card-carousel .next-btn .icon {
-    width: 30px;
-    height: 30px;
-  }
+.card-carousel.desktop .prev-btn .icon,
+.card-carousel.desktop .next-btn .icon {
+  width: 30px;
+  height: 30px;
 }
 </style>

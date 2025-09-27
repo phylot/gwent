@@ -39,7 +39,11 @@ const cardClasses = computed(() => {
 </script>
 
 <template>
-  <div :aria-label="name ?? ''" class="big-card" :class="{ 'no-description': props.noDescription }">
+  <div
+    :aria-label="name ?? ''"
+    class="big-card"
+    :class="{ desktop: props.desktop, 'no-description': props.noDescription }"
+  >
     <div class="card-wrap" :class="{ glow: props.glow }">
       <div class="animation-overlay" :class="animationClass"></div>
       <div class="card-border" :class="cardBorderClasses">
@@ -213,81 +217,88 @@ const cardClasses = computed(() => {
   background-color: #000000;
 }
 
-.big-card .big-card-details .description {
-  margin-top: 10px;
+.big-card .big-card-details .title {
+  font-size: 12px;
 }
 
-/* Desktop / Tablet Styles */
+.big-card .big-card-details .description {
+  margin-top: 10px;
+  font-size: 11px;
+}
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .big-card {
-    height: 490px;
-  }
+/* Desktop Styles */
 
-  .big-card.no-description {
-    height: 350px;
-  }
+.big-card.desktop {
+  height: 490px;
+}
 
-  .big-card .card-wrap {
-    width: 250px;
-    height: 350px;
-  }
+.big-card.desktop.no-description {
+  height: 350px;
+}
 
-  .big-card .card-border {
-    padding: 9px;
-    border: 3px solid #000000;
-    border-radius: 10px;
-  }
+.big-card.desktop .card-wrap {
+  width: 250px;
+  height: 350px;
+}
 
-  .big-card .card {
-    padding: 8px 8px 12px 8px;
-    gap: 5px;
-    border: 2px solid #000000;
-    border-radius: 2px;
-  }
+.big-card.desktop .card-border {
+  padding: 9px;
+  border: 3px solid #000000;
+  border-radius: 10px;
+}
 
-  .big-card .card-value-badge {
-    width: 50px;
-    height: 50px;
-    border-width: 2px;
-    font-size: 30px;
-    box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.25) inset;
-  }
+.big-card.desktop .card {
+  padding: 8px 8px 12px 8px;
+  gap: 5px;
+  border: 2px solid #000000;
+  border-radius: 2px;
+}
 
-  .big-card .card-ability-badge {
-    width: 50px;
-    height: 50px;
-    border-width: 2px;
-  }
+.big-card.desktop .card-value-badge {
+  width: 50px;
+  height: 50px;
+  border-width: 2px;
+  font-size: 30px;
+  box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.25) inset;
+}
 
-  .big-card .card-ability-badge .icon {
-    width: 34px;
-    height: 34px;
-  }
+.big-card.desktop .card-ability-badge {
+  width: 50px;
+  height: 50px;
+  border-width: 2px;
+}
 
-  .big-card .combat-type-badge {
-    width: 50px;
-    height: 50px;
-    border-width: 2px;
-  }
+.big-card.desktop .card-ability-badge .icon {
+  width: 34px;
+  height: 34px;
+}
 
-  .big-card .combat-type-badge .icon {
-    width: 34px;
-    height: 34px;
-  }
+.big-card.desktop .combat-type-badge {
+  width: 50px;
+  height: 50px;
+  border-width: 2px;
+}
 
-  .big-card .big-card-details {
-    padding: 15px;
-    text-align: center;
-    line-height: 22px;
-    color: #ffffff;
-    border-radius: 8px;
-    background-color: #000000;
-  }
+.big-card.desktop .combat-type-badge .icon {
+  width: 34px;
+  height: 34px;
+}
 
-  .big-card .carousel-card-details .description {
-    margin-top: 15px;
-  }
+.big-card.desktop .big-card-details {
+  padding: 15px;
+  text-align: center;
+  line-height: 22px;
+  color: #ffffff;
+  border-radius: 8px;
+  background-color: #000000;
+}
+
+.big-card.desktop .big-card-details .title {
+  font-size: 18px;
+}
+
+.big-card.desktop .big-card-details .description {
+  margin-top: 15px;
+  font-size: 14px;
 }
 </style>

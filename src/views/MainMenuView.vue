@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 
 const props = defineProps<{
   awardsCount: number
+  desktop?: boolean
   disabled?: boolean
   disableLogoClick: boolean
   showMenu: boolean
@@ -152,8 +153,9 @@ function logoClick() {
         <transition name="fade">
           <button
             v-if="playButtonVisible"
-            class="btn large play-btn primary"
-            :disabled="disabled"
+            class="btn play-btn primary"
+            :class="{ large: props.desktop }"
+            :disabled="props.disabled"
             type="button"
             @click="playButtonClick"
           >
@@ -169,18 +171,30 @@ function logoClick() {
           <span class="lineOne">Sharpe's</span><span class="lineTwo">Gwent</span>
         </h1>
         <button
-          class="btn large primary"
+          class="btn primary"
+          :class="{ large: props.desktop }"
           :disabled="props.disabled"
           type="button"
           @click="emit('play')"
         >
           Play
         </button>
-        <button class="btn large" type="button" @click="emit('manage-deck', false)">
+        <button
+          class="btn"
+          :class="{ large: props.desktop }"
+          type="button"
+          @click="emit('manage-deck', false)"
+        >
           Manage Deck
         </button>
-        <button class="btn large" :disabled="props.disabled" type="button" @click="emit('awards')">
-          Awards ({{ awardsCount }})
+        <button
+          class="btn"
+          :class="{ large: props.desktop }"
+          :disabled="props.disabled"
+          type="button"
+          @click="emit('awards')"
+        >
+          Awards ({{ props.awardsCount }})
         </button>
       </div>
     </transition>
@@ -188,7 +202,8 @@ function logoClick() {
     <transition name="fade">
       <button
         v-if="skipButtonVisible"
-        class="btn large skip-btn"
+        class="btn skip-btn"
+        :class="{ large: props.desktop }"
         :disabled="props.disabled"
         type="button"
         @click="skip"
@@ -266,22 +281,19 @@ function logoClick() {
   }
 }
 
-.main-menu .logo-container,
-.main-menu .menu-container {
+.main-menu .logo-container {
   position: relative;
   margin: auto;
+  height: 300px;
+  min-width: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-}
-
-.main-menu .logo-container {
-  min-width: 320px;
-  height: 300px;
+  gap: 40px;
 }
 
 .main-menu .logo {
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -334,17 +346,19 @@ function logoClick() {
   text-shadow: 2px 2px #000000;
 }
 
-.main-menu .btn.play-btn {
-  margin: 60px;
-}
-
 .main-menu .btn.skip-btn {
   position: fixed;
   bottom: 20px;
 }
 
 .main-menu .menu-container {
+  position: relative;
   padding: 30px 40px 40px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
   border-radius: 20px;
   background-color: rgba(0, 0, 0, 0.8);
 }
@@ -353,13 +367,13 @@ function logoClick() {
   width: 100%;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
+@media (min-height: 900px) and (min-width: 680px) {
   .main-menu .logo-container {
     width: auto;
-    height: 486px;
+    height: 480px;
+    gap: 80px;
   }
 
   .main-menu .logo {
@@ -391,8 +405,8 @@ function logoClick() {
     text-shadow: 4px 4px #000000;
   }
 
-  .main-menu .btn.play-btn {
-    margin: 90px;
+  .main-menu .menu-container {
+    gap: 20px;
   }
 }
 </style>

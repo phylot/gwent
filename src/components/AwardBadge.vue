@@ -10,9 +10,12 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="award" :class="[{ desktop: desktop, reverse: reverse }, active ? type : null]">
-    <v-icon class="icon award-icon" :name="active ? props.icon : 'gi-padlock'" />
-    <div class="name">{{ active ? props.name : '??????' }}</div>
+  <div
+    class="award"
+    :class="[{ desktop: props.desktop, reverse: props.reverse }, props.active ? props.type : null]"
+  >
+    <v-icon class="icon award-icon" :name="props.active ? props.icon : 'gi-padlock'" />
+    <div class="name">{{ props.active ? props.name : '??????' }}</div>
   </div>
 </template>
 
@@ -22,7 +25,7 @@ const props = defineProps<{
   align-items: center;
   font-size: 0.7em;
   font-weight: bold;
-  border-radius: 9999px;
+  border-radius: 999px;
   background-color: #3f3f3f;
 }
 
@@ -47,6 +50,7 @@ const props = defineProps<{
 
 .award.reverse .name {
   padding: 0 5px 0 10px;
+  font-size: 11px;
 }
 
 .award.cardmaster {
@@ -109,6 +113,7 @@ const props = defineProps<{
 
 .award.desktop .name {
   padding: 0 20px 0 10px;
+  font-size: 16px;
 }
 
 .award.desktop.reverse .name {

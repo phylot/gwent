@@ -97,13 +97,41 @@
 .game-board .game-details .pass-btn-wrap .pass-btn {
   width: 24px;
   height: 62px;
+  padding: 10px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   font-size: 10px;
   line-height: 1;
   font-weight: 700;
+  text-transform: uppercase;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 999px;
   background: none;
+  cursor: pointer;
+  transition: background-color 100ms ease-out, box-shadow 100ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.game-board .game-details .pass-btn-wrap .pass-btn.disabled {
+  color: #666666;
+  border-color: #666666;
+  cursor: not-allowed;
+}
+
+.game-board .game-details .pass-btn-wrap .pass-btn:not(:disabled):hover {
+  background-color: #ffffff10;
+}
+
+.game-board .game-details .pass-btn-wrap .pass-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 .game-board .game-details .pass-btn-wrap .pass-btn .pass-btn-text {
@@ -270,6 +298,7 @@
   border-radius: 999px;
   background: none;
   cursor: pointer;
+  transition: background-color 100ms ease-out, box-shadow 100ms ease-out;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -278,8 +307,19 @@
   user-select: none;
 }
 
-.game-board .game-details .stats .discard-pile-btn:hover {
+.game-board .game-details .stats .discard-pile-btn.disabled {
+  color: #666666;
+  border-color: #666666;
+  cursor: not-allowed;
+}
+
+.game-board .game-details .stats .discard-pile-btn:not(:disabled):hover {
   background-color: #ffffff10;
+}
+
+.game-board .game-details .stats .discard-pile-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2);
 }
 
 .game-board .game-details .stats .discard-pile-btn .discard-icon {
@@ -290,12 +330,6 @@
 .game-board .game-details .stats .discard-pile-btn .discard-count {
   width: 14px;
   text-align: center;
-}
-
-.game-board .game-details .stats .discard-pile-btn.disabled {
-  color: #666666;
-  border-color: #666666;
-  cursor: not-allowed;
 }
 
 .game-board .game-details .player-details .stats .hand-total,
@@ -570,9 +604,15 @@
   padding-left: 15px;
 }
 
+.game-board .match-stats .title {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
 .game-board .match-stats .round-total {
   position: relative;
   height: 20px;
+  font-size: 15px;
 }
 
 .game-board .match-stats .round-total.win {
@@ -614,6 +654,10 @@
   height: 30px;
 }
 
+.game-board .card-modal .card-modal-header .card-modal-header-title {
+  font-size: 15px;
+}
+
 .game-board .card-modal .card-modal-header .combat-type-badge {
   width: 32px;
   height: 32px;
@@ -635,20 +679,33 @@
 
 /* Pause Menu Button */
 
-.game-board .btn.pause-menu-btn {
+.game-board .pause-menu-btn {
   z-index: 7000;
   position: absolute;
   top: 5px;
   right: 5px;
+  padding: 10px;
   border: none;
-  background-color: rgb(0, 0, 0, 0.5);
+  border-radius: 999px;
+  background-color: rgb(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
 }
 
-.game-board .btn.pause-menu-btn:hover:not(.disabled) {
-  background-color: rgb(50, 50, 50, 0.5);
+.game-board .pause-menu-btn.disabled {
+  cursor: not-allowed;
 }
 
-.game-board .btn.pause-menu-btn .icon {
+.game-board .pause-menu-btn:hover:not(.disabled) {
+  background-color: rgb(0, 0, 0, 0.7);
+}
+
+.game-board .pause-menu-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+.game-board .pause-menu-btn .icon {
   width: 23px;
   height: 23px;
   fill: #ffffff;
@@ -668,237 +725,242 @@
 
 /* Desktop Styles */
 
-@media (min-width: 1200px) and (min-height: 900px) and (orientation: landscape) {
-  .game-board .game-container {
-    width: 80%;
-    max-width: 1600px;
-  }
+.game-board.desktop .board-score-badge {
+  text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 2px 0 #fff,
+    2px 0 0 #fff, 0 -2px 0 #fff, -2px 0 0 #fff;
 }
 
-/* Desktop / Tablet Styles */
+.game-board.desktop .board-container {
+  max-height: 1100px;
+}
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  /* Board Layout (Desktop / Tablet) */
+.game-board.desktop .game-details,
+.game-board.desktop .card-row {
+  min-height: 110px;
+  max-height: none;
+}
 
-  .game-board .board-score-badge {
-    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 0 2px 0 #fff,
-      2px 0 0 #fff, 0 -2px 0 #fff, -2px 0 0 #fff;
-  }
+.game-board.desktop .card-row::before {
+  left: 57px;
+  background-size: 90px;
+}
 
-  .game-board .board-container {
-    max-height: 1100px;
-  }
+.game-board.desktop .row-select-icon {
+  left: 70px;
+  width: 70px;
+  height: 70px;
+}
 
-  .game-board .game-details,
-  .game-board .card-row {
-    min-height: 110px;
-    max-height: none;
-  }
+.game-board.desktop .card-container::before {
+  mask-size: 40px;
+}
 
-  .game-board .card-row::before {
-    left: 57px;
-    background-size: 90px;
-  }
+.game-board.desktop .row-stats {
+  width: 55px;
+  padding: 4px 0 0;
+}
 
-  .game-board .row-select-icon {
-    left: 70px;
-    width: 70px;
-    height: 70px;
-  }
+.game-board.desktop .row-stats .board-score-badge {
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
+}
 
-  .game-board .card-container::before {
-    mask-size: 40px;
-  }
+.game-board.desktop .row-stats .ability-badge {
+  width: 28px;
+  height: 28px;
+  margin-top: 3px;
+  font-size: 16px;
+}
 
-  .game-board .row-stats {
-    width: 55px;
-    padding: 4px 0 0;
-  }
+.game-board.desktop .row-stats .ability-badge .ability-icon {
+  width: 22px;
+  height: 22px;
+}
 
-  .game-board .row-stats .board-score-badge {
-    width: 35px;
-    height: 35px;
-    font-size: 20px;
-  }
+/* Central Game Stats (Desktop) */
 
-  .game-board .row-stats .ability-badge {
-    width: 28px;
-    height: 28px;
-    margin-top: 3px;
-    font-size: 16px;
-  }
+.game-board.desktop .game-details .pass-btn-wrap {
+  width: 57px;
+}
 
-  .game-board .row-stats .ability-badge .ability-icon {
-    width: 22px;
-    height: 22px;
-  }
+.game-board.desktop .game-details .pass-btn-wrap .pass-btn {
+  width: 42px;
+  height: 94px;
+  border-width: 2px;
+  font-size: 16px;
+}
 
-  /* Central Game Stats (Desktop / Tablet) */
+.game-board.desktop .game-details .small-card {
+  margin: 0 30px;
+}
 
-  .game-board .game-details .pass-btn-wrap {
-    width: 57px;
-  }
+.game-board.desktop .player-details,
+.game-board.desktop .opponent-details {
+  gap: 5px;
+}
 
-  .game-board .game-details .pass-btn-wrap .pass-btn {
-    width: 42px;
-    height: 94px;
-    border-width: 2px;
-    font-size: 16px;
-  }
+.game-board.desktop .game-details .avatar {
+  gap: 12px;
+}
 
-  .game-board .game-details .pass-btn-wrap .pass-btn:hover {
-    background-color: #ffffff10;
-  }
+.game-board.desktop .game-details .avatar .title {
+  font-size: 17px;
+}
 
-  .game-board .game-details .small-card {
-    margin: 0 30px;
-  }
+.game-board.desktop .game-details .round-icon {
+  width: 29px;
+  height: 29px;
+}
 
-  .game-board .player-details,
-  .game-board .opponent-details {
-    gap: 5px;
-  }
+.game-board.desktop .game-details .round-icon-placeholder {
+  width: 29px;
+  height: 29px;
+}
 
-  .game-board .game-details .avatar {
-    gap: 12px;
-  }
+.game-board.desktop .game-details .turn-icon {
+  top: -45px;
+  width: 34px;
+  height: 34px;
+}
 
-  .game-board .game-details .avatar .title {
-    font-size: 17px;
-  }
+.game-board.desktop .game-details .pass-icon {
+  top: -30px;
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(3px 0 0 #111111) drop-shadow(-3px 0 0 #111111) drop-shadow(0 3px 0 #111111)
+    drop-shadow(0 -3px 0 #111111);
+}
 
-  .game-board .game-details .round-icon {
-    width: 29px;
-    height: 29px;
-  }
+.game-board.desktop .game-details .opponent-details .pass-icon {
+  left: -17px;
+}
 
-  .game-board .game-details .round-icon-placeholder {
-    width: 29px;
-    height: 29px;
-  }
+.game-board.desktop .game-details .player-details .pass-icon {
+  right: -17px;
+}
 
-  .game-board .game-details .turn-icon {
-    top: -45px;
-    width: 34px;
-    height: 34px;
-  }
+.game-board.desktop .game-details .flag {
+  width: 45px;
+  height: 45px;
+}
 
-  .game-board .game-details .pass-icon {
-    top: -30px;
-    width: 60px;
-    height: 60px;
-    filter: drop-shadow(3px 0 0 #111111) drop-shadow(-3px 0 0 #111111) drop-shadow(0 3px 0 #111111)
-      drop-shadow(0 -3px 0 #111111);
-  }
+.game-board.desktop .game-details .player-details .flag.active,
+.game-board.desktop .game-details .opponent-details .flag.active {
+  box-shadow: 0 0 0 5px #357bff;
+}
 
-  .game-board .game-details .opponent-details .pass-icon {
-    left: -17px;
-  }
+.game-board.desktop .game-details .stats {
+  gap: 12px;
+}
 
-  .game-board .game-details .player-details .pass-icon {
-    right: -17px;
-  }
+.game-board.desktop .game-details .board-score-badge {
+  width: 45px;
+  height: 45px;
+  font-size: 24px;
+}
 
-  .game-board .game-details .flag {
-    width: 45px;
-    height: 45px;
-  }
+.game-board.desktop .game-details .stats .hand-total {
+  height: 40px;
+  width: 65px;
+  font-size: 20px;
+}
 
-  .game-board .game-details .player-details .flag.active,
-  .game-board .game-details .opponent-details .flag.active {
-    box-shadow: 0 0 0 5px #357bff;
-  }
+.game-board.desktop .game-details .stats .hand-count-icon {
+  width: 38px;
+  height: 38px;
+}
 
-  .game-board .game-details .stats {
-    gap: 12px;
-  }
+.game-board.desktop .game-details .stats .discard-pile-btn {
+  height: 40px;
+  width: 76px;
+  font-size: 20px;
+  border-width: 2px;
+}
 
-  .game-board .game-details .board-score-badge {
-    width: 45px;
-    height: 45px;
-    font-size: 24px;
-  }
+.game-board.desktop .game-details .stats .discard-pile-btn .discard-icon {
+  width: 26px;
+  height: 26px;
+}
 
-  .game-board .game-details .stats .hand-total {
-    height: 40px;
-    width: 65px;
-    font-size: 20px;
-  }
+.game-board.desktop .game-details .stats .discard-pile-btn .discard-count {
+  width: 25px;
+}
 
-  .game-board .game-details .stats .hand-count-icon {
-    width: 38px;
-    height: 38px;
-  }
+/* Post-match Stats (Desktop) */
 
-  .game-board .game-details .stats .discard-pile-btn {
-    height: 40px;
-    width: 76px;
-    font-size: 20px;
-    border-width: 2px;
-  }
+.game-board.desktop .match-stats.player {
+  padding-right: 20px;
+}
 
-  .game-board .game-details .stats .discard-pile-btn .discard-icon {
-    width: 26px;
-    height: 26px;
-  }
+.game-board.desktop .match-stats.opponent {
+  padding-left: 20px;
+}
 
-  .game-board .game-details .stats .discard-pile-btn .discard-count {
-    width: 25px;
-  }
+.game-board.desktop .match-stats .title {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
 
-  /* Post-match Stats (Desktop / Tablet) */
+.game-board.desktop .match-stats .round-total {
+  height: 30px;
+  font-size: 20px;
+}
 
-  .game-board .match-stats.player {
-    padding-right: 20px;
-  }
+.game-board.desktop .match-stats .round-total .round-icon {
+  top: -3px;
+  width: 29px;
+  height: 29px;
+}
 
-  .game-board .match-stats.opponent {
-    padding-left: 20px;
-  }
+.game-board.desktop .match-stats.player .round-total .round-icon {
+  left: -37px;
+}
 
-  .game-board .match-stats .round-total {
-    height: 30px;
-  }
+.game-board.desktop .match-stats.opponent .round-total .round-icon {
+  right: -37px;
+}
 
-  .game-board .match-stats .round-total .round-icon {
-    top: -3px;
-    width: 29px;
-    height: 29px;
-  }
+/* Card Modal (Desktop) */
 
-  .game-board .match-stats.player .round-total .round-icon {
-    left: -37px;
-  }
+.game-board.desktop .card-modal {
+  bottom: 114px;
+}
 
-  .game-board .match-stats.opponent .round-total .round-icon {
-    right: -37px;
-  }
+.game-board.desktop .card-modal .card-modal-header .card-modal-header-icon {
+  width: 48px;
+  height: 48px;
+}
 
-  /* Card Modal (Desktop / Tablet) */
+.game-board.desktop .card-modal .card-modal-header .card-modal-header-title {
+  font-size: 22px;
+}
 
-  .game-board .card-modal {
-    bottom: 114px;
-  }
+.game-board.desktop .card-modal .card-modal-header .combat-type-badge {
+  width: 50px;
+  height: 50px;
+  border-width: 2px;
+}
 
-  .game-board .card-modal .card-modal-header .card-modal-header-icon {
-    width: 48px;
-    height: 48px;
-  }
+.game-board.desktop .card-modal .card-modal-header .combat-type-badge .icon {
+  width: 34px;
+  height: 34px;
+}
 
-  .game-board .card-modal .card-modal-header .combat-type-badge {
-    width: 50px;
-    height: 50px;
-    border-width: 2px;
-  }
+.game-board.desktop .pause-menu-btn {
+  padding: 15px;
+}
 
-  .game-board .card-modal .card-modal-header .combat-type-badge .icon {
-    width: 34px;
-    height: 34px;
-  }
+.game-board.desktop .pause-menu-btn .icon {
+  width: 35px;
+  height: 35px;
+}
 
-  .game-board .btn.pause-menu-btn .icon {
-    width: 35px;
-    height: 35px;
+/* Wide Desktop Styles */
+
+@media (min-width: 1200px) and (min-height: 900px) {
+  .game-board.desktop .game-container {
+    width: 80%;
+    max-width: 1600px;
   }
 }

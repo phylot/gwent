@@ -93,12 +93,10 @@ onMounted(() => {
 // GLOBAL METHODS
 
 function onResize() {
-  let width = window.innerWidth
-  let height = window.innerHeight
-  let isLandscape = width > height
+  const width = window.innerWidth
+  const height = window.innerHeight
 
-  isDesktop.value =
-    (height >= 880 && isLandscape) || (width >= 768 && height >= 1024 && !isLandscape)
+  isDesktop.value = height >= 900 && width >= 630
 }
 
 async function preload() {
@@ -671,25 +669,17 @@ async function unlockAllCards() {
 
 <template>
   <transition name="fast-fade">
-    <div v-if="loading" class="loader" role="alert">
+    <div v-if="loading" class="loader" :class="{ desktop: isDesktop }" role="alert">
       <template v-if="showContinueBtn">
         <div class="save-warning">
-          <v-icon
-            animation="pulse"
-            class="icon"
-            name="fa-regular-save"
-            speed="fast"
-          />WARNING: Your progress is saved to this device
+          <v-icon animation="pulse" class="icon" name="fa-regular-save" speed="fast" />WARNING: Your
+          progress is saved to this device
         </div>
 
-        <button class="btn large" @click="showMainMenu">Continue</button>
+        <button class="btn" :class="{ large: isDesktop }" @click="showMainMenu">Continue</button>
       </template>
       <template v-else
-        ><v-icon
-          animation="spin"
-          class="icon"
-          name="la-spinner-solid"
-        />Loading</template
+        ><v-icon animation="spin" class="icon" name="la-spinner-solid" />Loading</template
       >
     </div>
   </transition>
@@ -707,7 +697,7 @@ async function unlockAllCards() {
     ref="awardsModal"
     :title="`Awards (${awardsCount}/${Object.keys(playerAwards).length})`"
   >
-    <div class="awards-gallery">
+    <div class="awards-gallery" :class="{ desktop: isDesktop }">
       <div class="awards-grid">
         <div v-for="(award, key) in playerAwards" class="award-container" :key="key">
           <AwardBadge
@@ -727,6 +717,7 @@ async function unlockAllCards() {
     <MainMenuView
       v-if="mainMenuIsActive"
       :awards-count="awardsCount"
+      :desktop="isDesktop"
       :disabled="mainMenuDisabled"
       :disable-logo-click="allCardsUnlocked"
       :show-menu="titleSequenceHasPlayed"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   avatar?: string
+  desktop?: boolean
   icon?: string
   modelValue: boolean
   title: string
@@ -9,13 +10,9 @@ defineProps<{
 
 <template>
   <transition name="fast-fade">
-    <div v-if="modelValue" class="alert-banner" role="alert">
+    <div v-if="modelValue" class="alert-banner" :class="{ desktop: desktop }" role="alert">
       <div v-if="avatar || icon" class="mark">
-        <div
-          v-if="avatar"
-          class="avatar"
-          :style="{ backgroundImage: `url(${avatar})` }"
-        ></div>
+        <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatar})` }"></div>
         <v-icon
           v-if="icon"
           class="icon"
@@ -25,7 +22,7 @@ defineProps<{
       </div>
       <div class="heading">
         <slot>
-          <h2>{{ title }}</h2>
+          <h2 class="title">{{ title }}</h2>
         </slot>
       </div>
     </div>
@@ -85,50 +82,47 @@ defineProps<{
   padding-left: 10px;
 }
 
-.alert-banner .heading h2 {
-  font-size: 0.9em;
+.alert-banner .heading .title {
+  font-size: 14px;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .alert-banner {
-    height: 80px;
-  }
+.alert-banner.desktop {
+  height: 80px;
+}
 
-  .alert-banner .mark {
-    width: 80px;
-    height: 80px;
-  }
+.alert-banner.desktop .mark {
+  width: 80px;
+  height: 80px;
+}
 
-  .alert-banner .avatar {
-    position: absolute;
-    top: -5px;
-    bottom: -5px;
-    right: 0;
-    width: 90px;
-    min-width: 90px;
-    height: 90px;
-    min-height: 80px;
-  }
+.alert-banner.desktop .avatar {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  right: 0;
+  width: 90px;
+  min-width: 90px;
+  height: 90px;
+  min-height: 80px;
+}
 
-  .alert-banner .icon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 80px;
-    min-width: 80px;
-    height: 80px;
-    min-height: 80px;
-  }
+.alert-banner.desktop .icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  min-width: 80px;
+  height: 80px;
+  min-height: 80px;
+}
 
-  .alert-banner .heading {
-    padding-left: 15px;
-  }
+.alert-banner.desktop .heading {
+  padding-left: 15px;
+}
 
-  .alert-banner .heading h2 {
-    font-size: 1.2em;
-  }
+.alert-banner.desktop .heading .title {
+  font-size: 22px;
 }
 </style>

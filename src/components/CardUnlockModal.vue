@@ -39,32 +39,47 @@ function hide() {
 
 <template>
   <transition name="slow-fade">
-    <div v-if="localModelValue" class="card-unlock-modal" role="dialog">
-      <h1 class="heading">New Card Unlocked!</h1>
+    <div
+      v-if="localModelValue"
+      class="card-unlock-modal"
+      :class="{ desktop: desktop }"
+      role="dialog"
+    >
+      <h1 class="title">New Card Unlocked!</h1>
 
       <BigCard
-        v-if="card"
-        :ability="card.ability"
-        :ability-icon="card.abilityIcon"
+        v-if="props.card"
+        :ability="props.card.ability"
+        :ability-icon="props.card.abilityIcon"
         animation-name="shine-infinite"
-        :default-value="card.defaultValue"
-        :description="card.description"
+        :default-value="props.card.defaultValue"
+        :description="props.card.description"
         :desktop="props.desktop"
-        :faction="card.faction"
+        :faction="props.card.faction"
         glow
-        :hero="card.hero"
-        :image-url="card.imageUrl"
-        :name="card.name"
-        :type-icon="card.typeIcon"
-        :value="card.value"
+        :hero="props.card.hero"
+        :image-url="props.card.imageUrl"
+        :name="props.card.name"
+        :type-icon="props.card.typeIcon"
+        :value="props.card.value"
       >
       </BigCard>
 
       <div class="btn-container">
-        <button class="btn large primary" @click="resolvePromise(true) + hide()">
+        <button
+          class="btn primary"
+          :class="{ large: props.desktop }"
+          @click="resolvePromise(true) + hide()"
+        >
           Manage Deck
         </button>
-        <button class="btn large" @click="resolvePromise(false) + hide()">Dismiss</button>
+        <button
+          class="btn"
+          :class="{ large: props.desktop }"
+          @click="resolvePromise(false) + hide()"
+        >
+          Dismiss
+        </button>
       </div>
     </div>
   </transition>
@@ -90,8 +105,9 @@ function hide() {
   background-color: rgba(0, 0, 0, 0.85);
 }
 
-.card-unlock-modal .heading {
+.card-unlock-modal .title {
   text-align: center;
+  font-size: 22px;
 }
 
 .card-unlock-modal .big-card {
@@ -101,15 +117,20 @@ function hide() {
 .card-unlock-modal .btn-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .card-unlock-modal .big-card {
-    max-width: 420px;
-  }
+.card-unlock-modal.desktop .title {
+  font-size: 40px;
+}
+
+.card-unlock-modal.desktop .big-card {
+  max-width: 420px;
+}
+
+.card-unlock-modal.desktop .btn-container {
+  gap: 20px;
 }
 </style>

@@ -28,6 +28,7 @@ const smallCardClasses = computed(() => {
   return {
     active: props.active,
     'appear-animation': props.appearAnimation,
+    desktop: props.desktop,
     disabled: props.disabled,
     overlap: props.overlap,
     'value-increased': props.valueIncreased,
@@ -288,63 +289,60 @@ const cardClasses = computed(() => {
   color: #7c4a1a;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .small-card {
+  .small-card.desktop {
     height: 110px;
   }
 
-  .small-card .card-wrap {
+  .small-card.desktop .card-wrap {
     width: 84px;
   }
 
-  .small-card .card {
+  .small-card.desktop .card {
     padding: 2px 2px 5px 2px;
     gap: 3px;
   }
 
-  .small-card .card-value-badge {
+  .small-card.desktop .card-value-badge {
     width: 28px;
     height: 28px;
     font-size: 16px;
     box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
   }
 
-  .small-card .card-ability-badge {
+  .small-card.desktop .card-ability-badge {
     width: 28px;
     height: 28px;
   }
 
-  .small-card .card-ability-badge .icon {
+  .small-card.desktop .card-ability-badge .icon {
     width: 20px;
     height: 20px;
   }
 
-  .small-card .combat-type-badge {
+  .small-card.desktop .combat-type-badge {
     width: 28px;
     height: 28px;
   }
 
-  .small-card .combat-type-badge .icon {
+  .small-card.desktop .combat-type-badge .icon {
     width: 20px;
     height: 20px;
   }
 
-  .small-card .new-pill {
+  .small-card.desktop .new-pill {
     padding: 3px;
     font-size: 12px;
   }
 
-  .small-card .new-pill .new-pill-content {
+  .small-card.desktop .new-pill .new-pill-content {
     padding: 4px 7px;
     font-size: 12px;
   }
 
-  .small-card.placeholder .placeholder-content .icon {
+  .small-card.desktop.placeholder .placeholder-content .icon {
     width: 39px;
     height: 39px;
   }
-}
 </style>

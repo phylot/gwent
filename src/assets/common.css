@@ -1,13 +1,14 @@
 /* Common Shared Classes */
 
 .btn {
-  padding: 10px;
-  font-size: 0.8em;
+  min-width: 130px;
+  padding: 15px 20px;
+  font-size: 15px;
   line-height: 1;
   font-weight: bold;
   text-transform: uppercase;
   border: 1px solid #ffffff;
-  border-radius: 9999px;
+  border-radius: 999px;
   color: #ffffff;
   background-color: #000000;
   cursor: pointer;
@@ -18,12 +19,6 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-.btn.large {
-  min-width: 130px;
-  padding: 15px 20px;
-  font-size: 1em;
 }
 
 .btn.primary {
@@ -56,23 +51,15 @@
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.2);
 }
 
-/* Desktop / Tablet Styles */
+.btn.large {
+  min-width: 200px;
+  padding: 20px 40px;
+  font-size: 20px;
+}
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .btn {
-    padding: 15px;
-  }
-
-  .btn.large {
-    min-width: 200px;
-    padding: 20px 40px;
-  }
-
-  .btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
-  }
+.btn.large:focus {
+  outline: none;
+  box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 /* Animations */
@@ -284,19 +271,39 @@
 }
 
 @keyframes small-shake {
-  0% { transform: translate(0, 0) }
-  25% { transform: translate(2px, -2px) }
-  50% { transform: translate(-2px, 2px) }
-  75% { transform: translate(2px, 2px) }
-  100% { transform: translate(0, 0) }
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2px, -2px);
+  }
+  50% {
+    transform: translate(-2px, 2px);
+  }
+  75% {
+    transform: translate(2px, 2px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes big-shake {
-  0% { transform: translate(0, 0) }
-  25% { transform: translate(5px, -5px) }
-  50% { transform: translate(-5px, 5px) }
-  75% { transform: translate(5px, 5px) }
-  100% { transform: translate(0, 0) }
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(5px, -5px);
+  }
+  50% {
+    transform: translate(-5px, 5px);
+  }
+  75% {
+    transform: translate(5px, 5px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes scale-pulse {

@@ -13,23 +13,23 @@ const props = defineProps<{
 <template>
   <TransitionGroup
     class="card-preview"
-    :class="{ player: player }"
-    :name="player ? 'card-preview-player' : 'card-preview-opponent'"
+    :class="{ desktop: props.desktop, player: props.player }"
+    :name="props.player ? 'card-preview-player' : 'card-preview-opponent'"
     tag="div"
   >
     <BigCard
-      v-if="modelValue && card"
-      :ability="card.ability"
-      :ability-icon="card.abilityIcon"
-      :default-value="card.defaultValue"
+      v-if="modelValue && props.card"
+      :ability="props.card.ability"
+      :ability-icon="props.card.abilityIcon"
+      :default-value="props.card.defaultValue"
       :desktop="props.desktop"
-      :faction="card.faction"
-      :hero="card.hero"
-      :image-url="card.imageUrl"
-      :name="card.name"
+      :faction="props.card.faction"
+      :hero="props.card.hero"
+      :image-url="props.card.imageUrl"
+      :name="props.card.name"
       no-description
-      :type-icon="card.typeIcon"
-      :value="card.value"
+      :type-icon="props.card.typeIcon"
+      :value="props.card.value"
     ></BigCard>
   </TransitionGroup>
 </template>
@@ -82,13 +82,10 @@ const props = defineProps<{
   opacity: 0;
 }
 
-/* Desktop / Tablet Styles */
+/* Desktop Styles */
 
-@media (min-height: 900px) and (orientation: landscape),
-(min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .card-preview.player {
-    top: auto;
-    bottom: 140px;
-  }
+.card-preview.desktop.player {
+  top: auto;
+  bottom: 140px;
 }
 </style>

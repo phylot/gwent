@@ -1722,7 +1722,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
 </script>
 
 <template>
-  <div class="game-board">
+  <div class="game-board" :class="{ desktop: desktop }">
     <StandardModal
       :avatar="modalAvatar"
       :buttons="modalButtons"
@@ -1733,7 +1733,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       :title="modalTitle"
     >
       <div v-if="playerRoundTotals.length > 0" class="match-stats player">
-        <h2>Player</h2>
+        <h2 class="title">Player</h2>
         <div
           v-for="(total, i) in playerRoundTotals"
           class="round-total"
@@ -1756,7 +1756,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         </template>
       </div>
       <div v-if="playerRoundTotals.length > 0" class="match-stats opponent">
-        <h2>Opponent</h2>
+        <h2 class="title">Opponent</h2>
         <div
           v-for="(total, i) in opponentRoundTotals"
           class="round-total"
@@ -1802,6 +1802,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
           v-model="cardModal"
           class="quick-fade"
           :class="{ 'cover-player-hand': healActive }"
+          :desktop="props.desktop"
         >
           <template v-if="cardModalTitle" v-slot:header>
             <v-icon
@@ -1812,7 +1813,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             <div v-else class="combat-type-badge">
               <v-icon class="icon" :name="cardModalIcon" />
             </div>
-            <h2>{{ cardModalTitle }}</h2>
+            <h2 class="card-modal-header-title">{{ cardModalTitle }}</h2>
           </template>
 
           <CardCarousel
@@ -1825,7 +1826,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
           <button
             v-if="cardModalConfirmText"
-            class="btn large primary"
+            class="btn primary"
+            :class="{ large: props.desktop }"
             :disabled="cardModalDisabled"
             tabindex="2"
             type="button"
@@ -1835,7 +1837,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
           </button>
           <button
             v-if="cardModalCancelText"
-            class="btn large"
+            class="btn"
+            :class="{ large: props.desktop }"
             :disabled="cardModalDisabled"
             tabindex="2"
             type="button"
@@ -1899,7 +1902,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
         <div class="game-details">
           <div class="pass-btn-wrap">
             <button
-              class="btn pass-btn"
+              class="pass-btn"
               :class="{ disabled: boardDisabled }"
               :disabled="boardDisabled"
               :tabindex="boardDisabled ? '-1' : '7'"
@@ -1957,8 +1960,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :aria-label="`Player Discard Pile (${playerDiscardPile.length})`"
                 class="discard-pile-btn"
                 :class="{ disabled: playerDiscardPileDisabled }"
+                :disabled="playerDiscardPileDisabled"
                 role="button"
-                :tabindex="boardDisabled ? '-1' : '6'"
+                :tabindex="boardDisabled || playerDiscardPileDisabled ? '-1' : '6'"
                 :title="`Player Discard Pile (${playerDiscardPile.length})`"
                 @click="playerDiscardPileDisabled ? null : discardPileClick(true)"
                 @keyup.enter="playerDiscardPileDisabled ? null : discardPileClick(true)"
@@ -2033,8 +2037,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :aria-label="`Opponent Discard Pile (${opponentDiscardPile.length})`"
                 class="discard-pile-btn"
                 :class="{ disabled: opponentDiscardPileDisabled }"
+                :disabled="opponentDiscardPileDisabled"
                 role="button"
-                :tabindex="boardDisabled ? '-1' : '6'"
+                :tabindex="boardDisabled || opponentDiscardPileDisabled ? '-1' : '6'"
                 :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
                 @click="opponentDiscardPileDisabled ? null : discardPileClick()"
                 @keyup.enter="opponentDiscardPileDisabled ? null : discardPileClick()"
@@ -2136,7 +2141,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
     </div>
 
     <button
-      class="pause-menu-btn btn"
+      class="pause-menu-btn"
       :class="{ disabled: boardDisabled && playerHandDisabled && cardModalDisabled }"
       :disabled="boardDisabled && playerHandDisabled && cardModalDisabled"
       @click="showPauseModal"

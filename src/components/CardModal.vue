@@ -2,13 +2,14 @@
 import { useSlots } from 'vue'
 const slots = useSlots()
 
-defineProps<{
+const props = defineProps<{
+  desktop?: boolean
   modelValue: boolean
 }>()
 </script>
 
 <template>
-  <div v-if="modelValue" class="card-modal" role="dialog">
+  <div v-if="modelValue" class="card-modal" :class="{ desktop: props.desktop }" role="dialog">
     <div class="card-modal-content">
       <div v-if="slots.header" class="card-modal-header">
         <slot name="header"></slot>
@@ -50,16 +51,13 @@ defineProps<{
   background: rgb(0, 0, 0, 0.7);
 }
 
-@media (min-height: 900px) and (orientation: landscape),
-  (min-width: 768px) and (min-height: 1024px) and (orientation: portrait) {
-  .card-modal .card-modal-content {
-    gap: 10px;
-  }
+.card-modal.desktop .card-modal-content {
+  gap: 10px;
+}
 
-  .card-modal .card-modal-header {
-    padding: 15px;
-    gap: 15px;
-    border-radius: 8px;
-  }
+.card-modal.desktop .card-modal-header {
+  padding: 15px;
+  gap: 15px;
+  border-radius: 8px;
 }
 </style>
