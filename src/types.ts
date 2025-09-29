@@ -25,6 +25,7 @@ interface Card {
   bondName?: string
   defaultValue?: number
   description?: string
+  effectIcon?: string
   faction: string
   hero?: boolean
   id: string

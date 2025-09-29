@@ -78,14 +78,14 @@ html {
   margin: 0 40px 40px;
 }
 
+.loader.desktop {
+  font-size: 20px;
+}
+
 .loader.desktop .icon {
   width: 35px;
   height: 35px;
   margin: 10px;
-}
-
-.loader.desktop .save-warning {
-  font-size: 20px;
 }
 
 .awards-gallery {

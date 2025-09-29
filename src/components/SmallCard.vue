@@ -9,7 +9,7 @@ const props = defineProps<{
   defaultValue?: number
   desktop?: boolean
   disabled?: boolean
-  faction?: string
+  effectIcon?: string
   hero?: boolean
   imageUrl?: string | undefined
   isNew?: boolean
@@ -55,6 +55,7 @@ const cardClasses = computed(() => {
     @keyup.space="disabled ? null : $emit('card-space', $event)"
   >
     <div class="card-wrap">
+      <v-icon v-if="props.effectIcon" class="icon effect-icon" :name="props.effectIcon" />
       <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
@@ -69,11 +70,11 @@ const cardClasses = computed(() => {
           <div v-if="defaultValue || defaultValue === 0" class="card-value-badge">
             {{ value }}
           </div>
-          <div v-if="abilityIcon" class="card-ability-badge">
-            <v-icon class="icon" :name="abilityIcon" />
+          <div v-if="props.abilityIcon" class="card-ability-badge">
+            <v-icon class="icon" :name="props.abilityIcon" />
           </div>
-          <div v-if="typeIcon" class="combat-type-badge">
-            <v-icon class="icon" :name="typeIcon" />
+          <div v-if="props.typeIcon" class="combat-type-badge">
+            <v-icon class="icon" :name="props.typeIcon" />
           </div>
         </template>
         <div v-else class="placeholder-content">
@@ -122,6 +123,48 @@ const cardClasses = computed(() => {
   overflow: visible;
 }
 
+.small-card .effect-icon {
+  z-index: 200;
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  fill: #ffffff;
+  filter: drop-shadow(1px 0 3px #11111180) drop-shadow(-1px 0 3px #11111180)
+    drop-shadow(0 1px 3px #11111180) drop-shadow(0 -1px 3px #11111180);
+  animation: effect-icon-fade-in-out 1s linear 1;
+}
+
+@keyframes effect-icon-fade-in-out {
+  0% {
+    top: 50%;
+    opacity: 0;
+  }
+  10% {
+    top: 44%;
+    opacity: 0.6;
+  }
+  20% {
+    top: 42%;
+    opacity: 0.8;
+  }
+  30% {
+    top: 40%;
+    opacity: 1;
+  }
+  90% {
+    top: 40%;
+    opacity: 1;
+  }
+  100% {
+    top: 40%;
+    opacity: 0;
+  }
+}
+
 .small-card .card-wrap {
   position: relative;
   width: 50px;
@@ -129,6 +172,20 @@ const cardClasses = computed(() => {
   box-sizing: content-box;
   border-radius: 4px;
   overflow: hidden;
+}
+
+.animation-overlay {
+  z-index: 100;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
 }
 
 .small-card .card {
@@ -291,58 +348,63 @@ const cardClasses = computed(() => {
 
 /* Desktop Styles */
 
-  .small-card.desktop {
-    height: 110px;
-  }
+.small-card.desktop {
+  height: 110px;
+}
 
-  .small-card.desktop .card-wrap {
-    width: 84px;
-  }
+.small-card.desktop .effect-icon {
+  width: 50px;
+  height: 50px;
+}
 
-  .small-card.desktop .card {
-    padding: 2px 2px 5px 2px;
-    gap: 3px;
-  }
+.small-card.desktop .card-wrap {
+  width: 84px;
+}
 
-  .small-card.desktop .card-value-badge {
-    width: 28px;
-    height: 28px;
-    font-size: 16px;
-    box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
-  }
+.small-card.desktop .card {
+  padding: 2px 2px 5px 2px;
+  gap: 3px;
+}
 
-  .small-card.desktop .card-ability-badge {
-    width: 28px;
-    height: 28px;
-  }
+.small-card.desktop .card-value-badge {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  box-shadow: 0 0 3px 3px rgba(0, 0, 0, 0.25) inset;
+}
 
-  .small-card.desktop .card-ability-badge .icon {
-    width: 20px;
-    height: 20px;
-  }
+.small-card.desktop .card-ability-badge {
+  width: 28px;
+  height: 28px;
+}
 
-  .small-card.desktop .combat-type-badge {
-    width: 28px;
-    height: 28px;
-  }
+.small-card.desktop .card-ability-badge .icon {
+  width: 20px;
+  height: 20px;
+}
 
-  .small-card.desktop .combat-type-badge .icon {
-    width: 20px;
-    height: 20px;
-  }
+.small-card.desktop .combat-type-badge {
+  width: 28px;
+  height: 28px;
+}
 
-  .small-card.desktop .new-pill {
-    padding: 3px;
-    font-size: 12px;
-  }
+.small-card.desktop .combat-type-badge .icon {
+  width: 20px;
+  height: 20px;
+}
 
-  .small-card.desktop .new-pill .new-pill-content {
-    padding: 4px 7px;
-    font-size: 12px;
-  }
+.small-card.desktop .new-pill {
+  padding: 3px;
+  font-size: 12px;
+}
 
-  .small-card.desktop.placeholder .placeholder-content .icon {
-    width: 39px;
-    height: 39px;
-  }
+.small-card.desktop .new-pill .new-pill-content {
+  padding: 4px 7px;
+  font-size: 12px;
+}
+
+.small-card.desktop.placeholder .placeholder-content .icon {
+  width: 39px;
+  height: 39px;
+}
 </style>

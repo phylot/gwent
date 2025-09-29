@@ -698,15 +698,21 @@ async function performAbility(card: Card) {
   return new Promise<void>(async (resolve) => {
     // Perform card ability
 
+    if (card.ability === 'boost') {
+      card.effectIcon = card.abilityIcon
+    }
+
     if (card.ability === 'double') {
+      card.effectIcon = card.abilityIcon
       await performDouble()
     }
 
     if (card.ability === 'heal') {
-      await performHeal()
+      await performHeal(card)
     }
 
     if (card.ability === 'muster') {
+      card.effectIcon = card.abilityIcon
       await performMuster(card)
     }
 
@@ -723,14 +729,16 @@ async function performAbility(card: Card) {
     }
 
     if (card.ability === 'spy') {
+      card.effectIcon = card.abilityIcon
       await performSpy()
     }
 
     if (card.ability === 'thief') {
+      card.effectIcon = card.abilityIcon
       await performThief()
     }
 
-    await calculateRows()
+    await calculateRows(card)
 
     // TODO: Decoy card
     // • Add visual highlight to board rows containing eligible cards for swapping
@@ -823,13 +831,18 @@ function performCpuDouble(callback?: Function) {
   }
 }
 
-function performHeal() {
+function performHeal(card: Card) {
   return new Promise<void>((resolve) => {
     // Create array containing only viable cards (no hero or special)
     let discardPile = isPlayerTurn.value ? playerDiscardPile : opponentDiscardPile
-    let validHealCards = discardPile.value.filter((card) => !card.hero && card.type !== 'special')
+    let validHealCards = discardPile.value.filter(
+      (discardCard) => !discardCard.hero && discardCard.type !== 'special'
+    )
 
     if (validHealCards.length > 0) {
+      // Display effect icon if valid heal card found
+      card.effectIcon = card.abilityIcon
+
       if (isPlayerTurn.value) {
         healActive.value = true
         activeCardRow.value = validHealCards
@@ -966,6 +979,7 @@ function performRowScorch(card: Card) {
         if (card.value === maxValue && !card.hero && card.type !== 'special') {
           scorchCardFound = true
           card.animationName = 'scorch'
+          card.effectIcon = "io-skull"
         }
       }
 
@@ -1011,7 +1025,7 @@ function performScorch() {
 
     // For each player
     for (let i = 0; i < 2; i++) {
-      // Find highest value of all non-hero card(s)
+      // Find the highest value of all non-hero card(s)
       let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
       for (const cardRow of boardCardArrays) {
         const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
@@ -1022,7 +1036,7 @@ function performScorch() {
 
     // For each player
     for (let i = 0; i < 2; i++) {
-      // Apply Scorch animation to highest value non-hero cards
+      // Apply Scorch animation / effect icon to the highest value non-hero cards
       let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
 
       for (const cardRow of boardCardArrays) {
@@ -1030,6 +1044,7 @@ function performScorch() {
           if (card.value === highestCardValue && !card.hero && card.type !== 'special') {
             scorchCardFound = true
             card.animationName = 'scorch'
+            card.effectIcon = "io-skull"
           }
         }
       }
@@ -1115,7 +1130,7 @@ function performThief() {
   })
 }
 
-async function calculateRows() {
+async function calculateRows(card: Card) {
   let statsIncreased = false
 
   for (let i = 0; i < 2; i++) {
@@ -1123,7 +1138,7 @@ async function calculateRows() {
     let rowFlags = i < 1 ? playerRowFlags.value : opponentRowFlags.value
 
     for (let j = 0; j < boardCardArrays.length; j++) {
-      const statHasIncreased = await calculateRow(boardCardArrays[j], rowFlags[j])
+      const statHasIncreased = await calculateRow(boardCardArrays[j], rowFlags[j], card)
       if (statHasIncreased) {
         statsIncreased = true
       }
@@ -1137,26 +1152,25 @@ async function calculateRows() {
   await new Promise<void>((resolve) => {
     setTimeout(
       () => {
-        // Reset value increased flag for all board cards
+        // Reset value increased flag / effect icon flag for all board cards
         for (let i = 0; i < 2; i++) {
           let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
 
           for (let j = 0; j < boardCardArrays.length; j++) {
             for (let k = 0; k < boardCardArrays[j].length; k++) {
-              if (boardCardArrays[j][k].valueIncreased) {
-                boardCardArrays[j][k].valueIncreased = false
-              }
+              boardCardArrays[j][k].valueIncreased = false
+              boardCardArrays[j][k].effectIcon = undefined
             }
           }
         }
         resolve()
       },
-      statsIncreased ? 1000 : 500
+      card.ability || statsIncreased ? 1000 : 500
     )
   })
 }
 
-async function calculateRow(rowArr: Card[], rowFlag: RowFlag) {
+async function calculateRow(rowArr: Card[], rowFlag: RowFlag, card: Card) {
   try {
     let statHasIncreased = false
 
@@ -1173,11 +1187,27 @@ async function calculateRow(rowArr: Card[], rowFlag: RowFlag) {
     await calculateBoost(rowArr)
     await calculateDouble(rowArr, rowFlag)
 
-    // Compare new value of each card to its initial value, and apply value increase flag if necessary
+    // Compare new value of each card to its initial value, and apply any necessary flags to cards
     for (let i = 0; i < rowArr.length; i++) {
       if ((rowArr[i].value ?? 0) > (initialRowArr[i]?.value ?? 0)) {
         rowArr[i].valueIncreased = true
         statHasIncreased = true
+
+        // If the increased card is a bond card, and the played / mustered card is a bond card of the same bond name, set the effect icon
+        if (
+          rowArr[i].ability === 'bond' &&
+          (card.ability === 'bond' || (rowArr[i].musterName && rowArr[i].musterName === card.musterName))
+        ) {
+          let bondCount = 0
+          for (let j = 0; j < rowArr.length; j++) {
+            if (rowArr[i].bondName === rowArr[j].bondName) {
+              bondCount++
+            }
+          }
+          if (bondCount > 1) {
+            rowArr[i].effectIcon = rowArr[i].abilityIcon
+          }
+        }
       }
     }
 
@@ -1880,7 +1910,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
-                :faction="card.faction"
+                :effect-icon="card.effectIcon"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
                 :key="j"
@@ -1981,8 +2011,8 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :animation-name="recentSpecialCard.animationName"
             :appear-animation="recentSpecialCard.appearAnimation"
             :desktop="props.desktop"
-            :disabled="boardDisabled"
-            :faction="recentSpecialCard.faction"
+            disabled
+            :effect-icon="recentSpecialCard.effectIcon"
             :hero="recentSpecialCard.hero"
             :image-url="recentSpecialCard.imageUrl"
             :name="recentSpecialCard.name"
@@ -2091,7 +2121,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
-                :faction="card.faction"
+                :effect-icon="card.effectIcon"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
                 :key="j"
@@ -2122,7 +2152,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :default-value="card.defaultValue"
             :desktop="props.desktop"
             :disabled="playerHandDisabled"
-            :faction="card.faction"
             :hero="card.hero"
             :image-url="card.imageUrl"
             :key="i"

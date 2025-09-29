@@ -93,6 +93,20 @@ const cardClasses = computed(() => {
   overflow: hidden;
 }
 
+.animation-overlay {
+  z-index: 100;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
+}
+
 .big-card .card-border {
   width: 100%;
   height: 100%;
