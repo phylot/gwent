@@ -42,26 +42,28 @@ let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
 let themeSongSound: Howl
 let themeSongFadeTimeout: ReturnType<typeof setTimeout>
-let gwentSong: Howl
 let coinSound: Howl
-let roundStartSound: Howl
-let turnSound: Howl
-let selectCardSound: Howl
-let swapCardSound: Howl
-let drawCardSound: Howl
-let playCardSound: Howl
-let placeCardSound: Howl
-let roundWinSound: Howl
-let roundLoseSound: Howl
-let roundDrawSound: Howl
-let matchWinSound: Howl
-let matchLoseSound: Howl
-let matchDrawSound: Howl
 let doubleSound: Howl
+let drawCardSound: Howl
+let fatBastardSound: Howl
+let gwentSong: Howl
 let heroSound: Howl
+let matchDrawSound: Howl
+let matchLoseSound: Howl
+let matchWinSound: Howl
 let musterSound: Howl
+let placeCardSound: Howl
+let playCardSound: Howl
+let roundDrawSound: Howl
+let roundLoseSound: Howl
+let roundStartSound: Howl
+let roundWinSound: Howl
 let scorchSound: Howl
+let selectCardSound: Howl
 let statIncreaseSound: Howl
+let swapCardSound: Howl
+let toastySound: Howl
+let turnSound: Howl
 let zeldaSound: Howl
 
 // COMPUTED DATA
@@ -147,72 +149,78 @@ async function preload() {
 async function preloadSounds() {
   try {
     const [
-      themeSong,
       coin,
-      roundStart,
-      turn,
-      selectCard,
-      swapCard,
-      drawCard,
-      playCard,
-      placeCard,
-      roundWin,
-      roundLose,
-      roundDraw,
-      matchWin,
-      matchLose,
-      matchDraw,
       double,
+      drawCard,
+      fatBastard,
       hero,
+      matchDraw,
+      matchLose,
+      matchWin,
       muster,
+      placeCard,
+      playCard,
+      roundDraw,
+      roundLose,
+      roundStart,
+      roundWin,
       scorch,
+      selectCard,
       statIncrease,
+      swapCard,
+      themeSong,
+      toasty,
+      turn,
       zelda
     ] = await Promise.all([
-      createHowl('sharpe-theme.mp3', 1),
       createHowl('coin.wav', 5),
-      createHowl('round-start.wav', 1),
-      createHowl('turn.wav', 2.5),
-      createHowl('select-card.mp3', 0.2),
-      createHowl('swap-card.wav', 2),
-      createHowl('draw-card.wav', 1),
-      createHowl('play-card.wav', 1),
-      createHowl('place-card.wav', 1),
-      createHowl('round-win.wav', 1),
-      createHowl('round-lose.wav', 1),
-      createHowl('round-draw.wav', 1),
-      createHowl('match-win.mp3', 1),
-      createHowl('match-lose.wav', 1),
-      createHowl('match-draw.wav', 1),
       createHowl('double.wav', 1.5),
+      createHowl('draw-card.wav', 1),
+      createHowl('fat-bastard.wav', 1),
       createHowl('hero.wav', 1),
+      createHowl('match-draw.wav', 1),
+      createHowl('match-lose.wav', 1),
+      createHowl('match-win.mp3', 1),
       createHowl('muster.wav', 2),
+      createHowl('place-card.wav', 1),
+      createHowl('play-card.wav', 1),
+      createHowl('round-draw.wav', 1),
+      createHowl('round-lose.wav', 1),
+      createHowl('round-start.wav', 1),
+      createHowl('round-win.wav', 1),
       createHowl('scorch.wav', 1),
+      createHowl('select-card.mp3', 0.2),
       createHowl('stat-increase.wav', 0.5),
+      createHowl('swap-card.wav', 2),
+      createHowl('sharpe-theme.mp3', 1),
+      createHowl('toasty.mp3', 2.5),
+      createHowl('turn.wav', 2.5),
       createHowl('zelda-secret.mp3', 4),
       preloadGameMusic()
     ])
 
-    themeSongSound = themeSong
     coinSound = coin
-    roundStartSound = roundStart
-    turnSound = turn
-    selectCardSound = selectCard
-    swapCardSound = swapCard
-    drawCardSound = drawCard
-    playCardSound = playCard
-    placeCardSound = placeCard
-    roundWinSound = roundWin
-    roundLoseSound = roundLose
-    roundDrawSound = roundDraw
-    matchWinSound = matchWin
-    matchLoseSound = matchLose
-    matchDrawSound = matchDraw
     doubleSound = double
+    drawCardSound = drawCard
+    fatBastardSound = fatBastard
     heroSound = hero
+    matchDrawSound = matchDraw
+    matchLoseSound = matchLose
+    matchWinSound = matchWin
     musterSound = muster
+    placeCardSound = placeCard
+    playCardSound = playCard
+    roundDrawSound = roundDraw
+    roundLoseSound = roundLose
+    roundStartSound = roundStart
+    roundWinSound = roundWin
     scorchSound = scorch
+    selectCardSound = selectCard
     statIncreaseSound = statIncrease
+    swapCardSound = swapCard
+    themeSongSound = themeSong
+    toastySound = toasty
+    turnSound = turn
     zeldaSound = zelda
   } catch {
     console.error('Error preloading sounds')
@@ -259,59 +267,65 @@ function playSound(name: string) {
     case 'coin':
       coinSound.play()
       break
-    case 'roundstart':
-      roundStartSound.play()
-      break
-    case 'turn':
-      turnSound.play()
-      break
-    case 'selectcard':
-      selectCardSound.play()
-      break
-    case 'swapcard':
-      swapCardSound.play()
+    case 'double':
+      doubleSound.play()
       break
     case 'drawcard':
       drawCardSound.play()
       break
-    case 'playcard':
-      playCardSound.play()
-      break
-    case 'placecard':
-      placeCardSound.play()
-      break
-    case 'roundwin':
-      roundWinSound.play()
-      break
-    case 'roundlose':
-      roundLoseSound.play()
-      break
-    case 'rounddraw':
-      roundDrawSound.play()
-      break
-    case 'matchwin':
-      matchWinSound.play()
-      break
-    case 'matchlose':
-      matchLoseSound.play()
-      break
-    case 'matchdraw':
-      matchDrawSound.play()
-      break
-    case 'double':
-      doubleSound.play()
+    case 'fatbastard':
+      fatBastardSound.play()
       break
     case 'hero':
       heroSound.play()
       break
+    case 'matchdraw':
+      matchDrawSound.play()
+      break
+    case 'matchlose':
+      matchLoseSound.play()
+      break
+    case 'matchwin':
+      matchWinSound.play()
+      break
     case 'muster':
       musterSound.play()
+      break
+    case 'placecard':
+      placeCardSound.play()
+      break
+    case 'playcard':
+      playCardSound.play()
+      break
+    case 'rounddraw':
+      roundDrawSound.play()
+      break
+    case 'roundlose':
+      roundLoseSound.play()
+      break
+    case 'roundstart':
+      roundStartSound.play()
+      break
+    case 'roundwin':
+      roundWinSound.play()
       break
     case 'scorch':
       scorchSound.play()
       break
+    case 'selectcard':
+      selectCardSound.play()
+      break
     case 'statincrease':
       statIncreaseSound.play()
+      break
+    case 'swapcard':
+      swapCardSound.play()
+      break
+    case 'toasty':
+      toastySound.play()
+      break
+    case 'turn':
+      turnSound.play()
       break
     default:
       console.error('Unknown sound: ', name)

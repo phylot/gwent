@@ -369,6 +369,12 @@ function logoClick() {
 
 /* Desktop Styles */
 
+@media (min-height: 900px) and (min-width: 630px) {
+  .main-menu .menu-container {
+    gap: 20px;
+  }
+}
+
 @media (min-height: 900px) and (min-width: 680px) {
   .main-menu .logo-container {
     width: auto;
@@ -403,10 +409,6 @@ function logoClick() {
     font-size: 60px;
     letter-spacing: 7px;
     text-shadow: 4px 4px #000000;
-  }
-
-  .main-menu .menu-container {
-    gap: 20px;
   }
 }
 </style>

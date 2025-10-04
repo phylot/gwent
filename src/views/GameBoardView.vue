@@ -6,6 +6,7 @@ import { defaultRowFlags } from './../data/game-board'
 import { defaultAwards } from './../data/awards'
 import AlertBanner from './../components/AlertBanner.vue'
 import AwardBadge from './../components/AwardBadge.vue'
+import BeanPopup from './../components/BeanPopup.vue'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from './../components/CardModal.vue'
 import CardPreview from './../components/CardPreview.vue'
@@ -64,6 +65,7 @@ let cardModalTitle = ref()
 let cardModalIcon = ref()
 let resolveCardModal = ref()
 let cardModalDisabled = ref(true)
+let beanPopup = ref(false)
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -440,6 +442,36 @@ function determineMove() {
   } else {
     if (isPlayerTurn.value) {
       setAllDisabled(false)
+      // beanPopup.value = true
+      // emit('play-sound', 'toasty')
+      // setTimeout(() => {
+      //   beanPopup.value = false
+      //   setTimeout(() => {
+      //     beanPopup.value = true
+      //     emit('play-sound', 'toasty')
+      //     setTimeout(() => {
+      //       beanPopup.value = false
+      //       setTimeout(() => {
+      //         beanPopup.value = true
+      //         emit('play-sound', 'toasty')
+      //         setTimeout(() => {
+      //           beanPopup.value = false
+      //           setTimeout(() => {
+      //             beanPopup.value = true
+      //             emit('play-sound', 'toasty')
+      //             setTimeout(() => {
+      //               beanPopup.value = false
+      //               setTimeout(() => {
+      //                 beanPopup.value = true
+      //                 emit('play-sound', 'toasty')
+      //               }, 1000)
+      //             }, 1000)
+      //           }, 1000)
+      //         }, 1000)
+      //       }, 1000)
+      //     }, 1000)
+      //   }, 1000)
+      // }, 1000)
     } else {
       // CPU logic
       determineCpuCard((card: Card) => {
@@ -725,7 +757,7 @@ async function performAbility(card: Card) {
     }
 
     if (card.ability === 'scorch') {
-      await performScorch()
+      await performScorch(card)
     }
 
     if (card.ability === 'spy') {
@@ -952,6 +984,14 @@ function performMuster(card: Card) {
     // If cards found, allow time for animations
     setTimeout(
       () => {
+        if (cardsFound) {
+          beanPopup.value = true
+          emit('play-sound', 'fatbastard')
+          setTimeout(() => {
+            beanPopup.value = false
+          }, 1000)
+        }
+
         resolve()
       },
       cardsFound ? 1500 : 0
@@ -967,7 +1007,7 @@ function performRowScorch(card: Card) {
     let cardRowTotal = isPlayerTurn.value
       ? rowTotals.value.opponent[abilityIndexes[card.type]]
       : rowTotals.value.player[abilityIndexes[card.type]]
-    let scorchCardFound = false
+    let scorchCount = 0
 
     // If cards are present in the relevant board card row, and they total 10 or above
     if (cardRow.length > 0 && cardRowTotal > 9) {
@@ -977,14 +1017,23 @@ function performRowScorch(card: Card) {
 
       for (const card of cardRow) {
         if (card.value === maxValue && !card.hero && card.type !== 'special') {
-          scorchCardFound = true
+          scorchCount++
           card.animationName = 'scorch'
-          card.effectIcon = "io-skull"
+          card.effectIcon = 'io-skull'
         }
       }
 
-      if (scorchCardFound) {
+      if (scorchCount > 0) {
+        card.effectIcon = card.abilityIcon
         emit('play-sound', 'scorch')
+
+        if (scorchCount > 2 || getChanceOutcome(0.5)) {
+          beanPopup.value = true
+          emit('play-sound', 'toasty')
+          setTimeout(() => {
+            beanPopup.value = false
+          }, 900)
+        }
 
         setTimeout(() => {
           // Move scorched cards from board to discard pile
@@ -1018,10 +1067,10 @@ function performRowScorch(card: Card) {
   })
 }
 
-function performScorch() {
+function performScorch(card: Card) {
   return new Promise<void>((resolve) => {
     let highestCardValue = 0
-    let scorchCardFound = false
+    let scorchCount = 0
 
     // For each player
     for (let i = 0; i < 2; i++) {
@@ -1042,16 +1091,25 @@ function performScorch() {
       for (const cardRow of boardCardArrays) {
         for (const card of cardRow) {
           if (card.value === highestCardValue && !card.hero && card.type !== 'special') {
-            scorchCardFound = true
+            scorchCount++
             card.animationName = 'scorch'
-            card.effectIcon = "io-skull"
+            card.effectIcon = 'io-skull'
           }
         }
       }
     }
 
-    if (scorchCardFound) {
+    if (scorchCount > 0) {
+      card.effectIcon = card.abilityIcon
       emit('play-sound', 'scorch')
+
+      if (scorchCount > 2 || getChanceOutcome(0.5)) {
+        beanPopup.value = true
+        emit('play-sound', 'toasty')
+        setTimeout(() => {
+          beanPopup.value = false
+        }, 900)
+      }
 
       setTimeout(() => {
         // For each player
@@ -1165,7 +1223,7 @@ async function calculateRows(card: Card) {
         }
         resolve()
       },
-      card.ability || statsIncreased ? 1000 : 500
+      statsIncreased ? 1000 : 500
     )
   })
 }
@@ -1196,7 +1254,8 @@ async function calculateRow(rowArr: Card[], rowFlag: RowFlag, card: Card) {
         // If the increased card is a bond card, and the played / mustered card is a bond card of the same bond name, set the effect icon
         if (
           rowArr[i].ability === 'bond' &&
-          (card.ability === 'bond' || (rowArr[i].musterName && rowArr[i].musterName === card.musterName))
+          (card.ability === 'bond' ||
+            (rowArr[i].musterName && rowArr[i].musterName === card.musterName))
         ) {
           let bondCount = 0
           for (let j = 0; j < rowArr.length; j++) {
@@ -1720,6 +1779,7 @@ function resetCards(arr: Card[]) {
   for (const card of arr) {
     card.active = false
     card.animationName = undefined
+    card.effectIcon = undefined
     card.value = card.defaultValue
   }
 }
@@ -2177,5 +2237,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
     >
       <v-icon class="icon" name="la-cog-solid" />
     </button>
+
+    <BeanPopup v-model="beanPopup" :desktop="props.desktop"></BeanPopup>
   </div>
 </template>
