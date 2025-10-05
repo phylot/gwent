@@ -4,8 +4,7 @@ import { type Card } from './../types'
 import BigCard from './BigCard.vue'
 
 defineExpose({
-  show,
-  hide
+  show
 })
 
 const props = defineProps<{
@@ -25,6 +24,17 @@ watch(
   }
 )
 
+watch(
+  () => localModelValue.value,
+  (val) => {
+    if (val) {
+      document.addEventListener('keydown', handleKeydown)
+    } else {
+      document.removeEventListener('keydown', handleKeydown)
+    }
+  },
+)
+
 function show() {
   return new Promise((resolve, reject) => {
     localModelValue.value = true
@@ -32,8 +42,17 @@ function show() {
     rejectPromise.value = reject
   })
 }
-function hide() {
+
+function resolveModal(returnBool: boolean) {
+  resolvePromise.value(returnBool)
   localModelValue.value = false
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    resolveModal(false)
+  }
 }
 </script>
 
@@ -70,7 +89,7 @@ function hide() {
           class="btn primary"
           :class="{ large: props.desktop }"
           type="button"
-          @click="resolvePromise(true) + hide()"
+          @click="resolveModal(true)"
         >
           Manage Deck
         </button>
@@ -78,7 +97,7 @@ function hide() {
           class="btn"
           :class="{ large: props.desktop }"
           type="button"
-          @click="resolvePromise(false) + hide()"
+          @click="resolveModal(false)"
         >
           Dismiss
         </button>

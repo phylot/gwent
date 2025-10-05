@@ -2,8 +2,7 @@
 import { ref, watch } from 'vue'
 
 defineExpose({
-  show,
-  hide
+  show
 })
 
 const props = defineProps<{
@@ -20,25 +19,44 @@ const props = defineProps<{
 
 let localModelValue = ref(false)
 let resolvePromise = ref()
-let rejectPromise = ref()
 
 watch(
   () => props.modelValue,
   (val) => {
     localModelValue.value = val
-  }
+  },
+)
+
+watch(
+  () => localModelValue.value,
+  (val) => {
+    if (val) {
+      document.addEventListener('keydown', handleKeydown)
+    } else {
+      document.removeEventListener('keydown', handleKeydown)
+    }
+  },
 )
 
 function show() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     localModelValue.value = true
     resolvePromise.value = resolve
-    rejectPromise.value = reject
   })
 }
 
-function hide() {
+function resolveModal(returnVal: number) {
+  resolvePromise.value(returnVal)
   localModelValue.value = false
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (!props.disabled && !props.persistent) {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      resolveModal(0)
+    }
+  }
 }
 </script>
 
@@ -49,7 +67,7 @@ function hide() {
       class="standard-modal"
       :class="{ desktop: props.desktop }"
       role="dialog"
-      @click.self="props.persistent ? null : resolvePromise(0) + hide()"
+      @click.self="props.persistent ? null : resolveModal(0)"
     >
       <div class="modal">
         <div v-if="props.title" class="heading">
@@ -75,7 +93,7 @@ function hide() {
             :disabled="props.disabled"
             :key="i"
             type="button"
-            @click="resolvePromise(i + 1) + hide()"
+            @click="resolveModal(i + 1)"
           >
             {{ button }}
           </button>

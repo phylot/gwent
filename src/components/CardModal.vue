@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useSlots } from 'vue'
+import { ref, useSlots, watch } from 'vue'
 const slots = useSlots()
 
 defineExpose({
@@ -22,12 +22,32 @@ const emit = defineEmits<{
   (e: 'update:model-value', val: boolean): void
 }>()
 
+watch(
+  () => props.modelValue,
+  (val) => {
+    if (val) {
+      document.addEventListener("keydown", handleKeydown);
+    } else {
+      document.removeEventListener("keydown", handleKeydown);
+    }
+  }
+)
+
 function show() {
   return new Promise((resolve, reject) => {
     emit('update:model-value', true)
     resolvePromise.value = resolve
     rejectPromise.value = reject
   })
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (!props.disabled && !props.persistent) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      resolvePromise.value(false)
+    }
+  }
 }
 </script>
 

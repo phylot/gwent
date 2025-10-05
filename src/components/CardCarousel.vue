@@ -56,7 +56,6 @@ function changeSlide(back?: boolean) {
         :hero="card.hero"
         :image-url="card.imageUrl"
         :name="card.name"
-        tabindex="2"
         :type-icon="card.typeIcon"
         :value="card.value"
         :key="i"
