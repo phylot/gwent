@@ -58,12 +58,12 @@ let activeCardRow = ref<Card[]>([])
 let resolveRowClick = ref()
 let boardDisabled = ref(true)
 let slideIndex = ref(0)
-let cardModal = ref(false)
+let cardModal = ref()
+let cardModalModel = ref(false)
 let cardModalConfirmText = ref()
 let cardModalCancelText = ref()
 let cardModalTitle = ref()
 let cardModalIcon = ref()
-let resolveCardModal = ref()
 let cardModalDisabled = ref(true)
 let beanPopup = ref(false)
 
@@ -230,7 +230,13 @@ async function setupGame(callback: Function) {
     import.meta.url
   ).href
 
-  await preloadImages(['broadsword.svg', 'catapult.svg', 'crossbow.svg', 'scorch-flame.jpg'])
+  await preloadImages([
+    'broadsword.svg',
+    'catapult.svg',
+    'crossbow.svg',
+    'scorch-flame.jpg',
+    'sharpe-cutout.png'
+  ])
 
   if (callback) {
     callback()
@@ -1667,24 +1673,26 @@ function discardPileClick(isPlayer?: boolean) {
 }
 
 function showCardModal(confirmText?: string, cancelText?: string, title?: string, icon?: string) {
+  boardDisabled.value = true
+  cardModalConfirmText.value = confirmText
+  cardModalCancelText.value = cancelText
+  cardModalTitle.value = title
+  cardModalIcon.value = icon
+
   return new Promise((resolve) => {
-    boardDisabled.value = true
-    cardModalConfirmText.value = confirmText
-    cardModalCancelText.value = cancelText
-    cardModalTitle.value = title
-    cardModalIcon.value = icon
-    resolveCardModal.value = resolve
-    cardModal.value = true
+    cardModal.value.show().then((ok: boolean) => {
+      resolve(ok)
+    })
   })
 }
 
 function closeCardModal() {
-  playerHandIsActive.value = false
-  cardModal.value = false
+  cardModalModel.value = false
   cardModalConfirmText.value = null
   cardModalCancelText.value = null
   cardModalTitle.value = null
   slideIndex.value = 0
+  playerHandIsActive.value = false
 }
 
 function showPauseModal() {
@@ -1889,10 +1897,15 @@ function sortCardsHighToLow(a: Card, b: Card) {
         ></CardPreview>
 
         <CardModal
-          v-model="cardModal"
+          v-model="cardModalModel"
           class="quick-fade"
           :class="{ 'cover-player-hand': healActive }"
+          :cancel-text="cardModalCancelText"
+          :confirm-text="cardModalConfirmText"
           :desktop="props.desktop"
+          :disabled="cardModalDisabled"
+          :persistent="cardRedrawActive || healActive"
+          ref="cardModal"
         >
           <template v-if="cardModalTitle" v-slot:header>
             <v-icon
@@ -1913,29 +1926,6 @@ function sortCardsHighToLow(a: Card, b: Card) {
             :disabled="cardModalDisabled"
             @btn-click="emit('play-sound', 'selectcard')"
           ></CardCarousel>
-
-          <button
-            v-if="cardModalConfirmText"
-            class="btn primary"
-            :class="{ large: props.desktop }"
-            :disabled="cardModalDisabled"
-            tabindex="2"
-            type="button"
-            @click="resolveCardModal(true)"
-          >
-            {{ cardModalConfirmText }}
-          </button>
-          <button
-            v-if="cardModalCancelText"
-            class="btn"
-            :class="{ large: props.desktop }"
-            :disabled="cardModalDisabled"
-            tabindex="2"
-            type="button"
-            @click="resolveCardModal(false)"
-          >
-            {{ cardModalCancelText }}
-          </button>
         </CardModal>
 
         <div
@@ -2051,9 +2041,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 class="discard-pile-btn"
                 :class="{ disabled: playerDiscardPileDisabled }"
                 :disabled="playerDiscardPileDisabled"
-                role="button"
                 :tabindex="boardDisabled || playerDiscardPileDisabled ? '-1' : '6'"
                 :title="`Player Discard Pile (${playerDiscardPile.length})`"
+                type="button"
                 @click="playerDiscardPileDisabled ? null : discardPileClick(true)"
                 @keyup.enter="playerDiscardPileDisabled ? null : discardPileClick(true)"
                 @keyup.space="playerDiscardPileDisabled ? null : discardPileClick(true)"
@@ -2128,9 +2118,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 class="discard-pile-btn"
                 :class="{ disabled: opponentDiscardPileDisabled }"
                 :disabled="opponentDiscardPileDisabled"
-                role="button"
                 :tabindex="boardDisabled || opponentDiscardPileDisabled ? '-1' : '6'"
                 :title="`Opponent Discard Pile (${opponentDiscardPile.length})`"
+                type="button"
                 @click="opponentDiscardPileDisabled ? null : discardPileClick()"
                 @keyup.enter="opponentDiscardPileDisabled ? null : discardPileClick()"
                 @keyup.space="opponentDiscardPileDisabled ? null : discardPileClick()"
@@ -2233,6 +2223,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
       class="pause-menu-btn"
       :class="{ disabled: boardDisabled && playerHandDisabled && cardModalDisabled }"
       :disabled="boardDisabled && playerHandDisabled && cardModalDisabled"
+      type="button"
       @click="showPauseModal"
     >
       <v-icon class="icon" name="la-cog-solid" />

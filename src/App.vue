@@ -690,7 +690,9 @@ async function unlockAllCards() {
           progress is saved to this device
         </div>
 
-        <button class="btn" :class="{ large: isDesktop }" @click="showMainMenu">Continue</button>
+        <button class="btn" :class="{ large: isDesktop }" type="button" @click="showMainMenu">
+          Continue
+        </button>
       </template>
       <template v-else
         ><v-icon animation="spin" class="icon" name="la-spinner-solid" />Loading</template

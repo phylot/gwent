@@ -24,11 +24,12 @@ let collectionContainer: HTMLElement | null = null
 let drawerActive = ref(false)
 let disabled = ref(false)
 let slideIndex = ref(0)
-let cardModal = ref(false)
+let cardModal = ref()
+let cardModalModel = ref(false)
 let cardModalTitle = ref()
+let cardModalCancelText = ref()
 let cardModalConfirmText = ref()
 let cardModalDisabled = ref(true)
-let resolveCardModal = ref()
 
 interface ManageCardCollection {
   [key: string]: Card[]
@@ -206,6 +207,7 @@ function deckCardClick(card: Card, key: string | number, index: number) {
 
   showCardModal(
     'Remove',
+    'Close',
     `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
   ).then((ok) => {
     cardModalDisabled.value = true
@@ -231,6 +233,7 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
 
   showCardModal(
     'Add',
+    'Close',
     `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
   ).then((ok) => {
     if (ok) {
@@ -243,23 +246,25 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   })
 }
 
-function showCardModal(confirmText?: string, titleText?: string) {
+function showCardModal(confirmText?: string, cancelText?: string, titleText?: string) {
   disabled.value = true
+  cardModalConfirmText.value = confirmText
+  cardModalCancelText.value = cancelText
+  cardModalTitle.value = titleText
+  cardModalDisabled.value = false
 
   return new Promise((resolve) => {
-    cardModalConfirmText.value = confirmText
-    cardModalTitle.value = titleText
-    resolveCardModal.value = resolve
-    cardModalDisabled.value = false
-    cardModal.value = true
+    cardModal.value.show().then((ok: boolean) => {
+      resolve(ok)
+    })
   })
 }
 
 function closeCardModal() {
   cardModalDisabled.value = true
+  cardModalModel.value = false
   activeDeckRowKey.value = null
   activeCollectionRowKey.value = null
-  cardModal.value = false
   disabled.value = false
 }
 
@@ -327,7 +332,15 @@ function capitaliseString(string: string) {
 <template>
   <div class="deck-manager" :class="{ desktop: props.desktop }">
     <div class="deck-manager-container">
-      <CardModal v-model="cardModal" class="quick-fade" :desktop="props.desktop">
+      <CardModal
+        v-model="cardModalModel"
+        class="quick-fade"
+        :cancel-text="cardModalCancelText"
+        :confirm-text="cardModalConfirmText"
+        :desktop="props.desktop"
+        :disabled="cardModalDisabled"
+        ref="cardModal"
+      >
         <template v-slot:header>
           <div class="combat-type-badge">
             <v-icon class="icon" :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'" />
@@ -341,27 +354,6 @@ function capitaliseString(string: string) {
           :desktop="props.desktop"
           :disabled="cardModalDisabled"
         ></CardCarousel>
-
-        <button
-          class="btn primary"
-          :class="{ large: props.desktop }"
-          :disabled="cardModalDisabled"
-          tabindex="2"
-          type="button"
-          @click="resolveCardModal(true)"
-        >
-          {{ cardModalConfirmText }}
-        </button>
-        <button
-          class="btn"
-          :class="{ large: props.desktop }"
-          :disabled="cardModalDisabled"
-          tabindex="2"
-          type="button"
-          @click="resolveCardModal(false)"
-        >
-          Close
-        </button>
       </CardModal>
 
       <div class="deck-manager-header">
@@ -371,6 +363,7 @@ function capitaliseString(string: string) {
             class="prev-btn"
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
+            type="button"
             @click="changeFaction(factionIndex - 1)"
           >
             <v-icon class="icon" name="fa-chevron-circle-left" role="button" />
@@ -390,6 +383,7 @@ function capitaliseString(string: string) {
             class="next-btn"
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
+            type="button"
             @click="changeFaction(factionIndex + 1)"
           >
             <v-icon class="icon" name="fa-chevron-circle-right" role="button" />
@@ -573,6 +567,7 @@ function capitaliseString(string: string) {
             class="btn primary"
             :class="{ disabled: invalidUnitTotal, large: props.desktop }"
             :disabled="disabled || invalidUnitTotal"
+            type="button"
             @click="factionSelected"
           >
             Select
@@ -581,6 +576,7 @@ function capitaliseString(string: string) {
             class="btn"
             :class="{ large: props.desktop }"
             :disabled="disabled"
+            type="button"
             @click="emit('cancel')"
           >
             Back
@@ -592,6 +588,7 @@ function capitaliseString(string: string) {
             class="btn primary"
             :class="{ disabled: invalidUnitTotal, large: props.desktop }"
             :disabled="disabled || invalidUnitTotal"
+            type="button"
             @click="save"
           >
             Save
@@ -600,6 +597,7 @@ function capitaliseString(string: string) {
             class="btn"
             :class="{ large: props.desktop }"
             :disabled="disabled"
+            type="button"
             @click="emit('cancel')"
           >
             Cancel

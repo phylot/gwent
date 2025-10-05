@@ -67,8 +67,8 @@ function changeSlide(back?: boolean) {
       class="prev-btn"
       :class="{ disabled: props.disabled }"
       :disabled="props.disabled"
-      role="button"
       tabindex="2"
+      type="button"
       @click="props.disabled ? null : changeSlide(true)"
     >
       <v-icon class="icon" name="hi-chevron-left" />
@@ -77,8 +77,8 @@ function changeSlide(back?: boolean) {
       class="next-btn"
       :class="{ disabled: props.disabled }"
       :disabled="props.disabled"
-      role="button"
       tabindex="2"
+      type="button"
       @click="props.disabled ? null : changeSlide()"
     >
       <v-icon class="icon" name="hi-chevron-right" />

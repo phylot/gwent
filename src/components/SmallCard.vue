@@ -316,10 +316,10 @@ const cardClasses = computed(() => {
 
 @keyframes reduce-scale {
   from {
-    scale: 3;
+    scale: 2;
   }
   to {
-    opacity: 1;
+    scale: 1;
   }
 }
 

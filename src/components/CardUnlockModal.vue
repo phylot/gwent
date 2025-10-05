@@ -69,6 +69,7 @@ function hide() {
         <button
           class="btn primary"
           :class="{ large: props.desktop }"
+          type="button"
           @click="resolvePromise(true) + hide()"
         >
           Manage Deck
@@ -76,6 +77,7 @@ function hide() {
         <button
           class="btn"
           :class="{ large: props.desktop }"
+          type="button"
           @click="resolvePromise(false) + hide()"
         >
           Dismiss

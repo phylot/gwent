@@ -36,6 +36,7 @@ function show() {
     rejectPromise.value = reject
   })
 }
+
 function hide() {
   localModelValue.value = false
 }
@@ -73,6 +74,7 @@ function hide() {
             :class="{ large: props.desktop, primary: i === 0 && !props.noPrimary }"
             :disabled="props.disabled"
             :key="i"
+            type="button"
             @click="resolvePromise(i + 1) + hide()"
           >
             {{ button }}
