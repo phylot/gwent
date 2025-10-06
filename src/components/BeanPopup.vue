@@ -41,11 +41,15 @@ watch(
   z-index: 6500;
   position: absolute;
   bottom: 0;
-  right: -170px;
-  width: 170px;
-  height: 200px;
+  right: -144px;
+  width: 144px;
+  height: 170px;
   background: center / cover no-repeat url('/src/assets/images/sharpe-cutout.png');
-  transition: right 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+  transition: transform 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+}
+
+.bean-popup.active {
+  transform: translateX(-124px);
 }
 
 .bean-popup.desktop {
@@ -54,8 +58,7 @@ watch(
   height: 300px;
 }
 
-.bean-popup.active,
 .bean-popup.desktop.active {
-  right: 0;
+  transform: translateX(-254px);
 }
 </style>

@@ -448,36 +448,6 @@ function determineMove() {
   } else {
     if (isPlayerTurn.value) {
       setAllDisabled(false)
-      // beanPopup.value = true
-      // emit('play-sound', 'toasty')
-      // setTimeout(() => {
-      //   beanPopup.value = false
-      //   setTimeout(() => {
-      //     beanPopup.value = true
-      //     emit('play-sound', 'toasty')
-      //     setTimeout(() => {
-      //       beanPopup.value = false
-      //       setTimeout(() => {
-      //         beanPopup.value = true
-      //         emit('play-sound', 'toasty')
-      //         setTimeout(() => {
-      //           beanPopup.value = false
-      //           setTimeout(() => {
-      //             beanPopup.value = true
-      //             emit('play-sound', 'toasty')
-      //             setTimeout(() => {
-      //               beanPopup.value = false
-      //               setTimeout(() => {
-      //                 beanPopup.value = true
-      //                 emit('play-sound', 'toasty')
-      //               }, 1000)
-      //             }, 1000)
-      //           }, 1000)
-      //         }, 1000)
-      //       }, 1000)
-      //     }, 1000)
-      //   }, 1000)
-      // }, 1000)
     } else {
       // CPU logic
       determineCpuCard((card: Card) => {
@@ -575,10 +545,6 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
   }
 
   await doCardAppearAnimation(card)
-
-  if (card.hero) {
-    emit('play-sound', 'hero')
-  }
 
   await performAbility(card)
 
@@ -1033,7 +999,7 @@ function performRowScorch(card: Card) {
         card.effectIcon = card.abilityIcon
         emit('play-sound', 'scorch')
 
-        if (scorchCount > 2 || getChanceOutcome(0.5)) {
+        if (scorchCount > 2 || (scorchCount > 0 && getChanceOutcome(0.5))) {
           beanPopup.value = true
           emit('play-sound', 'toasty')
           setTimeout(() => {
@@ -1109,7 +1075,7 @@ function performScorch(card: Card) {
       card.effectIcon = card.abilityIcon
       emit('play-sound', 'scorch')
 
-      if (scorchCount > 2 || getChanceOutcome(0.5)) {
+      if (scorchCount > 2 || (scorchCount > 0 && getChanceOutcome(0.5))) {
         beanPopup.value = true
         emit('play-sound', 'toasty')
         setTimeout(() => {
@@ -1753,10 +1719,20 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
 function doCardAppearAnimation(card: Card) {
   return new Promise<void>((resolve) => {
     card.appearAnimation = true
-    setTimeout(() => {
-      card.appearAnimation = false
-      resolve()
-    }, 500)
+
+    if (card.hero) {
+      setTimeout(() => {
+        emit('play-sound', 'hero')
+      }, 500)
+    }
+
+    setTimeout(
+      () => {
+        card.appearAnimation = false
+        resolve()
+      },
+      card.hero ? 1500 : 500
+    )
   })
 }
 

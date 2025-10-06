@@ -207,10 +207,6 @@
   animation: shine 3s infinite;
 }
 
-.glow {
-  animation: glow 2s infinite alternate;
-}
-
 @keyframes shine {
   0% {
     left: -50%;
@@ -236,15 +232,6 @@
   }
   100% {
     box-shadow: 0 0 0 0 rgba(233, 255, 0, 0);
-  }
-}
-
-@keyframes glow {
-  from {
-    box-shadow: 0 0 10px 3px rgb(255, 255, 255, 0.5);
-  }
-  to {
-    box-shadow: 0 0 10px 10px rgb(255, 255, 255, 0.5);
   }
 }
 

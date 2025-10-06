@@ -93,6 +93,19 @@ const cardClasses = computed(() => {
   overflow: hidden;
 }
 
+.big-card .card-wrap.glow {
+  animation: white-glow 2s infinite alternate;
+}
+
+@keyframes white-glow {
+  from {
+    box-shadow: 0 0 10px 3px rgb(255, 255, 255, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px 10px rgb(255, 255, 255, 0.5);
+  }
+}
+
 .animation-overlay {
   z-index: 100;
   display: none;

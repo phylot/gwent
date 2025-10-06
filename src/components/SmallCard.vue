@@ -24,23 +24,18 @@ const animationClass = computed(() => {
   return props.animationName ?? null
 })
 
-const smallCardClasses = computed(() => {
+const cardClasses = computed(() => {
   return {
     active: props.active,
     'appear-animation': props.appearAnimation,
+    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
     desktop: props.desktop,
     disabled: props.disabled,
+    hero: props.hero,
+    increased: props.value && props.defaultValue && props.value > props.defaultValue,
     overlap: props.overlap,
     'value-increased': props.valueIncreased,
     placeholder: !props.imageUrl
-  }
-})
-
-const cardClasses = computed(() => {
-  return {
-    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
-    hero: props.hero,
-    increased: props.value && props.defaultValue && props.value > props.defaultValue
   }
 })
 </script>
@@ -49,7 +44,7 @@ const cardClasses = computed(() => {
   <div
     :aria-label="name ?? ''"
     class="small-card"
-    :class="smallCardClasses"
+    :class="cardClasses"
     @click="disabled ? null : $emit('card-click', $event)"
     @keyup.enter="disabled ? null : $emit('card-enter', $event)"
     @keyup.space="disabled ? null : $emit('card-space', $event)"
@@ -59,7 +54,6 @@ const cardClasses = computed(() => {
       <div class="animation-overlay" :class="animationClass"></div>
       <div
         class="card"
-        :class="cardClasses"
         :style="{
           backgroundImage: props.imageUrl
             ? `url(${props.imageUrl})`
@@ -223,19 +217,19 @@ const cardClasses = computed(() => {
   box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.25) inset;
 }
 
-.small-card .card.increased .card-value-badge {
+.small-card.increased .card .card-value-badge {
   color: #ffffff;
   border-color: #1fb854;
   background-color: #1a9f48;
 }
 
-.small-card .card.decreased .card-value-badge {
+.small-card.decreased .card .card-value-badge {
   color: #ffffff;
   border-color: #d92121;
   background-color: #9f1a1a;
 }
 
-.small-card .card.hero .card-value-badge {
+.small-card.hero .card .card-value-badge {
   border-color: #be7500;
   color: #f9a825;
   background: linear-gradient(180deg, #000 0%, #404040 100%);
@@ -307,19 +301,39 @@ const cardClasses = computed(() => {
 }
 
 .small-card.appear-animation {
-  animation-name: fade-in, reduce-scale, small-shake;
-  animation-delay: 0s, 0s, 0.25s;
-  animation-duration: 0.2s, 0.2s, 0.1s;
-  animation-iteration-count: 1, 1, 3;
+  animation-name: fade-in-reduce-scale, small-shake;
+  animation-delay: 0s, 0.25s;
+  animation-duration: 0.2s, 0.1s;
+  animation-iteration-count: 1, 3;
   z-index: 6000;
 }
 
-@keyframes reduce-scale {
+.small-card.hero.appear-animation {
+  animation-name: fade-in-reduce-scale, small-shake, gold-glow;
+  animation-delay: 0s, 0.25s, 0.3s;
+  animation-duration: 0.2s, 0.1s, 0.5s;
+  animation-direction: normal, normal, alternate;
+  animation-iteration-count: 1, 3, 2;
+  z-index: 6000;
+}
+
+@keyframes fade-in-reduce-scale {
   from {
+    opacity: 0;
     scale: 2;
   }
   to {
+    opacity: 1;
     scale: 1;
+  }
+}
+
+@keyframes gold-glow {
+  from {
+    box-shadow: 0 0 10px 0 rgba(255, 211, 0, 0.5);
+  }
+  to {
+    box-shadow: 0 0 10px 5px rgb(255, 211, 0, 0.5);
   }
 }
 
