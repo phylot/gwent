@@ -19,9 +19,8 @@ watch(
       }, 1)
     } else {
       showPopup.value = val
-
       setTimeout(() => {
-        localModelValue.value = false
+        localModelValue.value = val
       }, 200)
     }
   }
@@ -45,7 +44,7 @@ watch(
   width: 144px;
   height: 170px;
   background: center / cover no-repeat url('/src/assets/images/sharpe-cutout.png');
-  transition: transform 0.2s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+  transition: transform 0.3s cubic-bezier(0.82, 0.085, 0.395, 0.895);
 }
 
 .bean-popup.active {
