@@ -46,6 +46,7 @@ let musicTracks: Howl[] = []
 let numberOfMusicTracks: number = 4
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
+let deckManagerSong: Howl
 let coinSound: Howl
 let doubleSound: Howl
 let drawCardSound: Howl
@@ -109,6 +110,7 @@ async function preload() {
   await loadLocalStorage()
 
   initializeMusicPlayer()
+  initialiseDeckManagerSong()
 
   // Preload card collections
   for (const faction in playerCardCollection) {
@@ -291,6 +293,20 @@ function getRandomTrackIndex() {
     randomIndex = Math.floor(Math.random() * numberOfMusicTracks)
   } while (randomIndex === currentMusicTrackIndex || randomIndex === prevMusicTrackIndex)
   return randomIndex
+}
+
+function initialiseDeckManagerSong() {
+  deckManagerSong = new Howl({
+    src: [new URL(`./assets/audio/ard-skellig-village.mp3`, import.meta.url).href],
+    loop: true,
+    volume: 1,
+    onfade: () => {
+      deckManagerSong.stop()
+    },
+    onloaderror: () => {
+      console.error('Failed to load deck manager song')
+    }
+  })
 }
 
 function playSound(name: string) {
@@ -482,13 +498,16 @@ function showDeckManager(preMatch: boolean) {
   // Timeout to allow main menu to fade out
   setTimeout(() => {
     deckManagerIsActive.value = true
+    deckManagerSong.volume(1)
+    deckManagerSong.play()
   }, 1000)
 }
 
 function cancelDeckManager() {
   deckManagerIsActive.value = false
+  deckManagerSong.fade(deckManagerSong.volume(), 0, 1200)
 
-  // Timeout to allow theme song to fade out
+  // Timeout to allow song to fade out
   setTimeout(() => {
     showMainMenu()
   }, 1200)
@@ -497,10 +516,10 @@ function cancelDeckManager() {
 function deckManagerSave(collection: CardCollection) {
   playerCardCollection = collection
   deckManagerIsActive.value = false
-  themeSongSound.fade(themeSongSound.volume(), 0, 1200)
+  deckManagerSong.fade(deckManagerSong.volume(), 0, 1200)
 
   saveCardsToStorage(() => {
-    // Timeout to allow theme song to fade out
+    // Timeout to allow song to fade out
     setTimeout(() => {
       showMainMenu()
     }, 1200)
@@ -514,10 +533,10 @@ function showAwards() {
   })
 }
 
-function play() {
+function playGame() {
+  mainMenuIsActive.value = false
   doubleSound.play()
   clearTimeout(themeSongFadeTimeout)
-  mainMenuIsActive.value = false
 
   // Timeout to allow Main Menu to fade out
   setTimeout(() => {
@@ -531,6 +550,7 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
   deckManagerIsActive.value = false
   playerCardCollection = deckSelection.collection
 
+  deckManagerSong.fade(deckManagerSong.volume(), 0, 1200)
   playRandomMusicTrack()
 
   saveCardsToStorage(() => {
@@ -777,7 +797,7 @@ async function unlockAllCards() {
       @loading-change="loadingChange"
       @awards="showAwards"
       @manage-deck="showDeckManager"
-      @play="play"
+      @play="playGame"
       @play-sound="playSound"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
@@ -794,6 +814,7 @@ async function unlockAllCards() {
       :pre-match="deckManagerIsPreMatch"
       @cancel="cancelDeckManager"
       @faction-selected="setupGameAndStart"
+      @play-sound="playSound"
       @save="deckManagerSave"
     ></DeckManagerView>
   </transition>

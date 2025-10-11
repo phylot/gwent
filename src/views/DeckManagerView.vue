@@ -161,6 +161,7 @@ const collectionContainsNew = computed((): boolean => {
 const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'faction-selected', val: FactionAndCollection): void
+  (e: 'play-sound', val: string): void
   (e: 'save', val: CardCollection): void
 }>()
 
@@ -204,6 +205,7 @@ function deckCardClick(card: Card, key: string | number, index: number) {
   slideIndex.value = index
   activeCardRow.value = deckCards.value[key]
   activeDeckRowKey.value = key
+  emit('play-sound', 'selectcard')
 
   showCardModal(
     'Remove',
@@ -215,6 +217,7 @@ function deckCardClick(card: Card, key: string | number, index: number) {
       moveCardToCollection(card, () => {
         closeCardModal()
       })
+      emit('play-sound', 'drawcard')
     } else {
       closeCardModal()
     }
@@ -225,6 +228,7 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   slideIndex.value = index
   activeCardRow.value = collectionCards.value[key]
   activeCollectionRowKey.value = key
+  emit('play-sound', 'selectcard')
 
   // Remove the 'isNew' flag from viewed card
   if (activeCardRow.value.length > 0) {
@@ -240,6 +244,7 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
       moveCardToDeck(card, () => {
         closeCardModal()
       })
+      emit('play-sound', 'drawcard')
     } else {
       closeCardModal()
     }
@@ -334,8 +339,8 @@ function capitaliseString(string: string) {
     <div class="deck-manager-container">
       <CardModal
         v-model="cardModalModel"
-        class="quick-fade"
         :cancel-text="cardModalCancelText"
+        class="quick-fade"
         :confirm-text="cardModalConfirmText"
         :desktop="props.desktop"
         :disabled="cardModalDisabled"
@@ -353,6 +358,7 @@ function capitaliseString(string: string) {
           :cards="activeCardRow"
           :desktop="props.desktop"
           :disabled="cardModalDisabled"
+          @btn-click="emit('play-sound', 'selectcard')"
         ></CardCarousel>
       </CardModal>
 
@@ -364,7 +370,7 @@ function capitaliseString(string: string) {
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
             type="button"
-            @click="changeFaction(factionIndex - 1)"
+            @click="changeFaction(factionIndex - 1); emit('play-sound', 'selectcard')"
           >
             <v-icon class="icon" name="fa-chevron-circle-left" role="button" />
           </button>
@@ -384,7 +390,7 @@ function capitaliseString(string: string) {
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
             type="button"
-            @click="changeFaction(factionIndex + 1)"
+            @click="changeFaction(factionIndex + 1); emit('play-sound', 'selectcard')"
           >
             <v-icon class="icon" name="fa-chevron-circle-right" role="button" />
           </button>

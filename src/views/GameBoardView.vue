@@ -704,6 +704,7 @@ async function performAbility(card: Card) {
 
     if (card.ability === 'boost') {
       card.effectIcon = card.abilityIcon
+      await performBoost()
     }
 
     if (card.ability === 'double') {
@@ -749,6 +750,15 @@ async function performAbility(card: Card) {
     // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
     resolve()
+  })
+}
+
+function performBoost() {
+  return new Promise<void>(async (resolve) => {
+    // Timeout to allow effect icon to animate
+    setTimeout(() => {
+      resolve()
+    }, 1000)
   })
 }
 
@@ -1880,9 +1890,9 @@ function sortCardsHighToLow(a: Card, b: Card) {
 
         <CardModal
           v-model="cardModalModel"
+          :cancel-text="cardModalCancelText"
           class="quick-fade"
           :class="{ 'cover-player-hand': healActive }"
-          :cancel-text="cardModalCancelText"
           :confirm-text="cardModalConfirmText"
           :desktop="props.desktop"
           :disabled="cardModalDisabled"
