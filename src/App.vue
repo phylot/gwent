@@ -42,11 +42,14 @@ let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
 let themeSongSound: Howl
 let themeSongFadeTimeout: ReturnType<typeof setTimeout>
+let musicTracks: Howl[] = []
+let numberOfMusicTracks: number = 4
+let currentMusicTrackIndex: number | null = null
+let prevMusicTrackIndex: number | null = null
 let coinSound: Howl
 let doubleSound: Howl
 let drawCardSound: Howl
 let fatBastardSound: Howl
-let gwentSong: Howl
 let heroSound: Howl
 let matchDrawSound: Howl
 let matchLoseSound: Howl
@@ -104,6 +107,8 @@ function onResize() {
 async function preload() {
   await preloadSounds()
   await loadLocalStorage()
+
+  initializeMusicPlayer()
 
   // Preload card collections
   for (const faction in playerCardCollection) {
@@ -195,8 +200,7 @@ async function preloadSounds() {
       createHowl('sharpe-theme.mp3', 1),
       createHowl('toasty.mp3', 2.5),
       createHowl('turn.wav', 2.5),
-      createHowl('zelda-secret.mp3', 4),
-      preloadGameMusic()
+      createHowl('zelda-secret.mp3', 4)
     ])
 
     coinSound = coin
@@ -244,22 +248,49 @@ function createHowl(fileName: string, volume: number) {
   })
 }
 
-// TODO: Expand into music player
-function preloadGameMusic() {
-  return new Promise<void>((resolve) => {
-    gwentSong = new Howl({
-      src: [new URL(`./assets/audio/astoryyouwontbelieve.mp3`, import.meta.url).href],
-      loop: true,
-      volume: 1,
-      onload: () => {
-        resolve()
-      },
-      onloaderror: () => {
-        console.error('Failed to load game music')
-        resolve()
-      }
-    })
-  })
+function initializeMusicPlayer() {
+  for (let i = 0; i < numberOfMusicTracks; i++) {
+    musicTracks.push(
+      new Howl({
+        src: [new URL(`./assets/audio/music-track-${i + 1}.mp3`, import.meta.url).href],
+        autoplay: false,
+        loop: false,
+        volume: 1.0,
+        onfade: () => {
+          musicTracks[i].stop()
+        },
+        onend: () => {
+          playRandomMusicTrack()
+        },
+        onloaderror: () => {
+          playRandomMusicTrack()
+          console.error('Failed to load game music')
+        }
+      })
+    )
+  }
+}
+
+function playRandomMusicTrack() {
+  let randomIndex = getRandomTrackIndex()
+
+  // Record previous / current track index
+  if (prevMusicTrackIndex === null && currentMusicTrackIndex === null) {
+    prevMusicTrackIndex = currentMusicTrackIndex = randomIndex
+  } else {
+    prevMusicTrackIndex = currentMusicTrackIndex
+    currentMusicTrackIndex = randomIndex
+  }
+  musicTracks[randomIndex].volume(1)
+  musicTracks[randomIndex].play()
+}
+
+function getRandomTrackIndex() {
+  let randomIndex
+  do {
+    randomIndex = Math.floor(Math.random() * numberOfMusicTracks)
+  } while (randomIndex === currentMusicTrackIndex || randomIndex === prevMusicTrackIndex)
+  return randomIndex
 }
 
 function playSound(name: string) {
@@ -409,14 +440,17 @@ function loadImage(imageUrl: string) {
 function showMainMenu() {
   loading.value = false
   showContinueBtn.value = false
-  gameIsActive.value = false
 
-  gwentSong.fade(gwentSong.volume(), 0, 2000)
+  if (gameIsActive.value && currentMusicTrackIndex !== null) {
+    musicTracks[currentMusicTrackIndex].fade(musicTracks[currentMusicTrackIndex].volume(), 0, 2000)
+  }
 
   clearTimeout(themeSongFadeTimeout)
   themeSongSound.stop()
   themeSongSound.volume(1)
   themeSongSound.play()
+
+  gameIsActive.value = false
 
   setTimeout(
     () => {
@@ -433,12 +467,17 @@ function showMainMenu() {
 }
 
 function showDeckManager(preMatch: boolean) {
-  mainMenuIsActive.value = false
-  gameIsActive.value = false
   deckManagerIsPreMatch.value = preMatch
+
+  if (gameIsActive.value && currentMusicTrackIndex !== null) {
+    musicTracks[currentMusicTrackIndex].fade(musicTracks[currentMusicTrackIndex].volume(), 0, 4000)
+  }
+
   clearTimeout(themeSongFadeTimeout)
   themeSongSound.fade(themeSongSound.volume(), 0, 4000)
-  gwentSong.fade(gwentSong.volume(), 0, 4000)
+
+  gameIsActive.value = false
+  mainMenuIsActive.value = false
 
   // Timeout to allow main menu to fade out
   setTimeout(() => {
@@ -492,9 +531,7 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
   deckManagerIsActive.value = false
   playerCardCollection = deckSelection.collection
 
-  gwentSong.stop()
-  gwentSong.volume(1)
-  gwentSong.play()
+  playRandomMusicTrack()
 
   saveCardsToStorage(() => {
     // Set decks and leaders based on player's faction choice

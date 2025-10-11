@@ -716,7 +716,6 @@ async function performAbility(card: Card) {
     }
 
     if (card.ability === 'muster') {
-      card.effectIcon = card.abilityIcon
       await performMuster(card)
     }
 
@@ -950,6 +949,7 @@ function performMuster(card: Card) {
       }
     }
     if (cardsFound) {
+      card.effectIcon = card.abilityIcon
       emit('play-sound', 'muster')
       emit('play-sound', 'placecard')
     }
@@ -1135,7 +1135,10 @@ function performSpy() {
     } else {
       emit('play-sound', 'drawcard')
       hand.value.push(...dealRandomCards(deck.value, 2))
-      resolve()
+      // Timeout to allow effect icon to animate
+      setTimeout(() => {
+        resolve()
+      }, 1000)
     }
   })
 }
@@ -1155,7 +1158,10 @@ function performThief() {
     } else {
       emit('play-sound', 'drawcard')
       hand.value.push(...dealRandomCards(deck.value, 1))
-      resolve()
+      // Timeout to allow effect icon to animate
+      setTimeout(() => {
+        resolve()
+      }, 1000)
     }
   })
 }
@@ -1195,7 +1201,7 @@ async function calculateRows(card: Card) {
         }
         resolve()
       },
-      statsIncreased ? 1000 : 500
+      statsIncreased ? 1500 : 500
     )
   })
 }
