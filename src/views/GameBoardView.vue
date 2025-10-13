@@ -704,7 +704,6 @@ async function performAbility(card: Card) {
 
     if (card.ability === 'boost') {
       card.effectIcon = card.abilityIcon
-      await performBoost()
     }
 
     if (card.ability === 'double') {
@@ -750,15 +749,6 @@ async function performAbility(card: Card) {
     // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
     resolve()
-  })
-}
-
-function performBoost() {
-  return new Promise<void>(async (resolve) => {
-    // Timeout to allow effect icon to animate
-    setTimeout(() => {
-      resolve()
-    }, 1000)
   })
 }
 
@@ -1211,7 +1201,7 @@ async function calculateRows(card: Card) {
         }
         resolve()
       },
-      statsIncreased ? 1500 : 500
+      statsIncreased || card?.ability === "boost" ? 1500 : 500
     )
   })
 }
@@ -1228,7 +1218,7 @@ async function calculateRow(rowArr: Card[], rowFlag: RowFlag, card: Card) {
       card.value = card.defaultValue
     }
 
-    // TODO: Weather cards first
+    // TODO: Weather cards
     await calculateBond(rowArr)
     await calculateBoost(rowArr)
     await calculateDouble(rowArr, rowFlag)
@@ -1292,7 +1282,6 @@ function calculateBond(rowArr: Card[]) {
         rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
       }
     }
-
     resolve()
   })
 }

@@ -181,7 +181,7 @@ async function preloadSounds() {
       zelda
     ] = await Promise.all([
       createHowl('coin.wav', 5),
-      createHowl('double.wav', 1.5),
+      createHowl('double.wav', 1),
       createHowl('draw-card.wav', 1),
       createHowl('fat-bastard.wav', 1),
       createHowl('hero.wav', 1),
@@ -193,7 +193,7 @@ async function preloadSounds() {
       createHowl('play-card.wav', 1),
       createHowl('round-draw.wav', 1),
       createHowl('round-lose.wav', 1),
-      createHowl('round-start.wav', 1),
+      createHowl('round-start.wav', 0.7),
       createHowl('round-win.wav', 1),
       createHowl('scorch.wav', 1),
       createHowl('select-card.mp3', 0.2),
@@ -201,7 +201,7 @@ async function preloadSounds() {
       createHowl('swap-card.wav', 2),
       createHowl('sharpe-theme.mp3', 1),
       createHowl('toasty.mp3', 2.5),
-      createHowl('turn.wav', 2.5),
+      createHowl('turn.wav', 1.5),
       createHowl('zelda-secret.mp3', 4)
     ])
 
@@ -257,7 +257,7 @@ function initializeMusicPlayer() {
         src: [new URL(`./assets/audio/music-track-${i + 1}.mp3`, import.meta.url).href],
         autoplay: false,
         loop: false,
-        volume: 1.0,
+        volume: 1,
         onfade: () => {
           musicTracks[i].stop()
         },
