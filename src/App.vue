@@ -743,7 +743,7 @@ async function unlockAllCards() {
     <div v-if="loading" class="loader" :class="{ desktop: isDesktop }" role="alert">
       <template v-if="showContinueBtn">
         <div class="save-warning">
-          <v-icon animation="pulse" class="icon" name="fa-regular-save" speed="fast" />WARNING: Your
+          <v-icon animation="pulse" class="icon" name="fa-regular-save" speed="fast" />Note: Your
           progress is saved to this device
         </div>
 

@@ -586,6 +586,7 @@ function determineCpuCard(callback?: Function) {
 
     // If it's decided not to use a random card, use structured decision logic instead
     if (!useRandomCard) {
+      // TODO: Expand to include thief cards
       // Find any spy cards
       let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
       if (spyCards.length > 0) {
@@ -601,6 +602,7 @@ function determineCpuCard(callback?: Function) {
         if (playerHasRound.value) {
           // If standard cards are available
           if (cpuStandardCards.length > 0) {
+            // TODO: Expand this logic to include 'scorch' cards (find any scorch opportunities) and 'thief' cards (find any thief opportunities) and the most efficient order to play them
             // Sort cards lowest to highest
             cpuStandardCards.sort(sortCardsLowToHigh)
             // Play the lowest value card
