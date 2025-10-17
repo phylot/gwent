@@ -183,7 +183,7 @@ async function preloadSounds() {
       createHowl('coin.wav', 5),
       createHowl('double.wav', 1),
       createHowl('draw-card.wav', 1),
-      createHowl('fat-bastard.wav', 1),
+      createHowl('fat-bastard.mp3', 1),
       createHowl('hero.wav', 1),
       createHowl('match-draw.wav', 1),
       createHowl('match-lose.wav', 1),
@@ -200,9 +200,9 @@ async function preloadSounds() {
       createHowl('stat-increase.wav', 0.5),
       createHowl('swap-card.wav', 2),
       createHowl('sharpe-theme.mp3', 1),
-      createHowl('toasty.mp3', 2.5),
+      createHowl('toasty.mp3', 1.5),
       createHowl('turn.wav', 1.5),
-      createHowl('zelda-secret.mp3', 4)
+      createHowl('zelda-secret.mp3', 3)
     ])
 
     coinSound = coin

@@ -16,7 +16,7 @@ watch(
       localModelValue.value = val
       setTimeout(() => {
         showPopup.value = val
-      }, 1)
+      }, 100)
     } else {
       showPopup.value = val
       setTimeout(() => {
@@ -44,7 +44,7 @@ watch(
   width: 144px;
   height: 170px;
   background: center / cover no-repeat url('/src/assets/images/sharpe-cutout.png');
-  transition: transform 0.3s cubic-bezier(0.82, 0.085, 0.395, 0.895);
+  transition: transform 0.2s ease-in-out;
 }
 
 .bean-popup.active {

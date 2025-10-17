@@ -1203,7 +1203,7 @@ async function calculateRows(card: Card) {
         }
         resolve()
       },
-      statsIncreased || card?.ability === "boost" ? 1500 : 500
+      statsIncreased || card?.ability === 'boost' ? 1500 : 500
     )
   })
 }
