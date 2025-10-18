@@ -602,7 +602,8 @@ function determineCpuCard(callback?: Function) {
         if (playerHasRound.value) {
           // If standard cards are available
           if (cpuStandardCards.length > 0) {
-            // TODO: Expand this logic to include 'scorch' cards (find any scorch opportunities) and 'thief' cards (find any thief opportunities) and the most efficient order to play them
+            // TODO: Up-front check for scorch and 'heal' opportunities (check dead pile for spies)
+            // TODO: Calculate most efficient order to play cards (check for existing 'bond' cards, etc.)
             // Sort cards lowest to highest
             cpuStandardCards.sort(sortCardsLowToHigh)
             // Play the lowest value card
