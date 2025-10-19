@@ -43,7 +43,7 @@ let allCardsUnlocked = ref(false)
 let themeSongSound: Howl
 let themeSongFadeTimeout: ReturnType<typeof setTimeout>
 let musicTracks: Howl[] = []
-let numberOfMusicTracks: number = 5
+let numberOfMusicTracks: number = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
 let deckManagerSong: Howl
@@ -265,7 +265,6 @@ function initializeMusicPlayer() {
           playRandomMusicTrack()
         },
         onloaderror: () => {
-          playRandomMusicTrack()
           console.error('Failed to load game music')
         }
       })
