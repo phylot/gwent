@@ -22,6 +22,7 @@ let mainMenuIsActive = ref(false)
 let mainMenuDisabled = ref(false)
 let deckManagerIsActive = ref(false)
 let deckManagerIsPreMatch = ref(false)
+let deckManagerFaction = ref()
 let isDesktop = ref(false)
 let loading = ref(true)
 let showContinueBtn = ref(false)
@@ -481,8 +482,9 @@ function showMainMenu() {
   )
 }
 
-function showDeckManager(preMatch: boolean) {
+function showDeckManager(preMatch: boolean, faction?: string) {
   deckManagerIsPreMatch.value = preMatch
+  deckManagerFaction.value = faction ?? null
 
   if (gameIsActive.value && currentMusicTrackIndex !== null) {
     musicTracks[currentMusicTrackIndex].fade(musicTracks[currentMusicTrackIndex].volume(), 0, 4000)
@@ -645,7 +647,7 @@ async function determineCardUnlock() {
       setTimeout(() => {
         cardUnlockModal.value.show().then((res: boolean) => {
           if (res) {
-            showDeckManager(false)
+            showDeckManager(true, card.faction)
           }
           gameBoardDisabled.value = false
         })
@@ -811,6 +813,7 @@ async function unlockAllCards() {
       :desktop="isDesktop"
       :leader-cards="playerLeaderCards"
       :pre-match="deckManagerIsPreMatch"
+      :preselected-faction="deckManagerFaction"
       @cancel="cancelDeckManager"
       @faction-selected="setupGameAndStart"
       @play-sound="playSound"

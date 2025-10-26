@@ -10,6 +10,7 @@ const props = defineProps<{
   desktop: boolean
   leaderCards: Card
   preMatch: boolean
+  preselectedFaction?: string
 }>()
 
 let localCardCollection = ref()
@@ -184,6 +185,15 @@ onMounted(() => {
 
   deckContainer = document.querySelector('.deck-cards')
   collectionContainer = document.querySelector('.collection-drawer-cards')
+
+  // Set initial 'factionIndex' based on 'props.preselectedFaction' string
+  if (props.preselectedFaction) {
+    factionIndex.value = Number(
+      Object.keys(factionKeys.value).find(
+        (key) => factionKeys.value[Number(key)] === props.preselectedFaction
+      )
+    )
+  }
 })
 
 function changeFaction(index: number) {
