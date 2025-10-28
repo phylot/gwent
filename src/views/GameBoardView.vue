@@ -287,7 +287,7 @@ function startNewGame() {
   opponentDeck.value = JSON.parse(JSON.stringify(opponentDeckDefault.value))
 
   // Generate a random hand of 10 cards for each player
-  playerHand.value = dealRandomCards(playerDeck.value, 10)
+  playerHand.value = dealRandomCards(playerDeck.value, 10).sort(sortHandCards)
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
   // Empty all board rows and card piles
@@ -330,6 +330,7 @@ function startNewGame() {
     'gi-crown-coin',
     () => {
       showCardRedrawModal(() => {
+        playerHand.value.sort(sortHandCards)
         cardRedrawActive.value = false
         emit('play-sound', 'roundstart')
 
@@ -1130,9 +1131,11 @@ function performSpy() {
 
       await showPreviewCard(randomCardsArr[0], isPlayerTurn.value)
       hand.value.push(randomCardsArr[0])
+      hand.value.sort(sortHandCards)
 
       await showPreviewCard(randomCardsArr[1], isPlayerTurn.value)
       hand.value.push(randomCardsArr[1])
+      hand.value.sort(sortHandCards)
 
       resolve()
     } else {
@@ -1156,6 +1159,7 @@ function performThief() {
 
       await showPreviewCard(randomCardArr[0], isPlayerTurn.value)
       hand.value.push(randomCardArr[0])
+      hand.value.sort(sortHandCards)
 
       resolve()
     } else {
@@ -1800,6 +1804,10 @@ function sortCardsLowToHigh(a: Card, b: Card) {
 
 function sortCardsHighToLow(a: Card, b: Card) {
   return (b.defaultValue || 0) - (a.defaultValue || 0)
+}
+
+function sortHandCards(a: Card, b: Card) {
+  return (a.defaultValue || -1) - (b.defaultValue || -1) || a.name.localeCompare(b.name)
 }
 </script>
 

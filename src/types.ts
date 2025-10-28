@@ -33,7 +33,7 @@ interface Card {
   imageUrl?: string
   isNew?: boolean
   musterName?: string
-  name?: string
+  name: string
   replacedById?: string,
   type: string
   typeIcon?: string
