@@ -287,7 +287,7 @@ function startNewGame() {
   opponentDeck.value = JSON.parse(JSON.stringify(opponentDeckDefault.value))
 
   // Generate a random hand of 10 cards for each player
-  playerHand.value = dealRandomCards(playerDeck.value, 10).sort(sortHandCards)
+  playerHand.value = dealRandomCards(playerDeck.value, 10).sort(sortCardsLowToHigh)
   opponentHand.value = dealRandomCards(opponentDeck.value, 10)
 
   // Empty all board rows and card piles
@@ -330,7 +330,7 @@ function startNewGame() {
     'gi-crown-coin',
     () => {
       showCardRedrawModal(() => {
-        playerHand.value.sort(sortHandCards)
+        playerHand.value.sort(sortCardsLowToHigh)
         cardRedrawActive.value = false
         emit('play-sound', 'roundstart')
 
@@ -1131,11 +1131,11 @@ function performSpy() {
 
       await showPreviewCard(randomCardsArr[0], isPlayerTurn.value)
       hand.value.push(randomCardsArr[0])
-      hand.value.sort(sortHandCards)
+      hand.value.sort(sortCardsLowToHigh)
 
       await showPreviewCard(randomCardsArr[1], isPlayerTurn.value)
       hand.value.push(randomCardsArr[1])
-      hand.value.sort(sortHandCards)
+      hand.value.sort(sortCardsLowToHigh)
 
       resolve()
     } else {
@@ -1159,7 +1159,7 @@ function performThief() {
 
       await showPreviewCard(randomCardArr[0], isPlayerTurn.value)
       hand.value.push(randomCardArr[0])
-      hand.value.sort(sortHandCards)
+      hand.value.sort(sortCardsLowToHigh)
 
       resolve()
     } else {
@@ -1369,7 +1369,7 @@ function determineRoundWinner() {
   let isMatchDraw = false
   let unlockedAwards = []
 
-  // Determine highest round scorer
+  // Determine highest scorer this round
   if (playerTotal.value === opponentTotal.value) {
     isDraw = true
   } else {
@@ -1405,31 +1405,34 @@ function determineRoundWinner() {
     opponentAwards.value.heavyweight.count = rowTotals.value.opponent[2]
   }
 
-  // MATCH END CONDITION - End match as a draw (round is a draw and each player has already won a round)
+  // MATCH END CONDITION 1 - DRAW - Round is a draw and each player has already won a round
   if (isDraw && playerHasRound.value && opponentHasRound.value) {
     isMatchDraw = true
   }
-  // MATCH END CONDITION - Round winner has already won a round
+  // MATCH END CONDITION 2 - WIN - Round is a draw and ONE player has already won a round
+  else if (isDraw && (playerHasRound.value || opponentHasRound.value)) {
+    playerHasRound.value ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
+  }
+  // MATCH END CONDITION 3 - WIN - Round winner has already won a round
   else if (
     (isPlayerRoundWin && playerHasRound.value) ||
     (isOpponentRoundWin && opponentHasRound.value)
   ) {
     isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
   }
-  // MATCH END CONDITION - Round is a draw and ONE player has already won a round
-  else if (isDraw && (playerHasRound.value || opponentHasRound.value)) {
-    playerHasRound.value ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
-  }
-  // MATCH END CONDITION - Neither player has any cards left after round 1
-  else if (
-    playerHand.value.length === 0 &&
-    opponentHand.value.length === 0 &&
-    roundNumber.value === 1
-  ) {
-    if (isDraw) {
+  // MATCH END CONDITION 4 - NO CARDS
+  else if (playerHand.value.length === 0 && opponentHand.value.length === 0) {
+    // If the match never went beyond round 1, work out if the match was won or drawn
+    if (roundNumber.value === 1) {
+      if (isDraw) {
+        isMatchDraw = true
+      } else {
+        isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
+      }
+    }
+    // Round winner hasn't already won a round (MATCH END CONDITION 3) and this round wasn't a draw (MATCH END CONDITION 1 & 2)... Bother players must have 1 round each and no cards left
+    else {
       isMatchDraw = true
-    } else {
-      isPlayerRoundWin ? (isPlayerMatchWin = true) : (isOpponentMatchWin = true)
     }
   }
 
@@ -1566,6 +1569,8 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 
   resetCards(playerDiscardPile.value)
   resetCards(opponentDiscardPile.value)
+  playerDiscardPile.value.sort(sortCardsLowToHigh)
+  opponentDiscardPile.value.sort(sortCardsLowToHigh)
 
   // Reset row flags
   playerRowFlags.value = JSON.parse(JSON.stringify(playerRowFlagsDefault.value))
@@ -1799,15 +1804,15 @@ function getChanceOutcome(percentage: number) {
 }
 
 function sortCardsLowToHigh(a: Card, b: Card) {
-  return (a.defaultValue || 0) - (b.defaultValue || 0)
+  const aVal = a.value ?? -Infinity
+  const bVal = b.value ?? -Infinity
+  return aVal - bVal || a.name.localeCompare(b.name)
 }
 
 function sortCardsHighToLow(a: Card, b: Card) {
-  return (b.defaultValue || 0) - (a.defaultValue || 0)
-}
-
-function sortHandCards(a: Card, b: Card) {
-  return (a.defaultValue || -1) - (b.defaultValue || -1) || a.name.localeCompare(b.name)
+  const aVal = a.value ?? -Infinity
+  const bVal = b.value ?? -Infinity
+  return bVal - aVal || b.name.localeCompare(a.name)
 }
 </script>
 
