@@ -820,7 +820,7 @@ async function unlockAllCards() {
         <li class="list-item">
           <v-icon class="list-icon" fill="#d89803" name="oi-star-fill" />
           <div class="list-text">
-            When both players have <strong>passed</strong> the
+            When both players have <strong>"passed"</strong>, the
             <strong>highest total card value</strong> wins the round
           </div>
         </li>
@@ -829,7 +829,7 @@ async function unlockAllCards() {
       <div class="divider"></div>
 
       <div class="catch-text">
-        <strong>The Catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit your cards wisely
+        <strong>The catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit your cards wisely
       </div>
 
       <div class="tip-container">

@@ -109,7 +109,7 @@ html {
   flex-direction: column;
   align-items: start;
   gap: 10px;
-  background-color: #212121;
+  background-color: #232323;
 }
 
 .awards-gallery .award-container .description {
@@ -203,7 +203,7 @@ html {
   gap: 15px;
   align-self: stretch;
   border-radius: 10px;
-  background: #212121;
+  background: #232323;
 }
 
 .how-to-play .tip-container .tip-icon {
