@@ -820,7 +820,7 @@ async function unlockAllCards() {
         <li class="list-item">
           <v-icon class="list-icon" fill="#d89803" name="oi-star-fill" />
           <div class="list-text">
-            When both players have <strong>passed</strong>, the
+            When both players have <strong>passed</strong> the
             <strong>highest total card value</strong> wins the round
           </div>
         </li>
@@ -836,14 +836,14 @@ async function unlockAllCards() {
         <div class="tip-item">
           <v-icon class="tip-icon" name="oi-light-bulb" />
           <div class="tip-text">
-            <strong>Tip:</strong> Consider passing and saving your cards for subsequent rounds
+            <strong>Tip:</strong> Consider <strong>passing</strong> and saving your cards for subsequent rounds
           </div>
         </div>
 
         <div class="tip-item">
           <v-icon class="tip-icon" name="oi-light-bulb" />
           <div class="tip-text">
-            <strong>Tip:</strong> Some cards have special abilities... Playing them at the right time is key to winning
+            <strong>Tip:</strong> Some cards have <strong>special abilities</strong>... Playing them at the right time is key to winning
           </div>
         </div>
       </div>

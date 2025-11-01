@@ -175,10 +175,14 @@ html {
 }
 
 .how-to-play .catch-text {
+  padding: 15px;
   text-align: center;
   font-size: 14px;
   line-height: normal;
   font-weight: 400;
+  color: #000000;
+  border-radius: 10px;
+  background-color: #d8d8d8;
 }
 
 .how-to-play .catch-text strong {
@@ -239,14 +243,19 @@ html {
 }
 
 .how-to-play.desktop .catch-text {
-    font-size: 18px;
+  padding: 20px;
+  font-size: 18px;
 }
 
-.how-to-play .tip-container .tip-icon {
-    width: 40px;
-    height: 40px;
+.how-to-play.desktop .tip-container .tip-item {
+  padding: 15px;
+}
+
+.how-to-play.desktop .tip-container .tip-icon {
+  width: 40px;
+  height: 40px;
 }
 
 .how-to-play.desktop .tip-container .tip-text {
-    font-size: 14px;
+  font-size: 14px;
 }
