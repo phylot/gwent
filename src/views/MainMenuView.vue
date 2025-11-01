@@ -27,10 +27,11 @@ let logoClickTimeout: ReturnType<typeof setTimeout>
 // EVENTS
 
 const emit = defineEmits<{
-  (e: 'awards'): void
   (e: 'manage-deck', preMatch: boolean): void
   (e: 'play'): void
   (e: 'play-sound', val: string): void
+  (e: 'show-awards'): void
+  (e: 'show-how-to-play'): void
   (e: 'skip'): void
   (e: 'title-sequence-end'): void
   (e: 'unlock-all-cards'): void
@@ -192,9 +193,17 @@ function logoClick() {
           :class="{ large: props.desktop }"
           :disabled="props.disabled"
           type="button"
-          @click="emit('awards')"
+          @click="emit('show-awards')"
         >
           Awards ({{ props.awardsCount }})
+        </button>
+        <button
+          class="btn"
+          :class="{ large: props.desktop }"
+          type="button"
+          @click="emit('show-how-to-play')"
+        >
+          How to Play
         </button>
       </div>
     </transition>

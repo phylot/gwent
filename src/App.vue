@@ -37,6 +37,7 @@ let selectedOpponentDeck: Card[] = []
 let selectedOpponentLeader: Card
 let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
 let awardsModal = ref()
+let howToPlayModal = ref()
 let playerWins: number = 0
 let unlockedCard = ref<Card>()
 let cardUnlockModal = ref()
@@ -534,6 +535,13 @@ function showAwards() {
   })
 }
 
+function showHowToPlay() {
+  mainMenuDisabled.value = true
+  howToPlayModal.value.show().then(() => {
+    mainMenuDisabled.value = false
+  })
+}
+
 function playGame() {
   mainMenuIsActive.value = false
   doubleSound.play()
@@ -787,6 +795,61 @@ async function unlockAllCards() {
     </div>
   </StandardModal>
 
+  <StandardModal
+    :buttons="['Close']"
+    :desktop="isDesktop"
+    no-primary
+    ref="howToPlayModal"
+    title="How to Play"
+  >
+    <div class="how-to-play" :class="{ desktop: isDesktop }">
+      <ol class="how-to-play-list">
+        <li class="list-item">
+          <v-icon class="list-icon" name="oi-stack" />
+          <div class="list-text">
+            Each player is dealt <strong>10 random cards</strong> from their deck
+          </div>
+        </li>
+        <li class="list-item">
+          <v-icon class="list-icon" name="gi-card-play" />
+          <div class="list-text">
+            Players take it in turns to place <strong>cards of different values</strong> on the
+            board
+          </div>
+        </li>
+        <li class="list-item">
+          <v-icon class="list-icon" fill="#d89803" name="oi-star-fill" />
+          <div class="list-text">
+            When both players have <strong>passed</strong>, the
+            <strong>highest total card value</strong> wins the round
+          </div>
+        </li>
+      </ol>
+
+      <div class="divider"></div>
+
+      <div class="catch-text">
+        <strong>The Catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit your cards wisely
+      </div>
+
+      <div class="tip-container">
+        <div class="tip-item">
+          <v-icon class="tip-icon" name="oi-light-bulb" />
+          <div class="tip-text">
+            <strong>Tip:</strong> Consider passing and saving your cards for subsequent rounds
+          </div>
+        </div>
+
+        <div class="tip-item">
+          <v-icon class="tip-icon" name="oi-light-bulb" />
+          <div class="tip-text">
+            <strong>Tip:</strong> Some cards have special abilities... Playing them at the right time is key to winning
+          </div>
+        </div>
+      </div>
+    </div>
+  </StandardModal>
+
   <transition name="slow-fade">
     <MainMenuView
       v-if="mainMenuIsActive"
@@ -796,10 +859,11 @@ async function unlockAllCards() {
       :disable-logo-click="allCardsUnlocked"
       :show-menu="titleSequenceHasPlayed"
       @loading-change="loadingChange"
-      @awards="showAwards"
       @manage-deck="showDeckManager"
       @play="playGame"
       @play-sound="playSound"
+      @show-awards="showAwards"
+      @show-how-to-play="showHowToPlay"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
       @unlock-all-cards="unlockAllCards"

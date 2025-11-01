@@ -109,7 +109,7 @@ html {
   flex-direction: column;
   align-items: start;
   gap: 10px;
-  background-color: rgb(50 50 50 / 80%);
+  background-color: #212121;
 }
 
 .awards-gallery .award-container .description {
@@ -128,4 +128,125 @@ html {
 
 .awards-gallery.desktop .award-container .description {
   font-size: 14px;
+}
+
+.how-to-play {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.how-to-play .how-to-play-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.how-to-play .how-to-play-list .list-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.how-to-play .how-to-play-list .list-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.how-to-play .how-to-play-list .list-text {
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 400;
+}
+
+.how-to-play .how-to-play-list .list-text strong {
+  font-weight: 900;
+}
+
+.how-to-play .divider {
+  width: 100px;
+  height: 1px;
+  min-height: 1px;
+  background-color: #ffffff;
+}
+
+.how-to-play .catch-text {
+  text-align: center;
+  font-size: 14px;
+  line-height: normal;
+  font-weight: 400;
+}
+
+.how-to-play .catch-text strong {
+  font-weight: 900;
+}
+
+.how-to-play .tip-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.how-to-play .tip-container .tip-item {
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  gap: 15px;
+  align-self: stretch;
+  border-radius: 10px;
+  background: #212121;
+}
+
+.how-to-play .tip-container .tip-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.how-to-play .tip-container .tip-text {
+  font-size: 12px;
+  line-height: normal;
+  font-weight: 400;
+}
+
+.how-to-play .tip-container .tip-text strong {
+  font-weight: 900;
+}
+
+.how-to-play.desktop {
+  gap: 30px;
+}
+
+.how-to-play.desktop .how-to-play-list {
+  gap: 30px;
+}
+
+.how-to-play.desktop .how-to-play-list .list-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.how-to-play.desktop .how-to-play-list .list-text {
+  font-size: 18px;
+}
+
+.how-to-play.desktop .divider {
+  width: 200px;
+}
+
+.how-to-play.desktop .catch-text {
+    font-size: 18px;
+}
+
+.how-to-play .tip-container .tip-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.how-to-play.desktop .tip-container .tip-text {
+    font-size: 14px;
 }
