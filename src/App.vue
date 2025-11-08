@@ -149,6 +149,7 @@ async function preload() {
   // Preload faction flag images
   await loadImage(new URL(`./assets/images/british-flag.png`, import.meta.url).href)
   await loadImage(new URL(`./assets/images/french-flag.png`, import.meta.url).href)
+  await loadImage(new URL(`./assets/images/undead-flag.png`, import.meta.url).href)
 
   // Preload title screen background image
   await loadImage(new URL(`./assets/images/main-menu-bg.jpg`, import.meta.url).href)
@@ -554,7 +555,15 @@ function playGame() {
 }
 
 function setupGameAndStart(deckSelection: FactionAndCollection) {
-  let opponentFaction: string = deckSelection.faction === 'british' ? 'french' : 'british'
+  // Select a random opponent faction (excluding player's chosen faction)'
+  let factionsArray: string[] = []
+  for (const faction in playerCardCollection) {
+    if (faction !== deckSelection.faction) {
+      factionsArray.push(faction)
+    }
+  }
+  // Select a random faction from the array and set as the opponent's faction
+  let opponentFaction: string = factionsArray[Math.floor(Math.random() * factionsArray.length)];
   loading.value = true
   deckManagerIsActive.value = false
   playerCardCollection = deckSelection.collection
@@ -826,11 +835,11 @@ async function unlockAllCards() {
         </li>
       </ol>
 
-      <div class="divider"></div>
-
       <div class="catch-text">
         <strong>The catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit your cards wisely
       </div>
+
+      <div class="divider"></div>
 
       <div class="tip-container">
         <div class="tip-item">

@@ -138,6 +138,10 @@ const cardClasses = computed(() => {
   background: linear-gradient(#1d7eca, #04365e);
 }
 
+.big-card .card-border.undead {
+  background: linear-gradient(#4BC40A, #045625);
+}
+
 .big-card .card-border.hero {
   background: linear-gradient(#d98c0e, #533503);
 }

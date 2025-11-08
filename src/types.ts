@@ -44,11 +44,13 @@ interface Card {
 interface CardCollection {
   british: { collection: Card[]; deck: Card[] }
   french: { collection: Card[]; deck: Card[] }
+  undead?: { collection: Card[]; deck: Card[] }
 }
 
 interface LeaderCardCollection {
   british: { collection: Card[]; selected: Card }
   french: { collection: Card[]; selected: Card }
+  undead: { collection: Card[]; selected: Card }
 }
 
 interface RoundTotal {

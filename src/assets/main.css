@@ -34,8 +34,15 @@ html {
     url('./images/fr-maquerre.png'), url('./images/fr-napoleon.jpg'),
     url('./images/fr-oldguard.png'), url('./images/fr-p-leroux.png'), url('./images/fr-sergent.png'),
     url('./images/fr-voltigeur.png'), url('./images/french-flag.png'),
-    url('./images/main-menu-bg.jpg'), url('./images/rain.png'), url('./images/scorch-flame.jpg'),
-    url('./images/scorch.png'), url('./images/sharpe-cutout.png');
+    url('./images/main-menu-bg.jpg'), url('./images/plague.jpg'), url('./images/rain.png'),
+    url('./images/scorch-flame.jpg'), url('./images/scorch.png'), url('./images/sharpe-cutout.png'),
+    url('./images/un-bat.jpg'), url('./images/un-flying-dutchman.jpg'),
+    url('./images/un-horseman-death.jpg'), url('./images/un-horseman-famine.jpg'),
+    url('./images/un-horseman-pestilence.jpg'), url('./images/un-horseman-war.jpg'),
+    url('./images/un-ghost.jpg'), url('./images/un-ghoul.jpg'), url('./images/un-hag.jpg'),
+    url('./images/un-kraken.jpg'), url('./images/un-necromancer.jpg'),
+    url('./images/un-skeleton-king.jpg'), url('./images/un-spider.jpg'),
+    url('./images/un-troll.jpg'), url('./images/un-vampire.jpg'), url('./images/undead-flag.png');
   background-size: 0;
 }
 
