@@ -234,6 +234,7 @@ async function setupGame(callback: Function) {
     'broadsword.svg',
     'catapult.svg',
     'crossbow.svg',
+    'plague-cells.jpg',
     'scorch-flame.jpg',
     'sharpe-cutout.png'
   ])
@@ -680,8 +681,8 @@ function cpuShouldScorch() {
     // Find highest value of all non-hero card(s)
     let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
     for (const cardRow of boardCardArrays) {
-      const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
-      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
+      const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+      const maxValue = Math.max(...applicableCards.map((o) => o.value ?? 0), 0)
       highestCardValue = maxValue > highestCardValue ? maxValue : highestCardValue
     }
   }
@@ -704,8 +705,6 @@ function cpuShouldScorch() {
 
 async function performAbility(card: Card) {
   return new Promise<void>(async (resolve) => {
-    // Perform card ability
-
     if (card.ability === 'boost') {
       card.effectIcon = card.abilityIcon
     }
@@ -721,6 +720,10 @@ async function performAbility(card: Card) {
 
     if (card.ability === 'muster') {
       await performMuster(card)
+    }
+
+    if (card.ability === 'plague') {
+      await performPlague(card)
     }
 
     if (
@@ -916,6 +919,7 @@ function performMuster(card: Card) {
     let boardCards = isPlayerTurn.value ? playerBoardCards : opponentBoardCards
     let cardsFound = false
 
+    // TODO: Expand to muster hand cards as well as deck cards
     for (let i = 0; i < deck.length; i++) {
       let deckCard = deck[i]
       let boardArrIndex = 0
@@ -924,22 +928,23 @@ function performMuster(card: Card) {
       if (deckCard.musterName === card.musterName) {
         cardsFound = true
 
-        // Find any existing 'bond' cards of the same bond type in the relevant board row
-        if (deckCard.ability === 'bond') {
-          let bondNameFound = false
-          for (let i = 0; i < boardCards.value[abilityIndexes[deckCard.type]].length; i++) {
-            if (boardCards.value[abilityIndexes[deckCard.type]][i].bondName === deckCard.bondName) {
-              bondNameFound = true
-            } else {
-              if (bondNameFound) {
-                boardArrIndex = i
-                break
-              }
+        // Find any existing board cards of 'muster' or 'bond' cards of the same bond type in the relevant board row
+        let abilityMatchFound = false
+        for (let i = 0; i < boardCards.value[abilityIndexes[deckCard.type]].length; i++) {
+          if (
+            // boardCards.value[abilityIndexes[deckCard.type]][i].musterName === deckCard.musterName ||
+            boardCards.value[abilityIndexes[deckCard.type]][i].bondName === deckCard.bondName
+          ) {
+            abilityMatchFound = true
+          } else {
+            if (abilityMatchFound) {
+              boardArrIndex = i
+              break
             }
           }
         }
 
-        // If existing bond cards found, place deck card into board row array next to any existing 'bond' cards of the same bond type
+        // If existing bond cards found, place deck card into board row array next to any existing matching cards
         if (boardArrIndex) {
           boardCards.value[abilityIndexes[deckCard.type]].splice(boardArrIndex, 0, deckCard)
         }
@@ -960,7 +965,7 @@ function performMuster(card: Card) {
     // If cards found, allow time for animations
     setTimeout(
       () => {
-        if (cardsFound) {
+        if (cardsFound && card.musterName === 'calvet') {
           beanPopup.value = true
           emit('play-sound', 'fatbastard')
           setTimeout(() => {
@@ -972,6 +977,80 @@ function performMuster(card: Card) {
       },
       cardsFound ? 1500 : 0
     )
+  })
+}
+
+function performPlague(card: Card) {
+  return new Promise<void>((resolve) => {
+    let lowestCardValue: number | null = null
+    let plagueCount = 0
+
+    // For each player
+    for (let i = 0; i < 2; i++) {
+      // Find the lowest value of all non-hero cards
+      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+      for (const cardRow of boardCardArrays) {
+        const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+        if (applicableCards.length === 0) continue
+
+        const cardValues = applicableCards.map(o => o.value ?? 0);
+        const minValue = cardValues.length ? Math.min(...cardValues) : 0;
+
+        if (lowestCardValue === null) {
+          lowestCardValue = minValue
+        } else {
+          lowestCardValue = Math.min(lowestCardValue, minValue)
+        }
+      }
+    }
+
+    // For each player
+    for (let i = 0; i < 2; i++) {
+      // Apply Plague animation / effect icon to the lowest value non-hero cards
+      let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+      for (const cardRow of boardCardArrays) {
+        for (const card of cardRow) {
+          if (card.value === lowestCardValue && !card.hero && card.type !== 'special') {
+            plagueCount++
+            card.animationName = 'plague'
+            card.effectIcon = 'fa-virus'
+          }
+        }
+      }
+    }
+
+    if (plagueCount > 0) {
+      card.effectIcon = card.abilityIcon
+      emit('play-sound', 'plague')
+
+      setTimeout(() => {
+        // For each player
+        for (let i = 0; i < 2; i++) {
+          // Plague the highest value non-hero cards
+          let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+          let discardPile = i < 1 ? playerDiscardPile : opponentDiscardPile
+
+          for (const cardRow of boardCardArrays) {
+            for (let i = 0; i < cardRow.length; i++) {
+              if (
+                cardRow[i].value === lowestCardValue &&
+                !cardRow[i].hero &&
+                cardRow[i].type !== 'special'
+              ) {
+                discardPile.value.push(cardRow[i])
+                cardRow.splice(i, 1)
+                i--
+              }
+            }
+            resetCards(discardPile.value)
+          }
+        }
+        resolve()
+      }, 2000)
+    } else {
+      resolve()
+    }
   })
 }
 
@@ -987,9 +1066,9 @@ function performRowScorch(card: Card) {
 
     // If cards are present in the relevant board card row, and they total 10 or above
     if (cardRow.length > 0 && cardRowTotal > 9) {
-      // Find highest value of all non-hero card(s)
-      const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
-      const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
+      // Find highest value of all non-hero cards
+      const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+      const maxValue = Math.max(...applicableCards.map((o) => o.value ?? 0), 0)
 
       for (const card of cardRow) {
         if (card.value === maxValue && !card.hero && card.type !== 'special') {
@@ -1050,11 +1129,11 @@ function performScorch(card: Card) {
 
     // For each player
     for (let i = 0; i < 2; i++) {
-      // Find the highest value of all non-hero card(s)
+      // Find the highest value of all non-hero cards
       let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
       for (const cardRow of boardCardArrays) {
-        const nonApplicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
-        const maxValue = Math.max(...nonApplicableCards.map((o) => o.value || 0), 0)
+        const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+        const maxValue = Math.max(...applicableCards.map((o) => o.value ?? 0), 0)
         highestCardValue = maxValue > highestCardValue ? maxValue : highestCardValue
       }
     }

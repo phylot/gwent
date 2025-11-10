@@ -138,6 +138,13 @@
   background: #fff;
 }
 
+.plague {
+  display: block;
+  animation-name: fade-in;
+  animation-duration: 0.5s;
+  background-image: url('./images/plague-cells.jpg');
+}
+
 .scorch {
   display: block;
   animation-name: fade-in;

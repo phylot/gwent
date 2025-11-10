@@ -59,6 +59,7 @@ let matchLoseSound: Howl
 let matchWinSound: Howl
 let musterSound: Howl
 let placeCardSound: Howl
+let plagueSound: Howl
 let playCardSound: Howl
 let roundDrawSound: Howl
 let roundLoseSound: Howl
@@ -169,6 +170,7 @@ async function preloadSounds() {
       matchWin,
       muster,
       placeCard,
+      plague,
       playCard,
       roundDraw,
       roundLose,
@@ -193,6 +195,7 @@ async function preloadSounds() {
       createHowl('match-win.mp3', 1),
       createHowl('muster.wav', 2),
       createHowl('place-card.wav', 1),
+      createHowl('plague.wav', 1.5),
       createHowl('play-card.wav', 1),
       createHowl('round-draw.wav', 1),
       createHowl('round-lose.wav', 1),
@@ -218,6 +221,7 @@ async function preloadSounds() {
     matchWinSound = matchWin
     musterSound = muster
     placeCardSound = placeCard
+    plagueSound = plague
     playCardSound = playCard
     roundDrawSound = roundDraw
     roundLoseSound = roundLose
@@ -342,6 +346,9 @@ function playSound(name: string) {
       break
     case 'placecard':
       placeCardSound.play()
+      break
+    case 'plague':
+      plagueSound.play()
       break
     case 'playcard':
       playCardSound.play()
