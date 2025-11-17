@@ -47,6 +47,7 @@ function changeSlide(back?: boolean) {
         :ability="card.ability"
         :ability-icon="card.abilityIcon"
         :animation-name="card.animationName"
+        :bitten="card.bitten"
         class="slide fade-in"
         :class="{ active: i === modelValue }"
         :default-value="card.defaultValue"

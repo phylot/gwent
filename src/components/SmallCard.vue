@@ -6,33 +6,36 @@ const props = defineProps<{
   active?: boolean
   animationName?: string
   appearAnimation?: boolean
+  bitten?: boolean
   defaultValue?: number
   desktop?: boolean
   disabled?: boolean
   effectIcon?: string
   hero?: boolean
   imageUrl?: string | undefined
-  isNew?: boolean
   name?: string
+  new?: boolean
   overlap?: boolean
   typeIcon?: string
   value?: number
   valueIncreased?: boolean
 }>()
 
-const animationClass = computed(() => {
-  return props.animationName ?? null
-})
-
-const cardClasses = computed(() => {
+const computedClasses = computed(() => {
   return {
     active: props.active,
+    [String(props.animationName)]: props.animationName,
     'appear-animation': props.appearAnimation,
-    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
+    decreased:
+      ((props.value || props.value === 0) &&
+        props.defaultValue &&
+        props.value < props.defaultValue) ||
+      props.bitten,
     desktop: props.desktop,
     disabled: props.disabled,
     hero: props.hero,
-    increased: props.value && props.defaultValue && props.value > props.defaultValue,
+    increased:
+      (props.value || props.value === 0) && props.defaultValue && props.value > props.defaultValue,
     overlap: props.overlap,
     'value-increased': props.valueIncreased,
     placeholder: !props.imageUrl
@@ -44,14 +47,14 @@ const cardClasses = computed(() => {
   <div
     :aria-label="name ?? ''"
     class="small-card"
-    :class="cardClasses"
+    :class="computedClasses"
     @click="disabled ? null : $emit('card-click', $event)"
     @keyup.enter="disabled ? null : $emit('card-enter', $event)"
     @keyup.space="disabled ? null : $emit('card-space', $event)"
   >
     <div class="card-wrap">
       <v-icon v-if="props.effectIcon" class="icon effect-icon" :name="props.effectIcon" />
-      <div class="animation-overlay" :class="animationClass"></div>
+      <div class="animation-overlay"></div>
       <div
         class="card"
         :style="{
@@ -77,7 +80,7 @@ const cardClasses = computed(() => {
       </div>
     </div>
 
-    <div v-if="isNew" class="new-pill"><div class="new-pill-content">NEW</div></div>
+    <div v-if="new" class="new-pill"><div class="new-pill-content">NEW</div></div>
   </div>
 </template>
 
@@ -168,7 +171,7 @@ const cardClasses = computed(() => {
   overflow: hidden;
 }
 
-.animation-overlay {
+.small-card .animation-overlay {
   z-index: 100;
   display: none;
   position: absolute;
@@ -180,6 +183,31 @@ const cardClasses = computed(() => {
   pointer-events: none;
   background-position: center;
   background-size: cover;
+}
+
+.small-card.bite {
+  animation: small-shake 0.1s infinite;
+}
+
+.small-card.bite .animation-overlay {
+  display: block;
+  animation-name: fade-in-out;
+  animation-duration: 1s;
+  background-image: url('../assets/images/bite-blood.png');
+}
+
+.small-card.plague .animation-overlay {
+  display: block;
+  animation-name: fade-in;
+  animation-duration: 0.5s;
+  background-image: url('../assets/images/plague-cells.jpg');
+}
+
+.small-card.scorch .animation-overlay {
+  display: block;
+  animation-name: fade-in;
+  animation-duration: 0.5s;
+  background-image: url('../assets/images/scorch-flame.jpg');
 }
 
 .small-card .card {

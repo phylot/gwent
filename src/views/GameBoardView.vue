@@ -231,6 +231,7 @@ async function setupGame(callback: Function) {
   ).href
 
   await preloadImages([
+    'bite-blood.png',
     'broadsword.svg',
     'catapult.svg',
     'crossbow.svg',
@@ -709,6 +710,11 @@ async function performAbility(card: Card) {
       card.effectIcon = card.abilityIcon
     }
 
+    if (card.ability === 'bite') {
+      card.effectIcon = card.abilityIcon
+      await performBite()
+    }
+
     if (card.ability === 'double') {
       card.effectIcon = card.abilityIcon
       await performDouble()
@@ -756,6 +762,39 @@ async function performAbility(card: Card) {
     // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
     resolve()
+  })
+}
+
+function performBite() {
+  return new Promise<void>((resolve) => {
+    let boardCardArrays = isPlayerTurn.value ? opponentBoardCards.value : playerBoardCards.value
+    let applicableCards: Card[] = []
+
+    // Find all applicable cards (no hero, special, or bitten cards)
+    for (const cardRow of boardCardArrays) {
+      const foundCards = cardRow.filter(
+        (card) => !card.hero && card.type !== 'special' && !card.bitten
+      )
+      applicableCards = [...applicableCards, ...foundCards]
+    }
+
+    if (applicableCards.length > 0) {
+      // Select random card
+      let randomIndex = Math.floor(Math.random() * applicableCards.length)
+      let randomCard = applicableCards[randomIndex]
+
+      randomCard.bitten = true
+      randomCard.animationName = 'bite'
+      randomCard.effectIcon = 'gi-fangs'
+
+      emit('play-sound', 'bite')
+      setTimeout(() => {
+        randomCard.animationName = undefined
+        resolve()
+      }, 1000)
+    } else {
+      resolve()
+    }
   })
 }
 
@@ -993,8 +1032,8 @@ function performPlague(card: Card) {
         const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
         if (applicableCards.length === 0) continue
 
-        const cardValues = applicableCards.map(o => o.value ?? 0);
-        const minValue = cardValues.length ? Math.min(...cardValues) : 0;
+        const cardValues = applicableCards.map((o) => o.value ?? 0)
+        const minValue = cardValues.length ? Math.min(...cardValues) : 0
 
         if (lowestCardValue === null) {
           lowestCardValue = minValue
@@ -1299,9 +1338,14 @@ async function calculateRow(rowArr: Card[], rowFlag: RowFlag, card: Card) {
     // Record the initial state of the row array
     const initialRowArr = JSON.parse(JSON.stringify(rowArr))
 
-    // Reset each card's before recalculating row
+    // Reset each card's value before recalculating row
     for (const card of rowArr) {
-      card.value = card.defaultValue
+      // Set bitten cards to a base value of 0
+      if (card.bitten) {
+        card.value = 0
+      } else {
+        card.value = card.defaultValue
+      }
     }
 
     // TODO: Weather cards
@@ -1365,7 +1409,7 @@ function calculateBond(rowArr: Card[]) {
       }
       // Set the new value of each card
       for (const bondIndex of bondIndexes) {
-        rowArr[bondIndex].value = (rowArr[bondIndex].defaultValue || 0) * multiplier
+        rowArr[bondIndex].value = (rowArr[bondIndex].value || 0) * multiplier
       }
     }
     resolve()
@@ -1859,6 +1903,7 @@ function resetCards(arr: Card[]) {
   for (const card of arr) {
     card.active = false
     card.animationName = undefined
+    card.bitten = false
     card.effectIcon = undefined
     card.value = card.defaultValue
   }
@@ -2033,6 +2078,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :active="card.active"
                 :animation-name="card.animationName"
                 :appear-animation="card.appearAnimation"
+                :bitten="card.bitten"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -2244,6 +2290,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :active="card.active"
                 :animation-name="card.animationName"
                 :appear-animation="card.appearAnimation"
+                :bitten="card.bitten"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
                 :disabled="boardDisabled"
@@ -2274,6 +2321,7 @@ function sortCardsHighToLow(a: Card, b: Card) {
             v-for="(card, i) in playerHand"
             :ability-icon="card.abilityIcon"
             :active="card.active"
+            :bitten="card.bitten"
             :class="{ active: playerHandIsActive && i === slideIndex }"
             :default-value="card.defaultValue"
             :desktop="props.desktop"

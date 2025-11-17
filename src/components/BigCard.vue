@@ -5,6 +5,7 @@ const props = defineProps<{
   ability?: string
   abilityIcon?: string
   animationName?: string
+  bitten?: boolean
   defaultValue?: number
   description?: string
   desktop?: boolean
@@ -18,38 +19,32 @@ const props = defineProps<{
   value?: number
 }>()
 
-const animationClass = computed(() => {
-  return props.animationName ?? null
-})
-
-const cardBorderClasses = computed(() => {
+const computedClasses = computed(() => {
   return {
+    [String(props.animationName)]: props.animationName,
+    decreased:
+      ((props.value || props.value === 0) &&
+        props.defaultValue &&
+        props.value < props.defaultValue) ||
+      props.bitten,
+    desktop: props.desktop,
     [String(props.faction)]: props.faction,
-    hero: props.hero
-  }
-})
-
-const cardClasses = computed(() => {
-  return {
-    decreased: props.value && props.defaultValue && props.value < props.defaultValue,
+    glow: props.glow,
     hero: props.hero,
-    increased: props.value && props.defaultValue && props.value > props.defaultValue
+    increased:
+      (props.value || props.value === 0) && props.defaultValue && props.value > props.defaultValue,
+    'no-description': props.noDescription
   }
 })
 </script>
 
 <template>
-  <div
-    :aria-label="name ?? ''"
-    class="big-card"
-    :class="{ desktop: props.desktop, 'no-description': props.noDescription }"
-  >
-    <div class="card-wrap" :class="{ glow: props.glow }">
-      <div class="animation-overlay" :class="animationClass"></div>
-      <div class="card-border" :class="cardBorderClasses">
+  <div :aria-label="name ?? ''" class="big-card" :class="computedClasses">
+    <div class="card-wrap">
+      <div class="animation-overlay"></div>
+      <div class="card-border">
         <div
           class="card"
-          :class="cardClasses"
           :style="{ backgroundImage: props.imageUrl ? `url(${props.imageUrl})` : 'none' }"
         >
           <template v-if="props.imageUrl">
@@ -93,7 +88,7 @@ const cardClasses = computed(() => {
   overflow: hidden;
 }
 
-.big-card .card-wrap.glow {
+.big-card.glow .card-wrap {
   animation: white-glow 2s infinite alternate;
 }
 
@@ -106,7 +101,7 @@ const cardClasses = computed(() => {
   }
 }
 
-.animation-overlay {
+.big-card .animation-overlay {
   z-index: 100;
   display: none;
   position: absolute;
@@ -120,6 +115,81 @@ const cardClasses = computed(() => {
   background-size: cover;
 }
 
+.big-card.white-fade-in .animation-overlay {
+  display: block;
+  animation-name: fade-in;
+  animation-duration: 0.4s;
+  animation-timing-function: ease-out;
+  background: #fff;
+}
+
+.big-card.white-fade-out .animation-overlay {
+  display: block;
+  animation-name: fade-out;
+  animation-duration: 0.4s;
+  animation-timing-function: ease-in;
+  background: #fff;
+}
+
+.big-card.shine .animation-overlay {
+  display: block;
+  background: #fff;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(rgba(255, 255, 255, 0)),
+    color-stop(50%, rgba(255, 255, 255, 0.8)),
+    to(rgba(255, 255, 255, 0))
+  );
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transform: skew(30deg);
+  animation: shine 0.5s linear 1;
+}
+
+.big-card.shine-infinite .animation-overlay {
+  display: block;
+  background: #fff;
+  background: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    from(rgba(255, 255, 255, 0)),
+    color-stop(50%, rgba(255, 255, 255, 0.8)),
+    to(rgba(255, 255, 255, 0))
+  );
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0;
+  transform: skew(30deg);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -50%;
+    opacity: 0;
+  }
+  50% {
+    left: 25%;
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
 .big-card .card-border {
   width: 100%;
   height: 100%;
@@ -130,19 +200,19 @@ const cardClasses = computed(() => {
   background-color: #000000;
 }
 
-.big-card .card-border.british {
+.big-card.british .card-border {
   background: linear-gradient(#c41a0a, #640d05);
 }
 
-.big-card .card-border.french {
+.big-card.french .card-border {
   background: linear-gradient(#1d7eca, #04365e);
 }
 
-.big-card .card-border.undead {
-  background: linear-gradient(#4BC40A, #045625);
+.big-card.undead .card-border {
+  background: linear-gradient(#4bc40a, #045625);
 }
 
-.big-card .card-border.hero {
+.big-card.hero .card-border {
   background: linear-gradient(#d98c0e, #533503);
 }
 
@@ -181,19 +251,19 @@ const cardClasses = computed(() => {
   box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.25) inset;
 }
 
-.big-card .card.increased .card-value-badge {
+.big-card.increased .card-value-badge {
   color: #ffffff;
   border-color: #1fb854;
   background-color: #1a9f48;
 }
 
-.big-card .card.decreased .card-value-badge {
+.big-card.decreased .card-value-badge {
   color: #ffffff;
   border-color: #d92121;
   background-color: #9f1a1a;
 }
 
-.big-card .card.hero .card-value-badge {
+.big-card.hero .card-value-badge {
   border-color: #be7500;
   color: #f9a825;
   background: linear-gradient(180deg, #000 0%, #404040 100%);

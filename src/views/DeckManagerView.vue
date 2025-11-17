@@ -150,7 +150,7 @@ const collectionContainsNew = computed((): boolean => {
   if (localCardCollection.value) {
     for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]]
       .collection) {
-      if (card.isNew) {
+      if (card.new) {
         newFound = true
         break
       }
@@ -167,9 +167,9 @@ const emit = defineEmits<{
 }>()
 
 watch(slideIndex, () => {
-  // Remove the 'isNew' flag from any viewed card
+  // Remove the 'new' flag from any viewed card
   if (activeCardRow.value.length > 0) {
-    activeCardRow.value[slideIndex.value].isNew = false
+    activeCardRow.value[slideIndex.value].new = false
   }
 })
 
@@ -240,9 +240,9 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   activeCollectionRowKey.value = key
   emit('play-sound', 'selectcard')
 
-  // Remove the 'isNew' flag from viewed card
+  // Remove the 'new' flag from viewed card
   if (activeCardRow.value.length > 0) {
-    activeCardRow.value[slideIndex.value].isNew = false
+    activeCardRow.value[slideIndex.value].new = false
   }
 
   showCardModal(
@@ -557,7 +557,7 @@ function capitaliseString(string: string) {
                         :disabled="disabled"
                         :hero="card.hero"
                         :image-url="card.imageUrl"
-                        :is-new="card.isNew"
+                        :is-new="card.new"
                         :key="i"
                         :name="card.name"
                         role="button"

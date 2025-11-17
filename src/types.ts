@@ -22,6 +22,7 @@ interface Card {
   active: boolean
   animationName?: string
   appearAnimation?: boolean
+  bitten?: boolean
   bondName?: string
   defaultValue?: number
   description?: string
@@ -31,9 +32,9 @@ interface Card {
   id: string
   image: string
   imageUrl?: string
-  isNew?: boolean
   musterName?: string
   name: string
+  new?: boolean
   replacedById?: string,
   type: string
   typeIcon?: string

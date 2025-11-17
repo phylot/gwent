@@ -49,6 +49,7 @@ let numberOfMusicTracks: number = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
 let deckManagerSong: Howl
+let biteSound: Howl
 let coinSound: Howl
 let doubleSound: Howl
 let drawCardSound: Howl
@@ -160,6 +161,7 @@ async function preload() {
 async function preloadSounds() {
   try {
     const [
+      bite,
       coin,
       double,
       drawCard,
@@ -185,6 +187,7 @@ async function preloadSounds() {
       turn,
       zelda
     ] = await Promise.all([
+      createHowl('bite.wav', 1),
       createHowl('coin.wav', 5),
       createHowl('double.wav', 1),
       createHowl('draw-card.wav', 1),
@@ -211,6 +214,7 @@ async function preloadSounds() {
       createHowl('zelda-secret.mp3', 3)
     ])
 
+    biteSound = bite
     coinSound = coin
     doubleSound = double
     drawCardSound = drawCard
@@ -317,6 +321,9 @@ function initialiseDeckManagerSong() {
 
 function playSound(name: string) {
   switch (name) {
+    case 'bite':
+      biteSound.play()
+      break
     case 'coin':
       coinSound.play()
       break
@@ -644,7 +651,7 @@ async function determineCardUnlock() {
       let preloadedCard = await preloadCards([card])
       if (preloadedCard) {
         card = preloadedCard[0]
-        card.isNew = true
+        card.new = true
       }
 
       // Copy card to player's collection
