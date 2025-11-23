@@ -571,9 +571,14 @@ function determineCpuCard(callback?: Function) {
         let randomIndex = Math.floor(Math.random() * handCopy.length)
         let randomCard = opponentHand.value[randomIndex]
 
-        // If it's a scorch card, determine whether it should be played
+        // If it's a scorch / plague card, determine whether it should be played
         if (randomCard.ability === 'scorch') {
           if (cpuShouldScorch()) {
+            card = randomCard
+            break
+          }
+        } else if (randomCard.ability === 'plague') {
+          if (cpuShouldPlague()) {
             card = randomCard
             break
           }
@@ -615,9 +620,14 @@ function determineCpuCard(callback?: Function) {
           // No standard cards... Play the next non-standard card ('card' may remain 'null', if no beneficial card available)
           else {
             for (let i = 0; i < opponentHand.value.length; i++) {
-              // Only play scorch if it's beneficial
+              // Only play scorch / plague if it's beneficial
               if (opponentHand.value[i].ability === 'scorch') {
                 if (cpuShouldScorch()) {
+                  card = opponentHand.value[i]
+                  break
+                }
+              } else if (opponentHand.value[i].ability === 'plague') {
+                if (cpuShouldPlague()) {
                   card = opponentHand.value[i]
                   break
                 }
@@ -672,6 +682,38 @@ function determineCpuCard(callback?: Function) {
   }
 }
 
+function cpuShouldPlague() {
+  let lowestCardValue = null
+  let cpuPlagueCount = 0
+  let playerPlagueCount = 0
+
+  // For each player
+  for (let i = 0; i < 2; i++) {
+    // Find lowest value of all non-hero card(s)
+    let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+    for (const cardRow of boardCardArrays) {
+      const applicableCards = cardRow.filter((card) => !card.hero && card.type !== 'special')
+      const minValue = Math.min(...applicableCards.map((o) => o.value ?? 0))
+      if (lowestCardValue === null || minValue < lowestCardValue) lowestCardValue = minValue
+    }
+  }
+
+  // For each player
+  for (let i = 0; i < 2; i++) {
+    // Count how many cards will be plagued per player
+    let boardCardArrays = i < 1 ? playerBoardCards.value : opponentBoardCards.value
+
+    for (const cardRow of boardCardArrays) {
+      for (const card of cardRow) {
+        if (card.value === lowestCardValue && !card.hero && card.type !== 'special') {
+          i < 1 ? playerPlagueCount++ : cpuPlagueCount++
+        }
+      }
+    }
+  }
+  return playerPlagueCount > cpuPlagueCount
+}
+
 function cpuShouldScorch() {
   let highestCardValue = 0
   let cpuScorchCount = 0
@@ -711,8 +753,7 @@ async function performAbility(card: Card) {
     }
 
     if (card.ability === 'bite') {
-      card.effectIcon = card.abilityIcon
-      await performBite()
+      await performBite(card)
     }
 
     if (card.ability === 'double') {
@@ -765,7 +806,7 @@ async function performAbility(card: Card) {
   })
 }
 
-function performBite() {
+function performBite(card: Card) {
   return new Promise<void>((resolve) => {
     let boardCardArrays = isPlayerTurn.value ? opponentBoardCards.value : playerBoardCards.value
     let applicableCards: Card[] = []
@@ -779,6 +820,8 @@ function performBite() {
     }
 
     if (applicableCards.length > 0) {
+      card.effectIcon = card.abilityIcon
+
       // Select random card
       let randomIndex = Math.floor(Math.random() * applicableCards.length)
       let randomCard = applicableCards[randomIndex]
