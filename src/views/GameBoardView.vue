@@ -278,7 +278,7 @@ function loadImage(imageUrl: string, callback: Function) {
   img.src = imageUrl
 }
 
-function startNewGame() {
+async function startNewGame() {
   setAllDisabled(true)
   emit('loading-change', true)
 
@@ -323,6 +323,9 @@ function startNewGame() {
   // Decide lead player / first turn
   playerIsLead.value = isPlayerTurn.value = getChanceOutcome(0.5)
 
+  // CPU card redraw
+  await doCpuCardRedraw()
+
   emit('loading-change', false)
   emit('play-sound', 'coin')
 
@@ -355,6 +358,125 @@ function dealRandomCards(arr: Card[], amount: number) {
     arr.splice(randomIndex, 1)
   }
   return cards
+}
+
+function doCpuCardRedraw() {
+  function selectCpuRedrawCard(faction: string) {
+    // Check for certain cards to swap by name, based on opponent's faction
+
+    if (faction === 'british') {
+      // Swap any non-ability cards with a value of 3 or less
+      if (swapLowestNonAbilityCard()) {
+        return true
+      } else {
+        // Check for Foot Guard cards
+        let footGuards = opponentHand.value.filter((card) => card.name === 'Foot Guard')
+
+        if (footGuards.length > 0 && footGuards.length < 3) {
+          // Remove Foot Guard card from opponent's hand and replace with random card
+          const footGuardIndex = opponentHand.value.findIndex((card) => card.name === 'Foot Guard')
+          const footGuardCopy = JSON.parse(JSON.stringify(opponentHand.value[footGuardIndex]))
+
+          resetCards([footGuardCopy])
+          opponentHand.value.splice(footGuardIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+          opponentDeck.value.push(footGuardCopy)
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+
+    if (faction === 'french') {
+      // Swap any non-ability cards with a value of 3 or less
+      if (swapLowestNonAbilityCard()) {
+        return true
+      } else {
+        const calvetFoundInHand = opponentHand.value.some((card) => card.name === 'General Calvet')
+        const calvetFoundInDeck = opponentDeck.value.some((card) => card.name === 'General Calvet')
+        const infantryCards = opponentHand.value.filter((card) => card.name === 'Infantry')
+
+        // If Infantry cards are present, and either the General Calvet card is present, or simply a low number of Infantry cards, swap out Infantry card
+        if (
+          infantryCards.length > 0 &&
+          (calvetFoundInHand ||
+            calvetFoundInDeck ||
+            (!calvetFoundInHand && !calvetFoundInDeck && infantryCards.length < 3))
+        ) {
+          const infantryIndex = opponentHand.value.findIndex((card) => card.name === 'Infantry')
+          const infantryCopy = JSON.parse(JSON.stringify(opponentHand.value[infantryIndex]))
+
+          resetCards([infantryCopy])
+          opponentHand.value.splice(infantryIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+          opponentDeck.value.push(infantryCopy)
+          return true
+        } else {
+          return false
+        }
+      }
+    }
+
+    if (faction === 'undead') {
+      const horsemenCards = opponentHand.value.filter((card) => card.musterName === 'horseman')
+      const ghoulCards = opponentHand.value.filter((card) => card.musterName === 'ghoul')
+      const hagCards = opponentHand.value.filter((card) => card.musterName === 'hag')
+      let cardIndex = null
+      let cardCopy = null
+
+      if (horsemenCards.length > 1) {
+        // Swap lowest value horseman card
+        cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'horseman')
+      } else if (ghoulCards.length > 1) {
+        // Swap lowest value ghoul card
+        cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'ghoul')
+      } else if (hagCards.length > 1) {
+        // Swap lowest value hag card
+        cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'hag')
+      }
+
+      if (cardIndex !== null) {
+        cardCopy = JSON.parse(JSON.stringify(opponentHand.value[cardIndex]))
+        resetCards([cardCopy])
+        opponentHand.value.splice(cardIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+        opponentDeck.value.push(cardCopy)
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+
+  function swapLowestNonAbilityCard() {
+    const nonAbilityCards = opponentHand.value.filter(
+      (card) => !card.ability && card.value && card.value < 4
+    )
+    if (nonAbilityCards.length < 1) {
+      return false
+    }
+
+    // Remove lowest value card from opponent's hand and replace with random card
+    nonAbilityCards.sort(sortCardsLowToHigh)
+    const lowestValueCardCopy = JSON.parse(JSON.stringify(nonAbilityCards[0]))
+    const lowestValueCardIndex = opponentHand.value.findIndex(
+      (card) => card.id === lowestValueCardCopy.id
+    )
+    resetCards([lowestValueCardCopy])
+
+    opponentHand.value.splice(lowestValueCardIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+    opponentDeck.value.push(lowestValueCardCopy)
+    return true
+  }
+
+  return new Promise<void>((resolve) => {
+    // Swap up to 2 cards
+    for (let i = 0; i < 2; i++) {
+      if (selectCpuRedrawCard(opponentHand.value[0].faction)) {
+      } else {
+        break
+      }
+    }
+    resolve()
+  })
 }
 
 function showCardRedrawModal(callback: Function) {
@@ -594,15 +716,19 @@ function determineCpuCard(callback?: Function) {
 
     // If it's decided not to use a random card, use structured decision logic instead
     if (!useRandomCard) {
-      // TODO: Expand to include thief cards
-      // Find any spy cards
+      // Find any spy / thief cards first
       let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+      let thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
       if (spyCards.length > 0) {
         // Find the lowest value spy card
         spyCards.sort(sortCardsLowToHigh)
         card = spyCards[0]
+      } else if (thiefCards.length > 0) {
+        // Find the lowest value thief card
+        thiefCards.sort(sortCardsLowToHigh)
+        card = thiefCards[0]
       }
-      // No spy cards... decide card
+      // No spy / thief cards... decide card
       else {
         let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
@@ -856,8 +982,6 @@ function performDouble() {
         }
       }
 
-      // TODO: Disable player hand, or trap focus on rows (can be accessed by keyboard)
-
       if (viableRowFound) {
         return new Promise<number>((resolveClick) => {
           resolveRowClick.value = resolveClick
@@ -1001,7 +1125,6 @@ function performMuster(card: Card) {
     let boardCards = isPlayerTurn.value ? playerBoardCards : opponentBoardCards
     let cardsFound = false
 
-    // TODO: Expand to muster hand cards as well as deck cards
     for (let i = 0; i < deck.length; i++) {
       let deckCard = deck[i]
       let boardArrIndex = 0
@@ -2306,7 +2429,10 @@ function sortCardsHighToLow(a: Card, b: Card) {
             { highlight: rowFlag.highlight }
           ]"
           :key="`player-row-${i}`"
+          :tabindex="rowFlag.rowSelect ? '3' : '-1'"
           @click="rowFlag.rowSelect ? rowClick(i) : null"
+          @keydown.enter="rowFlag.rowSelect ? rowClick(i) : null"
+          @keydown.space="rowFlag.rowSelect ? rowClick(i) : null"
         >
           <v-icon
             v-if="rowFlag.rowSelect"
