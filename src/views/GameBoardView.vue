@@ -424,17 +424,18 @@ function doCpuCardRedraw() {
       let cardCopy = null
 
       if (horsemenCards.length > 1) {
-        // Swap lowest value horseman card
+        // Set swap index to lowest value horseman card
         cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'horseman')
       } else if (ghoulCards.length > 1) {
-        // Swap lowest value ghoul card
+        // Set swap index to lowest value ghoul card
         cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'ghoul')
       } else if (hagCards.length > 1) {
-        // Swap lowest value hag card
+        // Set swap index to lowest value hag card
         cardIndex = opponentHand.value.findIndex((card) => card.musterName === 'hag')
       }
 
       if (cardIndex !== null) {
+        // Swap card
         cardCopy = JSON.parse(JSON.stringify(opponentHand.value[cardIndex]))
         resetCards([cardCopy])
         opponentHand.value.splice(cardIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])

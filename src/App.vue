@@ -10,7 +10,7 @@ import MainMenuView from './views/MainMenuView.vue'
 import AwardBadge from './components/AwardBadge.vue'
 import CardUnlockModal from './components/CardUnlockModal.vue'
 import StandardModal from './components/StandardModal.vue'
-import { defaultCards, defaultLeaderCards, unlockableCards } from './data/cards'
+import { defaultCards, defaultUndeadCards, defaultLeaderCards, unlockableCards } from './data/cards'
 import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
@@ -39,7 +39,9 @@ let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
 let awardsModal = ref()
 let howToPlayModal = ref()
 let playerWins: number = 0
-let unlockedCard = ref<Card>()
+let unlockedCard = ref<Card | undefined>()
+let unlockedDeckCards = ref<Card[]>()
+let unlockedDeckFaction = ref<string>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
 let themeSongSound: Howl
@@ -577,7 +579,7 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
     }
   }
   // Select a random faction from the array and set as the opponent's faction
-  let opponentFaction: string = factionsArray[Math.floor(Math.random() * factionsArray.length)];
+  let opponentFaction: string = factionsArray[Math.floor(Math.random() * factionsArray.length)]
   loading.value = true
   deckManagerIsActive.value = false
   playerCardCollection = deckSelection.collection
@@ -672,8 +674,11 @@ async function determineCardUnlock() {
       // Add the unlocked card to opponent's deck
       opponentCardCollection[card.faction].deck.push(card)
 
-      // Set global reactive unlocked card
+      // Set global unlocked card
       unlockedCard.value = card
+
+      // Reset global unlocked deck
+      unlockedDeckCards.value = []
 
       setTimeout(() => {
         cardUnlockModal.value.show().then((res: boolean) => {
@@ -698,10 +703,67 @@ async function determineCardUnlock() {
       // Save player / opponent card collections to localStorage
       saveCardsToStorage()
     }
+    // Unlock Undead deck
+    else if (playerWins === 51) {
+      // Get the Undead starter deck and save it to each player's card collection
+      playerCardCollection.undead = {
+        collection: [],
+        deck: []
+      }
+      opponentCardCollection.undead = {
+        collection: [],
+        deck: []
+      }
+      playerCardCollection.undead.deck = await preloadCards(
+        JSON.parse(JSON.stringify(defaultUndeadCards))
+      )
+      opponentCardCollection.undead.deck = await preloadCards(
+        JSON.parse(JSON.stringify(defaultUndeadCards))
+      )
+      saveCardsToStorage()
+
+      // Reset global unlocked card
+      unlockedCard.value = undefined
+
+      // Set global unlocked deck
+      unlockedDeckFaction.value = 'undead'
+      unlockedDeckCards.value = []
+      // Horseman: Pestilence card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[0])))
+      // Plague card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[24])))
+      // Bat card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[8])))
+
+      cardUnlockModal.value.show().then((res: boolean) => {
+        if (res) {
+          showDeckManager(true, 'undead')
+        }
+        gameBoardDisabled.value = false
+      })
+    }
   }
 }
 
 async function unlockAllCards() {
+  // If the Undead deck hasn't been unlocked, get the Undead starter deck and save it to each player's card collection
+  if (!playerCardCollection.undead) {
+    playerCardCollection.undead = {
+      collection: [],
+      deck: []
+    }
+    opponentCardCollection.undead = {
+      collection: [],
+      deck: []
+    }
+    playerCardCollection.undead.deck = await preloadCards(
+      JSON.parse(JSON.stringify(defaultUndeadCards))
+    )
+    opponentCardCollection.undead.deck = await preloadCards(
+      JSON.parse(JSON.stringify(defaultUndeadCards))
+    )
+  }
+
   // Move all cards that have a 'replacedById' from player / opponent 'deck' to 'collection'
   for (const factionKey in playerCardCollection) {
     for (let i = 0; i < playerCardCollection[factionKey].deck.length; i++) {
@@ -739,7 +801,7 @@ async function unlockAllCards() {
         unlockedCard = preloadedCard[0]
       }
 
-      // If the unlocked card is usually replaced in the deck, move it straight to the card collection
+      // If the unlocked card is usually replaced by an incoming card in the deck, move it straight to the card collection
       if (unlockedCard.replacedById) {
         playerCardCollection[unlockedCard.faction].collection.push(unlockedCard)
         opponentCardCollection[unlockedCard.faction].collection.push(unlockedCard)
@@ -791,7 +853,9 @@ async function unlockAllCards() {
 
   <CardUnlockModal
     :card="unlockedCard"
+    :deck="unlockedDeckCards"
     :desktop="isDesktop"
+    :faction="unlockedDeckFaction"
     ref="cardUnlockModal"
   ></CardUnlockModal>
 
@@ -850,7 +914,8 @@ async function unlockAllCards() {
       </ol>
 
       <div class="catch-text">
-        <strong>The catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit your cards wisely
+        <strong>The catch:</strong> The match is the <strong>best of 3 rounds</strong>, so commit
+        your cards wisely
       </div>
 
       <div class="divider"></div>
@@ -859,14 +924,16 @@ async function unlockAllCards() {
         <div class="tip-item">
           <v-icon class="tip-icon" name="oi-light-bulb" />
           <div class="tip-text">
-            <strong>Tip:</strong> Consider <strong>passing</strong> and saving your cards for subsequent rounds
+            <strong>Tip:</strong> Consider <strong>passing</strong> and saving your cards for
+            subsequent rounds
           </div>
         </div>
 
         <div class="tip-item">
           <v-icon class="tip-icon" name="oi-light-bulb" />
           <div class="tip-text">
-            <strong>Tip:</strong> Some cards have <strong>special abilities</strong>... Playing them at the right time is key to winning
+            <strong>Tip:</strong> Some cards have <strong>special abilities</strong>... Playing them
+            at the right time is key to winning
           </div>
         </div>
       </div>

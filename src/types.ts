@@ -35,7 +35,7 @@ interface Card {
   musterName?: string
   name: string
   new?: boolean
-  replacedById?: string,
+  replacedById?: string
   type: string
   typeIcon?: string
   value?: number
@@ -43,9 +43,14 @@ interface Card {
 }
 
 interface CardCollection {
-  british: { collection: Card[]; deck: Card[] }
-  french: { collection: Card[]; deck: Card[] }
-  undead?: { collection: Card[]; deck: Card[] }
+  british: CardFaction
+  french: CardFaction
+  undead?: CardFaction
+}
+
+interface CardFaction {
+  collection: Card[]
+  deck: Card[]
 }
 
 interface LeaderCardCollection {

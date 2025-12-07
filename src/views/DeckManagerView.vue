@@ -391,7 +391,7 @@ function capitaliseString(string: string) {
               class="flag-icon"
               :class="[factionKeys[factionIndex]]"
             ></div>
-            <h1 class="faction-title">{{ capitaliseString(factionKeys[factionIndex]) }}</h1>
+            <h1 class="faction-title">{{ factionKeys[factionIndex] }}</h1>
           </div>
 
           <button
@@ -455,7 +455,7 @@ function capitaliseString(string: string) {
                       <v-icon class="icon" :name="cardArr[0].typeIcon || 'la-star-of-life-solid'" />
                     </div>
                     <h3 class="combat-type-title">
-                      {{ capitaliseString(String(key)) }}
+                      {{ String(key) }}
                       {{ key === 'special' ? 'Cards' : 'Combat' }}
                     </h3>
                   </div>
@@ -540,7 +540,7 @@ function capitaliseString(string: string) {
                         />
                       </div>
                       <h3 class="combat-type-title">
-                        {{ capitaliseString(String(key)) }}
+                        {{ String(key) }}
                         {{ key === 'special' ? 'Cards' : 'Combat' }}
                       </h3>
                     </div>
@@ -673,7 +673,8 @@ function capitaliseString(string: string) {
 }
 
 .deck-manager .deck-manager-header .faction-title {
-  font-size: 23px;
+  font-size: 24px;
+  text-transform: capitalize;
 }
 
 .deck-manager .deck-manager-header .prev-btn,
@@ -961,6 +962,7 @@ function capitaliseString(string: string) {
 
 .deck-manager .deck-manager-type-heading .combat-type-title {
   font-size: 12px;
+  text-transform: capitalize;
 }
 
 .deck-manager .deck-manager-card-row {

@@ -9,7 +9,9 @@ defineExpose({
 
 const props = defineProps<{
   card?: Card
+  deck?: Card[]
   desktop?: boolean
+  faction?: string
   modelValue?: boolean
 }>()
 
@@ -32,7 +34,7 @@ watch(
     } else {
       document.removeEventListener('keydown', handleKeydown)
     }
-  },
+  }
 )
 
 function show() {
@@ -64,25 +66,59 @@ function handleKeydown(e: KeyboardEvent) {
       :class="{ desktop: desktop }"
       role="dialog"
     >
-      <h1 class="title">New Card Unlocked!</h1>
+      <template v-if="card">
+        <h1 class="title">New Card Unlocked!</h1>
 
-      <BigCard
-        v-if="props.card"
-        :ability="props.card.ability"
-        :ability-icon="props.card.abilityIcon"
-        animation-name="shine-infinite"
-        :default-value="props.card.defaultValue"
-        :description="props.card.description"
-        :desktop="props.desktop"
-        :faction="props.card.faction"
-        glow
-        :hero="props.card.hero"
-        :image-url="props.card.imageUrl"
-        :name="props.card.name"
-        :type-icon="props.card.typeIcon"
-        :value="props.card.value"
-      >
-      </BigCard>
+        <BigCard
+          v-if="props.card"
+          :ability="props.card.ability"
+          :ability-icon="props.card.abilityIcon"
+          animation-name="shine-infinite"
+          :default-value="props.card.defaultValue"
+          :description="props.card.description"
+          :desktop="props.desktop"
+          :faction="props.card.faction"
+          glow
+          :hero="props.card.hero"
+          :image-url="props.card.imageUrl"
+          :name="props.card.name"
+          :type-icon="props.card.typeIcon"
+          :value="props.card.value"
+        >
+        </BigCard>
+      </template>
+
+      <template v-if="deck && deck.length">
+        <h1 class="title">New Deck Unlocked!</h1>
+
+        <div class="faction-heading">
+          <div class="flag-icon" :class="props.faction"></div>
+          <h2 class="faction-title">{{ props.faction }}</h2>
+        </div>
+
+        <div class="card-unlock-fan">
+          <BigCard
+            v-for="(card, i) in props.deck"
+            :ability="card.ability"
+            :ability-icon="card.abilityIcon"
+            animation-name="shine-infinite"
+            :class="`fan-card-${i + 1}`"
+            :default-value="card.defaultValue"
+            :description="card.description"
+            :desktop="desktop"
+            :faction="card.faction"
+            glow
+            :hero="card.hero"
+            :image-url="card.imageUrl"
+            :key="i"
+            :name="card.name"
+            no-description
+            :type-icon="card.typeIcon"
+            :value="card.value"
+          >
+          </BigCard>
+        </div>
+      </template>
 
       <div class="btn-container">
         <button
@@ -121,18 +157,69 @@ function handleKeydown(e: KeyboardEvent) {
   flex-direction: column;
   justify-content: safe center;
   align-items: center;
-  gap: 40px;
+  gap: 30px;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.85);
 }
 
 .card-unlock-modal .title {
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
+}
+
+.card-unlock-modal .faction-heading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-unlock-modal .faction-heading .faction-title {
+  text-align: center;
+  font-size: 20px;
+  text-transform: capitalize;
+}
+
+.card-unlock-modal .faction-heading .flag-icon {
+  width: 26px;
+  height: 26px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background-position: center;
+  background-size: cover;
+}
+
+.card-unlock-modal .faction-heading .flag-icon.undead {
+  background-image: url('./../assets/images/undead-flag.png');
 }
 
 .card-unlock-modal .big-card {
   max-width: 300px;
+}
+
+.card-unlock-modal .card-unlock-fan {
+  position: relative;
+  width: 150px;
+  height: 200px;
+}
+
+.card-unlock-modal .card-unlock-fan .fan-card-1 {
+  position: absolute;
+  left: -70px;
+  z-index: 1;
+  transform: rotate(-20deg) scale(0.85);
+}
+
+.card-unlock-modal .card-unlock-fan .fan-card-2 {
+  position: absolute;
+  right: -70px;
+  z-index: 2;
+  transform: rotate(20deg) scale(0.85);
+}
+
+.card-unlock-modal .card-unlock-fan .fan-card-3 {
+  position: absolute;
+  z-index: 3;
 }
 
 .card-unlock-modal .btn-container {
@@ -143,12 +230,43 @@ function handleKeydown(e: KeyboardEvent) {
 
 /* Desktop Styles */
 
+.card-unlock-modal.desktop {
+  gap: 40px;
+}
+
 .card-unlock-modal.desktop .title {
   font-size: 40px;
 }
 
+.card-unlock-modal.desktop .faction-heading {
+  gap: 15px;
+}
+
+.card-unlock-modal.desktop .faction-heading .faction-title {
+  font-size: 32px;
+}
+
+.card-unlock-modal.desktop .faction-heading .flag-icon {
+  width: 36px;
+  height: 36px;
+}
+
 .card-unlock-modal.desktop .big-card {
   max-width: 420px;
+}
+
+.card-unlock-modal.desktop .card-unlock-fan {
+  position: relative;
+  width: 250px;
+  height: 350px;
+}
+
+.card-unlock-modal.desktop .card-unlock-fan .fan-card-1 {
+  left: -120px;
+}
+
+.card-unlock-modal.desktop .card-unlock-fan .fan-card-2 {
+  right: -120px;
 }
 
 .card-unlock-modal.desktop .btn-container {
