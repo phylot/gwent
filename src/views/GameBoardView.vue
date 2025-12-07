@@ -29,15 +29,11 @@ const props = defineProps<{
 // BOARD-RELATED DATA
 
 const playerLeader = ref()
-const playerLeaderDefault = ref()
 const playerFlagUrl = ref()
 const opponentLeader = ref()
-const opponentLeaderDefault = ref()
 const opponentFlagUrl = ref()
 let playerDeck = ref<Card[]>([])
-let playerDeckDefault = ref()
 let opponentDeck = ref<Card[]>([])
-let opponentDeckDefault = ref()
 let playerHand = ref<Card[]>([])
 let opponentHand = ref<Card[]>([])
 let playerHandIsActive = ref(false)
@@ -212,23 +208,8 @@ async function setupGame(callback: Function) {
   // Generate card image URLs and preload images
   emit('loading-change', true)
 
-  playerDeckDefault.value = JSON.parse(JSON.stringify(props.playerCards))
-  opponentDeckDefault.value = JSON.parse(JSON.stringify(props.opponentCards))
-
-  playerLeaderDefault.value = JSON.parse(JSON.stringify(props.playerLeaderCard))
-  opponentLeaderDefault.value = JSON.parse(JSON.stringify(props.opponentLeaderCard))
-
   playerRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
   opponentRowFlagsDefault.value = JSON.parse(JSON.stringify(defaultRowFlags))
-
-  playerFlagUrl.value = new URL(
-    `../assets/images/${playerLeaderDefault.value.faction}-flag.png`,
-    import.meta.url
-  ).href
-  opponentFlagUrl.value = new URL(
-    `../assets/images/${opponentLeaderDefault.value.faction}-flag.png`,
-    import.meta.url
-  ).href
 
   await preloadImages([
     'bite-blood.png',
@@ -283,10 +264,19 @@ async function startNewGame() {
   emit('loading-change', true)
 
   // Set leader cards and decks to their default state
-  playerLeader.value = JSON.parse(JSON.stringify(playerLeaderDefault.value))
-  opponentLeader.value = JSON.parse(JSON.stringify(opponentLeaderDefault.value))
-  playerDeck.value = JSON.parse(JSON.stringify(playerDeckDefault.value))
-  opponentDeck.value = JSON.parse(JSON.stringify(opponentDeckDefault.value))
+  playerLeader.value = JSON.parse(JSON.stringify(props.playerLeaderCard))
+  opponentLeader.value = JSON.parse(JSON.stringify(props.opponentLeaderCard))
+  playerFlagUrl.value = new URL(
+    `../assets/images/${playerLeader.value.faction}-flag.png`,
+    import.meta.url
+  ).href
+  opponentFlagUrl.value = new URL(
+    `../assets/images/${opponentLeader.value.faction}-flag.png`,
+    import.meta.url
+  ).href
+
+  playerDeck.value = JSON.parse(JSON.stringify(props.playerCards))
+  opponentDeck.value = JSON.parse(JSON.stringify(props.opponentCards))
 
   // Generate a random hand of 10 cards for each player
   playerHand.value = dealRandomCards(playerDeck.value, 10).sort(sortCardsLowToHigh)

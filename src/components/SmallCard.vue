@@ -80,7 +80,7 @@ const computedClasses = computed(() => {
       </div>
     </div>
 
-    <div v-if="new" class="new-pill"><div class="new-pill-content">NEW</div></div>
+    <div v-if="props.new" class="new-pill"><div class="new-pill-content">NEW</div></div>
   </div>
 </template>
 
