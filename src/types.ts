@@ -35,7 +35,7 @@ interface Card {
   musterName?: string
   name: string
   new?: boolean
-  replacedById?: string
+  removePriority?: number
   type: string
   typeIcon?: string
   value?: number

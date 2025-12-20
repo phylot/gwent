@@ -659,15 +659,26 @@ async function determineCardUnlock() {
       // Copy card to player's collection
       playerCardCollection[card.faction].collection.push(card)
 
-      // Determine if a card should be removed from the opponent's deck
-      for (let i = 0; i < opponentCardCollection[card.faction].deck.length; i++) {
-        let opponentDeckCard = opponentCardCollection[card.faction].deck[i]
+      // Determine if a card should be removed from the opponent's deck and placed in their collection
+      // If the card replaces an existing deck card, ie. it's a unit card
+      if (card.type !== 'special') {
+        // Determine the relevant opponent deck using card.faction
+        // Find the card with the lowest 'removePriority' value and move to the relevant faction's collection
+        opponentCardCollection[card.faction].deck
 
-        // If there's a deck card with an 'id' that matches the unlocked card's 'replacedById', move the deck card to the collection
-        if (opponentDeckCard.replacedById === card.id) {
-          // Move replaced card from opponent's deck to their collection
-          opponentCardCollection[card.faction].collection.push(opponentDeckCard)
-          opponentCardCollection[card.faction].deck.splice(i, 1)
+        const minIndex = opponentCardCollection[card.faction].deck.reduce(
+          (minIdx: number, item: Card, idx: number, arr: Card[]) => {
+            const curr = item.removePriority ?? Infinity
+            const min = arr[minIdx]?.removePriority ?? Infinity
+            return curr < min ? idx : minIdx
+          },
+          0
+        )
+
+        if (opponentCardCollection[card.faction].deck[minIndex].removePriority !== undefined) {
+          opponentCardCollection[card.faction].collection.push(
+            opponentCardCollection[card.faction].deck.splice(minIndex, 1)[0]
+          )
         }
       }
 
@@ -704,7 +715,7 @@ async function determineCardUnlock() {
       saveCardsToStorage()
     }
     // Unlock Undead deck
-    else if (playerWins === 51) {
+    else if (playerWins === 44) {
       // Get the Undead starter deck and save it to each player's card collection
       playerCardCollection.undead = {
         collection: [],
@@ -764,12 +775,12 @@ async function unlockAllCards() {
     )
   }
 
-  // Move all cards that have a 'replacedById' from player / opponent 'deck' to 'collection'
+  // Move all cards that are normally moved from player / opponent 'deck' to 'collection' (cards that have a 'removePriority')
   for (const factionKey in playerCardCollection) {
     for (let i = 0; i < playerCardCollection[factionKey].deck.length; i++) {
       const deckCard = playerCardCollection[factionKey].deck[i]
 
-      if (deckCard.replacedById) {
+      if (deckCard.removePriority) {
         playerCardCollection[factionKey].collection.push(deckCard)
         playerCardCollection[factionKey].deck.splice(i, 1)
         i--
@@ -781,7 +792,7 @@ async function unlockAllCards() {
     for (let i = 0; i < opponentCardCollection[factionKey].deck.length; i++) {
       const deckCard = opponentCardCollection[factionKey].deck[i]
 
-      if (deckCard.replacedById) {
+      if (deckCard.removePriority) {
         opponentCardCollection[factionKey].collection.push(deckCard)
         opponentCardCollection[factionKey].deck.splice(i, 1)
         i--
@@ -802,7 +813,7 @@ async function unlockAllCards() {
       }
 
       // If the unlocked card is usually replaced by an incoming card in the deck, move it straight to the card collection
-      if (unlockedCard.replacedById) {
+      if (unlockedCard.removePriority) {
         playerCardCollection[unlockedCard.faction].collection.push(unlockedCard)
         opponentCardCollection[unlockedCard.faction].collection.push(unlockedCard)
       } else {

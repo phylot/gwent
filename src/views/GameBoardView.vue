@@ -1013,6 +1013,7 @@ function performCpuDouble(callback?: Function) {
   let highestRowTotal = 0
 
   // Work out which row has the highest value (excluding hero cards)
+  // TODO: Consider highest value combat type total in hand when determining row
   for (let i = 0; i < opponentRowFlags.value.length; i++) {
     if (!opponentRowFlags.value[i].double) {
       let rowTotal = 0
