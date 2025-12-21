@@ -329,19 +329,33 @@ const computedClasses = computed(() => {
 }
 
 .small-card.appear-animation {
-  animation-name: fade-in-reduce-scale, small-shake;
-  animation-delay: 0s, 0.25s;
-  animation-duration: 0.2s, 0.1s;
-  animation-iteration-count: 1, 3;
+  overflow: visible;
+  animation-name: fade-in-reduce-scale;
+  animation-delay: 0s;
+  animation-duration: 0.2s;
+  animation-iteration-count: 1;
   z-index: 6000;
 }
 
+.small-card.appear-animation:after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: -5px;
+  right: -5px;
+  animation: 0.25s ease-out 0.25s 1 outline-pulse;
+  border: 5px solid #bababa;
+  border-radius: 10px;
+  opacity: 0;
+}
+
 .small-card.hero.appear-animation {
-  animation-name: fade-in-reduce-scale, small-shake, gold-glow;
-  animation-delay: 0s, 0.25s, 0.3s;
-  animation-duration: 0.2s, 0.1s, 0.5s;
-  animation-direction: normal, normal, alternate;
-  animation-iteration-count: 1, 3, 2;
+  animation-name: fade-in-reduce-scale, gold-glow;
+  animation-delay: 0s, 0.3s;
+  animation-duration: 0.2s, 0.5s;
+  animation-direction: normal, alternate;
+  animation-iteration-count: 1, 2;
   z-index: 6000;
 }
 
@@ -353,6 +367,17 @@ const computedClasses = computed(() => {
   to {
     opacity: 1;
     scale: 1;
+  }
+}
+
+@keyframes outline-pulse {
+  0% {
+    opacity: 1;
+    scale: 1
+  }
+  100% {
+    opacity: 0;
+    scale: 1.3;
   }
 }
 

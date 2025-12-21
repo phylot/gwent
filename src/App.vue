@@ -660,9 +660,9 @@ async function determineCardUnlock() {
       playerCardCollection[card.faction].collection.push(card)
 
       // Determine if a card should be removed from the opponent's deck and placed in their collection
+
       // If the card replaces an existing deck card, ie. it's a unit card
       if (card.type !== 'special') {
-        // Determine the relevant opponent deck using card.faction
         // Find the card with the lowest 'removePriority' value and move to the relevant faction's collection
         opponentCardCollection[card.faction].deck
 
