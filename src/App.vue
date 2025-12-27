@@ -50,6 +50,7 @@ let musicTracks: Howl[] = []
 let numberOfMusicTracks: number = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
+let musicPlayerActive = false;
 let deckManagerSong: Howl
 let biteSound: Howl
 let coinSound: Howl
@@ -271,10 +272,11 @@ function initializeMusicPlayer() {
         autoplay: false,
         loop: false,
         volume: 1,
-        onfade: () => {
-          musicTracks[i].stop()
+        onfade: function (this: Howl) {
+          this.stop();
         },
         onend: () => {
+          if (!musicPlayerActive) return;
           playRandomMusicTrack()
         },
         onloaderror: () => {
@@ -297,6 +299,7 @@ function playRandomMusicTrack() {
   }
   musicTracks[randomIndex].volume(1)
   musicTracks[randomIndex].play()
+  musicPlayerActive = true
 }
 
 function getRandomTrackIndex() {
@@ -305,6 +308,15 @@ function getRandomTrackIndex() {
     randomIndex = Math.floor(Math.random() * numberOfMusicTracks)
   } while (randomIndex === currentMusicTrackIndex || randomIndex === prevMusicTrackIndex)
   return randomIndex
+}
+
+function stopMusicPlayer(fadeDuration: number = 0) {
+  musicPlayerActive = false;
+
+  if (currentMusicTrackIndex) {
+    const track = musicTracks[currentMusicTrackIndex];
+    track.fade(track.volume(), 0, fadeDuration);
+  }
 }
 
 function initialiseDeckManagerSong() {
@@ -475,9 +487,7 @@ function showMainMenu() {
   loading.value = false
   showContinueBtn.value = false
 
-  if (gameIsActive.value && currentMusicTrackIndex !== null) {
-    musicTracks[currentMusicTrackIndex].fade(musicTracks[currentMusicTrackIndex].volume(), 0, 2000)
-  }
+  stopMusicPlayer(2000)
 
   clearTimeout(themeSongFadeTimeout)
   themeSongSound.stop()
@@ -504,9 +514,7 @@ function showDeckManager(preMatch: boolean, faction?: string) {
   deckManagerIsPreMatch.value = preMatch
   deckManagerFaction.value = faction ?? null
 
-  if (gameIsActive.value && currentMusicTrackIndex !== null) {
-    musicTracks[currentMusicTrackIndex].fade(musicTracks[currentMusicTrackIndex].volume(), 0, 4000)
-  }
+  stopMusicPlayer(4000)
 
   clearTimeout(themeSongFadeTimeout)
   themeSongSound.fade(themeSongSound.volume(), 0, 4000)
