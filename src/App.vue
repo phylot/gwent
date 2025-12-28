@@ -51,6 +51,7 @@ let numberOfMusicTracks: number = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
 let musicPlayerActive = false;
+let musicPlayerStopTimer: number | null = null;
 let deckManagerSong: Howl
 let biteSound: Howl
 let coinSound: Howl
@@ -272,9 +273,6 @@ function initializeMusicPlayer() {
         autoplay: false,
         loop: false,
         volume: 1,
-        onfade: function (this: Howl) {
-          this.stop();
-        },
         onend: () => {
           if (!musicPlayerActive) return;
           playRandomMusicTrack()
@@ -297,6 +295,7 @@ function playRandomMusicTrack() {
     prevMusicTrackIndex = currentMusicTrackIndex
     currentMusicTrackIndex = randomIndex
   }
+
   musicTracks[randomIndex].volume(1)
   musicTracks[randomIndex].play()
   musicPlayerActive = true
@@ -313,9 +312,25 @@ function getRandomTrackIndex() {
 function stopMusicPlayer(fadeDuration: number = 0) {
   musicPlayerActive = false;
 
-  if (currentMusicTrackIndex) {
-    const track = musicTracks[currentMusicTrackIndex];
-    track.fade(track.volume(), 0, fadeDuration);
+  if (musicPlayerStopTimer !== null) {
+    clearTimeout(musicPlayerStopTimer);
+    musicPlayerStopTimer = null;
+  }
+
+  if (currentMusicTrackIndex === null) return;
+
+  const track = musicTracks[currentMusicTrackIndex];
+  const currentVolume = track.volume();
+
+  if (fadeDuration > 0 && currentVolume > 0) {
+    track.fade(currentVolume, 0, fadeDuration);
+
+    musicPlayerStopTimer = window.setTimeout(() => {
+      track.stop();
+      musicPlayerStopTimer = null;
+    }, fadeDuration);
+  } else {
+    track.stop();
   }
 }
 
