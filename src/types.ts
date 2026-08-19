@@ -68,6 +68,7 @@ interface RowFlag {
   cardSelect: boolean
   double: boolean
   doubleIcon: string
+  highlight: boolean
   rowSelect: boolean
   weather: boolean
   weatherIcon: string
