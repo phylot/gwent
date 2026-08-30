@@ -37,7 +37,7 @@ watch(
 
 <style>
 .bean-popup {
-  z-index: 6500;
+  z-index: 9999;
   position: absolute;
   bottom: 0;
   right: -144px;

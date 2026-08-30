@@ -1742,6 +1742,14 @@ function determineRoundWinner() {
         emit('play-sound', 'matchwin')
       } else {
         emit('play-sound', 'matchlose')
+        setTimeout(() => {
+          beanPopup.value = true
+          emit('play-sound', 'fatbastard')
+          setTimeout(() => {
+            beanPopup.value = false
+          }, 1000)
+        }, 1000)
+
       }
 
       // Determine 'Tactician' award
