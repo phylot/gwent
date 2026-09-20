@@ -10,6 +10,11 @@ const props = defineProps<{
   disabled: boolean
 }>()
 
+const emit = defineEmits<{
+  (e: 'btn-click'): void
+  (e: 'update:model-value', val: number): void
+}>()
+
 let localCards = ref(props.cards)
 
 watch(
@@ -19,11 +24,6 @@ watch(
   },
   { deep: true }
 )
-
-const emit = defineEmits<{
-  (e: 'btn-click'): void
-  (e: 'update:model-value', val: number): void
-}>()
 
 function changeSlide(back?: boolean) {
   let newIndex = back ? props.modelValue - 1 : props.modelValue + 1

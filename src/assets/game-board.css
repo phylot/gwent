@@ -584,7 +584,11 @@
   z-index: 4000;
 }
 
-/* Post-match Stats */
+/* Game Pause Modal Content */
+
+.game-board .match-score {
+  display: flex;
+}
 
 .game-board .match-stats {
   flex-grow: 1;
@@ -606,13 +610,13 @@
 
 .game-board .match-stats .title {
   margin-bottom: 10px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .game-board .match-stats .round-total {
   position: relative;
   height: 20px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .game-board .match-stats .round-total.win {
@@ -899,7 +903,7 @@
 
 .game-board.desktop .match-stats .title {
   margin-bottom: 20px;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .game-board.desktop .match-stats .round-total {

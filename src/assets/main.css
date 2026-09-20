@@ -101,6 +101,29 @@ html {
   margin: 10px;
 }
 
+.modal-panel {
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #232323;
+}
+
+.modal-panel .modal-panel-title {
+  font-size: 18px;
+  text-align: center;
+}
+
+.modal-panel.desktop {
+  gap: 20px;
+  padding: 20px;
+}
+
+.modal-panel.desktop .modal-panel-title {
+  font-size: 26px;
+}
+
 .awards-gallery {
   width: 100%;
   min-height: 100px;

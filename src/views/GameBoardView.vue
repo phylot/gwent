@@ -12,6 +12,7 @@ import CardModal from './../components/CardModal.vue'
 import CardPreview from './../components/CardPreview.vue'
 import OverlayScreen from './../components/OverlayScreen.vue'
 import SmallCard from './../components/SmallCard.vue'
+import SettingSlider from './../components/SettingSlider.vue'
 import StandardModal from './../components/StandardModal.vue'
 
 // PROPS
@@ -22,8 +23,22 @@ const props = defineProps<{
   disabled: boolean
   opponentCards: Card[]
   opponentLeaderCard: Card
+  musicVolume: number
   playerCards: Card[]
   playerLeaderCard: Card
+  soundVolume: number
+}>()
+
+// EVENTS
+
+const emit = defineEmits<{
+  (e: 'loading-change', val: boolean): void
+  (e: 'player-win'): void
+  (e: 'play-sound', val: string): void
+  (e: 'save-awards', val: string[]): void
+  (e: 'show-menu'): void
+  (e: 'update:music-volume', val: number): void
+  (e: 'update:sound-volume', val: number): void
 }>()
 
 // BOARD-RELATED DATA
@@ -82,6 +97,7 @@ let playerRoundTotals = ref<Array<RoundTotal>>([])
 let opponentRoundTotals = ref<Array<RoundTotal>>([])
 let playerAwards = ref()
 let opponentAwards = ref()
+let isMatchEnd = ref(false)
 
 // Alert Banner
 let alertBannerAvatar = ref()
@@ -175,6 +191,16 @@ const opponentDiscardPileDisabled = computed(() => {
   return boardDisabled.value || opponentDiscardPile.value.length < 1
 })
 
+const musicVolume = computed({
+  get: () => props.musicVolume,
+  set: (value: number) => emit('update:music-volume', value)
+})
+
+const soundVolume = computed({
+  get: () => props.soundVolume,
+  set: (value: number) => emit('update:sound-volume', value)
+})
+
 // WATCHERS
 
 watch(
@@ -183,16 +209,6 @@ watch(
     setAllDisabled(val)
   }
 )
-
-// EVENTS
-
-const emit = defineEmits<{
-  (e: 'loading-change', val: boolean): void
-  (e: 'player-win'): void
-  (e: 'play-sound', val: string): void
-  (e: 'save-awards', val: string[]): void
-  (e: 'show-menu'): void
-}>()
 
 // HOOKS
 
@@ -300,6 +316,7 @@ async function startNewGame() {
   opponentIsPassed.value = false
   playerRoundTotals.value = []
   opponentRoundTotals.value = []
+  isMatchEnd.value = false
 
   // Reset awards
   playerAwards.value = JSON.parse(JSON.stringify(defaultAwards))
@@ -349,8 +366,7 @@ function dealRandomCards(arr: Card[], amount: number) {
   }
   return cards
 }
-
-function doCpuCardRedraw() {
+async function doCpuCardRedraw() {
   function selectCpuRedrawCard(faction: string) {
     // Check for certain cards to swap by name, based on opponent's faction
 
@@ -458,16 +474,12 @@ function doCpuCardRedraw() {
     return true
   }
 
-  return new Promise<void>((resolve) => {
-    // Swap up to 2 cards
-    for (let i = 0; i < 2; i++) {
-      if (selectCpuRedrawCard(opponentHand.value[0].faction)) {
-      } else {
-        break
-      }
+  // Swap up to 2 cards
+  for (let i = 0; i < 2; i++) {
+    if (!selectCpuRedrawCard(opponentHand.value[0].faction)) {
+      break
     }
-    resolve()
-  })
+  }
 }
 
 function showCardRedrawModal(callback: Function) {
@@ -723,7 +735,7 @@ function determineCpuCard(callback?: Function) {
       else {
         let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
-        // If it's a must win round
+        // If it's a must-win round
         if (playerHasRound.value) {
           // If standard cards are available
           if (cpuStandardCards.length > 0) {
@@ -1719,6 +1731,8 @@ function determineRoundWinner() {
 
   // Match is won or drawn
   if (isPlayerMatchWin || isOpponentMatchWin || isMatchDraw) {
+    isMatchEnd.value = true
+
     // Determine awards
     for (let i = 0; i < 2; i++) {
       let awards = i < 1 ? playerAwards.value : opponentAwards.value
@@ -1749,7 +1763,6 @@ function determineRoundWinner() {
             beanPopup.value = false
           }, 1000)
         }, 1000)
-
       }
 
       // Determine 'Tactician' award
@@ -1972,7 +1985,7 @@ function showPauseModal() {
   modalAvatar.value = null
   modalButtons.value = ['Resume', 'Quit']
   modalPersistent.value = false
-  modalTitle.value = 'Paused'
+  modalTitle.value = 'Game Paused'
 
   modal.value.show().then((i: number) => {
     setAllDisabled(false)
@@ -2117,50 +2130,83 @@ function sortCardsHighToLow(a: Card, b: Card) {
       ref="modal"
       :title="modalTitle"
     >
-      <div v-if="playerRoundTotals.length > 0" class="match-stats player">
-        <h2 class="title">Player</h2>
-        <div
-          v-for="(total, i) in playerRoundTotals"
-          class="round-total"
-          :class="{ win: total.isWin }"
-          :key="i"
-        >
-          <v-icon v-if="total.isWin" class="round-icon" name="oi-star-fill" />
-          {{ total.value }}
+      <div class="modal-panel" :class="{ desktop: props.desktop }">
+        <h2 class="modal-panel-title">Score</h2>
+
+        <div class="match-score">
+          <div class="match-stats player">
+            <h2 class="title">Player</h2>
+            <template v-if="playerRoundTotals.length > 0">
+              <div
+                v-for="(total, i) in playerRoundTotals"
+                class="round-total"
+                :class="{ win: total.isWin }"
+                :key="i"
+              >
+                <v-icon v-if="total.isWin" class="round-icon" name="oi-star-fill" />
+                {{ total.value }}
+              </div>
+            </template>
+            <div v-if="!isMatchEnd" class="round-total">{{ playerTotal }}</div>
+
+            <template v-for="(award, key) in playerAwards" :key="key">
+              <AwardBadge
+                v-if="award.active"
+                active
+                :desktop="props.desktop"
+                :icon="award.icon"
+                :name="award.name"
+                reverse
+                :type="String(key)"
+              ></AwardBadge>
+            </template>
+          </div>
+
+          <div class="match-stats opponent">
+            <h2 class="title">Opponent</h2>
+            <template v-if="opponentRoundTotals.length > 0">
+              <div
+                v-for="(total, i) in opponentRoundTotals"
+                class="round-total"
+                :class="{ win: total.isWin }"
+                :key="i"
+              >
+                <v-icon v-if="total.isWin" class="round-icon" name="oi-star-fill" />
+                {{ total.value }}
+              </div>
+            </template>
+            <div v-if="!isMatchEnd" class="round-total">{{ opponentTotal }}</div>
+
+            <template v-for="(award, key) in opponentAwards" :key="key">
+              <AwardBadge
+                v-if="award.active"
+                active
+                :desktop="props.desktop"
+                :icon="award.icon"
+                :name="award.name"
+                :type="String(key)"
+              ></AwardBadge>
+            </template>
+          </div>
         </div>
-        <template v-for="(award, key) in playerAwards" :key="key">
-          <AwardBadge
-            v-if="award.active"
-            active
-            :desktop="props.desktop"
-            :icon="award.icon"
-            :name="award.name"
-            reverse
-            :type="String(key)"
-          ></AwardBadge>
-        </template>
       </div>
-      <div v-if="playerRoundTotals.length > 0" class="match-stats opponent">
-        <h2 class="title">Opponent</h2>
-        <div
-          v-for="(total, i) in opponentRoundTotals"
-          class="round-total"
-          :class="{ win: total.isWin }"
-          :key="i"
-        >
-          <v-icon v-if="total.isWin" class="round-icon" name="oi-star-fill" />
-          {{ total.value }}
-        </div>
-        <template v-for="(award, key) in opponentAwards" :key="key">
-          <AwardBadge
-            v-if="award.active"
-            active
-            :desktop="props.desktop"
-            :icon="award.icon"
-            :name="award.name"
-            :type="String(key)"
-          ></AwardBadge>
-        </template>
+
+      <div v-if="!isMatchEnd" class="modal-panel" :class="{ desktop: props.desktop }">
+        <h2 class="modal-panel-title">Volume</h2>
+        <SettingSlider
+          v-model="musicVolume"
+          :desktop="desktop"
+          icon-false="md-musicoff"
+          icon-true="md-musicnote"
+          label="Music"
+        />
+        <SettingSlider
+          v-model="soundVolume"
+          :desktop="desktop"
+          icon-false="md-volumeoff-round"
+          icon-true="md-volumeup-round"
+          label="Sound"
+        />
       </div>
     </StandardModal>
 

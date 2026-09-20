@@ -51,12 +51,16 @@ import {
   LaSpinnerSolid,
   LaStarOfLifeSolid,
   MdCoronavirusOutlined,
+  MdMusicnote,
+  MdMusicoff,
   MdTouchappRound,
+  MdVolumeoffRound,
+  MdVolumeupRound,
   OiLightBulb,
   OiStack,
   OiStar,
   OiStarFill,
-  RiFoggyLine,
+  RiFoggyLine
 } from 'oh-vue-icons/icons'
 
 import './assets/main.css'
@@ -108,12 +112,16 @@ addIcons(
   LaSpinnerSolid,
   LaStarOfLifeSolid,
   MdCoronavirusOutlined,
+  MdMusicnote,
+  MdMusicoff,
   MdTouchappRound,
+  MdVolumeoffRound,
+  MdVolumeupRound,
   OiLightBulb,
   OiStack,
   OiStar,
   OiStarFill,
-  RiFoggyLine,
+  RiFoggyLine
 )
 
 const app = createApp(App)

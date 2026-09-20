@@ -173,6 +173,8 @@ function handleKeydown(e: KeyboardEvent) {
   height: 100%;
   overflow-y: auto;
   display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .standard-modal .modal .btn-container {

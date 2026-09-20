@@ -9,6 +9,7 @@ import GameBoardView from './views/GameBoardView.vue'
 import MainMenuView from './views/MainMenuView.vue'
 import AwardBadge from './components/AwardBadge.vue'
 import CardUnlockModal from './components/CardUnlockModal.vue'
+import SettingSlider from './components/SettingSlider.vue'
 import StandardModal from './components/StandardModal.vue'
 import { defaultCards, defaultUndeadCards, defaultLeaderCards, unlockableCards } from './data/cards'
 import { defaultAwards } from './data/awards'
@@ -38,6 +39,7 @@ let selectedOpponentLeader: Card
 let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
 let awardsModal = ref()
 let howToPlayModal = ref()
+let settingsModal = ref()
 let playerWins: number = 0
 let unlockedCard = ref<Card | undefined>()
 let unlockedDeckCards = ref<Card[]>()
@@ -45,38 +47,27 @@ let unlockedDeckFaction = ref<string>()
 let cardUnlockModal = ref()
 let allCardsUnlocked = ref(false)
 let themeSongSound: Howl
-let themeSongFadeTimeout: ReturnType<typeof setTimeout>
+let themeSongFadeTimeout: number | undefined
+const themeSongFadeDuration = 12000
+let themeSongStopTimer: ReturnType<typeof setTimeout> | undefined
+let deckManagerSong: Howl
 let musicTracks: Howl[] = []
 let numberOfMusicTracks: number = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
-let musicPlayerActive = false;
-let musicPlayerStopTimer: number | null = null;
-let deckManagerSong: Howl
-let biteSound: Howl
-let coinSound: Howl
-let doubleSound: Howl
-let drawCardSound: Howl
-let fatBastardSound: Howl
-let heroSound: Howl
-let matchDrawSound: Howl
-let matchLoseSound: Howl
-let matchWinSound: Howl
-let musterSound: Howl
-let placeCardSound: Howl
-let plagueSound: Howl
-let playCardSound: Howl
-let roundDrawSound: Howl
-let roundLoseSound: Howl
-let roundStartSound: Howl
-let roundWinSound: Howl
-let scorchSound: Howl
-let selectCardSound: Howl
-let statIncreaseSound: Howl
-let swapCardSound: Howl
-let toastySound: Howl
-let turnSound: Howl
-let zeldaSound: Howl
+let musicPlayerActive = false
+let musicPlayerStopTimer: number | null = null
+let musicVolumeLevel = ref(1)
+let soundEffectVolumeLevel = ref(1)
+interface SoundEffect {
+  sound: Howl
+  baseVolume: number
+}
+const soundEffects: Record<string, SoundEffect> = {}
+interface FactionAndCollection {
+  faction: string
+  collection: CardCollection
+}
 
 // COMPUTED DATA
 
@@ -89,11 +80,6 @@ const awardsCount = computed((): number => {
   }
   return count
 })
-
-interface FactionAndCollection {
-  faction: string
-  collection: CardCollection
-}
 
 // GLOBAL HOOKS
 
@@ -114,11 +100,11 @@ function onResize() {
 }
 
 async function preload() {
-  await preloadSounds()
   await loadLocalStorage()
+  await preloadSounds()
 
   initializeMusicPlayer()
-  initialiseDeckManagerSong()
+  initializeDeckManagerSong()
 
   // Preload card collections
   for (const faction in playerCardCollection) {
@@ -218,31 +204,32 @@ async function preloadSounds() {
       createHowl('zelda-secret.mp3', 3)
     ])
 
-    biteSound = bite
-    coinSound = coin
-    doubleSound = double
-    drawCardSound = drawCard
-    fatBastardSound = fatBastard
-    heroSound = hero
-    matchDrawSound = matchDraw
-    matchLoseSound = matchLose
-    matchWinSound = matchWin
-    musterSound = muster
-    placeCardSound = placeCard
-    plagueSound = plague
-    playCardSound = playCard
-    roundDrawSound = roundDraw
-    roundLoseSound = roundLose
-    roundStartSound = roundStart
-    roundWinSound = roundWin
-    scorchSound = scorch
-    selectCardSound = selectCard
-    statIncreaseSound = statIncrease
-    swapCardSound = swapCard
+    soundEffects.bite = { sound: bite, baseVolume: 1 }
+    soundEffects.coin = { sound: coin, baseVolume: 5 }
+    soundEffects.double = { sound: double, baseVolume: 1 }
+    soundEffects.drawcard = { sound: drawCard, baseVolume: 1 }
+    soundEffects.fatbastard = { sound: fatBastard, baseVolume: 1 }
+    soundEffects.hero = { sound: hero, baseVolume: 1 }
+    soundEffects.matchdraw = { sound: matchDraw, baseVolume: 1 }
+    soundEffects.matchlose = { sound: matchLose, baseVolume: 1 }
+    soundEffects.matchwin = { sound: matchWin, baseVolume: 1 }
+    soundEffects.muster = { sound: muster, baseVolume: 2 }
+    soundEffects.placecard = { sound: placeCard, baseVolume: 1 }
+    soundEffects.plague = { sound: plague, baseVolume: 1.5 }
+    soundEffects.playcard = { sound: playCard, baseVolume: 1 }
+    soundEffects.rounddraw = { sound: roundDraw, baseVolume: 1 }
+    soundEffects.roundlose = { sound: roundLose, baseVolume: 1 }
+    soundEffects.roundstart = { sound: roundStart, baseVolume: 0.7 }
+    soundEffects.roundwin = { sound: roundWin, baseVolume: 1 }
+    soundEffects.scorch = { sound: scorch, baseVolume: 1 }
+    soundEffects.selectcard = { sound: selectCard, baseVolume: 0.2 }
+    soundEffects.statincrease = { sound: statIncrease, baseVolume: 0.5 }
+    soundEffects.swapcard = { sound: swapCard, baseVolume: 2 }
+    soundEffects.toasty = { sound: toasty, baseVolume: 1.5 }
+    soundEffects.turn = { sound: turn, baseVolume: 1.5 }
+    soundEffects.zelda = { sound: zelda, baseVolume: 3 }
+
     themeSongSound = themeSong
-    toastySound = toasty
-    turnSound = turn
-    zeldaSound = zelda
   } catch {
     console.error('Error preloading sounds')
   }
@@ -252,7 +239,7 @@ function createHowl(fileName: string, volume: number) {
   return new Promise<Howl>((resolve, reject) => {
     const newSound = new Howl({
       src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
-      volume: volume,
+      volume: volume * soundEffectVolumeLevel.value,
       preload: true,
       onload: () => {
         resolve(newSound)
@@ -265,6 +252,62 @@ function createHowl(fileName: string, volume: number) {
   })
 }
 
+function scheduleThemeSongFade() {
+  clearTimeout(themeSongFadeTimeout)
+
+  if (!themeSongSound?.playing()) return
+  if (gameIsActive.value) return
+
+  const duration = themeSongSound.duration()
+  const seek = Number(themeSongSound.seek())
+
+  if (!duration) return
+
+  const remainingTime = (duration - seek) * 1000
+  const fadeDelay = Math.max(0, remainingTime - themeSongFadeDuration)
+
+  themeSongFadeTimeout = window.setTimeout(() => {
+    if (!themeSongSound.playing()) return
+    if (gameIsActive.value) return
+
+    const currentVolume = themeSongSound.volume()
+    const remainingTime = Math.max(
+      0,
+      (themeSongSound.duration() - Number(themeSongSound.seek())) * 1000
+    )
+
+    const fadeDuration = Math.min(themeSongFadeDuration, remainingTime)
+
+    if (currentVolume > 0 && fadeDuration > 0) {
+      themeSongSound.fade(currentVolume, 0, fadeDuration)
+
+      setTimeout(() => {
+        themeSongSound.stop()
+      }, fadeDuration)
+    }
+  }, fadeDelay)
+}
+
+function stopThemeSong(fadeDuration: number = 0) {
+  clearTimeout(themeSongFadeTimeout)
+  clearTimeout(themeSongStopTimer)
+
+  if (!themeSongSound) return
+
+  if (fadeDuration > 0 && themeSongSound.volume() > 0) {
+    const currentVolume = themeSongSound.volume()
+
+    themeSongSound.fade(currentVolume, 0, fadeDuration)
+
+    themeSongStopTimer = setTimeout(() => {
+      themeSongSound.stop()
+      themeSongStopTimer = undefined
+    }, fadeDuration)
+  } else {
+    themeSongSound.stop()
+  }
+}
+
 function initializeMusicPlayer() {
   for (let i = 0; i < numberOfMusicTracks; i++) {
     musicTracks.push(
@@ -272,9 +315,9 @@ function initializeMusicPlayer() {
         src: [new URL(`./assets/audio/music-track-${i + 1}.mp3`, import.meta.url).href],
         autoplay: false,
         loop: false,
-        volume: 1,
+        volume: musicVolumeLevel.value,
         onend: () => {
-          if (!musicPlayerActive) return;
+          if (!musicPlayerActive) return
           playRandomMusicTrack()
         },
         onloaderror: () => {
@@ -288,7 +331,6 @@ function initializeMusicPlayer() {
 function playRandomMusicTrack() {
   let randomIndex = getRandomTrackIndex()
 
-  // Record previous / current track index
   if (prevMusicTrackIndex === null && currentMusicTrackIndex === null) {
     prevMusicTrackIndex = currentMusicTrackIndex = randomIndex
   } else {
@@ -296,7 +338,7 @@ function playRandomMusicTrack() {
     currentMusicTrackIndex = randomIndex
   }
 
-  musicTracks[randomIndex].volume(1)
+  musicTracks[randomIndex].volume(musicVolumeLevel.value)
   musicTracks[randomIndex].play()
   musicPlayerActive = true
 }
@@ -310,35 +352,50 @@ function getRandomTrackIndex() {
 }
 
 function stopMusicPlayer(fadeDuration: number = 0) {
-  musicPlayerActive = false;
+  musicPlayerActive = false
 
   if (musicPlayerStopTimer !== null) {
-    clearTimeout(musicPlayerStopTimer);
-    musicPlayerStopTimer = null;
+    clearTimeout(musicPlayerStopTimer)
+    musicPlayerStopTimer = null
   }
 
-  if (currentMusicTrackIndex === null) return;
+  if (currentMusicTrackIndex === null) return
 
-  const track = musicTracks[currentMusicTrackIndex];
-  const currentVolume = track.volume();
+  const track = musicTracks[currentMusicTrackIndex]
+  const currentVolume = track.volume()
 
   if (fadeDuration > 0 && currentVolume > 0) {
-    track.fade(currentVolume, 0, fadeDuration);
+    track.fade(currentVolume, 0, fadeDuration)
 
     musicPlayerStopTimer = window.setTimeout(() => {
-      track.stop();
-      musicPlayerStopTimer = null;
-    }, fadeDuration);
+      track.stop()
+      musicPlayerStopTimer = null
+    }, fadeDuration)
   } else {
-    track.stop();
+    track.stop()
   }
 }
 
-function initialiseDeckManagerSong() {
+function setMusicVolume(volume: number) {
+  musicVolumeLevel.value = volume
+
+  for (const track of musicTracks) {
+    track.volume(volume)
+  }
+
+  deckManagerSong?.volume(volume)
+  themeSongSound?.volume(volume)
+
+  scheduleThemeSongFade()
+
+  localStorage.setItem('musicVolume', volume.toString())
+}
+
+function initializeDeckManagerSong() {
   deckManagerSong = new Howl({
     src: [new URL(`./assets/audio/ard-skellig-village.mp3`, import.meta.url).href],
     loop: true,
-    volume: 1,
+    volume: musicVolumeLevel.value,
     onfade: () => {
       deckManagerSong.stop()
     },
@@ -349,79 +406,24 @@ function initialiseDeckManagerSong() {
 }
 
 function playSound(name: string) {
-  switch (name) {
-    case 'bite':
-      biteSound.play()
-      break
-    case 'coin':
-      coinSound.play()
-      break
-    case 'double':
-      doubleSound.play()
-      break
-    case 'drawcard':
-      drawCardSound.play()
-      break
-    case 'fatbastard':
-      fatBastardSound.play()
-      break
-    case 'hero':
-      heroSound.play()
-      break
-    case 'matchdraw':
-      matchDrawSound.play()
-      break
-    case 'matchlose':
-      matchLoseSound.play()
-      break
-    case 'matchwin':
-      matchWinSound.play()
-      break
-    case 'muster':
-      musterSound.play()
-      break
-    case 'placecard':
-      placeCardSound.play()
-      break
-    case 'plague':
-      plagueSound.play()
-      break
-    case 'playcard':
-      playCardSound.play()
-      break
-    case 'rounddraw':
-      roundDrawSound.play()
-      break
-    case 'roundlose':
-      roundLoseSound.play()
-      break
-    case 'roundstart':
-      roundStartSound.play()
-      break
-    case 'roundwin':
-      roundWinSound.play()
-      break
-    case 'scorch':
-      scorchSound.play()
-      break
-    case 'selectcard':
-      selectCardSound.play()
-      break
-    case 'statincrease':
-      statIncreaseSound.play()
-      break
-    case 'swapcard':
-      swapCardSound.play()
-      break
-    case 'toasty':
-      toastySound.play()
-      break
-    case 'turn':
-      turnSound.play()
-      break
-    default:
-      console.error('Unknown sound: ', name)
+  const soundEffect = soundEffects[name]
+
+  if (!soundEffect) {
+    console.error('Unknown sound: ', name)
+    return
   }
+
+  soundEffect.sound.play()
+}
+
+function setSoundEffectVolume(volume: number) {
+  soundEffectVolumeLevel.value = volume
+
+  for (const soundEffect of Object.values(soundEffects)) {
+    soundEffect.sound.volume(soundEffect.baseVolume * soundEffectVolumeLevel.value)
+  }
+
+  localStorage.setItem('soundEffectVolume', volume.toString())
 }
 
 function loadLocalStorage() {
@@ -460,6 +462,16 @@ function loadLocalStorage() {
     let retrievedAllCardsBool: string | null = localStorage.getItem('allCardsUnlocked')
     if (retrievedAllCardsBool) {
       allCardsUnlocked.value = JSON.parse(retrievedAllCardsBool)
+    }
+
+    // Read music / sound volume levels from localStorage
+    let retrievedMusicVolume: string | null = localStorage.getItem('musicVolume')
+    if (retrievedMusicVolume) {
+      musicVolumeLevel.value = Number(retrievedMusicVolume)
+    }
+    let retrievedSoundEffectVolume: string | null = localStorage.getItem('soundEffectVolume')
+    if (retrievedSoundEffectVolume) {
+      soundEffectVolumeLevel.value = Number(retrievedSoundEffectVolume)
     }
 
     resolve()
@@ -502,24 +514,22 @@ function showMainMenu() {
   loading.value = false
   showContinueBtn.value = false
 
+  clearTimeout(themeSongStopTimer)
+  clearTimeout(themeSongFadeTimeout)
+
   stopMusicPlayer(2000)
 
-  clearTimeout(themeSongFadeTimeout)
   themeSongSound.stop()
-  themeSongSound.volume(1)
+  themeSongSound.volume(musicVolumeLevel.value)
   themeSongSound.play()
 
   gameIsActive.value = false
 
+  scheduleThemeSongFade()
+
   setTimeout(
     () => {
       mainMenuIsActive.value = true
-
-      themeSongFadeTimeout = setTimeout(() => {
-        if (!gameIsActive.value) {
-          themeSongSound.fade(themeSongSound.volume(), 0, 12000)
-        }
-      }, 48000)
     },
     titleSequenceHasPlayed.value ? 0 : 1500
   )
@@ -530,17 +540,14 @@ function showDeckManager(preMatch: boolean, faction?: string) {
   deckManagerFaction.value = faction ?? null
 
   stopMusicPlayer(4000)
-
-  clearTimeout(themeSongFadeTimeout)
-  themeSongSound.fade(themeSongSound.volume(), 0, 4000)
+  stopThemeSong(4000)
 
   gameIsActive.value = false
   mainMenuIsActive.value = false
 
-  // Timeout to allow main menu to fade out
   setTimeout(() => {
     deckManagerIsActive.value = true
-    deckManagerSong.volume(1)
+    deckManagerSong.volume(musicVolumeLevel.value)
     deckManagerSong.play()
   }, 1000)
 }
@@ -582,9 +589,16 @@ function showHowToPlay() {
   })
 }
 
+function showSettings() {
+  mainMenuDisabled.value = true
+  settingsModal.value.show().then(() => {
+    mainMenuDisabled.value = false
+  })
+}
+
 function playGame() {
   mainMenuIsActive.value = false
-  doubleSound.play()
+  soundEffects.double.sound.play()
   clearTimeout(themeSongFadeTimeout)
 
   // Timeout to allow Main Menu to fade out
@@ -626,9 +640,14 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
 }
 
 function skip() {
+  clearTimeout(themeSongFadeTimeout)
+
   themeSongSound.stop()
   themeSongSound.seek(17.9)
+  themeSongSound.volume(musicVolumeLevel.value)
   themeSongSound.play()
+
+  scheduleThemeSongFade()
 }
 
 function saveCardsToStorage(callback?: Function) {
@@ -862,7 +881,7 @@ async function unlockAllCards() {
   })
 
   // Zelda unlock sound effect
-  zeldaSound.play()
+  soundEffects.zelda.sound.play()
 }
 </script>
 
@@ -974,6 +993,34 @@ async function unlockAllCards() {
     </div>
   </StandardModal>
 
+  <StandardModal
+    :buttons="['Close']"
+    :desktop="isDesktop"
+    no-primary
+    ref="settingsModal"
+    title="Settings"
+  >
+    <div class="modal-panel" :class="{ desktop: isDesktop }">
+      <h2 class="modal-panel-title">Volume</h2>
+      <SettingSlider
+        v-model="musicVolumeLevel"
+        :desktop="isDesktop"
+        icon-false="md-musicoff"
+        icon-true="md-musicnote"
+        label="Music"
+        @update:model-value="setMusicVolume"
+      />
+      <SettingSlider
+        v-model="soundEffectVolumeLevel"
+        :desktop="isDesktop"
+        icon-false="md-volumeoff-round"
+        icon-true="md-volumeup-round"
+        label="Sound"
+        @update:model-value="setSoundEffectVolume"
+      />
+    </div>
+  </StandardModal>
+
   <transition name="slow-fade">
     <MainMenuView
       v-if="mainMenuIsActive"
@@ -988,6 +1035,7 @@ async function unlockAllCards() {
       @play-sound="playSound"
       @show-awards="showAwards"
       @show-how-to-play="showHowToPlay"
+      @show-settings="showSettings"
       @skip="skip"
       @title-sequence-end="titleSequenceHasPlayed = true"
       @unlock-all-cards="unlockAllCards"
@@ -1015,15 +1063,19 @@ async function unlockAllCards() {
       :cpu-difficulty="cpuDifficulty"
       :desktop="isDesktop"
       :disabled="gameBoardDisabled"
+      :music-volume="musicVolumeLevel"
       :opponent-cards="selectedOpponentDeck"
       :opponent-leader-card="selectedOpponentLeader"
       :player-cards="selectedPlayerDeck"
       :player-leader-card="selectedPlayerLeader"
+      :sound-volume="soundEffectVolumeLevel"
       @loading-change="loadingChange"
       @player-win="determineCardUnlock"
       @play-sound="playSound"
       @save-awards="saveAwardsToStorage"
       @show-menu="showMainMenu"
+      @update:music-volume="setMusicVolume"
+      @update:sound-volume="setSoundEffectVolume"
     ></GameBoardView>
   </transition>
 </template>

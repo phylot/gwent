@@ -13,6 +13,13 @@ const props = defineProps<{
   preselectedFaction?: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'cancel'): void
+  (e: 'faction-selected', val: FactionAndCollection): void
+  (e: 'play-sound', val: string): void
+  (e: 'save', val: CardCollection): void
+}>()
+
 let localCardCollection = ref()
 let localLeaderCards = ref()
 let factionKeys = ref(Object.keys(props.cardCollection))
@@ -158,13 +165,6 @@ const collectionContainsNew = computed((): boolean => {
   }
   return newFound
 })
-
-const emit = defineEmits<{
-  (e: 'cancel'): void
-  (e: 'faction-selected', val: FactionAndCollection): void
-  (e: 'play-sound', val: string): void
-  (e: 'save', val: CardCollection): void
-}>()
 
 watch(slideIndex, () => {
   // Remove the 'new' flag from any viewed card
@@ -380,7 +380,7 @@ function capitaliseString(string: string) {
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
             type="button"
-            @click="changeFaction(factionIndex - 1); emit('play-sound', 'selectcard')"
+            @click="changeFaction(factionIndex - 1), emit('play-sound', 'selectcard')"
           >
             <v-icon class="icon" name="fa-chevron-circle-left" role="button" />
           </button>
@@ -400,7 +400,7 @@ function capitaliseString(string: string) {
             :class="{ disabled: invalidUnitTotal }"
             :disabled="disabled || invalidUnitTotal"
             type="button"
-            @click="changeFaction(factionIndex + 1); emit('play-sound', 'selectcard')"
+            @click="changeFaction(factionIndex + 1), emit('play-sound', 'selectcard')"
           >
             <v-icon class="icon" name="fa-chevron-circle-right" role="button" />
           </button>

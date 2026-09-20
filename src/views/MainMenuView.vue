@@ -9,6 +9,20 @@ const props = defineProps<{
   showMenu: boolean
 }>()
 
+// EVENTS
+
+const emit = defineEmits<{
+  (e: 'manage-deck', preMatch: boolean): void
+  (e: 'play'): void
+  (e: 'play-sound', val: string): void
+  (e: 'show-awards'): void
+  (e: 'show-how-to-play'): void
+  (e: 'show-settings'): void
+  (e: 'skip'): void
+  (e: 'title-sequence-end'): void
+  (e: 'unlock-all-cards'): void
+}>()
+
 let beanVisible = ref(false)
 let logoVisible = ref(false)
 let playButtonVisible = ref(false)
@@ -23,19 +37,6 @@ let animationIsFinished = ref(false)
 let logoClickCount = ref(0)
 let lastLogoClickTime: number = 0
 let logoClickTimeout: ReturnType<typeof setTimeout>
-
-// EVENTS
-
-const emit = defineEmits<{
-  (e: 'manage-deck', preMatch: boolean): void
-  (e: 'play'): void
-  (e: 'play-sound', val: string): void
-  (e: 'show-awards'): void
-  (e: 'show-how-to-play'): void
-  (e: 'skip'): void
-  (e: 'title-sequence-end'): void
-  (e: 'unlock-all-cards'): void
-}>()
 
 // HOOKS
 
@@ -204,6 +205,14 @@ function logoClick() {
           @click="emit('show-how-to-play')"
         >
           How to Play
+        </button>
+        <button
+          class="btn"
+          :class="{ large: props.desktop }"
+          type="button"
+          @click="emit('show-settings')"
+        >
+          Settings
         </button>
       </div>
     </transition>
