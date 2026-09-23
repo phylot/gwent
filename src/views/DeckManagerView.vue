@@ -30,6 +30,15 @@ let activeCollectionRowKey = ref()
 let deckContainer: HTMLElement | null = null
 let collectionContainer: HTMLElement | null = null
 let drawerActive = ref(false)
+const drawerClosedHeight = 45
+const drawerMaxRatio = 0.8
+let drawerHeight = ref(drawerClosedHeight)
+let isDrawerDragging = ref(false)
+let drawerDragStartY = 0
+let drawerDragStartHeight = drawerClosedHeight
+let suppressDrawerClick = false
+let deckManagerMain = ref<HTMLElement | null>(null)
+let collectionDrawer = ref<HTMLElement | null>(null)
 let disabled = ref(false)
 let slideIndex = ref(0)
 let cardModal = ref()
@@ -209,6 +218,108 @@ function changeFaction(index: number) {
     deckContainer.scrollTop = 0
     collectionContainer.scrollTop = 0
   }
+}
+
+function getMaxDrawerHeight() {
+  if (!deckManagerMain.value) {
+    return window.innerHeight * drawerMaxRatio
+  }
+
+  return deckManagerMain.value.getBoundingClientRect().height * drawerMaxRatio
+}
+
+function clampDrawerHeight(height: number) {
+  return Math.max(drawerClosedHeight, Math.min(height, getMaxDrawerHeight()))
+}
+
+function toggleDrawer() {
+  if (props.desktop || disabled.value) return
+
+  if (drawerActive.value) {
+    drawerHeight.value = drawerClosedHeight
+    drawerActive.value = false
+  } else {
+    drawerHeight.value = getMaxDrawerHeight()
+    drawerActive.value = true
+  }
+}
+
+function startDrawerDrag(event: PointerEvent) {
+  if (props.desktop || disabled.value) return
+
+  const toolbar = event.currentTarget as HTMLElement
+
+  drawerDragStartY = event.clientY
+  drawerDragStartHeight = drawerHeight.value
+  isDrawerDragging.value = false
+  suppressDrawerClick = false
+
+  toolbar.setPointerCapture(event.pointerId)
+}
+
+function dragDrawer(event: PointerEvent) {
+  const toolbar = event.currentTarget as HTMLElement
+
+  if (!toolbar.hasPointerCapture(event.pointerId)) return
+
+  const deltaY = drawerDragStartY - event.clientY
+
+  // Ignore tiny pointer movements so a normal tap still behaves as a click.
+  if (!isDrawerDragging.value && Math.abs(deltaY) < 5) {
+    return
+  }
+
+  isDrawerDragging.value = true
+  suppressDrawerClick = true
+
+  const newHeight = clampDrawerHeight(drawerDragStartHeight + deltaY)
+
+  drawerHeight.value = newHeight
+
+  // Keep the screen visible while actively dragging.
+  drawerActive.value = newHeight > drawerClosedHeight || isDrawerDragging.value
+}
+
+function endDrawerDrag(event: PointerEvent) {
+  const toolbar = event.currentTarget as HTMLElement
+
+  if (toolbar.hasPointerCapture(event.pointerId)) {
+    toolbar.releasePointerCapture(event.pointerId)
+  }
+
+  if (isDrawerDragging.value) {
+    drawerActive.value = drawerHeight.value > drawerClosedHeight
+  }
+
+  isDrawerDragging.value = false
+
+  // The click generated after pointerup should not toggle the drawer
+  // if the pointer interaction was actually a drag.
+  if (suppressDrawerClick) {
+    setTimeout(() => {
+      suppressDrawerClick = false
+    }, 0)
+  }
+}
+
+function cancelDrawerDrag(event: PointerEvent) {
+  const toolbar = event.currentTarget as HTMLElement
+
+  if (toolbar.hasPointerCapture(event.pointerId)) {
+    toolbar.releasePointerCapture(event.pointerId)
+  }
+
+  drawerHeight.value = drawerDragStartHeight
+  drawerActive.value = drawerHeight.value > drawerClosedHeight
+
+  isDrawerDragging.value = false
+  suppressDrawerClick = false
+}
+
+function handleDrawerClick() {
+  if (suppressDrawerClick) return
+
+  toggleDrawer()
 }
 
 function deckCardClick(card: Card, key: string | number, index: number) {
@@ -407,7 +518,7 @@ function capitaliseString(string: string) {
         </div>
       </div>
 
-      <div class="deck-manager-main">
+      <div class="deck-manager-main" ref="deckManagerMain">
         <div class="deck-manager-deck">
           <div class="deck-manager-stats">
             <div class="deck-heading">
@@ -494,18 +605,30 @@ function capitaliseString(string: string) {
             v-show="drawerActive && !props.desktop"
             class="collection-drawer-screen"
             :class="{ active: drawerActive && !props.desktop }"
-            @click="drawerActive = !drawerActive"
+            @click="toggleDrawer"
           ></div>
 
-          <div class="collection-drawer" :class="{ active: drawerActive && !props.desktop }">
+          <div
+            class="collection-drawer"
+            :class="{
+              active: drawerActive && !props.desktop,
+              dragging: isDrawerDragging
+            }"
+            ref="collectionDrawer"
+            :style="!props.desktop ? { height: `${drawerHeight}px` } : undefined"
+          >
             <div
               :aria-label="props.desktop ? undefined : 'Toggle Drawer'"
               class="collection-drawer-toolbar"
               :role="props.desktop ? undefined : 'button'"
               :tabindex="disabled ? '-1' : '0'"
-              @click="drawerActive = !drawerActive"
-              @keydown.enter="drawerActive = !drawerActive"
-              @keydown.space="drawerActive = !drawerActive"
+              @click="handleDrawerClick"
+              @keydown.enter="toggleDrawer"
+              @keydown.space="toggleDrawer"
+              @pointercancel="cancelDrawerDrag"
+              @pointerdown="startDrawerDrag"
+              @pointermove="dragDrawer"
+              @pointerup="endDrawerDrag"
             >
               <div class="collection-heading">
                 <h2 class="collection-title">Collection</h2>
@@ -844,9 +967,6 @@ function capitaliseString(string: string) {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #000000;
-  opacity: 0;
-  transition: opacity 0.2s linear;
 }
 
 .deck-manager .collection-drawer-screen.active {
@@ -868,8 +988,8 @@ function capitaliseString(string: string) {
   -webkit-tap-highlight-color: transparent;
 }
 
-.deck-manager .collection-drawer.active {
-  height: 80%;
+.deck-manager .collection-drawer.dragging {
+  transition: none;
 }
 
 .deck-manager .collection-drawer-toolbar {
@@ -881,6 +1001,7 @@ function capitaliseString(string: string) {
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 100ms ease-out;
+  touch-action: none;
 }
 
 .deck-manager .collection-drawer-toolbar .collection-heading {
