@@ -30,15 +30,12 @@ let activeCollectionRowKey = ref()
 let deckContainer: HTMLElement | null = null
 let collectionContainer: HTMLElement | null = null
 let drawerActive = ref(false)
-const drawerClosedHeight = 45
-const drawerMaxRatio = 0.8
-let drawerHeight = ref(drawerClosedHeight)
-let isDrawerDragging = ref(false)
-let drawerDragStartY = 0
-let drawerDragStartHeight = drawerClosedHeight
+const drawerSwipeThreshold = 50
+let drawerSwipeStartY = 0
 let suppressDrawerClick = false
-let deckManagerMain = ref<HTMLElement | null>(null)
-let collectionDrawer = ref<HTMLElement | null>(null)
+let drawerContentSwipeStartY = 0
+let drawerContentSwipeStartScrollTop = 0
+let drawerScreenSwipeStartY = 0
 let disabled = ref(false)
 let slideIndex = ref(0)
 let cardModal = ref()
@@ -220,106 +217,121 @@ function changeFaction(index: number) {
   }
 }
 
-function getMaxDrawerHeight() {
-  if (!deckManagerMain.value) {
-    return window.innerHeight * drawerMaxRatio
-  }
+function openDrawer() {
+  if (props.desktop || disabled.value) return
 
-  return deckManagerMain.value.getBoundingClientRect().height * drawerMaxRatio
+  drawerActive.value = true
 }
 
-function clampDrawerHeight(height: number) {
-  return Math.max(drawerClosedHeight, Math.min(height, getMaxDrawerHeight()))
+function closeDrawer() {
+  if (props.desktop || disabled.value) return
+
+  drawerActive.value = false
 }
 
 function toggleDrawer() {
-  if (props.desktop || disabled.value) return
-
   if (drawerActive.value) {
-    drawerHeight.value = drawerClosedHeight
-    drawerActive.value = false
+    closeDrawer()
   } else {
-    drawerHeight.value = getMaxDrawerHeight()
-    drawerActive.value = true
+    openDrawer()
   }
 }
 
-function startDrawerDrag(event: PointerEvent) {
+function startDrawerSwipe(event: PointerEvent) {
   if (props.desktop || disabled.value) return
 
-  const toolbar = event.currentTarget as HTMLElement
-
-  drawerDragStartY = event.clientY
-  drawerDragStartHeight = drawerHeight.value
-  isDrawerDragging.value = false
+  drawerSwipeStartY = event.clientY
   suppressDrawerClick = false
 
+  const toolbar = event.currentTarget as HTMLElement
   toolbar.setPointerCapture(event.pointerId)
 }
 
-function dragDrawer(event: PointerEvent) {
-  const toolbar = event.currentTarget as HTMLElement
-
-  if (!toolbar.hasPointerCapture(event.pointerId)) return
-
-  const deltaY = drawerDragStartY - event.clientY
-
-  // Ignore tiny pointer movements so a normal tap still behaves as a click.
-  if (!isDrawerDragging.value && Math.abs(deltaY) < 5) {
-    return
-  }
-
-  isDrawerDragging.value = true
-  suppressDrawerClick = true
-
-  const newHeight = clampDrawerHeight(drawerDragStartHeight + deltaY)
-
-  drawerHeight.value = newHeight
-
-  // Keep the screen visible while actively dragging.
-  drawerActive.value = newHeight > drawerClosedHeight || isDrawerDragging.value
-}
-
-function endDrawerDrag(event: PointerEvent) {
+function endDrawerSwipe(event: PointerEvent) {
   const toolbar = event.currentTarget as HTMLElement
 
   if (toolbar.hasPointerCapture(event.pointerId)) {
     toolbar.releasePointerCapture(event.pointerId)
   }
 
-  if (isDrawerDragging.value) {
-    drawerActive.value = drawerHeight.value > drawerClosedHeight
-  }
+  const deltaY = event.clientY - drawerSwipeStartY
 
-  isDrawerDragging.value = false
+  if (Math.abs(deltaY) >= drawerSwipeThreshold) {
+    suppressDrawerClick = true
 
-  // The click generated after pointerup should not toggle the drawer
-  // if the pointer interaction was actually a drag.
-  if (suppressDrawerClick) {
+    if (deltaY < 0) {
+      openDrawer()
+    } else {
+      closeDrawer()
+    }
+
     setTimeout(() => {
       suppressDrawerClick = false
     }, 0)
   }
 }
 
-function cancelDrawerDrag(event: PointerEvent) {
+function cancelDrawerSwipe(event: PointerEvent) {
   const toolbar = event.currentTarget as HTMLElement
 
   if (toolbar.hasPointerCapture(event.pointerId)) {
     toolbar.releasePointerCapture(event.pointerId)
   }
 
-  drawerHeight.value = drawerDragStartHeight
-  drawerActive.value = drawerHeight.value > drawerClosedHeight
-
-  isDrawerDragging.value = false
   suppressDrawerClick = false
+}
+
+function startDrawerScreenSwipe(event: TouchEvent) {
+  if (props.desktop || disabled.value || !drawerActive.value) return
+  if (event.touches.length !== 1) return
+
+  drawerScreenSwipeStartY = event.touches[0].clientY
+}
+
+function endDrawerScreenSwipe(event: TouchEvent) {
+  if (props.desktop || disabled.value || !drawerActive.value) return
+  if (event.changedTouches.length !== 1) return
+
+  const deltaY = event.changedTouches[0].clientY - drawerScreenSwipeStartY
+
+  if (deltaY >= drawerSwipeThreshold) {
+    closeDrawer()
+  }
 }
 
 function handleDrawerClick() {
   if (suppressDrawerClick) return
 
   toggleDrawer()
+}
+
+function startDrawerContentSwipe(event: TouchEvent) {
+  if (props.desktop || disabled.value || !drawerActive.value) return
+  if (event.touches.length !== 1) return
+
+  const target = event.target as HTMLElement
+  const cards = target.closest('.collection-drawer-cards') as HTMLElement | null
+
+  drawerContentSwipeStartY = event.touches[0].clientY
+  drawerContentSwipeStartScrollTop = cards?.scrollTop ?? 0
+}
+
+function endDrawerContentSwipe(event: TouchEvent) {
+  if (props.desktop || disabled.value || !drawerActive.value) return
+  if (event.changedTouches.length !== 1) return
+
+  const target = event.target as HTMLElement
+  const cards = target.closest('.collection-drawer-cards') as HTMLElement | null
+
+  const deltaY = event.changedTouches[0].clientY - drawerContentSwipeStartY
+
+  if (
+    deltaY >= drawerSwipeThreshold &&
+    drawerContentSwipeStartScrollTop <= 0 &&
+    (!cards || cards.scrollTop <= 0)
+  ) {
+    closeDrawer()
+  }
 }
 
 function deckCardClick(card: Card, key: string | number, index: number) {
@@ -606,16 +618,15 @@ function capitaliseString(string: string) {
             class="collection-drawer-screen"
             :class="{ active: drawerActive && !props.desktop }"
             @click="toggleDrawer"
+            @touchend="endDrawerScreenSwipe"
+            @touchstart="startDrawerScreenSwipe"
           ></div>
 
           <div
             class="collection-drawer"
-            :class="{
-              active: drawerActive && !props.desktop,
-              dragging: isDrawerDragging
-            }"
-            ref="collectionDrawer"
-            :style="!props.desktop ? { height: `${drawerHeight}px` } : undefined"
+            :class="{ active: drawerActive && !props.desktop }"
+            @touchend="endDrawerContentSwipe"
+            @touchstart="startDrawerContentSwipe"
           >
             <div
               :aria-label="props.desktop ? undefined : 'Toggle Drawer'"
@@ -625,10 +636,11 @@ function capitaliseString(string: string) {
               @click="handleDrawerClick"
               @keydown.enter="toggleDrawer"
               @keydown.space="toggleDrawer"
-              @pointercancel="cancelDrawerDrag"
-              @pointerdown="startDrawerDrag"
-              @pointermove="dragDrawer"
-              @pointerup="endDrawerDrag"
+              @pointercancel="cancelDrawerSwipe"
+              @pointerdown="startDrawerSwipe"
+              @pointerup="endDrawerSwipe"
+              @touchend.stop
+              @touchstart.stop
             >
               <div class="collection-heading">
                 <h2 class="collection-title">Collection</h2>
@@ -648,7 +660,11 @@ function capitaliseString(string: string) {
               />
             </div>
 
-            <div class="collection-drawer-cards">
+            <div
+              class="collection-drawer-cards"
+              @touchend="endDrawerContentSwipe"
+              @touchstart="startDrawerContentSwipe"
+            >
               <div v-if="noCollectionCards" class="no-cards">
                 <p>Unlocked cards will appear here.</p>
               </div>
@@ -967,6 +983,9 @@ function capitaliseString(string: string) {
   bottom: 0;
   left: 0;
   right: 0;
+  background: #000000;
+  opacity: 0;
+  transition: opacity 0.2s linear;
 }
 
 .deck-manager .collection-drawer-screen.active {
@@ -988,8 +1007,8 @@ function capitaliseString(string: string) {
   -webkit-tap-highlight-color: transparent;
 }
 
-.deck-manager .collection-drawer.dragging {
-  transition: none;
+.deck-manager .collection-drawer.active {
+  height: 80%;
 }
 
 .deck-manager .collection-drawer-toolbar {
@@ -1048,6 +1067,7 @@ function capitaliseString(string: string) {
 
 .deck-manager .no-cards {
   text-align: center;
+  font-weight: 500;
   color: #ffffff;
 }
 
