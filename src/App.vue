@@ -59,6 +59,8 @@ let musicPlayerActive = false
 let musicPlayerStopTimer: number | null = null
 let musicVolumeLevel = ref(1)
 let soundEffectVolumeLevel = ref(1)
+const maxMusicVolume = 0.3
+const maxSoundEffectVolume = 5
 interface SoundEffect {
   sound: Howl
   baseVolume: number
@@ -239,7 +241,7 @@ function createHowl(fileName: string, volume: number) {
   return new Promise<Howl>((resolve, reject) => {
     const newSound = new Howl({
       src: [new URL(`./assets/audio/${fileName}`, import.meta.url).href],
-      volume: volume * soundEffectVolumeLevel.value,
+      volume: getSoundEffectVolume(volume),
       preload: true,
       onload: () => {
         resolve(newSound)
@@ -315,7 +317,7 @@ function initializeMusicPlayer() {
         src: [new URL(`./assets/audio/music-track-${i + 1}.mp3`, import.meta.url).href],
         autoplay: false,
         loop: false,
-        volume: musicVolumeLevel.value,
+        volume: getMusicVolume(musicVolumeLevel.value),
         onend: () => {
           if (!musicPlayerActive) return
           playRandomMusicTrack()
@@ -338,7 +340,7 @@ function playRandomMusicTrack() {
     currentMusicTrackIndex = randomIndex
   }
 
-  musicTracks[randomIndex].volume(musicVolumeLevel.value)
+  musicTracks[randomIndex].volume(getMusicVolume(musicVolumeLevel.value))
   musicTracks[randomIndex].play()
   musicPlayerActive = true
 }
@@ -380,22 +382,26 @@ function setMusicVolume(volume: number) {
   musicVolumeLevel.value = volume
 
   for (const track of musicTracks) {
-    track.volume(volume)
+    track.volume(getMusicVolume(volume))
   }
 
-  deckManagerSong?.volume(volume)
-  themeSongSound?.volume(volume)
+  deckManagerSong?.volume(getMusicVolume(volume))
+  themeSongSound?.volume(getMusicVolume(volume))
 
   scheduleThemeSongFade()
 
   localStorage.setItem('musicVolume', volume.toString())
 }
 
+function getMusicVolume(volume: number) {
+  return volume * maxMusicVolume
+}
+
 function initializeDeckManagerSong() {
   deckManagerSong = new Howl({
     src: [new URL(`./assets/audio/ard-skellig-village.mp3`, import.meta.url).href],
     loop: true,
-    volume: musicVolumeLevel.value,
+    volume: getMusicVolume(musicVolumeLevel.value),
     onfade: () => {
       deckManagerSong.stop()
     },
@@ -420,10 +426,14 @@ function setSoundEffectVolume(volume: number) {
   soundEffectVolumeLevel.value = volume
 
   for (const soundEffect of Object.values(soundEffects)) {
-    soundEffect.sound.volume(soundEffect.baseVolume * soundEffectVolumeLevel.value)
+    soundEffect.sound.volume(getSoundEffectVolume(soundEffect.baseVolume))
   }
 
   localStorage.setItem('soundEffectVolume', volume.toString())
+}
+
+function getSoundEffectVolume(baseVolume: number) {
+  return (baseVolume / maxSoundEffectVolume) * soundEffectVolumeLevel.value
 }
 
 function loadLocalStorage() {
@@ -520,7 +530,7 @@ function showMainMenu() {
   stopMusicPlayer(2000)
 
   themeSongSound.stop()
-  themeSongSound.volume(musicVolumeLevel.value)
+  themeSongSound.volume(getMusicVolume(musicVolumeLevel.value))
   themeSongSound.play()
 
   gameIsActive.value = false
@@ -547,7 +557,7 @@ function showDeckManager(preMatch: boolean, faction?: string) {
 
   setTimeout(() => {
     deckManagerIsActive.value = true
-    deckManagerSong.volume(musicVolumeLevel.value)
+    deckManagerSong.volume(getMusicVolume(musicVolumeLevel.value))
     deckManagerSong.play()
   }, 1000)
 }
@@ -644,7 +654,7 @@ function skip() {
 
   themeSongSound.stop()
   themeSongSound.seek(17.9)
-  themeSongSound.volume(musicVolumeLevel.value)
+  themeSongSound.volume(getMusicVolume(musicVolumeLevel.value))
   themeSongSound.play()
 
   scheduleThemeSongFade()
