@@ -107,7 +107,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: #232323;
+  background-color: #1f1f1f;
 }
 
 .modal-panel .modal-panel-title {
@@ -145,7 +145,7 @@ html {
   flex-direction: column;
   align-items: start;
   gap: 10px;
-  background-color: #232323;
+  background-color: #1a1a1a;
 }
 
 .awards-gallery .award-container .description {
@@ -239,7 +239,7 @@ html {
   gap: 15px;
   align-self: stretch;
   border-radius: 10px;
-  background: #232323;
+  background: #1a1a1a;
 }
 
 .how-to-play .tip-container .tip-icon {

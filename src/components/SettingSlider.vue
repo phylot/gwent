@@ -164,7 +164,7 @@ function handleKeydown(event: KeyboardEvent) {
 
 .setting-slider .slider-bar {
   position: relative;
-  height: 12px;
+  height: 8px;
   margin-right: 10px;
   flex: 1;
   border: 4px solid #000;
@@ -227,7 +227,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 .setting-slider.desktop .slider-bar {
-  height: 16px;
+  height: 14px;
   border-width: 5px;
 }
 

@@ -15,7 +15,8 @@ const emit = defineEmits<{
   (e: 'update:model-value', val: number): void
 }>()
 
-let localCards = ref(props.cards)
+const localCards = ref(props.cards)
+const internalModelChange = ref(false)
 
 watch(
   () => props.cards,
@@ -25,61 +26,189 @@ watch(
   { deep: true }
 )
 
-function changeSlide(back?: boolean) {
+watch(
+  () => props.modelValue,
+  (newIndex, oldIndex) => {
+    if (oldIndex === undefined || newIndex === oldIndex) {
+      return
+    }
+
+    // changeSlide() has already determined the direction.
+    // Don't overwrite it when the model update comes from here.
+    if (internalModelChange.value) {
+      internalModelChange.value = false
+      return
+    }
+
+    // External change, e.g. handCardClick().
+    // Treat increasing indexes as moving left through the carousel,
+    // and decreasing indexes as moving right.
+    transitionName.value = newIndex > oldIndex ? 'slide-left' : 'slide-right'
+
+    isTransitioning.value = true
+  }
+)
+
+// Direction of the next animation.
+// 'left' means current card leaves left and new card enters from right.
+// 'right' means current card leaves right and new card enters from left.
+const transitionName = ref('slide-left')
+
+// Prevent another navigation while the current animation is running.
+const isTransitioning = ref(false)
+
+// Drag state
+const isDragging = ref(false)
+const dragStartX = ref(0)
+const dragDistance = ref(0)
+
+const DRAG_THRESHOLD = 50
+
+function changeSlide(back = false) {
+  if (props.disabled || isTransitioning.value || localCards.value.length <= 1) {
+    return
+  }
+
+  transitionName.value = back ? 'slide-right' : 'slide-left'
+
   let newIndex = back ? props.modelValue - 1 : props.modelValue + 1
 
-  if (newIndex === props.cards.length) {
+  if (newIndex === localCards.value.length) {
     newIndex = 0
   }
+
   if (newIndex < 0) {
-    newIndex = props.cards.length - 1
+    newIndex = localCards.value.length - 1
   }
+
+  isTransitioning.value = true
+  internalModelChange.value = true
+
   emit('update:model-value', newIndex)
   emit('btn-click')
+}
+
+function handlePointerDown(event: PointerEvent) {
+  if (props.disabled || isTransitioning.value || localCards.value.length <= 1) {
+    return
+  }
+
+  isDragging.value = true
+  dragStartX.value = event.clientX
+  dragDistance.value = 0
+
+  const currentTarget = event.currentTarget as HTMLElement
+  currentTarget.setPointerCapture(event.pointerId)
+}
+
+function handlePointerMove(event: PointerEvent) {
+  if (!isDragging.value) {
+    return
+  }
+
+  dragDistance.value = event.clientX - dragStartX.value
+}
+
+function handlePointerUp(event: PointerEvent) {
+  if (!isDragging.value) {
+    return
+  }
+
+  const distance = dragDistance.value
+
+  isDragging.value = false
+  dragDistance.value = 0
+
+  const currentTarget = event.currentTarget as HTMLElement
+
+  if (currentTarget.hasPointerCapture(event.pointerId)) {
+    currentTarget.releasePointerCapture(event.pointerId)
+  }
+
+  if (Math.abs(distance) < DRAG_THRESHOLD) {
+    return
+  }
+
+  // Drag left = next card
+  // Drag right = previous card
+  if (distance < 0) {
+    changeSlide(false)
+  } else {
+    changeSlide(true)
+  }
+}
+
+function handlePointerCancel(event: PointerEvent) {
+  if (!isDragging.value) {
+    return
+  }
+
+  isDragging.value = false
+  dragDistance.value = 0
+
+  const currentTarget = event.currentTarget as HTMLElement
+
+  if (currentTarget.hasPointerCapture(event.pointerId)) {
+    currentTarget.releasePointerCapture(event.pointerId)
+  }
 }
 </script>
 
 <template>
   <div class="card-carousel" :class="{ desktop: props.desktop }">
-    <div class="slides">
-      <BigCard
-        v-for="(card, i) in localCards"
-        :ability="card.ability"
-        :ability-icon="card.abilityIcon"
-        :animation-name="card.animationName"
-        :bitten="card.bitten"
-        class="slide fade-in"
-        :class="{ active: i === modelValue }"
-        :default-value="card.defaultValue"
-        :description="card.description"
-        :desktop="props.desktop"
-        :faction="card.faction"
-        :hero="card.hero"
-        :image-url="card.imageUrl"
-        :name="card.name"
-        :type-icon="card.typeIcon"
-        :value="card.value"
-        :key="i"
+    <div
+      class="slides"
+      :class="{ dragging: isDragging }"
+      @pointerdown="handlePointerDown"
+      @pointermove="handlePointerMove"
+      @pointerup="handlePointerUp"
+      @pointercancel="handlePointerCancel"
+    >
+      <Transition
+        :name="transitionName"
+        @after-enter="isTransitioning = false"
+        @enter-cancelled="isTransitioning = false"
+        @leave-cancelled="isTransitioning = false"
       >
-      </BigCard>
+        <BigCard
+          v-if="localCards[modelValue]"
+          :key="modelValue"
+          :ability="localCards[modelValue].ability"
+          :ability-icon="localCards[modelValue].abilityIcon"
+          :animation-name="localCards[modelValue].animationName"
+          :bitten="localCards[modelValue].bitten"
+          class="slide"
+          :default-value="localCards[modelValue].defaultValue"
+          :description="localCards[modelValue].description"
+          :desktop="props.desktop"
+          :faction="localCards[modelValue].faction"
+          :hero="localCards[modelValue].hero"
+          :image-url="localCards[modelValue].imageUrl"
+          :name="localCards[modelValue].name"
+          :type-icon="localCards[modelValue].typeIcon"
+          :value="localCards[modelValue].value"
+        />
+      </Transition>
     </div>
+
     <button
       class="prev-btn"
       :class="{ disabled: props.disabled }"
       :disabled="props.disabled"
       tabindex="2"
       type="button"
-      @click="props.disabled ? null : changeSlide(true)"
+      @click="changeSlide(true)"
     >
       <v-icon class="icon" name="hi-chevron-left" />
     </button>
+
     <button
       class="next-btn"
       :class="{ disabled: props.disabled }"
       :disabled="props.disabled"
       tabindex="2"
       type="button"
-      @click="props.disabled ? null : changeSlide()"
+      @click="changeSlide()"
     >
       <v-icon class="icon" name="hi-chevron-right" />
     </button>
@@ -96,18 +225,65 @@ function changeSlide(back?: boolean) {
 }
 
 .card-carousel .slides {
-  display: flex;
+  display: grid;
   height: 100%;
+  width: 100%;
   align-items: center;
-  justify-content: center;
+  justify-items: center;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.card-carousel .slides.dragging {
+  cursor: grabbing;
 }
 
 .card-carousel .slide {
-  display: none;
+  grid-area: 1 / 1;
 }
 
-.card-carousel .slide.active {
-  display: block;
+/*
+ * Vue transition structure:
+ *
+ * Right navigation:
+ *   current card: leaves to the left
+ *   next card:    enters from the right
+ *
+ * Left navigation:
+ *   current card: leaves to the right
+ *   next card:    enters from the left
+ */
+
+.card-carousel .slide-left-enter-active,
+.card-carousel .slide-left-leave-active,
+.card-carousel .slide-right-enter-active,
+.card-carousel .slide-right-leave-active {
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+/* Next card: enter from the right */
+.card-carousel .slide-left-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Current card: leave to the left */
+.card-carousel .slide-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Previous card: enter from the left */
+.card-carousel .slide-right-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Current card: leave to the right */
+.card-carousel .slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .card-carousel .prev-btn,
