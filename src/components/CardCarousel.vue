@@ -170,24 +170,23 @@ function handlePointerCancel(event: PointerEvent) {
         @enter-cancelled="isTransitioning = false"
         @leave-cancelled="isTransitioning = false"
       >
-        <BigCard
-          v-if="localCards[modelValue]"
-          :key="modelValue"
-          :ability="localCards[modelValue].ability"
-          :ability-icon="localCards[modelValue].abilityIcon"
-          :animation-name="localCards[modelValue].animationName"
-          :bitten="localCards[modelValue].bitten"
-          class="slide"
-          :default-value="localCards[modelValue].defaultValue"
-          :description="localCards[modelValue].description"
-          :desktop="props.desktop"
-          :faction="localCards[modelValue].faction"
-          :hero="localCards[modelValue].hero"
-          :image-url="localCards[modelValue].imageUrl"
-          :name="localCards[modelValue].name"
-          :type-icon="localCards[modelValue].typeIcon"
-          :value="localCards[modelValue].value"
-        />
+        <div v-if="localCards[modelValue]" :key="modelValue" class="slide">
+          <BigCard
+            :ability="localCards[modelValue].ability"
+            :ability-icon="localCards[modelValue].abilityIcon"
+            :animation-name="localCards[modelValue].animationName"
+            :bitten="localCards[modelValue].bitten"
+            :default-value="localCards[modelValue].defaultValue"
+            :description="localCards[modelValue].description"
+            :desktop="props.desktop"
+            :faction="localCards[modelValue].faction"
+            :hero="localCards[modelValue].hero"
+            :image-url="localCards[modelValue].imageUrl"
+            :name="localCards[modelValue].name"
+            :type-icon="localCards[modelValue].typeIcon"
+            :value="localCards[modelValue].value"
+          />
+        </div>
       </Transition>
     </div>
 
@@ -230,7 +229,6 @@ function handlePointerCancel(event: PointerEvent) {
   width: 100%;
   align-items: center;
   justify-items: center;
-  overflow: hidden;
   touch-action: pan-y;
   cursor: grab;
 }
@@ -241,6 +239,11 @@ function handlePointerCancel(event: PointerEvent) {
 
 .card-carousel .slide {
   grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /*
@@ -259,30 +262,30 @@ function handlePointerCancel(event: PointerEvent) {
 .card-carousel .slide-left-leave-active,
 .card-carousel .slide-right-enter-active,
 .card-carousel .slide-right-leave-active {
-  transition: transform 0.4s ease, opacity 0.4s ease;
+  transition: transform 0.18s ease, opacity 0.1s ease;
 }
 
 /* Next card: enter from the right */
 .card-carousel .slide-left-enter-from {
-  transform: translateX(100%);
+  transform: translateX(50%);
   opacity: 0;
 }
 
 /* Current card: leave to the left */
 .card-carousel .slide-left-leave-to {
-  transform: translateX(-100%);
+  transform: translateX(-50%);
   opacity: 0;
 }
 
 /* Previous card: enter from the left */
 .card-carousel .slide-right-enter-from {
-  transform: translateX(-100%);
+  transform: translateX(-50%);
   opacity: 0;
 }
 
 /* Current card: leave to the right */
 .card-carousel .slide-right-leave-to {
-  transform: translateX(100%);
+  transform: translateX(50%);
   opacity: 0;
 }
 
