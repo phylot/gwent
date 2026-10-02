@@ -378,7 +378,8 @@ function logoClick() {
   align-items: center;
   gap: 15px;
   border-radius: 20px;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
 }
 
 .main-menu .menu-container .btn {

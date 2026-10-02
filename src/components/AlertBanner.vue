@@ -36,90 +36,91 @@ defineProps<{
   top: 50%;
   transform: translate(0, -50%);
   width: 100%;
-  height: 50px;
+  min-width: 320px;
+  height: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 15px;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.8);
 }
 
 .alert-banner .mark {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 70px;
 }
 
 .alert-banner .avatar {
   position: absolute;
-  top: -5px;
-  bottom: -5px;
+  top: 50%;
+  transform: translate(0, -50%);
   right: 0;
-  width: 60px;
-  min-width: 60px;
-  height: 60px;
-  min-height: 60px;
+  width: 80px;
+  min-width: 80px;
+  height: 80px;
+  min-height: 80px;
   border: 2px solid #ffffff;
   border-radius: 999px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
   box-shadow: 0 0 0 2px #000000;
+  filter: drop-shadow(0px 0px 20px #000000) drop-shadow(0px 0px 20px #000000)
+    drop-shadow(0px 0px 20px #000000);
 }
 
 .alert-banner .icon {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 50px;
-  min-width: 50px;
-  height: 50px;
-  min-height: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  width: 100px;
+  min-width: 100px;
+  height: 100px;
+  min-height: 100px;
+  filter: drop-shadow(0px 0px 20px #000000) drop-shadow(0px 0px 20px #000000)
+    drop-shadow(0px 0px 20px #000000);
 }
 
 .alert-banner .heading {
   max-width: 400px;
-  padding-left: 10px;
 }
 
 .alert-banner .heading .title {
   font-size: 14px;
+  font-weight: 900;
+  filter: drop-shadow(0px 0px 10px #000000) drop-shadow(0px 0px 10px #000000)
+    drop-shadow(0px 0px 10px #000000);
 }
 
 /* Desktop Styles */
 
 .alert-banner.desktop {
-  height: 80px;
+  height: 120px;
+  gap: 30px;
 }
 
 .alert-banner.desktop .mark {
-  width: 80px;
+  width: 200px;
   height: 80px;
 }
 
 .alert-banner.desktop .avatar {
-  position: absolute;
-  top: -5px;
-  bottom: -5px;
-  right: 0;
-  width: 90px;
-  min-width: 90px;
-  height: 90px;
-  min-height: 80px;
+  width: 160px;
+  min-width: 160px;
+  height: 160px;
+  min-height: 160px;
 }
 
 .alert-banner.desktop .icon {
   position: absolute;
-  top: 0;
   left: 0;
-  width: 80px;
-  min-width: 80px;
-  height: 80px;
-  min-height: 80px;
-}
-
-.alert-banner.desktop .heading {
-  padding-left: 15px;
+  width: 200px;
+  min-width: 200px;
+  height: 200px;
+  min-height: 200px;
 }
 
 .alert-banner.desktop .heading .title {

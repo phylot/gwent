@@ -123,14 +123,16 @@ function handleKeydown(e: KeyboardEvent) {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
+  width: 85%;
   max-width: 400px;
   max-height: 90%;
-  padding: 15px;
+  padding: 15px 15px 20px 15px;
   display: flex;
   border-radius: 20px;
   color: #ffffff;
-  background-color: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 .standard-modal .modal-content-container {
@@ -188,7 +190,7 @@ function handleKeydown(e: KeyboardEvent) {
 
 .standard-modal.desktop .modal {
   max-width: 600px;
-  padding: 30px;
+  padding: 30px 30px 40px 30px;
 }
 
 .standard-modal.desktop .modal-content-container {
