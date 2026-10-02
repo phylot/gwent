@@ -11,19 +11,21 @@ defineProps<{
 <template>
   <transition name="fast-fade">
     <div v-if="modelValue" class="alert-banner" :class="{ desktop: desktop }" role="alert">
-      <div v-if="avatar || icon" class="mark">
-        <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatar})` }"></div>
-        <v-icon
-          v-if="icon"
-          class="icon"
-          :fill="icon === 'oi-star-fill' ? '#d89803' : null"
-          :name="icon"
-        />
-      </div>
-      <div class="heading">
-        <slot>
-          <h2 class="title">{{ title }}</h2>
-        </slot>
+      <div class="alert-banner-content">
+        <div v-if="avatar || icon" class="mark">
+          <div v-if="avatar" class="avatar" :style="{ backgroundImage: `url(${avatar})` }"></div>
+          <v-icon
+            v-if="icon"
+            class="icon"
+            :fill="icon === 'oi-star-fill' ? '#d89803' : null"
+            :name="icon"
+          />
+        </div>
+        <div class="heading">
+          <slot>
+            <h2 class="title">{{ title }}</h2>
+          </slot>
+        </div>
       </div>
     </div>
   </transition>
@@ -41,9 +43,26 @@ defineProps<{
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.8);
+}
+
+.alert-banner .alert-banner-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  animation: alert-banner-content-in 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes alert-banner-content-in {
+  from {
+    transform: translateX(20px);
+  }
+
+  to {
+    transform: translateX(0);
+  }
 }
 
 .alert-banner .mark {
@@ -99,6 +118,9 @@ defineProps<{
 
 .alert-banner.desktop {
   height: 120px;
+}
+
+.alert-banner.desktop .alert-banner-content {
   gap: 30px;
 }
 
