@@ -208,6 +208,10 @@ const computedClasses = computed(() => {
   background: linear-gradient(#1d7eca, #04365e);
 }
 
+.big-card.spanish .card-border {
+  background: linear-gradient(#805840, #3f2b1f);
+}
+
 .big-card.undead .card-border {
   background: linear-gradient(#4bc40a, #045625);
 }

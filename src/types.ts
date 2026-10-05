@@ -45,6 +45,7 @@ interface Card {
 interface CardCollection {
   british: CardFaction
   french: CardFaction
+  // spanish: CardFaction
   undead?: CardFaction
 }
 

@@ -871,6 +871,10 @@ function capitaliseString(string: string) {
   background-image: url('./../assets/images/french-flag.png');
 }
 
+.deck-manager .deck-manager-header .flag-icon.spanish {
+  background-image: url('./../assets/images/spanish-flag.png');
+}
+
 .deck-manager .deck-manager-header .flag-icon.undead {
   background-image: url('./../assets/images/undead-flag.png');
 }

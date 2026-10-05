@@ -143,6 +143,7 @@ async function preload() {
   // Preload faction flag images
   await loadImage(new URL(`./assets/images/british-flag.png`, import.meta.url).href)
   await loadImage(new URL(`./assets/images/french-flag.png`, import.meta.url).href)
+  await loadImage(new URL(`./assets/images/spanish-flag.png`, import.meta.url).href)
   await loadImage(new URL(`./assets/images/undead-flag.png`, import.meta.url).href)
 
   // Preload title screen background image
