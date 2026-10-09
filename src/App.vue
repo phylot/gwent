@@ -154,6 +154,7 @@ async function preload() {
 async function preloadSounds() {
   try {
     const [
+      ambush,
       bite,
       coin,
       double,
@@ -180,6 +181,7 @@ async function preloadSounds() {
       turn,
       zelda
     ] = await Promise.all([
+      createHowl('ambush.wav', 1),
       createHowl('bite.wav', 1),
       createHowl('coin.wav', 5),
       createHowl('double.wav', 1),
@@ -207,6 +209,7 @@ async function preloadSounds() {
       createHowl('zelda-secret.mp3', 3)
     ])
 
+    soundEffects.ambush = { sound: ambush, baseVolume: 1 }
     soundEffects.bite = { sound: bite, baseVolume: 1 }
     soundEffects.coin = { sound: coin, baseVolume: 5 }
     soundEffects.double = { sound: double, baseVolume: 1 }

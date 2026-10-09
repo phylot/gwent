@@ -185,10 +185,12 @@ const computedClasses = computed(() => {
   background-size: cover;
 }
 
+.small-card.ambush,
 .small-card.bite {
   animation: small-shake 0.1s infinite;
 }
 
+.small-card.ambush .animation-overlay,
 .small-card.bite .animation-overlay {
   display: block;
   animation-name: fade-in-out;
@@ -338,7 +340,7 @@ const computedClasses = computed(() => {
 }
 
 .small-card.appear-animation:after {
-  content: "";
+  content: '';
   position: absolute;
   top: -5px;
   bottom: -5px;
@@ -373,7 +375,7 @@ const computedClasses = computed(() => {
 @keyframes outline-pulse {
   0% {
     opacity: 1;
-    scale: 1
+    scale: 1;
   }
   100% {
     opacity: 0;

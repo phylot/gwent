@@ -45,7 +45,7 @@ interface Card {
 interface CardCollection {
   british: CardFaction
   french: CardFaction
-  // spanish: CardFaction
+  spanish?: CardFaction
   undead?: CardFaction
 }
 
@@ -57,6 +57,7 @@ interface CardFaction {
 interface LeaderCardCollection {
   british: { collection: Card[]; selected: Card }
   french: { collection: Card[]; selected: Card }
+  spanish: { collection: Card[]; selected: Card }
   undead: { collection: Card[]; selected: Card }
 }
 

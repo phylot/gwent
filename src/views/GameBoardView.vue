@@ -881,6 +881,10 @@ async function performAbility(card: Card) {
       card.effectIcon = card.abilityIcon
     }
 
+    if (card.ability === 'ambush') {
+      await performAmbush(card)
+    }
+
     if (card.ability === 'bite') {
       await performBite(card)
     }
@@ -932,6 +936,53 @@ async function performAbility(card: Card) {
     // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
 
     resolve()
+  })
+}
+
+function performAmbush(card: Card) {
+  return new Promise<void>((resolve) => {
+    let boardCardArrays = isPlayerTurn.value ? opponentBoardCards.value : playerBoardCards.value
+    let applicableCards: Card[] = []
+
+    // Find all applicable cards (no hero, special, or bitten cards)
+    for (const cardRow of boardCardArrays) {
+      const foundCards = cardRow.filter(
+        (card) => !card.hero && card.type !== 'special' && !card.bitten
+      )
+      applicableCards = [...applicableCards, ...foundCards]
+    }
+
+    if (applicableCards.length > 0) {
+      card.effectIcon = card.abilityIcon
+
+      // Select random card
+      let randomIndex = Math.floor(Math.random() * applicableCards.length)
+      let randomCard = applicableCards[randomIndex]
+      let discardPile = isPlayerTurn.value ? opponentDiscardPile : playerDiscardPile
+
+      randomCard.animationName = 'ambush'
+      randomCard.effectIcon = 'fa-crosshairs'
+
+      emit('play-sound', 'ambush')
+      emit('play-sound', 'bite')
+      setTimeout(() => {
+        randomCard.animationName = undefined
+
+        // Move ambushed card from board to discard pile
+        for (const cardRow of boardCardArrays) {
+          for (let i = 0; i < cardRow.length; i++) {
+            if (cardRow[i].id === randomCard.id) {
+              discardPile.value.push(cardRow[i])
+              cardRow.splice(i, 1)
+            }
+          }
+          resetCards(discardPile.value)
+        }
+        resolve()
+      }, 1000)
+    } else {
+      resolve()
+    }
   })
 }
 
