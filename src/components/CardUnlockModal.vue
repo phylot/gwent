@@ -189,6 +189,10 @@ function handleKeydown(e: KeyboardEvent) {
   background-size: cover;
 }
 
+.card-unlock-modal .faction-heading .flag-icon.spanish {
+  background-image: url('./../assets/images/spanish-flag.png');
+}
+
 .card-unlock-modal .faction-heading .flag-icon.undead {
   background-image: url('./../assets/images/undead-flag.png');
 }

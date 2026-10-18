@@ -11,7 +11,13 @@ import AwardBadge from './components/AwardBadge.vue'
 import CardUnlockModal from './components/CardUnlockModal.vue'
 import SettingSlider from './components/SettingSlider.vue'
 import StandardModal from './components/StandardModal.vue'
-import { defaultCards, defaultUndeadCards, defaultLeaderCards, unlockableCards } from './data/cards'
+import {
+  defaultCards,
+  defaultSpanishCards,
+  defaultUndeadCards,
+  defaultLeaderCards,
+  unlockableCards
+} from './data/cards'
 import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
@@ -770,6 +776,47 @@ async function determineCardUnlock() {
       // Save player / opponent card collections to localStorage
       saveCardsToStorage()
     }
+    // Unlock Spanish deck
+    else if (playerWins === 8) {
+      // Get the Undead starter deck and save it to each player's card collection
+      playerCardCollection.spanish = {
+        collection: [],
+        deck: []
+      }
+      opponentCardCollection.spanish = {
+        collection: [],
+        deck: []
+      }
+      playerCardCollection.spanish.deck = await preloadCards(
+        JSON.parse(JSON.stringify(defaultSpanishCards))
+      )
+      opponentCardCollection.spanish.deck = await preloadCards(
+        JSON.parse(JSON.stringify(defaultSpanishCards))
+      )
+      saveCardsToStorage()
+
+      // Reset global unlocked card
+      unlockedCard.value = undefined
+
+      // Set global unlocked deck
+      unlockedDeckFaction.value = 'spanish'
+      unlockedDeckCards.value = []
+      // Bandolero card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[9])))
+      // Cuadrillero card
+      unlockedDeckCards.value.push(
+        JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[20]))
+      )
+      // Sharpshooter card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[2])))
+
+      cardUnlockModal.value.show().then((res: boolean) => {
+        if (res) {
+          showDeckManager(true, 'spanish')
+        }
+        gameBoardDisabled.value = false
+      })
+    }
     // Unlock Undead deck
     else if (playerWins === 44) {
       // Get the Undead starter deck and save it to each player's card collection
@@ -813,6 +860,23 @@ async function determineCardUnlock() {
 }
 
 async function unlockAllCards() {
+  // If the Spanish deck hasn't been unlocked, get the Spanish starter deck and save it to each player's card collection
+  if (!playerCardCollection.spanish) {
+    playerCardCollection.spanish = {
+      collection: [],
+      deck: []
+    }
+    opponentCardCollection.spanish = {
+      collection: [],
+      deck: []
+    }
+    playerCardCollection.spanish.deck = await preloadCards(
+      JSON.parse(JSON.stringify(defaultSpanishCards))
+    )
+    opponentCardCollection.spanish.deck = await preloadCards(
+      JSON.parse(JSON.stringify(defaultSpanishCards))
+    )
+  }
   // If the Undead deck hasn't been unlocked, get the Undead starter deck and save it to each player's card collection
   if (!playerCardCollection.undead) {
     playerCardCollection.undead = {
