@@ -805,17 +805,19 @@ async function determineCardUnlock() {
       unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[9])))
       // Cuadrillero card
       unlockedDeckCards.value.push(
-        JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[20]))
+        JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[15]))
       )
       // Sharpshooter card
-      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[2])))
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[1])))
 
-      cardUnlockModal.value.show().then((res: boolean) => {
-        if (res) {
-          showDeckManager(true, 'spanish')
-        }
-        gameBoardDisabled.value = false
-      })
+      setTimeout(() => {
+        cardUnlockModal.value.show().then((res: boolean) => {
+          if (res) {
+            showDeckManager(true, 'spanish')
+          }
+          gameBoardDisabled.value = false
+        })
+      }, 1000)
     }
     // Unlock Undead deck
     else if (playerWins === 44) {
@@ -842,19 +844,21 @@ async function determineCardUnlock() {
       // Set global unlocked deck
       unlockedDeckFaction.value = 'undead'
       unlockedDeckCards.value = []
-      // Horseman: Pestilence card
-      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[0])))
-      // Plague card
-      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[24])))
+      // Vampire card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[5])))
+      // Werewolf card
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[3])))
       // Bat card
-      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[8])))
+      unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[6])))
 
-      cardUnlockModal.value.show().then((res: boolean) => {
-        if (res) {
-          showDeckManager(true, 'undead')
-        }
-        gameBoardDisabled.value = false
-      })
+      setTimeout(() => {
+        cardUnlockModal.value.show().then((res: boolean) => {
+          if (res) {
+            showDeckManager(true, 'undead')
+          }
+          gameBoardDisabled.value = false
+        })
+      }, 1000)
     }
   }
 }

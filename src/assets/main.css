@@ -16,35 +16,34 @@ body {
 /* Make all image assets immediately available in DOM (prevents additional image network call on card render) */
 html {
   overscroll-behavior-y: contain;
-  background-image: url('./images/bite-blood.png'), url('./images/br-camoynes.png'),
-    url('./images/br-berry.png'), url('./images/br-cannon.jpg'), url('./images/br-cavalry.png'),
-    url('./images/br-drummer.png'), url('./images/br-footguard.png'),
+  background-image: url('./images/bite-blood.png'), url('./images/br-camoynes.jpg'),
+    url('./images/br-berry.jpg'), url('./images/br-cannon.jpg'), url('./images/br-cavalry.jpg'),
+    url('./images/br-drummer.jpg'), url('./images/br-footguard.jpg'),
     url('./images/br-fredrickson.jpg'), url('./images/br-frigate.jpg'),
-    url('./images/br-girdwood.png'), url('./images/br-hagman.png'), url('./images/br-hakeswill.png'),
+    url('./images/br-girdwood.jpg'), url('./images/br-hagman.jpg'), url('./images/br-hakeswill.jpg'),
     url('./images/br-harper.jpg'), url('./images/br-harris.jpg'), url('./images/br-hogan.jpg'),
-    url('./images/br-infantry.png'), url('./images/br-j-sharpe.png'), url('./images/br-lennox.jpg'),
-    url('./images/br-nairn.png'), url('./images/br-price.jpg'), url('./images/br-pyecroft.jpg'),
-    url('./images/br-rifle.png'), url('./images/br-schooner.jpg'), url('./images/br-sergent.png'),
-    url('./images/br-sharpe.png'), url('./images/br-shipoftheline.jpg'),
+    url('./images/br-infantry.jpg'), url('./images/br-j-sharpe.jpg'), url('./images/br-lennox.jpg'),
+    url('./images/br-nairn.jpg'), url('./images/br-price.jpg'), url('./images/br-pyecroft.jpg'),
+    url('./images/br-rifle.jpg'), url('./images/br-schooner.jpg'), url('./images/br-sergeant.jpg'),
+    url('./images/br-sharpe.jpg'), url('./images/br-shipoftheline.jpg'),
     url('./images/br-simmerson.jpg'), url('./images/br-victory.jpg'),
     url('./images/br-wellington.jpg'), url('./images/british-flag.png'),
-    url('./images/fr-brand.jpg'), url('./images/fr-brig.jpg'), url('./images/fr-cannon.png'),
-    url('./images/fr-cavalry.png'), url('./images/fr-c-maquerre.png'),
-    url('./images/fr-dubreton.jpg'), url('./images/fr-drummer.png'), url('./images/fr-ducos.png'),
-    url('./images/fr-gaston.jpg'), url('./images/fr-calvet.jpg'), url('./images/fr-infantry.png'),
-    url('./images/fr-legros.png'), url('./images/fr-leroux.png'), url('./images/fr-loup.png'),
-    url('./images/fr-maquerre.png'), url('./images/fr-napoleon.jpg'),
-    url('./images/fr-oldguard.png'), url('./images/fr-p-leroux.jpg'), url('./images/fr-sergent.png'),
-    url('./images/fr-voltigeur.png'), url('./images/french-flag.png'),
+    url('./images/fr-brand.jpg'), url('./images/fr-brig.jpg'), url('./images/fr-cannon.jpg'),
+    url('./images/fr-cavalry.jpg'), url('./images/fr-c-maquerre.jpg'),
+    url('./images/fr-dubreton.jpg'), url('./images/fr-drummer.jpg'), url('./images/fr-ducos.jpg'),
+    url('./images/fr-gaston.jpg'), url('./images/fr-calvet.jpg'), url('./images/fr-infantry.jpg'),
+    url('./images/fr-legros.jpg'), url('./images/fr-leroux.jpg'), url('./images/fr-loup.jpg'),
+    url('./images/fr-napoleon.jpg'), url('./images/fr-oldguard.jpg'),
+    url('./images/fr-p-leroux.jpg'), url('./images/fr-sergeant.jpg'),
+    url('./images/fr-voltigeur.jpg'), url('./images/french-flag.png'),
     url('./images/main-menu-bg.jpg'), url('./images/plague-cells.jpg'), url('./images/rain.png'),
-    url('./images/scorch-flame.jpg'), url('./images/scorch.png'), url('./images/sharpe-cutout.png'),
+    url('./images/scorch-flame.jpg'), url('./images/scorch.jpg'), url('./images/sharpe-cutout.png'),
     url('./images/sp-bandolero.jpg'), url('./images/sp-canas.jpg'), url('./images/sp-cavalry1.jpg'),
     url('./images/sp-cavalry2.jpg'), url('./images/sp-cavalry3.jpg'),
     url('./images/sp-cavalry4.jpg'), url('./images/sp-cavalry5.jpg'),
     url('./images/sp-cuadrillero1.jpg'), url('./images/sp-cuadrillero2.jpg'),
     url('./images/sp-cuadrillero3.jpg'), url('./images/sp-cuadrillero4.jpg'),
-    url('./images/sp-cuadrillero5.jpg'), url('./images/sp-cuadrillero6.jpg'),
-    url('./images/sp-cuadrillero7.jpg'), url('./images/sp-curtis.jpg'),
+    url('./images/sp-cuadrillero5.jpg'), url('./images/sp-curtis.jpg'),
     url('./images/sp-matarife.jpg'), url('./images/sp-moreno.jpg'), url('./images/sp-partisan1.jpg'),
     url('./images/sp-partisan2.jpg'), url('./images/sp-partisan3.jpg'),
     url('./images/sp-partisan4.jpg'), url('./images/sp-partisan5.jpg'),
@@ -121,7 +120,7 @@ html {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: #1f1f1f;
+  background-color: rgba(50, 50, 50, 0.5);
 }
 
 .modal-panel .modal-panel-title {
@@ -159,7 +158,7 @@ html {
   flex-direction: column;
   align-items: start;
   gap: 10px;
-  background-color: #1a1a1a;
+  background-color: rgba(50, 50, 50, 0.5);
 }
 
 .awards-gallery .award-container .description {
@@ -253,7 +252,7 @@ html {
   gap: 15px;
   align-self: stretch;
   border-radius: 10px;
-  background: #1a1a1a;
+  background: rgba(50, 50, 50, 0.5);
 }
 
 .how-to-play .tip-container .tip-icon {
