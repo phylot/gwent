@@ -422,6 +422,34 @@ async function doCpuCardRedraw() {
       }
     }
 
+    if (faction === 'spanish') {
+      // Check for Cuadrillero and Cavalry cards
+      let cuadrilleros = opponentHand.value.filter((card) => card.name === 'Cuadrillero')
+      let cavalry = opponentHand.value.filter((card) => card.name === 'Cavalry Rider')
+
+      if (cuadrilleros.length > 0) {
+        // Remove Cuadrillero card from opponent's hand and replace with random card
+        const cuadrilleroIndex = opponentHand.value.findIndex((card) => card.name === 'Cuadrillero')
+        const cuadrilleroCopy = JSON.parse(JSON.stringify(opponentHand.value[cuadrilleroIndex]))
+
+        resetCards([cuadrilleroCopy])
+        opponentHand.value.splice(cuadrilleroIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+        opponentDeck.value.push(cuadrilleroCopy)
+        return true
+      } else if (cavalry.length > 0) {
+        // Remove Cavalry card from opponent's hand and replace with random card
+        const cavalryIndex = opponentHand.value.findIndex((card) => card.name === 'Cavalry Rider')
+        const cavalryCopy = JSON.parse(JSON.stringify(opponentHand.value[cavalryIndex]))
+
+        resetCards([cavalryCopy])
+        opponentHand.value.splice(cavalryIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+        opponentDeck.value.push(cavalryCopy)
+        return true
+      } else {
+        return false
+      }
+    }
+
     if (faction === 'undead') {
       const horsemenCards = opponentHand.value.filter((card) => card.musterName === 'horseman')
       const ghoulCards = opponentHand.value.filter((card) => card.musterName === 'ghoul')
@@ -717,8 +745,8 @@ function determineCpuCard(callback?: Function) {
       }
     }
 
-    // If it's decided not to use a random card, use structured decision logic instead
-    if (!useRandomCard) {
+    // If no card has been chosen yet, use structured decision logic instead
+    if (!card) {
       // Find any spy / thief cards first
       let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
       let thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
