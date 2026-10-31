@@ -243,7 +243,8 @@ function logoClick() {
   overflow: auto;
   color: #ffffff;
   background-repeat: no-repeat;
-  background-image: url('./../assets/images/main-menu-bg.jpg');
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+    url('./../assets/images/main-menu-bg.jpg');
   -webkit-user-select: none;
   user-select: none;
 }

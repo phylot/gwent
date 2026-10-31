@@ -423,31 +423,23 @@ async function doCpuCardRedraw() {
     }
 
     if (faction === 'spanish') {
-      // Check for Cuadrillero and Cavalry cards
-      let cuadrilleros = opponentHand.value.filter((card) => card.name === 'Cuadrillero')
-      let cavalry = opponentHand.value.filter((card) => card.name === 'Cavalry Rider')
+      // Check for Cuadrillero, Cavalry Rider and Partisan cards in priority order
+      const priorityCards = ['Cuadrillero', 'Cavalry Rider', 'Partisan']
 
-      if (cuadrilleros.length > 0) {
-        // Remove Cuadrillero card from opponent's hand and replace with random card
-        const cuadrilleroIndex = opponentHand.value.findIndex((card) => card.name === 'Cuadrillero')
-        const cuadrilleroCopy = JSON.parse(JSON.stringify(opponentHand.value[cuadrilleroIndex]))
+      const cardIndex = opponentHand.value.findIndex((card) => priorityCards.includes(card.name))
 
-        resetCards([cuadrilleroCopy])
-        opponentHand.value.splice(cuadrilleroIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
-        opponentDeck.value.push(cuadrilleroCopy)
+      if (cardIndex !== -1) {
+        // Remove selected card from opponent's hand and replace with random card
+        const cardCopy = JSON.parse(JSON.stringify(opponentHand.value[cardIndex]))
+
+        resetCards([cardCopy])
+        opponentHand.value.splice(cardIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
+        opponentDeck.value.push(cardCopy)
+
         return true
-      } else if (cavalry.length > 0) {
-        // Remove Cavalry card from opponent's hand and replace with random card
-        const cavalryIndex = opponentHand.value.findIndex((card) => card.name === 'Cavalry Rider')
-        const cavalryCopy = JSON.parse(JSON.stringify(opponentHand.value[cavalryIndex]))
-
-        resetCards([cavalryCopy])
-        opponentHand.value.splice(cavalryIndex, 1, dealRandomCards(opponentDeck.value, 1)[0])
-        opponentDeck.value.push(cavalryCopy)
-        return true
-      } else {
-        return false
       }
+
+      return false
     }
 
     if (faction === 'undead') {
@@ -710,13 +702,27 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
 }
 
 function determineCpuCard(callback?: Function) {
-  const cpuIsWinning = opponentTotal.value > playerTotal.value
-  let useRandomCard = !playerIsPassed.value && getChanceOutcome(props.cpuDifficulty)
   let card = null
 
-  // If the player hasn't passed and the CPU isn't winning
-  if (!(playerIsPassed.value && cpuIsWinning)) {
-    if (useRandomCard) {
+  // If the player hasn't passed and/or the CPU isn't winning
+  if (!(playerIsPassed.value && opponentTotal.value > playerTotal.value)) {
+    let useRandomCard = !playerIsPassed.value && getChanceOutcome(props.cpuDifficulty)
+
+    // Up-front check for Spy and Thief opportunities
+    let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+    let thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
+    // let healCards = opponentHand.value.filter((card) => card.ability === 'heal')
+    if (spyCards.length > 0) {
+      // Find the lowest value spy card
+      spyCards.sort(sortCardsLowToHigh)
+      card = spyCards[0]
+    } else if (thiefCards.length > 0) {
+      // Find the lowest value thief card
+      thiefCards.sort(sortCardsLowToHigh)
+      card = thiefCards[0]
+    }
+
+    if (!card && useRandomCard) {
       // Select a random card...
       let handCopy = JSON.parse(JSON.stringify(opponentHand.value))
 
@@ -724,14 +730,20 @@ function determineCpuCard(callback?: Function) {
         let randomIndex = Math.floor(Math.random() * handCopy.length)
         let randomCard = opponentHand.value[randomIndex]
 
-        // If it's a scorch / plague card, determine whether it should be played
+        // If it's a Scorch / Plague / Heal card, determine whether it should be played
         if (randomCard.ability === 'scorch') {
-          if (cpuShouldScorch()) {
+          if (determineCpuScorch()) {
             card = randomCard
             break
           }
         } else if (randomCard.ability === 'plague') {
-          if (cpuShouldPlague()) {
+          if (determineCpuPlague()) {
+            card = randomCard
+            break
+          }
+        } else if (randomCard.ability === 'heal') {
+          // Only play heal card if there are eligible discard pile cards, or the Heal card is the CPU's last card
+          if (determineCpuHeal() || opponentHand.value.length === 1) {
             card = randomCard
             break
           }
@@ -747,86 +759,102 @@ function determineCpuCard(callback?: Function) {
 
     // If no card has been chosen yet, use structured decision logic instead
     if (!card) {
-      // Find any spy / thief cards first
-      let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
-      let thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
-      if (spyCards.length > 0) {
-        // Find the lowest value spy card
-        spyCards.sort(sortCardsLowToHigh)
-        card = spyCards[0]
-      } else if (thiefCards.length > 0) {
-        // Find the lowest value thief card
-        thiefCards.sort(sortCardsLowToHigh)
-        card = thiefCards[0]
-      }
-      // No spy / thief cards... decide card
-      else {
-        let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
+      let cpuStandardCards = opponentHand.value.filter((card) => card.type !== 'special')
 
-        // If it's a must-win round
-        if (playerHasRound.value) {
-          // If standard cards are available
-          if (cpuStandardCards.length > 0) {
-            // TODO: Up-front check for scorch and 'heal' opportunities (check dead pile for spies)
-            // TODO: Calculate most efficient order to play cards (check for existing 'bond' cards, etc.)
-            // Sort cards lowest to highest
-            cpuStandardCards.sort(sortCardsLowToHigh)
-            // Play the lowest value card
-            card = cpuStandardCards[0]
-          }
-          // No standard cards... Play the next non-standard card ('card' may remain 'null', if no beneficial card available)
-          else {
-            for (let i = 0; i < opponentHand.value.length; i++) {
-              // Only play scorch / plague if it's beneficial
-              if (opponentHand.value[i].ability === 'scorch') {
-                if (cpuShouldScorch()) {
-                  card = opponentHand.value[i]
-                  break
-                }
-              } else if (opponentHand.value[i].ability === 'plague') {
-                if (cpuShouldPlague()) {
-                  card = opponentHand.value[i]
-                  break
-                }
-              } else {
-                card = opponentHand.value[i]
-                break
-              }
-            }
-          }
-        }
-        // Decide whether to play card or not
-        else {
-          // If the CPU decided to beat the player's current total, determine the total value of the CPU's remaining hand cards
-          let runningCpuTotal = opponentTotal.value
-          let remainingTotal = 0
-          let handIndex = 0
-
+      // If it's a must-win round
+      if (playerHasRound.value) {
+        // If standard cards are available
+        if (cpuStandardCards.length > 0) {
           // Sort cards lowest to highest
           cpuStandardCards.sort(sortCardsLowToHigh)
 
-          // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
-          for (let i = 0; i < cpuStandardCards.length; i++) {
-            if (runningCpuTotal <= playerTotal.value) {
-              runningCpuTotal = runningCpuTotal + (cpuStandardCards[i].defaultValue || 0)
-              handIndex++
+          // If more than one standard hand card, attempt to choose an optimal card
+          // TODO: Calculate most efficient order to play cards (eg. check for existing 'bond' cards on board)
+          if (cpuStandardCards.length > 1) {
+            for (let i = 0; i < cpuStandardCards.length; i++) {
+              // If it's a Heal card and not the last standard hand card
+              if (cpuStandardCards[i].ability === 'heal' && i + 1 !== cpuStandardCards.length) {
+                if (determineCpuHeal()) {
+                  card = cpuStandardCards[i]
+                  break
+                }
+              }
+              // If it's a non-Heal card or the last standard hand card... Play it
+              else {
+                card = cpuStandardCards[i]
+                break
+              }
+            }
+          } else {
+            // Only 1 standard hand card remaning... Play it
+            card = cpuStandardCards[0]
+          }
+        }
+        // No standard cards... Play the next non-standard card ('card' may remain 'null' if no beneficial card available)
+        else {
+          for (let i = 0; i < opponentHand.value.length; i++) {
+            // Only play scorch / plague if it's beneficial
+            if (opponentHand.value[i].ability === 'scorch') {
+              if (determineCpuScorch()) {
+                card = opponentHand.value[i]
+                break
+              }
+            } else if (opponentHand.value[i].ability === 'plague') {
+              if (determineCpuPlague()) {
+                card = opponentHand.value[i]
+                break
+              }
             } else {
+              card = opponentHand.value[i]
               break
             }
           }
+        }
+      }
+      // Not a must-win round... Decide whether to play a card or not
+      else {
+        // If the CPU decided to beat the player's current total, determine the total value of the CPU's remaining hand cards
+        let runningCpuTotal = opponentTotal.value
+        let remainingTotal = 0
+        let handIndex = 0
 
-          // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
-          if (runningCpuTotal > playerTotal.value) {
-            // Determine the total value of the CPU's remaining hand cards
-            while (handIndex < cpuStandardCards.length) {
-              remainingTotal = remainingTotal + (cpuStandardCards[handIndex].defaultValue || 0)
-              handIndex++
-            }
+        // Sort cards lowest to highest
+        cpuStandardCards.sort(sortCardsLowToHigh)
 
-            // If there's theoretically enough points left to win another round
-            if (remainingTotal > 20) {
-              // Play the lowest value card
-              card = cpuStandardCards[0]
+        // Determine the upper index of CPU hand cards required to beat the player, and if a win is possible this round
+        for (let i = 0; i < cpuStandardCards.length; i++) {
+          if (runningCpuTotal <= playerTotal.value) {
+            runningCpuTotal = runningCpuTotal + (cpuStandardCards[i].defaultValue || 0)
+            handIndex++
+          } else {
+            break
+          }
+        }
+
+        // If a win is possible this round, determine the total value of the remaining CPU hand cards, and if that's likely enough to win a subsequent round with
+        if (runningCpuTotal > playerTotal.value) {
+          // Determine the total value of the CPU's remaining hand cards
+          while (handIndex < cpuStandardCards.length) {
+            remainingTotal = remainingTotal + (cpuStandardCards[handIndex].defaultValue || 0)
+            handIndex++
+          }
+
+          // If there's theoretically enough points left to win another round
+          if (remainingTotal > 20) {
+            // Cycle through available cards and only play a Heal card if it's beneficial
+            for (let i = 0; i < cpuStandardCards.length; i++) {
+              // If it's a Heal card and not the last standard hand card
+              if (cpuStandardCards[i].ability === 'heal') {
+                if (determineCpuHeal()) {
+                  card = cpuStandardCards[i]
+                  break
+                }
+              }
+              // It's a non-Heal card... Play it
+              else {
+                card = cpuStandardCards[i]
+                break
+              }
             }
           }
         }
@@ -839,7 +867,14 @@ function determineCpuCard(callback?: Function) {
   }
 }
 
-function cpuShouldPlague() {
+function determineCpuHeal() {
+  let validHealCards = opponentDiscardPile.value.filter(
+    (card) => !card.hero && card.type !== 'special'
+  )
+  return validHealCards.length > 0
+}
+
+function determineCpuPlague() {
   let lowestCardValue = null
   let cpuPlagueCount = 0
   let playerPlagueCount = 0
@@ -871,7 +906,7 @@ function cpuShouldPlague() {
   return playerPlagueCount > cpuPlagueCount
 }
 
-function cpuShouldScorch() {
+function determineCpuScorch() {
   let highestCardValue = 0
   let cpuScorchCount = 0
   let playerScorchCount = 0
@@ -1184,14 +1219,36 @@ function performHeal(card: Card) {
 
 function determineCpuHealCard(arr: Card[], callback?: Function) {
   let card
-  let spyCards = arr.filter((card) => card.ability === 'spy') // Find any spy cards
+  let spyCards = arr.filter((card) => card.ability === 'spy') // Find any Spy cards
+  let ambushCards = arr.filter((card) => card.ability === 'ambush') // Find any Ambush cards
+  let isAmbushOpportunity = false
+  let thiefCards = arr.filter((card) => card.ability === 'thief') // Find any Thief cards
 
   if (spyCards.length > 0) {
-    // Find the lowest value spy card
+    // Find the lowest value Spy card
     spyCards.sort(sortCardsLowToHigh)
     card = spyCards[0]
+  } else if (ambushCards.length > 0) {
+    // Determine if there's an ambush opportunity ie. The player has any viable cards on the board
+    for (const cardRow of playerBoardCards.value) {
+      for (const card of cardRow) {
+        if (!card.hero && card.type !== 'special') {
+          isAmbushOpportunity = true
+          break
+        }
+      }
+    }
+    if (isAmbushOpportunity) {
+      // Find the highest value Ambush card
+      ambushCards.sort(sortCardsHighToLow)
+      card = ambushCards[0]
+    }
+  } else if (thiefCards.length > 0) {
+    // Find the highest value Thief card
+    thiefCards.sort(sortCardsHighToLow)
+    card = thiefCards[0]
   }
-  // No spy cards... select highest value card
+  // No Spy / Thief cards or Ambush opportunities... select highest value card instead
   else {
     arr.sort(sortCardsHighToLow)
     card = arr[0]

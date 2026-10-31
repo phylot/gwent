@@ -409,7 +409,7 @@ function getMusicVolume(volume: number) {
 
 function initializeDeckManagerSong() {
   deckManagerSong = new Howl({
-    src: [new URL(`./assets/audio/ard-skellig-village.mp3`, import.meta.url).href],
+    src: [new URL(`./assets/audio/over-the-hills-and-far-away.mp3`, import.meta.url).href],
     loop: true,
     volume: getMusicVolume(musicVolumeLevel.value),
     onfade: () => {
