@@ -16,6 +16,8 @@ interface Awards {
   tyrant: Award
 }
 
+type BoardInteractionMode = 'default' | 'decoy'
+
 interface Card {
   ability?: string
   abilityIcon?: string
@@ -79,6 +81,7 @@ interface RowFlag {
 export {
   type Award,
   type Awards,
+  type BoardInteractionMode,
   type Card,
   type CardCollection,
   type LeaderCardCollection,

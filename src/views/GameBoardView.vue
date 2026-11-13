@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { type Card, type RoundTotal, type RowFlag } from '@/types'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { type BoardInteractionMode, type Card, type RoundTotal, type RowFlag } from '@/types'
 
 import { defaultRowFlags } from './../data/game-board'
 import { defaultAwards } from './../data/awards'
@@ -43,40 +43,50 @@ const emit = defineEmits<{
 
 // BOARD-RELATED DATA
 
-const playerLeader = ref()
-const playerFlagUrl = ref()
-const opponentLeader = ref()
-const opponentFlagUrl = ref()
-let playerDeck = ref<Card[]>([])
-let opponentDeck = ref<Card[]>([])
-let playerHand = ref<Card[]>([])
-let opponentHand = ref<Card[]>([])
-let playerHandIsActive = ref(false)
-let playerHandDisabled = ref(true)
-let cardRedrawActive = ref(false)
-let healActive = ref(false)
-let playerBoardCards = ref<Card[][]>([[], [], []])
-let opponentBoardCards = ref<Card[][]>([[], [], []])
+const playerLeader = ref<Card>(JSON.parse(JSON.stringify(props.playerLeaderCard)))
+const opponentLeader = ref<Card>(JSON.parse(JSON.stringify(props.opponentLeaderCard)))
+const playerFlagUrl = ref('')
+const opponentFlagUrl = ref('')
+const playerDeck = ref<Card[]>([])
+const opponentDeck = ref<Card[]>([])
+const playerHand = ref<Card[]>([])
+const opponentHand = ref<Card[]>([])
+const playerHandIsActive = ref(false)
+const playerHandDisabled = ref(true)
+const cardRedrawActive = ref(false)
+const healActive = ref(false)
+const playerBoardCards = ref<Card[][]>([[], [], []])
+const opponentBoardCards = ref<Card[][]>([[], [], []])
+const selectableBoardCardIds = ref<string[]>([])
+const decoyAnimationStyle = ref<{
+  cardId: string
+  left: number
+  top: number
+  width: number
+  height: number
+} | null>(null)
 const playerRowFlags = ref<RowFlag[]>([])
-let playerRowFlagsDefault = ref()
+const playerRowFlagsDefault = ref<RowFlag[]>([])
 const opponentRowFlags = ref<RowFlag[]>([])
-let opponentRowFlagsDefault = ref()
-let playerDiscardPile = ref<Card[]>([])
-let opponentDiscardPile = ref<Card[]>([])
-let discardPileActive = ref(false)
-let specialDiscardPile = ref<Card[]>([])
-let activeCardRow = ref<Card[]>([])
-let resolveRowClick = ref()
-let boardDisabled = ref(true)
-let slideIndex = ref(0)
-let cardModal = ref()
-let cardModalModel = ref(false)
-let cardModalConfirmText = ref()
-let cardModalCancelText = ref()
-let cardModalTitle = ref()
-let cardModalIcon = ref()
-let cardModalDisabled = ref(true)
-let beanPopup = ref(false)
+const opponentRowFlagsDefault = ref<RowFlag[]>([])
+const playerDiscardPile = ref<Card[]>([])
+const opponentDiscardPile = ref<Card[]>([])
+const discardPileActive = ref(false)
+const specialDiscardPile = ref<Card[]>([])
+const activeCardRow = ref<Card[]>([])
+const resolveRowClick = ref<((rowIndex: number) => void) | null>(null)
+const boardInteractionMode = ref<BoardInteractionMode>('default')
+const resolveDecoySelection = ref<((card: Card) => void) | null>(null)
+const boardDisabled = ref(true)
+const slideIndex = ref(0)
+const cardModal = ref<InstanceType<typeof CardModal> | null>(null)
+const cardModalModel = ref(false)
+const cardModalConfirmText = ref<string | undefined>(undefined)
+const cardModalCancelText = ref<string | undefined>(undefined)
+const cardModalTitle = ref<string | null | undefined>(undefined)
+const cardModalIcon = ref<string | null | undefined>(undefined)
+const cardModalDisabled = ref(true)
+const beanPopup = ref(false)
 
 // Board row indexes for each card 'type'
 const abilityIndexes: Record<string, number> = {
@@ -86,39 +96,39 @@ const abilityIndexes: Record<string, number> = {
 }
 
 // Game stats
-let roundNumber = ref(1)
-let playerIsLead = ref(false)
-let isPlayerTurn = ref(false)
-let playerIsPassed = ref(false)
-let opponentIsPassed = ref(false)
-let playerHasRound = ref(false)
-let opponentHasRound = ref(false)
-let playerRoundTotals = ref<Array<RoundTotal>>([])
-let opponentRoundTotals = ref<Array<RoundTotal>>([])
-let playerAwards = ref()
-let opponentAwards = ref()
-let isMatchEnd = ref(false)
+const roundNumber = ref(1)
+const playerIsLead = ref(false)
+const isPlayerTurn = ref(false)
+const playerIsPassed = ref(false)
+const opponentIsPassed = ref(false)
+const playerHasRound = ref(false)
+const opponentHasRound = ref(false)
+const playerRoundTotals = ref<Array<RoundTotal>>([])
+const opponentRoundTotals = ref<Array<RoundTotal>>([])
+const playerAwards = ref<typeof defaultAwards>(JSON.parse(JSON.stringify(defaultAwards)))
+const opponentAwards = ref<typeof defaultAwards>(JSON.parse(JSON.stringify(defaultAwards)))
+const isMatchEnd = ref(false)
 
 // Alert Banner
-let alertBannerAvatar = ref()
-let alertBannerIcon = ref()
-let alertBannerModel = ref(false)
-let alertBannerTitle = ref('')
+const alertBannerAvatar = ref<string | undefined>(undefined)
+const alertBannerIcon = ref<string | undefined>(undefined)
+const alertBannerModel = ref(false)
+const alertBannerTitle = ref('')
 
 // Modal
-let modal = ref()
-let modalAvatar = ref()
-let modalButtons = ref()
-let modalPersistent = ref()
-let modalTitle = ref('')
+const modal = ref<InstanceType<typeof StandardModal> | null>(null)
+const modalAvatar = ref<string | undefined>(undefined)
+const modalButtons = ref<string[] | undefined>(undefined)
+const modalPersistent = ref(false)
+const modalTitle = ref('')
 
 // General Overlay Screen (currently used for board row highlights)
-let overlayScreenModel = ref(false)
+const overlayScreenModel = ref(false)
 
 // Card Preview
-let cardPreview = ref(false)
-let previewCard = ref()
-let cardPreviewIsPlayer = ref(false)
+const cardPreview = ref(false)
+const previewCard = ref<Card | undefined>(undefined)
+const cardPreviewIsPlayer = ref(false)
 
 // COMPUTED DATA
 
@@ -182,6 +192,14 @@ const recentSpecialCard = computed(() => {
   }
   return card
 })
+
+function isBoardCardDisabled(card: Card) {
+  if (boardInteractionMode.value === 'decoy') {
+    return !selectableBoardCardIds.value.includes(card.id)
+  }
+
+  return boardDisabled.value
+}
 
 const playerDiscardPileDisabled = computed(() => {
   return boardDisabled.value || playerDiscardPile.value.length < 1
@@ -322,8 +340,8 @@ async function startNewGame() {
   playerAwards.value = JSON.parse(JSON.stringify(defaultAwards))
   opponentAwards.value = JSON.parse(JSON.stringify(defaultAwards))
 
-  modalAvatar.value = null
-  modalButtons.value = null
+  modalAvatar.value = undefined
+  modalButtons.value = undefined
   modalPersistent.value = false
   modalTitle.value = ''
 
@@ -625,74 +643,88 @@ async function playCard(card: Card, isHeal: boolean, callback?: Function) {
     emit('play-sound', 'playcard')
   }
 
-  // If no card array specified, assume card array is player or opponent hand
-  let handArr = isHeal
+  const isDecoy = card.ability === 'decoy'
+
+  // Determine player's hand or discard pile
+  const handArr = isHeal
     ? isPlayerTurn.value
       ? playerDiscardPile
       : opponentDiscardPile
     : isPlayerTurn.value
     ? playerHand
     : opponentHand
-  let boardArr = isPlayerTurn.value
-    ? playerBoardCards.value[abilityIndexes[card.type]]
-    : opponentBoardCards.value[abilityIndexes[card.type]]
-  let boardArrIndex = 0
 
-  // Determine relevant board array
-  if (card.type === 'special') {
-    boardArr = specialDiscardPile.value
-  } else if (card.ability === 'spy') {
-    boardArr = isPlayerTurn.value
-      ? opponentBoardCards.value[abilityIndexes[card.type]]
-      : playerBoardCards.value[abilityIndexes[card.type]]
-  } else {
-    // Determine the specific array position for 'bond' cards with the same 'bondName', so they're placed adjacent to one another
-    if (card.ability === 'bond') {
-      let bondNameFound = false
-      for (let i = 0; i < boardArr.length; i++) {
-        if (boardArr[i].bondName === card.bondName) {
-          bondNameFound = true
-        } else {
-          if (bondNameFound) {
+  const awards = isPlayerTurn.value ? playerAwards.value : opponentAwards.value
+
+  // Record spy cards for 'Spy Master' award
+  if (card.ability === 'spy') {
+    awards.spymaster.count = (awards.spymaster.count ?? 0) + 1
+  }
+
+  // Record total cards played for 'Tactician' award
+  awards.tactician.count = (awards.tactician.count ?? 0) + 1
+
+  if (isPlayerTurn.value) {
+    await doCardDisappearAnimation(card)
+  }
+
+  closeCardModal()
+
+  // Insert card into relevant board array (except decoy)
+  if (!isDecoy) {
+    emit('play-sound', 'placecard')
+
+    let boardArr: Card[]
+    let boardArrIndex = 0
+
+    // Determine relevant board array
+    if (card.type === 'special') {
+      boardArr = specialDiscardPile.value
+    } else if (card.ability === 'spy') {
+      boardArr = isPlayerTurn.value
+        ? opponentBoardCards.value[abilityIndexes[card.type]]
+        : playerBoardCards.value[abilityIndexes[card.type]]
+    } else {
+      boardArr = isPlayerTurn.value
+        ? playerBoardCards.value[abilityIndexes[card.type]]
+        : opponentBoardCards.value[abilityIndexes[card.type]]
+
+      // Determine specific array position for 'bond' cards
+      // so they are placed adjacent to other cards with the same bondName
+      if (card.ability === 'bond') {
+        let bondNameFound = false
+
+        for (let i = 0; i < boardArr.length; i++) {
+          if (boardArr[i].bondName === card.bondName) {
+            bondNameFound = true
+          } else if (bondNameFound) {
             boardArrIndex = i
             break
           }
         }
       }
     }
-  }
 
-  let awards = isPlayerTurn.value ? playerAwards.value : opponentAwards.value
-  // Record spy cards for 'Spy Master' award
-  if (card.ability === 'spy') {
-    awards.spymaster.count++
-  }
-  // Record total cards played for 'Tactician' award
-  awards.tactician.count++
-
-  if (isPlayerTurn.value) {
-    await doCardDisappearAnimation(card)
-  }
-  closeCardModal()
-  emit('play-sound', 'placecard')
-
-  // Insert card into relevant board array at specific index
-  if (boardArrIndex) {
-    boardArr.splice(boardArrIndex, 0, card)
-  }
-  // Push card to relevant board array
-  else {
-    boardArr.push(card)
+    // Insert card into relevant board array
+    if (boardArrIndex) {
+      boardArr.splice(boardArrIndex, 0, card)
+    } else {
+      boardArr.push(card)
+    }
   }
 
   // Remove card from hand (or discard pile)
   for (let i = 0; i < handArr.value.length; i++) {
-    if (handArr.value[i].id == card.id) {
+    if (handArr.value[i].id === card.id) {
       handArr.value.splice(i, 1)
+      break
     }
   }
 
-  await doCardAppearAnimation(card)
+  // Decoy appearance is handled by performDecoySwap()
+  if (!isDecoy) {
+    await doCardAppearAnimation(card)
+  }
 
   await performAbility(card)
 
@@ -709,9 +741,10 @@ function determineCpuCard(callback?: Function) {
     let useRandomCard = !playerIsPassed.value && getChanceOutcome(props.cpuDifficulty)
 
     // Up-front check for Spy and Thief opportunities
-    let spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
-    let thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
-    // let healCards = opponentHand.value.filter((card) => card.ability === 'heal')
+    const spyCards = opponentHand.value.filter((card) => card.ability === 'spy')
+    const thiefCards = opponentHand.value.filter((card) => card.ability === 'thief')
+    const decoyCards = opponentHand.value.filter((card) => card.ability === 'decoy')
+
     if (spyCards.length > 0) {
       // Find the lowest value spy card
       spyCards.sort(sortCardsLowToHigh)
@@ -720,6 +753,19 @@ function determineCpuCard(callback?: Function) {
       // Find the lowest value thief card
       thiefCards.sort(sortCardsLowToHigh)
       card = thiefCards[0]
+    } else if (
+      decoyCards.length > 0 &&
+      opponentBoardCards.value.some((row) =>
+        row.some(
+          (boardCard) =>
+            !boardCard.hero &&
+            boardCard.type !== 'special' &&
+            ['spy', 'ambush', 'thief', 'heal'].includes(boardCard.ability ?? '')
+        )
+      )
+    ) {
+      // Play decoy if a strategically useful target exists
+      card = decoyCards[0]
     }
 
     if (!card && useRandomCard) {
@@ -938,68 +984,63 @@ function determineCpuScorch() {
   return playerScorchCount > cpuScorchCount
 }
 
-async function performAbility(card: Card) {
-  return new Promise<void>(async (resolve) => {
-    if (card.ability === 'boost') {
-      card.effectIcon = card.abilityIcon
-    }
+async function performAbility(card: Card): Promise<void> {
+  if (card.ability === 'boost') {
+    card.effectIcon = card.abilityIcon
+  }
 
-    if (card.ability === 'ambush') {
-      await performAmbush(card)
-    }
+  if (card.ability === 'ambush') {
+    await performAmbush(card)
+  }
 
-    if (card.ability === 'bite') {
-      await performBite(card)
-    }
+  if (card.ability === 'bite') {
+    await performBite(card)
+  }
 
-    if (card.ability === 'double') {
-      card.effectIcon = card.abilityIcon
-      await performDouble()
-    }
+  if (card.ability === 'decoy') {
+    await performDecoy(card)
+  }
 
-    if (card.ability === 'heal') {
-      await performHeal(card)
-    }
+  if (card.ability === 'double') {
+    card.effectIcon = card.abilityIcon
+    await performDouble()
+  }
 
-    if (card.ability === 'muster') {
-      await performMuster(card)
-    }
+  if (card.ability === 'heal') {
+    await performHeal(card)
+  }
 
-    if (card.ability === 'plague') {
-      await performPlague(card)
-    }
+  if (card.ability === 'muster') {
+    await performMuster(card)
+  }
 
-    if (
-      card.ability === 'close_scorch' ||
-      card.ability === 'ranged_scorch' ||
-      card.ability === 'siege_scorch'
-    ) {
-      await performRowScorch(card)
-    }
+  if (card.ability === 'plague') {
+    await performPlague(card)
+  }
 
-    if (card.ability === 'scorch') {
-      await performScorch(card)
-    }
+  if (
+    card.ability === 'close_scorch' ||
+    card.ability === 'ranged_scorch' ||
+    card.ability === 'siege_scorch'
+  ) {
+    await performRowScorch(card)
+  }
 
-    if (card.ability === 'spy') {
-      card.effectIcon = card.abilityIcon
-      await performSpy()
-    }
+  if (card.ability === 'scorch') {
+    await performScorch(card)
+  }
 
-    if (card.ability === 'thief') {
-      card.effectIcon = card.abilityIcon
-      await performThief()
-    }
+  if (card.ability === 'spy') {
+    card.effectIcon = card.abilityIcon
+    await performSpy()
+  }
 
-    await calculateRows(card)
+  if (card.ability === 'thief') {
+    card.effectIcon = card.abilityIcon
+    await performThief()
+  }
 
-    // TODO: Decoy card
-    // • Add visual highlight to board rows containing eligible cards for swapping
-    // • Enable ONLY cards eligible for swapping
-    // • Display card carousel containing ONLY cards eligible for swapping, with a "SWAP" and "CANCEL" button
-
-    resolve()
-  })
+  await calculateRows(card)
 }
 
 function performAmbush(card: Card) {
@@ -1084,17 +1125,258 @@ function performBite(card: Card) {
   })
 }
 
+async function performDecoy(card: Card): Promise<void> {
+  // PLAYER TURN
+  if (isPlayerTurn.value) {
+    const eligibleCards = playerBoardCards.value
+      .flat()
+      .filter((boardCard) => !boardCard.hero && boardCard.type !== 'special')
+
+    // No eligible cards to swap: allow player to choose a row
+    if (eligibleCards.length === 0) {
+      const rowIndex = await selectPlayerDecoyRow()
+
+      playerBoardCards.value[rowIndex].push(card)
+      overlayScreenModel.value = false
+      emit('play-sound', 'placecard')
+      await doCardAppearAnimation(card)
+
+      return
+    }
+
+    // Highlight eligible cards
+    eligibleCards.forEach((boardCard) => {
+      boardCard.active = true
+    })
+
+    // Store eligible card IDs
+    selectableBoardCardIds.value = eligibleCards.map((boardCard) => boardCard.id)
+
+    // Highlight rows containing eligible cards
+    for (let i = 0; i < playerBoardCards.value.length; i++) {
+      const hasEligibleCard = playerBoardCards.value[i].some((boardCard) =>
+        selectableBoardCardIds.value.includes(boardCard.id)
+      )
+
+      if (hasEligibleCard) {
+        playerRowFlags.value[i].highlight = true
+      }
+    }
+
+    overlayScreenModel.value = true
+
+    // Enable decoy selection mode
+    boardInteractionMode.value = 'decoy'
+
+    // Wait for the player to select a target card
+    const targetCard = await new Promise<Card>((resolveSelection) => {
+      resolveDecoySelection.value = resolveSelection
+    })
+
+    // Clear selection highlighting
+    eligibleCards.forEach((boardCard) => {
+      boardCard.active = false
+    })
+
+    playerRowFlags.value.forEach((rowFlag) => {
+      rowFlag.highlight = false
+    })
+
+    selectableBoardCardIds.value = []
+    boardInteractionMode.value = 'default'
+    overlayScreenModel.value = false
+
+    // Perform the actual swap
+    await performDecoySwap(card, targetCard, playerBoardCards.value, playerHand.value)
+  }
+
+  // CPU TURN
+  else {
+    await performCpuDecoySwap(card)
+  }
+}
+
+async function performCpuDecoySwap(card: Card): Promise<void> {
+  const eligibleCards = opponentBoardCards.value
+    .flat()
+    .filter((boardCard) => !boardCard.hero && boardCard.type !== 'special')
+
+  // No eligible cards: place decoy in the first row
+  if (eligibleCards.length === 0) {
+    opponentBoardCards.value[0].push(card)
+    emit('play-sound', 'placecard')
+    await doCardAppearAnimation(card)
+
+    return
+  }
+
+  // Ability priority order
+  const abilityPriority = ['spy', 'ambush', 'thief', 'heal']
+
+  let targetCard: Card | undefined
+
+  // Find the first eligible card matching the highest-priority ability
+  for (const ability of abilityPriority) {
+    targetCard = eligibleCards.find((boardCard) => boardCard.ability === ability)
+
+    if (targetCard) {
+      break
+    }
+  }
+
+  // No preferred abilities found: select highest-value eligible card
+  if (!targetCard) {
+    targetCard = eligibleCards.reduce((bestCard, currentCard) =>
+      (currentCard.value ?? 0) > (bestCard.value ?? 0) ? currentCard : bestCard
+    )
+  }
+
+  // Perform the actual swap
+  await performDecoySwap(card, targetCard, opponentBoardCards.value, opponentHand.value)
+}
+
+function getDecoyAnimationStyle(cardId: string) {
+  const animationStyle = decoyAnimationStyle.value
+
+  if (!animationStyle || animationStyle.cardId !== cardId) {
+    return undefined
+  }
+
+  return {
+    position: 'absolute' as const,
+    left: `${animationStyle.left}px`,
+    top: `${animationStyle.top}px`,
+    width: `${animationStyle.width}px`,
+    height: `${animationStyle.height}px`,
+    zIndex: 10
+  }
+}
+
+async function performDecoySwap(
+  decoyCard: Card,
+  targetCard: Card,
+  boardCards: Card[][],
+  hand: Card[]
+): Promise<void> {
+  // Find the row containing the target card
+  const rowIndex = boardCards.findIndex((row) =>
+    row.some((boardCard) => boardCard.id === targetCard.id)
+  )
+
+  if (rowIndex === -1) {
+    throw new Error(`Decoy target ${targetCard.id} was not found on the board.`)
+  }
+
+  const row = boardCards[rowIndex]
+
+  // Find the target card's position within that row
+  const cardIndex = row.findIndex((boardCard) => boardCard.id === targetCard.id)
+
+  if (cardIndex === -1) {
+    throw new Error(`Decoy target ${targetCard.id} was not found in its board row.`)
+  }
+
+  // Allow any selection/highlight styling on the target card to clear before measuring it
+  await nextTick()
+
+  // Find the target card element and its containing row
+  const targetElement = Array.from(document.querySelectorAll<HTMLElement>('[data-card-id]')).find(
+    (element) => element.dataset.cardId === targetCard.id
+  )
+
+  const cardContainer = targetElement?.closest<HTMLElement>('.card-container')
+
+  if (!targetElement || !cardContainer) {
+    // Preserve the game state if the card element cannot be measured
+    row.splice(cardIndex, 1, decoyCard)
+    resetCards([targetCard])
+    hand.push(targetCard)
+    emit('play-sound', 'swapcard')
+    return
+  }
+
+  // Measure the target card relative to its row container
+  const targetRect = targetElement.getBoundingClientRect()
+  const containerRect = cardContainer.getBoundingClientRect()
+
+  decoyAnimationStyle.value = {
+    cardId: decoyCard.id,
+    left:
+      targetRect.left - containerRect.left - cardContainer.clientLeft + cardContainer.scrollLeft,
+    top: targetRect.top - containerRect.top - cardContainer.clientTop + cardContainer.scrollTop,
+    width: targetRect.width,
+    height: targetRect.height
+  }
+
+  // Assign the animation classes
+  decoyCard.animationName = 'decoy-enter'
+  targetCard.animationName = 'decoy-exit'
+
+  // Insert the decoy before the target, but position it absolutely so it takes no layout space
+  row.splice(cardIndex, 0, decoyCard)
+
+  emit('play-sound', 'swapcard')
+
+  // Ensure Vue has rendered the decoy before starting the animation wait
+  await nextTick()
+
+  // Wait for the CSS animations to complete
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 500)
+  })
+
+  // Remove the selected card
+  const targetIndex = row.findIndex((boardCard) => boardCard.id === targetCard.id)
+
+  if (targetIndex !== -1) {
+    row.splice(targetIndex, 1)
+  }
+
+  // Clear the decoy's temporary positioning and animation styling
+  decoyCard.animationName = undefined
+  decoyAnimationStyle.value = null
+
+  // Reset the returned card's temporary effects
+  resetCards([targetCard])
+
+  // Return the selected card to the player's (or CPU's) hand
+  hand.push(targetCard)
+}
+
+async function selectPlayerDecoyRow(): Promise<number> {
+  // Enable row selection on all player rows
+  playerRowFlags.value.forEach((rowFlag) => {
+    rowFlag.rowSelect = true
+  })
+
+  overlayScreenModel.value = true
+
+  // Wait for player to select a row
+  const rowIndex = await new Promise<number>((resolveClick) => {
+    resolveRowClick.value = resolveClick
+  })
+
+  resolveRowClick.value = null
+
+  // Disable row selection
+  playerRowFlags.value.forEach((rowFlag) => {
+    rowFlag.rowSelect = false
+  })
+
+  return rowIndex
+}
+
 function performDouble() {
   let viableRowFound = false
 
   return new Promise<void>((resolve) => {
     // If it's the player's turn, enable 'Row Select' mode
     if (isPlayerTurn.value) {
-      overlayScreenModel.value = true
       // Highlight each applicable player row
       for (let i = 0; i < playerRowFlags.value.length; i++) {
         if (!playerRowFlags.value[i].double) {
           viableRowFound = true
+          overlayScreenModel.value = true
           playerRowFlags.value[i].rowSelect = true
         }
       }
@@ -1450,9 +1732,11 @@ function performRowScorch(card: Card) {
               i--
 
               // Record scorch for 'Tyrant' award
-              isPlayerTurn.value
-                ? playerAwards.value.tyrant.count++
-                : opponentAwards.value.tyrant.count++
+              const tyrantAwards = isPlayerTurn.value
+                ? playerAwards.value.tyrant
+                : opponentAwards.value.tyrant
+
+              tyrantAwards.count = (tyrantAwards.count ?? 0) + 1
             }
           }
           resetCards(discardPile.value)
@@ -1529,9 +1813,11 @@ function performScorch(card: Card) {
                 cardRow.splice(i, 1)
                 i--
                 // Record scorch for 'Tyrant' award
-                isPlayerTurn.value
-                  ? playerAwards.value.tyrant.count++
-                  : opponentAwards.value.tyrant.count++
+                const tyrantAwards = isPlayerTurn.value
+                  ? playerAwards.value.tyrant
+                  : opponentAwards.value.tyrant
+
+                tyrantAwards.count = (tyrantAwards.count ?? 0) + 1
               }
             }
             resetCards(discardPile.value)
@@ -1735,7 +2021,7 @@ function calculateBoost(rowArr: Card[]) {
 
     // Loop through row array and add 1 to the value of eligible cards
     for (let i = 0; i < rowArr.length; i++) {
-      if (!rowArr[i].hero) {
+      if (!rowArr[i].hero && rowArr[i].type !== 'special') {
         let boostValue = rowArr[i].ability === 'boost' ? boostCardCount - 1 : boostCardCount
         rowArr[i].value = (rowArr[i].value || 0) + boostValue
       }
@@ -1748,7 +2034,7 @@ function calculateDouble(rowArr: Card[], rowFlag: RowFlag) {
   return new Promise<void>((resolve) => {
     if (rowFlag.double) {
       for (const card of rowArr) {
-        if (card.value && !card.hero) {
+        if (card.value && !card.hero && card.type !== 'special') {
           card.value = card.value * 2
         }
       }
@@ -1796,7 +2082,7 @@ function determineRoundWinner() {
   let isPlayerMatchWin = false
   let isOpponentMatchWin = false
   let isMatchDraw = false
-  let unlockedAwards = []
+  const unlockedAwards: string[] = []
 
   // Determine highest scorer this round
   if (playerTotal.value === opponentTotal.value) {
@@ -1820,17 +2106,17 @@ function determineRoundWinner() {
   })
 
   // Record round scores for 'Field Marshal' award
-  if (playerTotal.value > playerAwards.value.fieldmarshal.count) {
+  if (playerTotal.value > (playerAwards.value.fieldmarshal.count ?? 0)) {
     playerAwards.value.fieldmarshal.count = playerTotal.value
   }
-  if (opponentTotal.value > opponentAwards.value.fieldmarshal.count) {
+  if (opponentTotal.value > (opponentAwards.value.fieldmarshal.count ?? 0)) {
     opponentAwards.value.fieldmarshal.count = opponentTotal.value
   }
   // Record siege row totals for 'Heavyweight' award
-  if (rowTotals.value.player[2] > playerAwards.value.heavyweight.count) {
+  if (rowTotals.value.player[2] > (playerAwards.value.heavyweight.count ?? 0)) {
     playerAwards.value.heavyweight.count = rowTotals.value.player[2]
   }
-  if (rowTotals.value.opponent[2] > opponentAwards.value.heavyweight.count) {
+  if (rowTotals.value.opponent[2] > (opponentAwards.value.heavyweight.count ?? 0)) {
     opponentAwards.value.heavyweight.count = rowTotals.value.opponent[2]
   }
 
@@ -1871,11 +2157,22 @@ function determineRoundWinner() {
 
     // Determine awards
     for (let i = 0; i < 2; i++) {
-      let awards = i < 1 ? playerAwards.value : opponentAwards.value
+      const awards = i < 1 ? playerAwards.value : opponentAwards.value
 
-      for (const awardKey in awards) {
-        if (awards[awardKey].count >= awards[awardKey].targetCount && awardKey !== 'tactician') {
-          awards[awardKey].active = true
+      for (const awardKey of Object.keys(awards) as Array<keyof typeof awards>) {
+        if (awardKey === 'tactician') {
+          continue
+        }
+
+        const award = awards[awardKey]
+
+        if (
+          award.count !== undefined &&
+          award.targetCount !== undefined &&
+          award.count >= award.targetCount
+        ) {
+          award.active = true
+
           if (i < 1) {
             unlockedAwards.push(awardKey)
           }
@@ -1905,7 +2202,11 @@ function determineRoundWinner() {
       let tacticianAward = isPlayerMatchWin
         ? playerAwards.value.tactician
         : opponentAwards.value.tactician
-      if (tacticianAward.count <= tacticianAward.targetCount) {
+      if (
+        tacticianAward.count !== undefined &&
+        tacticianAward.targetCount !== undefined &&
+        tacticianAward.count <= tacticianAward.targetCount
+      ) {
         tacticianAward.active = true
         if (isPlayerMatchWin) {
           unlockedAwards.push('tactician')
@@ -1921,14 +2222,23 @@ function determineRoundWinner() {
 
     modalButtons.value = ['Play Again', 'Main Menu']
     modalPersistent.value = true
-    modal.value.show().then((i: number) => {
-      if (i === 1) {
-        startNewGame()
-      }
-      if (i === 2) {
-        emit('show-menu')
-      }
-    })
+
+    const modalInstance = modal.value
+    if (modalInstance) {
+      modalInstance.show().then((result) => {
+        if (typeof result !== 'number') {
+          return
+        }
+
+        if (result === 1) {
+          startNewGame()
+        }
+
+        if (result === 2) {
+          emit('show-menu')
+        }
+      })
+    }
   }
   // No match winner yet... set relevant round flag to true (or both if draw)
   else {
@@ -2022,7 +2332,7 @@ function setupRound(isDraw: boolean, isPlayerRoundWin: boolean, callback: Functi
 // METHODS - Events
 
 function rowClick(rowIndex: number) {
-  resolveRowClick.value(rowIndex)
+  resolveRowClick.value?.(rowIndex)
 }
 
 async function handCardClick(index: number) {
@@ -2062,6 +2372,18 @@ async function handCardClick(index: number) {
 }
 
 function boardCardClick(index: number, rowIndex: number, isPlayer?: boolean) {
+  switch (boardInteractionMode.value) {
+    case 'decoy':
+      selectDecoyTarget(index, rowIndex, isPlayer)
+      break
+
+    case 'default':
+      showBoardCardModal(index, rowIndex, isPlayer)
+      break
+  }
+}
+
+function showBoardCardModal(index: number, rowIndex: number, isPlayer?: boolean) {
   const playerName = isPlayer ? 'Player' : 'Opponent'
   let title = `${playerName} Close Combat`
   let icon = 'gi-broadsword'
@@ -2079,6 +2401,28 @@ function boardCardClick(index: number, rowIndex: number, isPlayer?: boolean) {
     closeCardModal()
     boardDisabled.value = false
   })
+}
+
+function selectDecoyTarget(index: number, rowIndex: number, isPlayer?: boolean) {
+  if (!isPlayer || boardInteractionMode.value !== 'decoy') {
+    return
+  }
+
+  const targetCard = playerBoardCards.value[rowIndex]?.[index]
+
+  if (!targetCard || !selectableBoardCardIds.value.includes(targetCard.id)) {
+    return
+  }
+
+  emit('play-sound', 'selectcard')
+
+  // End selection mode and disable further board interaction
+  boardInteractionMode.value = 'default'
+  selectableBoardCardIds.value = []
+
+  // Return the selected card to performDecoy()
+  resolveDecoySelection.value?.(targetCard)
+  resolveDecoySelection.value = null
 }
 
 function discardPileClick(isPlayer?: boolean) {
@@ -2100,17 +2444,24 @@ function showCardModal(confirmText?: string, cancelText?: string, title?: string
   cardModalTitle.value = title
   cardModalIcon.value = icon
 
-  return new Promise((resolve) => {
-    cardModal.value.show().then((ok: boolean) => {
-      resolve(ok)
+  return new Promise<boolean>((resolve) => {
+    const cardModalInstance = cardModal.value
+
+    if (!cardModalInstance) {
+      resolve(false)
+      return
+    }
+
+    cardModalInstance.show().then((result) => {
+      resolve(result === true)
     })
   })
 }
 
 function closeCardModal() {
   cardModalModel.value = false
-  cardModalConfirmText.value = null
-  cardModalCancelText.value = null
+  cardModalConfirmText.value = undefined
+  cardModalCancelText.value = undefined
   cardModalTitle.value = null
   slideIndex.value = 0
   playerHandIsActive.value = false
@@ -2118,14 +2469,21 @@ function closeCardModal() {
 
 function showPauseModal() {
   setAllDisabled(true)
-  modalAvatar.value = null
+  modalAvatar.value = undefined
   modalButtons.value = ['Resume', 'Quit']
   modalPersistent.value = false
   modalTitle.value = 'Game Paused'
 
-  modal.value.show().then((i: number) => {
+  const modalInstance = modal.value
+  if (!modalInstance) {
     setAllDisabled(false)
-    if (i === 2) {
+    return
+  }
+
+  modalInstance.show().then((result) => {
+    setAllDisabled(false)
+
+    if (result === 2) {
       emit('show-menu')
     }
   })
@@ -2133,8 +2491,8 @@ function showPauseModal() {
 
 function showAlertBanner(title: string, avatar?: string, icon?: string, callback?: Function) {
   alertBannerTitle.value = title || ''
-  alertBannerAvatar.value = avatar || null
-  alertBannerIcon.value = icon || null
+  alertBannerAvatar.value = avatar
+  alertBannerIcon.value = icon
   alertBannerModel.value = true
 
   setTimeout(() => {
@@ -2142,8 +2500,8 @@ function showAlertBanner(title: string, avatar?: string, icon?: string, callback
 
     setTimeout(() => {
       alertBannerTitle.value = ''
-      alertBannerAvatar.value = null
-      alertBannerIcon.value = null
+      alertBannerAvatar.value = undefined
+      alertBannerIcon.value = undefined
 
       if (callback) {
         callback()
@@ -2162,7 +2520,7 @@ function showPreviewCard(card: Card, isPlayer?: boolean) {
     setTimeout(() => {
       cardPreview.value = false
       setTimeout(() => {
-        previewCard.value = null
+        previewCard.value = undefined
         resolve()
       }, 300) // Timeout completes 200ms earlier than 'PreviewCard' animation for overlap with board card fade in
     }, 800)
@@ -2427,17 +2785,19 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :animation-name="card.animationName"
                 :appear-animation="card.appearAnimation"
                 :bitten="card.bitten"
+                :data-card-id="card.id"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
-                :disabled="boardDisabled"
+                :disabled="isBoardCardDisabled(card)"
                 :effect-icon="card.effectIcon"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
-                :key="j"
+                :key="card.id"
                 :name="card.name"
                 overlap
                 role="button"
-                :tabindex="boardDisabled ? '-1' : '4'"
+                :style="getDecoyAnimationStyle(card.id)"
+                :tabindex="isBoardCardDisabled(card) ? '-1' : '4'"
                 :type-icon="card.typeIcon"
                 :value="card.value"
                 :value-increased="card.valueIncreased"
@@ -2642,17 +3002,19 @@ function sortCardsHighToLow(a: Card, b: Card) {
                 :animation-name="card.animationName"
                 :appear-animation="card.appearAnimation"
                 :bitten="card.bitten"
+                :data-card-id="card.id"
                 :default-value="card.defaultValue"
                 :desktop="props.desktop"
-                :disabled="boardDisabled"
+                :disabled="isBoardCardDisabled(card)"
                 :effect-icon="card.effectIcon"
                 :hero="card.hero"
                 :image-url="card.imageUrl"
-                :key="j"
+                :key="card.id"
                 overlap
                 :name="card.name"
                 role="button"
-                :tabindex="boardDisabled ? '-1' : '3'"
+                :style="getDecoyAnimationStyle(card.id)"
+                :tabindex="isBoardCardDisabled(card) ? '-1' : '3'"
                 :type-icon="card.typeIcon"
                 :value="card.value"
                 :value-increased="card.valueIncreased"

@@ -212,6 +212,36 @@ const computedClasses = computed(() => {
   background-image: url('../assets/images/scorch-flame.jpg');
 }
 
+.small-card.decoy-enter {
+  animation: decoy-enter 500ms ease-out both;
+}
+
+.small-card.decoy-exit {
+  animation: decoy-exit 500ms ease-in both;
+}
+
+@keyframes decoy-enter {
+  from {
+    opacity: 0;
+    translate: -100% 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes decoy-exit {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 100% 0;
+  }
+}
+
 .small-card .card {
   position: relative;
   width: 100%;
