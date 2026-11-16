@@ -22,71 +22,131 @@ import { defaultAwards } from './data/awards'
 
 // GLOBAL DATA
 
-let cpuDifficulty = 0.2
-let gameIsActive = ref(false)
-let gameBoardDisabled = ref(false)
-let mainMenuIsActive = ref(false)
-let mainMenuDisabled = ref(false)
-let deckManagerIsActive = ref(false)
-let deckManagerIsPreMatch = ref(false)
-let deckManagerFaction = ref()
-let isDesktop = ref(false)
-let loading = ref(true)
-let showContinueBtn = ref(false)
-let titleSequenceHasPlayed = ref(false)
-let playerCardCollection = JSON.parse(JSON.stringify(defaultCards))
-let playerLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
-let opponentCardCollection = JSON.parse(JSON.stringify(defaultCards))
-let opponentLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
+const cpuDifficulty = 0.2
+
+const gameIsActive = ref(false)
+const gameBoardDisabled = ref(false)
+const mainMenuIsActive = ref(false)
+const mainMenuDisabled = ref(false)
+const deckManagerIsActive = ref(false)
+const deckManagerIsPreMatch = ref(false)
+const deckManagerFaction = ref<string | undefined>(undefined)
+const isDesktop = ref(false)
+const loading = ref(true)
+const showContinueBtn = ref(false)
+const titleSequenceHasPlayed = ref(false)
+
+// These collection bindings are reassigned when localStorage is loaded
+// and/or when the player saves changes in DeckManagerView
+let playerCardCollection: CardCollection = JSON.parse(JSON.stringify(defaultCards))
+let playerLeaderCards: typeof defaultLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
+let opponentCardCollection: CardCollection = JSON.parse(JSON.stringify(defaultCards))
+let opponentLeaderCards: typeof defaultLeaderCards = JSON.parse(JSON.stringify(defaultLeaderCards))
+
+// These selections are assigned when a faction/deck is chosen
 let selectedPlayerDeck: Card[] = []
 let selectedPlayerLeader: Card
 let selectedOpponentDeck: Card[] = []
 let selectedOpponentLeader: Card
-let playerAwards = ref(JSON.parse(JSON.stringify(defaultAwards)))
-let awardsModal = ref()
-let howToPlayModal = ref()
-let settingsModal = ref()
-let playerWins: number = 0
-let unlockedCard = ref<Card | undefined>()
-let unlockedDeckCards = ref<Card[]>()
-let unlockedDeckFaction = ref<string>()
-let cardUnlockModal = ref()
-let allCardsUnlocked = ref(false)
+
+const playerAwards = ref<typeof defaultAwards>(JSON.parse(JSON.stringify(defaultAwards)))
+const awardsModal = ref<InstanceType<typeof StandardModal> | null>(null)
+const howToPlayModal = ref<InstanceType<typeof StandardModal> | null>(null)
+const settingsModal = ref<InstanceType<typeof StandardModal> | null>(null)
+
+let playerWins = 0
+
+const unlockedCard = ref<Card | undefined>(undefined)
+const unlockedDeckCards = ref<Card[] | undefined>(undefined)
+const unlockedDeckFaction = ref<string | undefined>(undefined)
+const cardUnlockModal = ref<InstanceType<typeof CardUnlockModal> | null>(null)
+const allCardsUnlocked = ref(false)
+
+// These Howl instances are initialised later by the preload/setup functions
 let themeSongSound: Howl
+let deckManagerSong: Howl
+
 let themeSongFadeTimeout: number | undefined
 const themeSongFadeDuration = 12000
 let themeSongStopTimer: ReturnType<typeof setTimeout> | undefined
-let deckManagerSong: Howl
-let musicTracks: Howl[] = []
-let numberOfMusicTracks: number = 6
+
+const musicTracks: Howl[] = []
+const numberOfMusicTracks = 6
 let currentMusicTrackIndex: number | null = null
 let prevMusicTrackIndex: number | null = null
 let musicPlayerActive = false
 let musicPlayerStopTimer: number | null = null
-let musicVolumeLevel = ref(1)
-let soundEffectVolumeLevel = ref(1)
+
+const musicVolumeLevel = ref(1)
+const soundEffectVolumeLevel = ref(1)
 const maxMusicVolume = 0.3
 const maxSoundEffectVolume = 5
+
 interface SoundEffect {
   sound: Howl
   baseVolume: number
 }
+
 const soundEffects: Record<string, SoundEffect> = {}
+
 interface FactionAndCollection {
   faction: string
   collection: CardCollection
 }
 
+// Resolve a runtime string to a key that TypeScript knows belongs to the object
+function getObjectKey<T extends object>(object: T, key: string): keyof T {
+  if (!Object.prototype.hasOwnProperty.call(object, key)) {
+    throw new Error(`Unknown key \"${key}\"`)
+  }
+
+  return key as keyof T
+}
+
+function getObjectValues<T extends object>(object: T): Array<NonNullable<T[keyof T]>> {
+  return Object.values(object).filter(
+    (value): value is NonNullable<T[keyof T]> => value !== undefined && value !== null
+  )
+}
+
+// CardCollection uses specific faction keys rather than a general string index signature.
+// This type represents the non-null value stored under any valid faction key.
+type FactionCardCollection = NonNullable<CardCollection[keyof CardCollection]>
+
+function getFactionCollections(collection: CardCollection): FactionCardCollection[] {
+  return Object.values(collection).filter(
+    (factionCollection): factionCollection is FactionCardCollection =>
+      factionCollection !== undefined && factionCollection !== null
+  )
+}
+
+function getFactionCollection(collection: CardCollection, faction: string): FactionCardCollection {
+  const factionKey = getObjectKey(collection, faction)
+  const factionCollection = collection[factionKey]
+
+  if (factionCollection === undefined || factionCollection === null) {
+    throw new Error(`No card collection exists for faction \"${faction}\"`)
+  }
+
+  return factionCollection
+}
+
+// Resolve a runtime key and ensure its value is present before using it.
+function getObjectValue<T extends object>(object: T, key: string): NonNullable<T[keyof T]> {
+  const typedKey = getObjectKey(object, key)
+  const value = object[typedKey]
+
+  if (value === undefined || value === null) {
+    throw new Error(`No value exists for key \"${key}\"`)
+  }
+
+  return value as NonNullable<T[keyof T]>
+}
+
 // COMPUTED DATA
 
 const awardsCount = computed((): number => {
-  let count = 0
-  for (const awardKey in playerAwards.value) {
-    if (playerAwards.value[awardKey].active) {
-      count++
-    }
-  }
-  return count
+  return getObjectValues(playerAwards.value).filter((award) => award.active).length
 })
 
 // GLOBAL HOOKS
@@ -115,35 +175,23 @@ async function preload() {
   initializeDeckManagerSong()
 
   // Preload card collections
-  for (const faction in playerCardCollection) {
-    for (const key in playerCardCollection[faction]) {
-      playerCardCollection[faction][key] = await preloadCards(playerCardCollection[faction][key])
-    }
+  for (const factionCollection of getFactionCollections(playerCardCollection)) {
+    factionCollection.collection = await preloadCards(factionCollection.collection)
+    factionCollection.deck = await preloadCards(factionCollection.deck)
   }
-  for (const faction in opponentCardCollection) {
-    for (const key in opponentCardCollection[faction]) {
-      opponentCardCollection[faction][key] = await preloadCards(
-        opponentCardCollection[faction][key]
-      )
-    }
+  for (const factionCollection of getFactionCollections(opponentCardCollection)) {
+    factionCollection.collection = await preloadCards(factionCollection.collection)
+    factionCollection.deck = await preloadCards(factionCollection.deck)
   }
 
   // Preload leader cards
-  for (const faction in playerLeaderCards) {
-    playerLeaderCards[faction].collection = await preloadCards(
-      playerLeaderCards[faction].collection
-    )
-    playerLeaderCards[faction].selected = await preloadCards([playerLeaderCards[faction].selected])
-    playerLeaderCards[faction].selected = playerLeaderCards[faction].selected[0]
+  for (const leaderFaction of getObjectValues(playerLeaderCards)) {
+    leaderFaction.collection = await preloadCards(leaderFaction.collection)
+    leaderFaction.selected = (await preloadCards([leaderFaction.selected]))[0]
   }
-  for (const faction in opponentLeaderCards) {
-    opponentLeaderCards[faction].collection = await preloadCards(
-      opponentLeaderCards[faction].collection
-    )
-    opponentLeaderCards[faction].selected = await preloadCards([
-      opponentLeaderCards[faction].selected
-    ])
-    opponentLeaderCards[faction].selected = opponentLeaderCards[faction].selected[0]
+  for (const leaderFaction of getObjectValues(opponentLeaderCards)) {
+    leaderFaction.collection = await preloadCards(leaderFaction.collection)
+    leaderFaction.selected = (await preloadCards([leaderFaction.selected]))[0]
   }
 
   // Preload faction flag images
@@ -498,22 +546,15 @@ function loadLocalStorage() {
   })
 }
 
-async function preloadCards(cards: Card[]) {
-  let imageCount = cards?.length || 0
-  let imagesLoaded = 0
-
-  if (imageCount > 0) {
-    for (let i = 0; i < imageCount; i++) {
-      cards[i].imageUrl = new URL(`./assets/images/${cards[i].image}`, import.meta.url).href
-      await loadImage(cards[i].imageUrl!)
-      imagesLoaded++
-      if (imagesLoaded == imageCount) {
-        return cards
-      }
-    }
-  } else {
-    return cards
+async function preloadCards(cards: Card[]): Promise<Card[]> {
+  for (const card of cards) {
+    const imageUrl = new URL(`./assets/images/${card.image}`, import.meta.url).href
+    card.imageUrl = imageUrl
+    await loadImage(imageUrl)
   }
+
+  // Always return the array, including when it is empty.
+  return cards
 }
 
 function loadImage(imageUrl: string) {
@@ -557,7 +598,7 @@ function showMainMenu() {
 
 function showDeckManager(preMatch: boolean, faction?: string) {
   deckManagerIsPreMatch.value = preMatch
-  deckManagerFaction.value = faction ?? null
+  deckManagerFaction.value = faction
 
   stopMusicPlayer(4000)
   stopThemeSong(4000)
@@ -595,25 +636,40 @@ function deckManagerSave(collection: CardCollection) {
   })
 }
 
-function showAwards() {
+async function showAwards(): Promise<void> {
+  const modal = awardsModal.value
+  if (!modal) return
+
   mainMenuDisabled.value = true
-  awardsModal.value.show().then(() => {
+  try {
+    await modal.show()
+  } finally {
     mainMenuDisabled.value = false
-  })
+  }
 }
 
-function showHowToPlay() {
+async function showHowToPlay(): Promise<void> {
+  const modal = howToPlayModal.value
+  if (!modal) return
+
   mainMenuDisabled.value = true
-  howToPlayModal.value.show().then(() => {
+  try {
+    await modal.show()
+  } finally {
     mainMenuDisabled.value = false
-  })
+  }
 }
 
-function showSettings() {
+async function showSettings(): Promise<void> {
+  const modal = settingsModal.value
+  if (!modal) return
+
   mainMenuDisabled.value = true
-  settingsModal.value.show().then(() => {
+  try {
+    await modal.show()
+  } finally {
     mainMenuDisabled.value = false
-  })
+  }
 }
 
 function playGame() {
@@ -629,14 +685,15 @@ function playGame() {
 
 function setupGameAndStart(deckSelection: FactionAndCollection) {
   // Select a random opponent faction (excluding player's chosen faction)'
-  let factionsArray: string[] = []
-  for (const faction in playerCardCollection) {
-    if (faction !== deckSelection.faction) {
-      factionsArray.push(faction)
-    }
-  }
+  const factionsArray = Object.keys(playerCardCollection).filter(
+    (faction) => faction !== deckSelection.faction
+  )
   // Select a random faction from the array and set as the opponent's faction
-  let opponentFaction: string = factionsArray[Math.floor(Math.random() * factionsArray.length)]
+  const opponentFaction = factionsArray[Math.floor(Math.random() * factionsArray.length)]
+  if (!opponentFaction) {
+    throw new Error('No opponent faction is available.')
+  }
+
   loading.value = true
   deckManagerIsActive.value = false
   playerCardCollection = deckSelection.collection
@@ -645,12 +702,21 @@ function setupGameAndStart(deckSelection: FactionAndCollection) {
   playRandomMusicTrack()
 
   saveCardsToStorage(() => {
-    // Set decks and leaders based on player's faction choice
-    selectedPlayerDeck = playerCardCollection[deckSelection.faction].deck
-    selectedPlayerLeader = playerLeaderCards[deckSelection.faction].selected
+    // Resolve each faction entry and verify it exists before using it.
+    const playerFactionCollection = getFactionCollection(
+      playerCardCollection,
+      deckSelection.faction
+    )
+    const playerLeaderFaction = getObjectValue(playerLeaderCards, deckSelection.faction)
+    const opponentFactionCollection = getFactionCollection(opponentCardCollection, opponentFaction)
+    const opponentLeaderFaction = getObjectValue(opponentLeaderCards, opponentFaction)
 
-    selectedOpponentDeck = opponentCardCollection[opponentFaction].deck
-    selectedOpponentLeader = opponentLeaderCards[opponentFaction].selected
+    // Set decks and leaders based on player's faction choice
+    selectedPlayerDeck = playerFactionCollection.deck
+    selectedPlayerLeader = playerLeaderFaction.selected
+
+    selectedOpponentDeck = opponentFactionCollection.deck
+    selectedOpponentLeader = opponentLeaderFaction.selected
 
     // Timeout to allow loader to fade in
     setTimeout(() => {
@@ -683,13 +749,34 @@ function saveCardsToStorage(callback?: Function) {
 
 function saveAwardsToStorage(awardKeys: string[]) {
   for (const awardKey of awardKeys) {
-    playerAwards.value[awardKey].active = true
+    const typedAwardKey = getObjectKey(playerAwards.value, awardKey)
+    playerAwards.value[typedAwardKey].active = true
   }
   localStorage.setItem('awards', JSON.stringify(playerAwards.value))
 }
 
 function loadingChange(val: boolean) {
   loading.value = val
+}
+
+function showCardUnlockModal(faction: string): void {
+  window.setTimeout(async () => {
+    const modal = cardUnlockModal.value
+
+    if (!modal) {
+      gameBoardDisabled.value = false
+      return
+    }
+
+    try {
+      const result = await modal.show()
+      if (result === true) {
+        showDeckManager(true, faction)
+      }
+    } finally {
+      gameBoardDisabled.value = false
+    }
+  }, 1000)
 }
 
 async function determineCardUnlock() {
@@ -711,24 +798,22 @@ async function determineCardUnlock() {
 
       let card = unlockableCards[playerWins]
 
-      // Preload unlocked card
-      let preloadedCard = await preloadCards([card])
-      if (preloadedCard) {
-        card = preloadedCard[0]
-        card.new = true
-      }
+      // Preload unlocked card. preloadCards always resolves to a Card[] array.
+      card = (await preloadCards([card]))[0]
+      card.new = true
+
+      // Resolve each faction entry and verify it exists before using it.
+      const playerFactionCollection = getFactionCollection(playerCardCollection, card.faction)
+      const opponentFactionCollection = getFactionCollection(opponentCardCollection, card.faction)
 
       // Copy card to player's collection
-      playerCardCollection[card.faction].collection.push(card)
+      playerFactionCollection.collection.push(card)
 
       // Determine if a card should be removed from the opponent's deck and placed in their collection
-
       // If the card replaces an existing deck card, ie. it's a unit card
       if (card.type !== 'special') {
-        // Find the card with the lowest 'removePriority' value and move to the relevant faction's collection
-        opponentCardCollection[card.faction].deck
-
-        const minIndex = opponentCardCollection[card.faction].deck.reduce(
+        // Find the card with the lowest 'removePriority' value and move it to the relevant faction's collection
+        const minIndex = opponentFactionCollection.deck.reduce(
           (minIdx: number, item: Card, idx: number, arr: Card[]) => {
             const curr = item.removePriority ?? Infinity
             const min = arr[minIdx]?.removePriority ?? Infinity
@@ -737,15 +822,15 @@ async function determineCardUnlock() {
           0
         )
 
-        if (opponentCardCollection[card.faction].deck[minIndex].removePriority !== undefined) {
-          opponentCardCollection[card.faction].collection.push(
-            opponentCardCollection[card.faction].deck.splice(minIndex, 1)[0]
+        if (opponentFactionCollection.deck[minIndex]?.removePriority !== undefined) {
+          opponentFactionCollection.collection.push(
+            opponentFactionCollection.deck.splice(minIndex, 1)[0]
           )
         }
       }
 
       // Add the unlocked card to opponent's deck
-      opponentCardCollection[card.faction].deck.push(card)
+      opponentFactionCollection.deck.push(card)
 
       // Set global unlocked card
       unlockedCard.value = card
@@ -753,14 +838,7 @@ async function determineCardUnlock() {
       // Reset global unlocked deck
       unlockedDeckCards.value = []
 
-      setTimeout(() => {
-        cardUnlockModal.value.show().then((res: boolean) => {
-          if (res) {
-            showDeckManager(true, card.faction)
-          }
-          gameBoardDisabled.value = false
-        })
-      }, 1000)
+      showCardUnlockModal(card.faction)
 
       // Determine if all cards are now unlocked
       const objKeysArr = Object.getOwnPropertyNames(unlockableCards)
@@ -810,17 +888,10 @@ async function determineCardUnlock() {
       // Sharpshooter card
       unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.spanish.deck[1])))
 
-      setTimeout(() => {
-        cardUnlockModal.value.show().then((res: boolean) => {
-          if (res) {
-            showDeckManager(true, 'spanish')
-          }
-          gameBoardDisabled.value = false
-        })
-      }, 1000)
+      showCardUnlockModal('spanish')
     }
     // Unlock Undead deck
-    else if (playerWins === 44) {
+    else if (playerWins === 53) {
       // Get the Undead starter deck and save it to each player's card collection
       playerCardCollection.undead = {
         collection: [],
@@ -851,14 +922,7 @@ async function determineCardUnlock() {
       // Bat card
       unlockedDeckCards.value.push(JSON.parse(JSON.stringify(playerCardCollection.undead.deck[6])))
 
-      setTimeout(() => {
-        cardUnlockModal.value.show().then((res: boolean) => {
-          if (res) {
-            showDeckManager(true, 'undead')
-          }
-          gameBoardDisabled.value = false
-        })
-      }, 1000)
+      showCardUnlockModal('undead')
     }
   }
 }
@@ -900,49 +964,56 @@ async function unlockAllCards() {
   }
 
   // Move all cards that are normally moved from player / opponent 'deck' to 'collection' (cards that have a 'removePriority')
-  for (const factionKey in playerCardCollection) {
-    for (let i = 0; i < playerCardCollection[factionKey].deck.length; i++) {
-      const deckCard = playerCardCollection[factionKey].deck[i]
+  for (const factionCollection of getFactionCollections(playerCardCollection)) {
+    for (let i = 0; i < factionCollection.deck.length; i++) {
+      const deckCard = factionCollection.deck[i]
 
       if (deckCard.removePriority) {
-        playerCardCollection[factionKey].collection.push(deckCard)
-        playerCardCollection[factionKey].deck.splice(i, 1)
+        factionCollection.collection.push(deckCard)
+        factionCollection.deck.splice(i, 1)
         i--
       }
     }
   }
 
-  for (const factionKey in opponentCardCollection) {
-    for (let i = 0; i < opponentCardCollection[factionKey].deck.length; i++) {
-      const deckCard = opponentCardCollection[factionKey].deck[i]
+  for (const factionCollection of getFactionCollections(opponentCardCollection)) {
+    for (let i = 0; i < factionCollection.deck.length; i++) {
+      const deckCard = factionCollection.deck[i]
 
       if (deckCard.removePriority) {
-        opponentCardCollection[factionKey].collection.push(deckCard)
-        opponentCardCollection[factionKey].deck.splice(i, 1)
+        factionCollection.collection.push(deckCard)
+        factionCollection.deck.splice(i, 1)
         i--
       }
     }
   }
 
   // Copy unlockable cards to each player's collection or deck
-  for (const key in unlockableCards) {
+  for (const key of Object.keys(unlockableCards) as Array<keyof typeof unlockableCards>) {
     // Only copy cards that haven't yet been unlocked
     if (Number(key) > playerWins) {
       let unlockedCard = unlockableCards[key]
 
-      // Preload unlocked card
-      let preloadedCard = await preloadCards([unlockedCard])
-      if (preloadedCard) {
-        unlockedCard = preloadedCard[0]
-      }
+      // Preload unlocked card. preloadCards always resolves to a Card[] array.
+      unlockedCard = (await preloadCards([unlockedCard]))[0]
+
+      // Resolve each faction entry and verify it exists before using it.
+      const playerFactionCollection = getFactionCollection(
+        playerCardCollection,
+        unlockedCard.faction
+      )
+      const opponentFactionCollection = getFactionCollection(
+        opponentCardCollection,
+        unlockedCard.faction
+      )
 
       // If the unlocked card is usually replaced by an incoming card in the deck, move it straight to the card collection
       if (unlockedCard.removePriority) {
-        playerCardCollection[unlockedCard.faction].collection.push(unlockedCard)
-        opponentCardCollection[unlockedCard.faction].collection.push(unlockedCard)
+        playerFactionCollection.collection.push(unlockedCard)
+        opponentFactionCollection.collection.push(unlockedCard)
       } else {
-        playerCardCollection[unlockedCard.faction].deck.push(unlockedCard)
-        opponentCardCollection[unlockedCard.faction].deck.push(unlockedCard)
+        playerFactionCollection.deck.push(unlockedCard)
+        opponentFactionCollection.deck.push(unlockedCard)
       }
     }
   }

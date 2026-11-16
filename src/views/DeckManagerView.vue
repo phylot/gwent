@@ -4,11 +4,12 @@ import { type Card, type CardCollection } from '@/types'
 import CardCarousel from './../components/CardCarousel.vue'
 import CardModal from '../components/CardModal.vue'
 import SmallCard from '../components/SmallCard.vue'
+import { defaultLeaderCards } from './../data/cards'
 
 const props = defineProps<{
   cardCollection: CardCollection
   desktop: boolean
-  leaderCards: Card
+  leaderCards: typeof defaultLeaderCards
   preMatch: boolean
   preselectedFaction?: string
 }>()
@@ -20,31 +21,6 @@ const emit = defineEmits<{
   (e: 'save', val: CardCollection): void
 }>()
 
-let localCardCollection = ref()
-let localLeaderCards = ref()
-let factionKeys = ref(Object.keys(props.cardCollection))
-let factionIndex = ref(0)
-let activeCardRow = ref<Card[]>([])
-let activeDeckRowKey = ref()
-let activeCollectionRowKey = ref()
-let deckContainer: HTMLElement | null = null
-let collectionContainer: HTMLElement | null = null
-let drawerActive = ref(false)
-const drawerSwipeThreshold = 50
-let drawerSwipeStartY = 0
-let suppressDrawerClick = false
-let drawerContentSwipeStartY = 0
-let drawerContentSwipeStartScrollTop = 0
-let drawerScreenSwipeStartY = 0
-let disabled = ref(false)
-let slideIndex = ref(0)
-let cardModal = ref()
-let cardModalModel = ref(false)
-let cardModalTitle = ref()
-let cardModalCancelText = ref()
-let cardModalConfirmText = ref()
-let cardModalDisabled = ref(true)
-
 interface ManageCardCollection {
   [key: string]: Card[]
 }
@@ -54,103 +30,145 @@ interface FactionAndCollection {
   collection: CardCollection
 }
 
+type FactionCardCollection = NonNullable<CardCollection[keyof CardCollection]>
+
+const localCardCollection = ref<CardCollection | null>(null)
+const localLeaderCards = ref<typeof defaultLeaderCards | null>(null)
+const factionKeys = ref<Array<keyof CardCollection>>(
+  Object.keys(props.cardCollection) as Array<keyof CardCollection>
+)
+const factionIndex = ref(0)
+const activeCardRow = ref<Card[]>([])
+const activeDeckRowKey = ref<string | null>(null)
+const activeCollectionRowKey = ref<string | null>(null)
+const deckContainer = ref<HTMLElement | null>(null)
+const collectionContainer = ref<HTMLElement | null>(null)
+const drawerActive = ref(false)
+const drawerSwipeThreshold = 50
+let drawerSwipeStartY = 0
+let suppressDrawerClick = false
+let drawerContentSwipeStartY = 0
+let drawerContentSwipeStartScrollTop = 0
+let drawerScreenSwipeStartY = 0
+const disabled = ref(false)
+const slideIndex = ref(0)
+const cardModal = ref<InstanceType<typeof CardModal> | null>(null)
+const cardModalModel = ref(false)
+const cardModalTitle = ref<string | undefined>()
+const cardModalCancelText = ref<string | undefined>()
+const cardModalConfirmText = ref<string | undefined>()
+const cardModalDisabled = ref(true)
+
+function getFactionCollection(
+  collection: CardCollection,
+  faction: keyof CardCollection | undefined
+): FactionCardCollection {
+  if (faction === undefined) {
+    throw new Error('No faction is currently selected')
+  }
+
+  const factionCollection = collection[faction]
+
+  if (factionCollection === undefined || factionCollection === null) {
+    throw new Error(`No card collection exists for faction "${String(faction)}"`)
+  }
+
+  return factionCollection
+}
+
+const currentFactionCollection = computed<FactionCardCollection | null>(() => {
+  const collection = localCardCollection.value
+  if (!collection) return null
+
+  return getFactionCollection(collection, factionKeys.value[factionIndex.value])
+})
+
+function getCurrentFactionCollection(): FactionCardCollection {
+  const factionCollection = currentFactionCollection.value
+
+  if (!factionCollection) {
+    throw new Error('The card collection has not been initialised')
+  }
+
+  return factionCollection
+}
+
 const deckCards = computed((): ManageCardCollection => {
-  let cards: ManageCardCollection = {
+  const cards: ManageCardCollection = {
     close: [],
     ranged: [],
     siege: [],
     special: []
   }
 
-  if (localCardCollection.value) {
-    localCardCollection.value[factionKeys.value[factionIndex.value]].deck.forEach((card: Card) => {
-      cards[card.type].push(card)
+  const factionCollection = currentFactionCollection.value
+  if (factionCollection) {
+    factionCollection.deck.forEach((card) => {
+      cards[card.type]?.push(card)
     })
   }
+
   return cards
 })
 
 const noDeckCards = computed((): boolean => {
-  return (
-    deckCards.value.close.length < 1 &&
-    deckCards.value.ranged.length < 1 &&
-    deckCards.value.siege.length < 1 &&
-    deckCards.value.special.length < 1
-  )
+  return Object.values(deckCards.value).every((cards) => cards.length === 0)
 })
 
 const collectionCards = computed((): ManageCardCollection => {
-  let cards: ManageCardCollection = {
+  const cards: ManageCardCollection = {
     close: [],
     ranged: [],
     siege: [],
     special: []
   }
 
-  if (localCardCollection.value) {
-    localCardCollection.value[factionKeys.value[factionIndex.value]].collection.forEach(
-      (card: Card) => {
-        cards[card.type].push(card)
-      }
-    )
+  const factionCollection = currentFactionCollection.value
+  if (factionCollection) {
+    factionCollection.collection.forEach((card) => {
+      cards[card.type]?.push(card)
+    })
   }
+
   return cards
 })
 
 const noCollectionCards = computed((): boolean => {
-  return (
-    collectionCards.value.close.length < 1 &&
-    collectionCards.value.ranged.length < 1 &&
-    collectionCards.value.siege.length < 1 &&
-    collectionCards.value.special.length < 1
-  )
+  return Object.values(collectionCards.value).every((cards) => cards.length === 0)
 })
 
 const totalDeckCards = computed((): number => {
-  let total = 0
-
-  if (localCardCollection.value) {
-    total = localCardCollection.value[factionKeys.value[factionIndex.value]].deck.length
-  }
-  return total
+  return currentFactionCollection.value?.deck.length ?? 0
 })
 
 const totalUnitCards = computed((): number => {
   let total = 0
+  const deck = currentFactionCollection.value?.deck ?? []
 
-  if (localCardCollection.value) {
-    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
-      if (card.value || card.value === 0) {
-        total++
-      }
+  for (const card of deck) {
+    if (card.value || card.value === 0) {
+      total++
     }
   }
+
   return total
 })
 
 const totalSpecialCards = computed((): number => {
-  let total = 0
-
-  if (localCardCollection.value) {
-    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
-      if (card.type === 'special') {
-        total++
-      }
-    }
-  }
-  return total
+  const deck = currentFactionCollection.value?.deck ?? []
+  return deck.filter((card) => card.type === 'special').length
 })
 
 const totalUnitStrength = computed((): number => {
   let total = 0
+  const deck = currentFactionCollection.value?.deck ?? []
 
-  if (localCardCollection.value) {
-    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]].deck) {
-      if (card.value) {
-        total = total + card.value
-      }
+  for (const card of deck) {
+    if (card.value) {
+      total += card.value
     }
   }
+
   return total
 })
 
@@ -159,46 +177,43 @@ const invalidUnitTotal = computed((): boolean => {
 })
 
 const collectionContainsNew = computed((): boolean => {
-  let newFound = false
-  if (localCardCollection.value) {
-    for (const card of localCardCollection.value[factionKeys.value[factionIndex.value]]
-      .collection) {
-      if (card.new) {
-        newFound = true
-        break
-      }
-    }
-  }
-  return newFound
+  return currentFactionCollection.value?.collection.some((card) => card.new) ?? false
 })
 
 watch(slideIndex, () => {
   // Remove the 'new' flag from any viewed card
-  if (activeCardRow.value.length > 0) {
-    activeCardRow.value[slideIndex.value].new = false
+  const activeCard = activeCardRow.value[slideIndex.value]
+  if (activeCard) {
+    activeCard.new = false
   }
 })
 
 onMounted(() => {
-  localCardCollection.value = JSON.parse(JSON.stringify(props.cardCollection))
-  localLeaderCards.value = JSON.parse(JSON.stringify(props.leaderCards))
+  const cardCollection = JSON.parse(JSON.stringify(props.cardCollection)) as CardCollection
+  const leaderCards = JSON.parse(JSON.stringify(props.leaderCards)) as typeof defaultLeaderCards
+
+  localCardCollection.value = cardCollection
+  localLeaderCards.value = leaderCards
 
   // Sort all cards by 'id'
-  for (const faction in localCardCollection.value) {
-    localCardCollection.value[faction].collection.sort(sortCardsById)
-    localCardCollection.value[faction].deck.sort(sortCardsById)
+  for (const faction of factionKeys.value) {
+    const factionCollection = getFactionCollection(cardCollection, faction)
+    factionCollection.collection.sort(sortCardsById)
+    factionCollection.deck.sort(sortCardsById)
   }
 
-  deckContainer = document.querySelector('.deck-cards')
-  collectionContainer = document.querySelector('.collection-drawer-cards')
+  deckContainer.value = document.querySelector<HTMLElement>('.deck-cards')
+  collectionContainer.value = document.querySelector<HTMLElement>('.collection-drawer-cards')
 
   // Set initial 'factionIndex' based on 'props.preselectedFaction' string
   if (props.preselectedFaction) {
-    factionIndex.value = Number(
-      Object.keys(factionKeys.value).find(
-        (key) => factionKeys.value[Number(key)] === props.preselectedFaction
-      )
+    const preselectedFactionIndex = factionKeys.value.findIndex(
+      (faction) => faction === props.preselectedFaction
     )
+
+    if (preselectedFactionIndex >= 0) {
+      factionIndex.value = preselectedFactionIndex
+    }
   }
 })
 
@@ -210,10 +225,11 @@ function changeFaction(index: number) {
   } else {
     factionIndex.value = index
   }
+
   // Scroll both deck and collection containers to top
-  if (deckContainer && collectionContainer) {
-    deckContainer.scrollTop = 0
-    collectionContainer.scrollTop = 0
+  if (deckContainer.value && collectionContainer.value) {
+    deckContainer.value.scrollTop = 0
+    collectionContainer.value.scrollTop = 0
   }
 }
 
@@ -334,16 +350,16 @@ function endDrawerContentSwipe(event: TouchEvent) {
   }
 }
 
-function deckCardClick(card: Card, key: string | number, index: number) {
+function deckCardClick(card: Card, key: string, index: number) {
   slideIndex.value = index
-  activeCardRow.value = deckCards.value[key]
+  activeCardRow.value = deckCards.value[key] ?? []
   activeDeckRowKey.value = key
   emit('play-sound', 'selectcard')
 
   showCardModal(
     'Remove',
     'Close',
-    `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
+    `${capitaliseString(key)} ${key === 'special' ? 'Cards' : 'Combat'}`
   ).then((ok) => {
     cardModalDisabled.value = true
     if (ok) {
@@ -357,21 +373,22 @@ function deckCardClick(card: Card, key: string | number, index: number) {
   })
 }
 
-function collectionCardClick(card: Card, key: string | number, index: number) {
+function collectionCardClick(card: Card, key: string, index: number) {
   slideIndex.value = index
-  activeCardRow.value = collectionCards.value[key]
+  activeCardRow.value = collectionCards.value[key] ?? []
   activeCollectionRowKey.value = key
   emit('play-sound', 'selectcard')
 
   // Remove the 'new' flag from viewed card
-  if (activeCardRow.value.length > 0) {
-    activeCardRow.value[slideIndex.value].new = false
+  const activeCard = activeCardRow.value[slideIndex.value]
+  if (activeCard) {
+    activeCard.new = false
   }
 
   showCardModal(
     'Add',
     'Close',
-    `${capitaliseString(String(key))} ${key === 'special' ? 'Cards' : 'Combat'}`
+    `${capitaliseString(key)} ${key === 'special' ? 'Cards' : 'Combat'}`
   ).then((ok) => {
     if (ok) {
       moveCardToDeck(card, () => {
@@ -384,18 +401,23 @@ function collectionCardClick(card: Card, key: string | number, index: number) {
   })
 }
 
-function showCardModal(confirmText?: string, cancelText?: string, titleText?: string) {
+function showCardModal(
+  confirmText?: string,
+  cancelText?: string,
+  titleText?: string
+): Promise<boolean> {
   disabled.value = true
   cardModalConfirmText.value = confirmText
   cardModalCancelText.value = cancelText
   cardModalTitle.value = titleText
   cardModalDisabled.value = false
 
-  return new Promise((resolve) => {
-    cardModal.value.show().then((ok: boolean) => {
-      resolve(ok)
-    })
-  })
+  const modal = cardModal.value
+  if (!modal) {
+    return Promise.reject(new Error('Card modal is not available'))
+  }
+
+  return modal.show().then((result) => Boolean(result))
 }
 
 function closeCardModal() {
@@ -406,67 +428,70 @@ function closeCardModal() {
   disabled.value = false
 }
 
-function moveCardToDeck(card: Card, callback: Function) {
-  const selectedCard = localCardCollection.value[
-    factionKeys.value[factionIndex.value]
-  ].collection.find((element: Card) => element.id === card.id)
-  const selectedCardIndex = localCardCollection.value[
-    factionKeys.value[factionIndex.value]
-  ].collection.findIndex((element: Card) => element.id === card.id)
+function moveCardToDeck(card: Card, callback: () => void) {
+  const factionCollection = getCurrentFactionCollection()
+  const sourceCards = factionCollection.collection
+  const selectedCardIndex = sourceCards.findIndex((element) => element.id === card.id)
+  const selectedCard = sourceCards[selectedCardIndex]
 
-  // Push selected card to card collection
-  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.push(selectedCard)
-  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.splice(
-    selectedCardIndex,
-    1
-  )
+  if (selectedCardIndex < 0 || !selectedCard) return
+
+  // Push selected card to the deck, then remove it from the collection.
+  factionCollection.deck.push(selectedCard)
+  sourceCards.splice(selectedCardIndex, 1)
 
   // Re-sort card collection
-  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.sort(sortCardsById)
-  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.sort(sortCardsById)
+  factionCollection.collection.sort(sortCardsById)
+  factionCollection.deck.sort(sortCardsById)
 
   callback()
 }
 
-function moveCardToCollection(card: Card, callback: Function) {
-  const selectedCard = localCardCollection.value[factionKeys.value[factionIndex.value]].deck.find(
-    (element: Card) => element.id === card.id
-  )
-  const selectedCardIndex = localCardCollection.value[
-    factionKeys.value[factionIndex.value]
-  ].deck.findIndex((element: Card) => element.id === card.id)
+function moveCardToCollection(card: Card, callback: () => void) {
+  const factionCollection = getCurrentFactionCollection()
+  const sourceCards = factionCollection.deck
+  const selectedCardIndex = sourceCards.findIndex((element) => element.id === card.id)
+  const selectedCard = sourceCards[selectedCardIndex]
 
-  // Push selected card to card collection
-  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.push(selectedCard)
-  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.splice(selectedCardIndex, 1)
+  if (selectedCardIndex < 0 || !selectedCard) return
+
+  // Push selected card to the collection, then remove it from the deck.
+  factionCollection.collection.push(selectedCard)
+  sourceCards.splice(selectedCardIndex, 1)
 
   // Re-sort card collection
-  localCardCollection.value[factionKeys.value[factionIndex.value]].collection.sort(sortCardsById)
-  localCardCollection.value[factionKeys.value[factionIndex.value]].deck.sort(sortCardsById)
+  factionCollection.collection.sort(sortCardsById)
+  factionCollection.deck.sort(sortCardsById)
 
   callback()
 }
 
 function save() {
-  emit('save', localCardCollection.value)
+  const collection = localCardCollection.value
+  if (!collection) return
+
+  emit('save', collection)
 }
 
 function factionSelected() {
+  const collection = localCardCollection.value
+  const faction = factionKeys.value[factionIndex.value]
+  if (!collection || faction === undefined) return
+
   emit('faction-selected', {
-    faction: factionKeys.value[factionIndex.value],
-    collection: localCardCollection.value
+    faction,
+    collection
   })
 }
 
-function sortCardsById(a: Card, b: Card) {
+function sortCardsById(a: Card, b: Card): number {
   return (Number(a.id) || 0) - (Number(b.id) || 0)
 }
 
-function capitaliseString(string: string) {
+function capitaliseString(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 </script>
-
 <template>
   <div class="deck-manager" :class="{ desktop: props.desktop }">
     <div class="deck-manager-container">
@@ -481,7 +506,7 @@ function capitaliseString(string: string) {
       >
         <template v-slot:header>
           <div class="combat-type-badge">
-            <v-icon class="icon" :name="activeCardRow[0].typeIcon || 'la-star-of-life-solid'" />
+            <v-icon class="icon" :name="activeCardRow[0]?.typeIcon || 'la-star-of-life-solid'" />
           </div>
           <h2 v-if="cardModalTitle" class="card-modal-header-title">{{ cardModalTitle }}</h2>
         </template>
@@ -644,8 +669,8 @@ function capitaliseString(string: string) {
             >
               <div class="collection-heading">
                 <h2 class="collection-title">Collection</h2>
-                <div v-if="localCardCollection" class="deck-manager-stat-badge">
-                  {{ localCardCollection[factionKeys[factionIndex]].collection.length }}
+                <div v-if="currentFactionCollection" class="deck-manager-stat-badge">
+                  {{ currentFactionCollection.collection.length }}
                 </div>
                 <div v-if="collectionContainsNew" class="new-pill">
                   <div class="new-pill-content">NEW</div>
@@ -772,8 +797,7 @@ function capitaliseString(string: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: auto;
   color: #ffffff;
   -webkit-user-select: none;
   user-select: none;

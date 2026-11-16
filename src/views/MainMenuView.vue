@@ -23,19 +23,19 @@ const emit = defineEmits<{
   (e: 'unlock-all-cards'): void
 }>()
 
-let beanVisible = ref(false)
-let logoVisible = ref(false)
-let playButtonVisible = ref(false)
-let skipButtonVisible = ref(false)
-let mainMenuVisible = ref(false)
+const beanVisible = ref(false)
+const logoVisible = ref(false)
+const playButtonVisible = ref(false)
+const skipButtonVisible = ref(false)
+const mainMenuVisible = ref(false)
 let beanTimeout1: ReturnType<typeof setTimeout>
 let beanTimeout2: ReturnType<typeof setTimeout>
 let logoTimeout: ReturnType<typeof setTimeout>
 let playButtonTimeout: ReturnType<typeof setTimeout>
-let titleSequenceHasPlayed: boolean = false
-let animationIsFinished = ref(false)
-let logoClickCount = ref(0)
-let lastLogoClickTime: number = 0
+let titleSequenceHasPlayed = false
+const animationIsFinished = ref(false)
+const logoClickCount = ref(0)
+let lastLogoClickTime = 0
 let logoClickTimeout: ReturnType<typeof setTimeout>
 
 // HOOKS
