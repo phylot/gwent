@@ -1291,6 +1291,7 @@ async function performDecoySwap(
     row.splice(cardIndex, 1, decoyCard)
     resetCards([targetCard])
     hand.push(targetCard)
+    hand.sort(sortCardsLowToHigh)
     emit('play-sound', 'swapcard')
     return
   }
@@ -1341,6 +1342,7 @@ async function performDecoySwap(
 
   // Return the selected card to the player's (or CPU's) hand
   hand.push(targetCard)
+  hand.sort(sortCardsLowToHigh)
 }
 
 async function selectPlayerDecoyRow(): Promise<number> {
@@ -1488,9 +1490,13 @@ function performHeal(card: Card) {
       } else {
         // Is opponent's turn... Play best valid discard pile card
         determineCpuHealCard(validHealCards, (card: Card) => {
-          playCard(card, true, () => {
+          if (card) {
+            playCard(card, true, () => {
+              resolve()
+            })
+          } else {
             resolve()
-          })
+          }
         })
       }
     } else {
@@ -1500,38 +1506,31 @@ function performHeal(card: Card) {
 }
 
 function determineCpuHealCard(arr: Card[], callback?: Function) {
-  let card
-  let spyCards = arr.filter((card) => card.ability === 'spy') // Find any Spy cards
-  let ambushCards = arr.filter((card) => card.ability === 'ambush') // Find any Ambush cards
-  let isAmbushOpportunity = false
-  let thiefCards = arr.filter((card) => card.ability === 'thief') // Find any Thief cards
+  let card: Card | undefined
+
+  const spyCards = arr.filter((card) => card.ability === 'spy')
+  const ambushCards = arr.filter((card) => card.ability === 'ambush')
+  const thiefCards = arr.filter((card) => card.ability === 'thief')
 
   if (spyCards.length > 0) {
     // Find the lowest value Spy card
     spyCards.sort(sortCardsLowToHigh)
     card = spyCards[0]
-  } else if (ambushCards.length > 0) {
-    // Determine if there's an ambush opportunity ie. The player has any viable cards on the board
-    for (const cardRow of playerBoardCards.value) {
-      for (const card of cardRow) {
-        if (!card.hero && card.type !== 'special') {
-          isAmbushOpportunity = true
-          break
-        }
-      }
-    }
-    if (isAmbushOpportunity) {
-      // Find the highest value Ambush card
-      ambushCards.sort(sortCardsHighToLow)
-      card = ambushCards[0]
-    }
+  } else if (
+    ambushCards.length > 0 &&
+    playerBoardCards.value.some((cardRow) =>
+      cardRow.some((card) => !card.hero && card.type !== 'special')
+    )
+  ) {
+    // Find the highest value Ambush card
+    ambushCards.sort(sortCardsHighToLow)
+    card = ambushCards[0]
   } else if (thiefCards.length > 0) {
     // Find the highest value Thief card
     thiefCards.sort(sortCardsHighToLow)
     card = thiefCards[0]
-  }
-  // No Spy / Thief cards or Ambush opportunities... select highest value card instead
-  else {
+  } else {
+    // No suitable Spy, Ambush or Thief opportunity... select highest value card
     arr.sort(sortCardsHighToLow)
     card = arr[0]
   }
